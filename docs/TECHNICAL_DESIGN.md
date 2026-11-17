@@ -16,12 +16,12 @@ These are the choices in this design that cost money, add an account, or change 
 
 | # | Decision | What this design proposes | Nathan's answer, 16 Nov |
 |---|---|---|---|
-| A | Stack and hosting | One web app on Vercel, with Supabase for the database and sign-in. This is the spec's starting suggestion. Section 1 | Not yet answered |
+| A | Stack and hosting | One web app on Vercel, with Supabase for the database and sign-in. This is the spec's starting suggestion. Section 1 | **Approved** |
 | B | An email-sending service and a domain name | First draft: needed for sign-in emails and the weekly summary | **Changed.** The weekly summary is read by the coach through the connector and is not emailed. The emailed summary and the accountability partner are deferred to a later version. Invites are ready-to-paste text that the admin sends from their own email. That leaves sign-in as the only thing that might need email: see row H |
 | C | Paid plans | First draft: paid Supabase plan before friends join | **Start on the free plan.** Nathan uses the app 4 to 6 times a week, so a pause is not a real risk. Backups are a separate point and stay open: question 36 |
 | D | Sign-in on the iPhone home-screen app | An emailed link opens in Safari, which the iPhone treats as a different app from the home-screen app, so the link alone would not sign the app in. The email would carry a link **and** a six-digit code to type into the app. Section 4 | **Agreed**, as the fallback route. Row H makes passkey sign-in the first choice, which avoids the issue |
 | E | Who can register | An invite link | **Decided.** Single-use invite links. Only an admin can make them, on an admin page. A person who was invited cannot invite others unless made an admin. Admins can create, delete, deactivate, reactivate and reset accounts. Section 4 |
-| F | Rest alerts in the background | Sent by the server at the moment rest ends, using a scheduler inside Supabase. No third account. Section 7 | Not yet answered |
+| F | Rest alerts in the background | Sent by the server at the moment rest ends, using a scheduler inside Supabase. No third account. Section 7 | **Approved.** It is still confirmed on a real iPhone in Phase 1, as Section 10C lists |
 | G | The open questions | Section 10 lists places where the spec is unclear or disagrees with itself. Each has a stated assumption so the build can proceed, but they are yours to settle | To be reviewed next |
 | H | New: should the app send any email at all? | Sign-in is now the only reason for an email service. Two routes. **Email code:** the well-trodden route, self-service recovery, needs an email service and a domain. **Passkey only** (Face ID or Touch ID, no email): no email service, and the Safari problem in row D disappears, but recovery goes through the admin and it depends on facts not yet confirmed. Recommended: try passkey-only in the early sign-in proof (question 31, approved). Use it if it passes, fall back to email code if it does not. Section 4 | **Decided.** Passkey sign-in first, and the app sends no email. A lost sign-in is reset by an admin, who gets ready-to-paste reset instructions to send from their own email. If the passkey test fails, fall back to the emailed link and code, with a passkey still offered |
 
@@ -856,6 +856,6 @@ I did not check these against current documentation in this sitting. Each is con
 
 ## What happens next
 
-1. Nathan answered five of the decisions on 16 November, and they are recorded in the table at the top. Still to answer: rows A and F, and Section 10.
+1. Nathan answered every row of the decisions table on 16 November, and the answers are recorded at the top. Still to review: Section 10.
 2. The document is revised to match his answers, and the spec is updated where an answer changes it.
 3. Once Nathan approves, Phase 1 begins on Opus 5.5 at high effort, on its own branch and pull request.

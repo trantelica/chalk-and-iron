@@ -2,7 +2,7 @@
 
 16 November 2026 · Owner: Nathan
 
-The living copy of this document is at https://claude.ai/artifact/2PQjcQy6EkoHzrdhJ1QDrK. This file is the copy the coding agent builds from.
+This file is the master copy of this document, and the copy the coding agent builds from. An earlier copy, a Claude Doc at https://claude.ai/artifact/2PQjcQy6EkoHzrdhJ1QDrK, was retired on 16 November 2026 and is no longer kept up to date.
 
 ## 1. How to use this package
 
