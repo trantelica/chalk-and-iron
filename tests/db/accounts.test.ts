@@ -122,7 +122,7 @@ describe('resetting a locked-out person', () => {
     const before = Math.floor(Date.now() / 1000) - 60;
     // Before the reset, Sam's existing pass works, from the app and from a coach.
     expect((await db.as<{ n: number }>(sam, `select count(*)::int as n from exercises`, [], { issuedAt: before }))[0].n).toBe(42);
-    const [{ code }] = await db.as<{ code: string }>(admin, `select code from admin_create_reset($1)`, [sam]);
+    const [{ code }] = await db.server<{ code: string }>(`select code from server_create_reset($1, $2)`, [admin, sam]);
     // Straight away, without the link being opened: every session is gone...
     expect((await db.pg.query(`select 1 from auth.sessions where user_id = $1`, [sam])).rows).toHaveLength(0);
     // ...and the old pass sees nothing and can change nothing, for the app and a coach.
@@ -146,28 +146,32 @@ describe('resetting a locked-out person', () => {
   it('a reset of one person leaves everyone else signed in', async () => {
     const sam = await db.register('sam@example.test', 'Sam', { inviter: admin });
     const before = Math.floor(Date.now() / 1000) - 60;
-    await db.as(admin, `select code from admin_create_reset($1)`, [sam]);
+    await db.server(`select code from server_create_reset($1, $2)`, [admin, sam]);
     expect((await db.as<{ n: number }>(admin, `select count(*)::int as n from exercises`, [], { issuedAt: before }))[0].n).toBe(42);
   });
 
-  it('a person who is not an admin cannot reset anyone', async () => {
+  it('a reset can only be made through the server, and only for an admin', async () => {
     const sam = await db.register('sam@example.test', 'Sam', { inviter: admin });
-    await expect(db.as(sam, `select code from admin_create_reset($1)`, [admin])).rejects.toThrow(/Only an admin/);
-    await expect(db.as(admin, `select code from admin_create_reset($1)`, [sam], { coach: true })).rejects.toThrow(/Only an admin/);
+    // Not from a page, not even an admin's (found in Nathan's retest, 17 Nov 2026).
+    await expect(db.as(admin, `select code from admin_create_reset($1)`, [sam])).rejects.toThrow(/permission denied/);
+    await expect(db.as(admin, `select code from server_create_reset($1, $2)`, [admin, sam])).rejects.toThrow(/permission denied/);
+    await expect(db.as(admin, `select code from server_create_reset($1, $2)`, [admin, sam], { coach: true })).rejects.toThrow(/permission denied/);
+    // The server refuses when the person asking is not an admin.
+    await expect(db.server(`select code from server_create_reset($1, $2)`, [sam, admin])).rejects.toThrow(/Only an admin/);
   });
 
   it('an invite link cannot be used as a reset, nor a reset as an invite', async () => {
     const sam = await db.register('sam@example.test', 'Sam', { inviter: admin });
     const [{ code: invite }] = await db.as<{ code: string }>(admin, `select code from admin_create_invite('x')`);
     await expect(db.server(`select redeem_reset($1)`, [invite])).rejects.toThrow(/not valid/);
-    const [{ code: reset }] = await db.as<{ code: string }>(admin, `select code from admin_create_reset($1)`, [sam]);
+    const [{ code: reset }] = await db.server<{ code: string }>(`select code from server_create_reset($1, $2)`, [admin, sam]);
     await expect(register(reset, await newAuthUser('z@example.test'), 'z@example.test')).rejects.toThrow(/not valid/);
   });
 
   it('a newer reset link replaces an older one', async () => {
     const sam = await db.register('sam@example.test', 'Sam', { inviter: admin });
-    const [{ code: first }] = await db.as<{ code: string }>(admin, `select code from admin_create_reset($1)`, [sam]);
-    await db.as(admin, `select code from admin_create_reset($1)`, [sam]);
+    const [{ code: first }] = await db.server<{ code: string }>(`select code from server_create_reset($1, $2)`, [admin, sam]);
+    await db.server(`select code from server_create_reset($1, $2)`, [admin, sam]);
     await expect(db.server(`select redeem_reset($1)`, [first])).rejects.toThrow(/not valid/);
   });
 });

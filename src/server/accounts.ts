@@ -68,20 +68,26 @@ export async function redeemReset(code: string) {
   // deactivated the account, which keeps its own block.
   const { data: profile } = await admin.from('profiles').select('account_status').eq('id', userId as string).maybeSingle();
   if (profile?.account_status === 'active') await setSignInBlocked(userId as string, false);
+  console.log('RESET_OPENED ' + JSON.stringify({ target: (userId as string).slice(0, 8), unblocked: profile?.account_status === 'active' }));
   const { data: u } = await admin.auth.admin.getUserById(userId as string);
   if (!u.user?.email) throw new Error('The account has no email to sign in with');
   return { tokenHash: await oneTimeSignIn(u.user.email) };
 }
 
 /** Removes every passkey a person has, so only a new one can sign them in. */
-export async function removePasskeys(userId: string) {
+export async function removePasskeys(userId: string): Promise<number> {
   const admin = adminClient();
   const keys = await admin.auth.admin.passkey.listPasskeys({ userId });
   if (keys.error) throw keys.error;
-  for (const k of keys.data ?? []) {
+  const list = Array.isArray(keys.data) ? keys.data : [];
+  for (const k of list) {
     const { error } = await admin.auth.admin.passkey.deletePasskey({ userId, passkeyId: k.id });
     if (error) throw error;
   }
+  const after = await admin.auth.admin.passkey.listPasskeys({ userId });
+  if (after.error) throw after.error;
+  if (Array.isArray(after.data) && after.data.length) throw new Error('Old passkeys were not all removed');
+  return list.length;
 }
 
 /** Blocks or unblocks sign-in for an account, alongside the database's own block. */
