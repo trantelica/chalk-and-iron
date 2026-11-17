@@ -9,7 +9,7 @@ This is the single briefing for any agent working on Chalk and Iron. The same fi
 3. **When unsure where something goes on the MacBook, do not guess.** Put it in `00 FOLDER GOVERNANCE -gov` and tell Nathan.
 4. **Ask before outward-facing or hard-to-undo actions** (deleting, publishing, sending, merging).
 5. **Keep documents current.** Documents must be maintained and must not grow stale. When you change something, update every document that describes it in the same sitting, including both copies of this file (MacBook and GitHub). If you notice an out-of-date document, fix it or tell Nathan.
-6. **No development before approval.** Nathan approves the technical design first (see below). Until then, write documents only, not app code.
+6. **No development before approval.** Nathan approves the technical design first (see below). Until then, write documents only, not app code. Nathan approved the technical design on 17 November 2026.
 
 ## Where to find things
 
@@ -21,6 +21,7 @@ This is the single briefing for any agent working on Chalk and Iron. The same fi
 | Look and feel reference | `prototype/index.html` (GitHub) |
 | Connector test already run | `phase0/README.md`, `phase0/api/mcp.js` (GitHub) |
 | Which model and effort level to use at each stage (standing instruction) | `docs/MODEL_AND_EFFORT.md` (GitHub) |
+| How it will be built (approved 17 November 2026) | `docs/TECHNICAL_DESIGN.md` (GitHub) |
 | Coach wording (parked draft) | `docs/COACH_INSTRUCTIONS.md` (GitHub) |
 
 ---
@@ -40,9 +41,10 @@ You are building Chalk and Iron under Nathan's oversight. Nathan is the product 
 - Phase 0 is done. On 16 November 2026 a ChatGPT Pro account read from and proposed to the test connector from the web, from an existing project, from the iPhone app and from a Dot agent. The connector over MCP is the coach path.
 - The test connector had no sign-in. The real one needs it.
 - Weights are stored in pounds.
+- The technical design, `docs/TECHNICAL_DESIGN.md`, was approved by Nathan on 17 November 2026. Build from it and the spec together. Where they disagree, stop and ask Nathan.
 - Section 9 of the spec lists the product decisions still open, each with a default to build.
 
-## Your first deliverable: a technical design, before any app code
+## Your first deliverable: a technical design, before any app code (done, approved 17 November 2026)
 
 Write `docs/TECHNICAL_DESIGN.md` and stop for Nathan's review. It must cover:
 
