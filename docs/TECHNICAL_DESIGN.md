@@ -1,10 +1,14 @@
 # Chalk and Iron: technical design
 
-16 November 2026 · Written for Nathan's review · Status: **proposed, not approved** · Revised twice the same day after Nathan's answers
+16 November 2026 · Written for Nathan's review · Status: **proposed, not approved** · Revised twice on 16 November after Nathan's answers to the decisions table, and again on 17 November after his answers to Section 10
 
-This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md` and changes nothing in it. No app code is written until Nathan approves this document.
+**Where it stands, 17 November.** Every row of the decisions table is answered. In Section 10, questions 4, 12, 22 and 29 await Nathan's answer, 26 awaits his confirmation after examples, 14 has two follow-up points, and 39 is new.
+
+This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md`. Where Nathan's answers change a product rule, the spec has been updated to match. No app code is written until Nathan approves this document.
 
 Written by Fable 5.2 on 16 November 2026, as `docs/MODEL_AND_EFFORT.md` sets out. Any later revision is done on Opus 5.5 at high effort.
+
+This revision of 17 November 2026 was done on Opus 5.5 at high effort.
 
 **How to read it.** Each section opens with a short plain-language summary. The tables underneath are the detail the coding agent builds from. Nathan does not need to check every field. The parts that need his attention are the summaries, the "Decisions for Nathan" list just below, and Section 10.
 
@@ -14,15 +18,15 @@ Written by Fable 5.2 on 16 November 2026, as `docs/MODEL_AND_EFFORT.md` sets out
 
 These are the choices in this design that cost money, add an account, or change something the spec says. Everything else is engineering detail.
 
-| # | Decision | What this design proposes | Nathan's answer, 16 Nov |
+| # | Decision | What this design proposes | Nathan's answer (16 Nov unless marked) |
 |---|---|---|---|
 | A | Stack and hosting | One web app on Vercel, with Supabase for the database and sign-in. This is the spec's starting suggestion. Section 1 | **Approved** |
 | B | An email-sending service and a domain name | First draft: needed for sign-in emails and the weekly summary | **Changed.** The weekly summary is read by the coach through the connector and is not emailed. The emailed summary and the accountability partner are deferred to a later version. Invites are ready-to-paste text that the admin sends from their own email. That leaves sign-in as the only thing that might need email: see row H |
-| C | Paid plans | First draft: paid Supabase plan before friends join | **Start on the free plan.** Nathan uses the app 4 to 6 times a week, so a pause is not a real risk. Backups are a separate point and stay open: question 36 |
+| C | Paid plans | First draft: paid Supabase plan before friends join | **Start on the free plan.** Nathan uses the app 4 to 6 times a week, so a pause is not a real risk. Backups were settled separately on 17 Nov (question 36): before friends join, move to the paid plan or add a scheduled backup |
 | D | Sign-in on the iPhone home-screen app | An emailed link opens in Safari, which the iPhone treats as a different app from the home-screen app, so the link alone would not sign the app in. The email would carry a link **and** a six-digit code to type into the app. Section 4 | **Agreed**, as the fallback route. Row H makes passkey sign-in the first choice, which avoids the issue |
 | E | Who can register | An invite link | **Decided.** Single-use invite links. Only an admin can make them, on an admin page. A person who was invited cannot invite others unless made an admin. Admins can create, delete, deactivate, reactivate and reset accounts. Section 4 |
 | F | Rest alerts in the background | Sent by the server at the moment rest ends, using a scheduler inside Supabase. No third account. Section 7 | **Approved.** It is still confirmed on a real iPhone in Phase 1, as Section 10C lists |
-| G | The open questions | Section 10 lists places where the spec is unclear or disagrees with itself. Each has a stated assumption so the build can proceed, but they are yours to settle | To be reviewed next |
+| G | The open questions | Section 10 lists places where the spec is unclear or disagrees with itself. Each has a stated assumption so the build can proceed, but they are yours to settle | **Answered 17 Nov**, and recorded in Section 10. Still open: questions 4, 12, 22 and 29 await your answer, 26 awaits your confirmation after examples, 14 has two follow-up points, and 39 is a new question |
 | H | New: should the app send any email at all? | Sign-in is now the only reason for an email service. Two routes. **Email code:** the well-trodden route, self-service recovery, needs an email service and a domain. **Passkey only** (Face ID or Touch ID, no email): no email service, and the Safari problem in row D disappears, but recovery goes through the admin and it depends on facts not yet confirmed. Recommended: try passkey-only in the early sign-in proof (question 31, approved). Use it if it passes, fall back to email code if it does not. Section 4 | **Decided.** Passkey sign-in first, and the app sends no email. A lost sign-in is reset by an admin, who gets ready-to-paste reset instructions to send from their own email. If the passkey test fails, fall back to the emailed link and code, with a passkey still offered |
 
 ---
@@ -66,9 +70,9 @@ These are the choices in this design that cost money, add an account, or change 
 ### Costs and accounts to expect
 
 - Vercel: the free tier is likely enough to start.
-- Supabase: start on the free tier (Nathan's decision, 16 Nov). It pauses only a project left idle, which regular use rules out. As I understand it the free tier keeps no automatic backups, which is the open point in question 36.
+- Supabase: start on the free tier (Nathan's decision, 16 Nov). It pauses only a project left idle, which regular use rules out. As I understand it the free tier keeps no automatic backups. Decided 17 Nov (question 36): before the first friend joins, either move to the paid plan or add a scheduled backup.
 - Email service: only if sign-in by emailed code is kept. Usually free at this volume, and it needs a domain name, a small yearly cost.
-- Web address: the app needs one permanent address either way. Vercel gives a free one. See question 37.
+- Web address: the app needs one permanent address either way. Vercel gives a free one. Decided 17 Nov (question 37): build and test on Vercel's free address, and choose the permanent address before the first friend is invited.
 - No secrets go in the repository. Keys live in Vercel's and Supabase's own settings.
 
 ---
@@ -83,7 +87,8 @@ These are the choices in this design that cost money, add an account, or change 
 - `user_id`: the owner. Required on every table. Row-level security allows access only where `user_id` matches the signed-in user.
 - `created_at`, `updated_at`: timestamps, stored in universal time.
 - `version`: on library and profile tables, a counter that goes up by one on every edit. Used to spot out-of-date proposals (Section 5).
-- Weights: always a pounds column (`…_lb`, up to 3 decimals, so 27.5 kg stores as 60.627). Where the user typed the value, the typed value and unit are stored beside it.
+- Weights: always a pounds column (`…_lb`, up to 3 decimals, so 27.5 kg stores as 60.627). Where the user typed the value, the typed value and unit are stored beside it. A weight shown in the unit it was typed in shows exactly as typed. A converted weight shows to one decimal, so 60 lb shows as 27.2 kg (decided 17 Nov, question 2). If the user switches the entry box from lb to kg and logs the converted 27.2 kg without changing it, the set keeps the original 60 lb rather than 27.2 kg converted back, so a unit switch alone never changes a weight.
+- Bodyweight sets: a bodyweight set is recorded as a weight of 1 bodyweight unit ("1 BW") and a rep count. It has no pounds value (question 14).
 - Nothing in the library is deleted. Exercises and workouts are archived with an `archived_at` date.
 - Deleting an account removes every row that carries its `user_id`.
 
@@ -96,7 +101,7 @@ These are the choices in this design that cost money, add an account, or change 
 | id | uuid | Same id as the Supabase sign-in record |
 | display_name | text | |
 | totals_unit | 'lb' or 'kg' | Default 'lb' |
-| time_zone | text | For example "America/Denver". Drives the 3:00 am day rollover and email timing |
+| time_zone | text | For example "America/Denver". Drives the 3:00 am day rollover |
 | skin | 'chalk', 'arcade' or 'liquid' | Default 'chalk' |
 | accent | text or empty | One of the seven accent names. Empty means the skin's own default |
 | background | 'flat', 'steel' or 'board' | Used by the Chalk and Iron skin only |
@@ -109,7 +114,7 @@ These are the choices in this design that cost money, add an account, or change 
 
 **coach_profiles**. One row per user: `goals`, `injuries_and_limits`, `weekly_schedule`, `notes` (all text), `version`.
 
-**gyms**: `name`, `equipment` (list of text), `notes`, `is_default`, `archived_at`, `version`. The database allows only one default gym per user.
+**gyms**: `name`, `equipment` (list of text), `notes`, `is_default`, `archived_at`, `version`. The database allows only one default gym per user. The equipment list is free text, not picked from the equipment vocabulary, because gyms have things the vocabulary does not, such as a rower (decided 17 Nov, question 25).
 
 **invites**. One row per single-use link, whether it invites a new person or resets an existing account's sign-in. Only an admin can create one.
 
@@ -145,21 +150,38 @@ The emailed weekly summary and the accountability partner are deferred, so they 
 | Field | Type | Notes |
 |---|---|---|
 | name | text | Unique per user among live exercises, ignoring capitals. Renaming changes only this field, so all history stays attached |
-| muscle_group_id | link to vocabulary | Required |
+| muscle_group_id | link to vocabulary | Required, except on an exercise made by a swap, where it may be empty (see below) |
 | focus_id | link to vocabulary | Optional |
-| equipment_id | link to vocabulary | Required |
-| default_unit | 'lb', 'kg' or 'bw' | 'bw' is bodyweight. This is also the "remembered" unit from the phone's switch |
+| equipment_id | link to vocabulary | Required, except on an exercise made by a swap, where it may be empty |
+| default_unit | 'lb', 'kg' or 'bw' | 'bw' is bodyweight. A library field, changed only by a deliberate edit in the planner or by an accepted proposal. The phone's lb/kg switch does not change it (see `exercise_display_units`) |
 | work_seconds | number, 5 to 600 | Default 45 |
 | rest_seconds | number, 0 to 600 | Default 120 or 90 (decision 3 in the spec) |
 | note | text | The persistent one-line note |
+| created_via | 'starter', 'planner', 'swap' or 'proposal' | How the exercise joined the library. The database allows an empty muscle group or equipment only when this is 'swap' |
 | archived_at, version | | |
 
-**exercise_alternates**. Three rows per exercise, one for each tier.
+**Exercises made by a swap** (decided 17 Nov, question 16). A swap to an alternate that is not yet in the library creates the new exercise at once, so the session never waits. The phone then shows a simple one-tap confirm of suggested details: muscle group, focus, work and rest seconds copied from the original; the unit is bodyweight for the bodyweight tier, otherwise the original's unit; equipment is suggested where it can be (bodyweight for the bodyweight tier, otherwise left for the user). If the user does not confirm, the exercise still joins the library with what is known from the original, and anything not known, usually equipment, stays empty.
+
+An exercise is **incomplete** when its muscle group or equipment is empty. This is worked out, not stored. The planner shows an "Incomplete" flag on it and highlights the empty fields, and `list_exercises` tells the coach. The flag never blocks anything: an incomplete exercise can be logged, swapped to, put in workouts and used in campaigns like any other. A coach's proposed new exercise is never incomplete, because `propose_exercise` requires every field.
+
+**exercise_display_units** (decided 17 Nov, question 3). The phone's lb/kg switch for each exercise, kept apart from the library.
+
+| Field | Type | Notes |
+|---|---|---|
+| exercise_id | link | One row per user and exercise |
+| unit | 'lb' or 'kg' | The unit the phone last showed for this exercise |
+
+- With no row, the phone uses the exercise's `default_unit`.
+- A bodyweight exercise has no switch and no row.
+- This is a remembered display choice, not a library edit. It has no `version`, does not raise the exercise's version, and never makes a proposal out of date.
+- On the phone, the exercise's entry box, history, records and graph show in this unit. The planner has its own view toggle and does not use it. The connector reports weights in the exercise's `default_unit`, plus pounds.
+
+**exercise_alternates**. Up to three rows per exercise, one for each tier. A new exercise proposed by a coach must have all three (decided 17 Nov, question 23). One added by hand or made by a swap need not.
 
 | Field | Type | Notes |
 |---|---|---|
 | exercise_id | link | |
-| tier | 'bodyweight', 'basic_gym' or 'full_gym' | One of each per exercise |
+| tier | 'bodyweight', 'basic_gym' or 'full_gym' | At most one of each per exercise |
 | name | text | What the user or coach typed |
 | alternate_exercise_id | link or empty | Filled in once that alternate exists in the library |
 
@@ -175,7 +197,9 @@ The emailed weekly summary and the accountability partner are deferred, so they 
 | sets | number, 1 to 12 | |
 | reps | number, 1 to 50 | |
 | rest_seconds | number or empty | Empty means use the exercise's rest |
-| superset_letter | one letter or empty | |
+| superset_letter | one letter or empty | Every item sharing a letter has the same `sets` (see below) |
+
+**Supersets are even** (decided 17 Nov, questions 10 and 11). Every member of a superset has the same number of sets. Reps can differ. The planner keeps members' sets in step: changing one member's sets changes them all, and an exercise that joins a superset takes the superset's set count. The same check runs on every save, for workouts and for campaign day overrides, and a proposal that would break it is returned to the coach as an error (Section 3).
 
 Each item has its own permanent id. Day overrides attach to that id, not to "row 3", so reordering a workout never moves an override to the wrong exercise. This closes the prototype gap named in Section 5 of the spec.
 
@@ -184,9 +208,9 @@ Each item has its own permanent id. Day overrides attach to that id, not to "row
 | Field | Type | Notes |
 |---|---|---|
 | name | text | |
-| start_date | date | |
+| start_date | date | Any date. Weeks run Monday to Sunday, and week 1 is the week holding the start date (decided 17 Nov, question 19) |
 | week_count | number, 1 to 6 | |
-| status | 'draft', 'active' or 'finished' | The database allows only one active campaign per user |
+| status | 'draft', 'active' or 'finished' | The database allows only one active campaign per user. A new campaign from an accepted proposal starts as a draft (question 21) |
 | version | | |
 
 **campaign_shifts**. One row each time a campaign is pushed forward a week: `campaign_id`, `blank_week_starts_on` (the calendar week left empty), `made_by` ('user' or a proposal id). Days after the blank week fall one week later. Shifts do not count toward the six-week limit because they are stored apart from `week_count`.
@@ -197,7 +221,7 @@ Each item has its own permanent id. Day overrides attach to that id, not to "row
 |---|---|---|
 | campaign_id | link | |
 | week | number, 1 to 6 | Not above the campaign's week count |
-| weekday | number, 1 to 7 | One row per campaign, week and weekday |
+| weekday | number, 1 to 7 | 1 is Monday. One row per campaign, week and weekday |
 | workout_id | link | |
 
 **campaign_day_overrides**. This is how a per-day override attaches to a workout item.
@@ -211,13 +235,15 @@ Each item has its own permanent id. Day overrides attach to that id, not to "row
 | weight_lb, weight_entered_value, weight_entered_unit | or empty | |
 | rest_seconds | number or empty | |
 
-The database checks that the item belongs to the same workout the day uses, so an override can never point at a row from a different workout. Changing a day's workout removes that day's overrides, as the prototype does.
+The database checks that the item belongs to the same workout the day uses, so an override can never point at a row from a different workout. Changing a day's workout removes that day's overrides, as the prototype does. In the planner, a sets override on one member of a superset is applied to every member of that superset on that day, so the day's superset stays even.
 
 What a day actually plans is worked out when needed, never stored: the workout's current items, with that day's overrides on top. So an unperformed day always follows the current design, as Section 10 of the spec requires.
 
 ### History
 
-**today_plans**. A prepared plan for one calendar day that is not the campaign's own. It exists for two cases: the planner's "send to phone as today's workout", and a coach's today-only proposal accepted before the session starts. Fields: `local_date`, `source` (campaign day or workout), `plan` (the full list of exercises as it should start), `made_by`. It is consumed when the session starts and never touches the library or the campaign.
+**today_plans**. A prepared plan for one calendar day that is not the campaign's own. It exists for two cases: a day sent from the planner with "send to phone as today's workout", and a today-only proposal accepted before the session starts. Fields: `local_date`, `source` (campaign day or workout), `plan` (the full list of exercises as it should start), `made_by` ('user' or a proposal id). It is consumed when the session starts and never touches the library or the campaign.
+
+**Sending a day from the planner** (decided 17 Nov, question 20). If today already has a workout, the sent day does not replace it straight away. It arrives in the inbox as a proposal with source 'planner': a card saying what would replace what, with Accept and Dismiss. Accept makes it today's workout, for today only, through `today_plans`. It changes neither the library nor the campaign. Dismiss changes nothing. If a session is already running when it is accepted, the existing rule for accepting a today proposal mid-session applies unchanged (Section 5). Still assumed, awaiting Nathan's confirmation: when today has no workout planned, a sent day becomes today's workout straight away, with no card.
 
 **sessions**
 
@@ -229,7 +255,7 @@ What a day actually plans is worked out when needed, never stored: the workout's
 | workout_name | text | Copied at the start |
 | gym_id | link or empty | |
 | started_at, ended_at | timestamps | |
-| status | 'active' or 'finished' | |
+| status | 'active' or 'finished' | The database allows only one active session per user (decided 17 Nov, question 30) |
 | finish_reason | 'user', 'auto' or 'replaced' or empty | |
 | clock_banked_seconds | number | Workout clock time already counted |
 | clock_running_since | timestamp or empty | Set while the clock is running. See Section 7 |
@@ -245,9 +271,9 @@ What a day actually plans is worked out when needed, never stored: the workout's
 | session_id | link | |
 | position | number | Order in the session. Reordering in the tray changes this |
 | superset_letter | letter or empty | |
-| time_budget_seconds | number | Worked out by the shared rules and kept current when sets are added or removed |
+| time_budget_seconds | number | Worked out by the shared rules and kept current when sets are added or removed. For a superset it is the spec's formula: rounds × the sum of each member's work seconds + (rounds − 1) × the first member's rest. If a live session makes a superset uneven (question 39), each extra set adds that member's own work and rest seconds |
 | clock_started_at | timestamp or empty | Empty until Start exercise |
-| clock_banked_seconds, clock_running_since | | The exercise clock, same method as the workout clock |
+| clock_banked_seconds, clock_running_since | | The exercise clock, same method as the workout clock. Paused while the user is on a different block, and resumed on return (Section 7) |
 | clock_stopped_at | timestamp or empty | Set when the last set is logged |
 
 **session_exercises**. The snapshot of the plan at session start.
@@ -272,16 +298,21 @@ What a day actually plans is worked out when needed, never stored: the workout's
 |---|---|---|
 | session_exercise_id | link | |
 | set_number | number | |
-| weight_lb | number, 3 decimals | Canonical |
-| entered_value, entered_unit | number, 'lb', 'kg' or 'bw' | Exactly what was typed |
+| weight_lb | number, 3 decimals, or empty | Canonical. Empty for a bodyweight set, which has no pounds value |
+| entered_value, entered_unit | number, 'lb', 'kg' or 'bw' | Exactly what was typed. A bodyweight set is always 1 and 'bw', shown as "1 BW" |
 | reps | number, 1 or more | |
-| set_type | 'warm_up', 'working' or 'drop' | |
-| rpe | number 1 to 10 or empty | |
+| set_type | 'warm_up', 'working' or 'drop' | Tapping a set row switches warm-up and working. A long press opens set details, where any of the three types and the RPE are set (decided 17 Nov, question 13). RPE is an effort rating: a 1 to 10 score for how hard a set felt |
+| rpe | number 1 to 10 or empty | Optional |
 | logged_at | timestamp | From the phone, at the moment of logging |
 | record_types | list | Any of 'heaviest', '6_plus', '10_plus', '20_plus', 'most_reps' |
 | deleted_at | timestamp or empty | A deleted set is kept as a marker so a late-arriving copy cannot bring it back |
 
 Records are not a separate table. They are worked out from `set_logs` for an exercise, and worked out again whenever any set of that exercise is added, edited or deleted.
+
+- **Ties** (decided 17 Nov, question 17). A record must strictly beat the best before that set, including earlier sets the same day. A tie is not a record and gets no celebration or badge. But when a set ties the best, the record's date moves to that most recent date. Still assumed, awaiting Nathan's confirmation: the record then also shows that most recent set's reps, so the weight, reps and date shown all come from one set.
+- **Estimated one-rep max** (decided 17 Nov, question 18): the highest estimate from any working or drop set, over all history.
+
+**Volume.** Volume is weight × reps over working and drop sets. A bodyweight set counts as 1 BW, so its volume is 1 × reps, counted in BW units and kept apart from pounds totals (decided 17 Nov, question 14). Still assumed, awaiting Nathan's answer: a workout's summary shows bodyweight volume as its own figure beside the pounds total, for example "8,450 lb · 60 BW", and a bodyweight exercise's graph draws bar height as reps, as the prototype does, since height as weight would make every bar the same.
 
 **cardio_logs**: `local_date`, `type`, `duration_seconds`, `distance`, `distance_unit`, `notes`.
 
@@ -291,17 +322,17 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 
 | Field | Type | Notes |
 |---|---|---|
-| source | text | Which coach app sent it, for example "ChatGPT" |
-| kind | 'exercise', 'workout', 'campaign', 'today_change' or 'profile_update' | |
+| source | text | Which coach app sent it, for example "ChatGPT", or 'planner' for a day the user sent from their own planner when today already had a workout (question 20) |
+| kind | 'exercise', 'workout', 'campaign', 'today_change' or 'profile_update' | A day sent from the planner is a 'today_change' |
 | applies_to | 'today', 'library', 'campaign' or 'profile' | Shown on the card |
 | summary_lines | list of text | What the user reads |
 | payload | structured data | The exact changes, already validated |
 | status | 'pending', 'accepted', 'rejected', 'out_of_date' or 'expired' | See Section 5 |
-| expires_at | timestamp or empty | Set for today proposals |
+| expires_at | timestamp or empty | Set for today proposals: the next 3:00 am day rollover in the user's time zone (decided 17 Nov, question 24) |
 | created_at, decided_at | timestamps | |
 | result | structured data or empty | What was created on Accept |
 
-**proposal_targets**. One row per existing record a proposal would change: `proposal_id`, `record_kind`, `record_id`, `version_seen`. When the user edits a record, any pending proposal that targets it is marked out of date.
+**proposal_targets**. One row per existing record a proposal would change: `proposal_id`, `record_kind`, `record_id`, `version_seen`. When the user edits a record, any pending proposal that targets it is marked out of date. The phone's lb/kg switch is not an edit to the exercise, so it never does this.
 
 **connector_calls**. A short log of connector use: `client_name`, `tool`, `ok`, `called_at`. No content is stored. It powers the "connection test" on the Coach setup page and a "last used" line in settings.
 
@@ -310,7 +341,7 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 - **admin_actions**: who did what to which account, and when. Written for every admin action. Holds no training data.
 - **rest_alerts**: `session_id`, `fire_at`, `status`. See Section 7.
 - **received_changes**: the ids of changes already received from phones, so a repeat is ignored. See Section 6.
-- **starter library**: about 40 exercises and the starter vocabulary live as a data file in the repository and are copied into each new account at registration.
+- **starter library**: about 40 exercises with their three alternates and starter work and rest seconds, and the starter vocabulary, live as a data file in the repository and are copied into each new account at registration. Drafting the list is a Phase 1 build task, and Nathan reviews it (decided 17 Nov, question 28).
 
 ---
 
@@ -322,7 +353,8 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 
 - **Sign-in.** Every call must carry a valid sign-in for one user (Section 4). Without one, the connector answers "not signed in" and the coach app starts the sign-in.
 - **Whose data.** The user comes from the sign-in, never from anything the coach sends. No tool accepts a user id.
-- **Weights.** Returned as the value in the exercise's own unit, the unit, and pounds: `{ "value": 27.5, "unit": "kg", "lb": 60.627 }`. Accepted as a value with a unit.
+- **Weights.** Returned as the value in the exercise's default unit from the library (not the phone's display choice), the unit, and pounds: `{ "value": 27.5, "unit": "kg", "lb": 60.627 }`. Accepted as a value with a unit. A bodyweight set comes back as `{ "value": 1, "unit": "bw", "lb": null }`.
+- **Volume.** Returned in the user's totals unit. Bodyweight volume is returned separately, in BW units, and never added to the pounds or kilograms figure.
 - **Naming an exercise or workout.** A tool accepts either the id or the exact name.
 - **Dates.** Calendar dates in the user's time zone, written `2026-11-16`.
 - **Size.** List tools return at most 50 items unless noted, with a `next` marker for more.
@@ -336,7 +368,7 @@ A failed call returns a plain sentence the coach can act on, a code, and where u
 |---|---|---|
 | not_signed_in | No valid sign-in | The coach app re-runs sign-in |
 | not_found | The named exercise, workout, campaign, session or proposal does not exist for this user | What was asked for |
-| invalid_input | A field is missing, the wrong type or out of range | Each problem with the field name |
+| invalid_input | A field is missing, the wrong type or out of range, or the change would give superset members different set counts | Each problem with the field name |
 | unknown_vocabulary | A muscle group, focus or equipment value is not in the user's vocabulary | The allowed values |
 | near_duplicate_name | A new exercise name is too close to an existing one | The existing exercise |
 | nothing_to_change | No active campaign, or no workout today, for a tool that needs one | A sentence saying so |
@@ -352,9 +384,9 @@ Validation errors are returned to the coach before anything reaches the inbox, a
 | get_profile | None | Display name, goals, injuries and limits, weekly schedule, notes, totals unit, time zone, today's date, default gym (id and name) | not_signed_in |
 | list_gyms | None | Each gym: id, name, equipment list, notes, default flag | not_signed_in |
 | get_vocabulary | None | Muscle groups, each with its focus values. Equipment values. Allowed units and set types | not_signed_in |
-| list_exercises | Optional: `muscle_group`, `equipment`, `search`, `include_archived`, `next` | Each exercise with every field: id, name, muscle group, focus, equipment, default unit, work seconds, rest seconds, note, the three alternates, archived flag | invalid_input |
+| list_exercises | Optional: `muscle_group`, `equipment`, `search`, `include_archived`, `next` | Each exercise with every field: id, name, muscle group, focus, equipment, default unit, work seconds, rest seconds, note, the alternates, archived flag, and an incomplete flag naming any empty fields (question 16) | invalid_input |
 | get_exercise_history | `exercise` (required). Optional: `from`, `to` (default the last 12 weeks), `limit` (default 20 sessions, most 100) | The exercise and its unit. Per session: date, workout name, each set (number, weight, reps, type, RPE, records), session volume, Skipped mark. Estimated one-rep max | not_found, invalid_input |
-| get_records | Optional: `exercise`. Without it, all exercises | Per exercise: the four records, each with weight, reps and date. For a bodyweight exercise, most reps | not_found |
+| get_records | Optional: `exercise`. Without it, all exercises | Per exercise: the four records, each with weight, reps and date. For a bodyweight exercise, most reps. The date is the most recent date the record was achieved or tied | not_found |
 | list_workouts | Optional: `include_archived` | Each workout: id, name, archived flag, items in order (item id, exercise, sets, reps, rest and whether it is the exercise default, superset letter, time budget) | invalid_input |
 | get_campaign | Optional: `campaign_id`. Without it, the active campaign | Name, status, start date, week count, end date, any shifts. Each day: date, workout, state (upcoming, done, missed or rest), overrides per item. Also a short list of draft campaigns by id and name | not_found. No active campaign is not an error: it returns none, with a sentence |
 | get_today | None | Today's date. What is planned, with overrides applied and last session's numbers per exercise. Any missed workouts still available. The live session if one is running: elapsed time, efficiency, volume, current exercise, each exercise's logged sets and Skipped or Replaced marks. Pending today proposals | not_signed_in |
@@ -377,13 +409,13 @@ Every propose tool:
 
 | Tool | Inputs besides summary_lines | Checks | Errors |
 |---|---|---|---|
-| propose_exercise | `exercise` (id or name) to edit one, or leave out for a new one. Fields: `name`, `muscle_group`, `focus`, `equipment`, `default_unit`, `work_seconds`, `rest_seconds`, `note`, `alternates` (bodyweight, basic gym, full gym). A new exercise needs all of them except focus and note | Vocabulary values exist. Name is not a near-duplicate. Seconds are in range | not_found, invalid_input, unknown_vocabulary, near_duplicate_name |
-| propose_workout | `workout` to edit, or leave out for new. `name`. `items` in order: `exercise`, `sets`, `reps`, optional `rest_seconds`, optional `superset` letter | Every exercise exists and is not archived. Numbers in range. A superset letter is used by at least two rows | not_found, invalid_input |
-| propose_campaign | `campaign_id` to edit, or leave out for new. `name`, `start_date`, `week_count`. `days`: week, weekday, a workout or rest, and optional overrides per item (exercise, sets, reps, weight, rest). Or `shift_forward_weeks: 1` on its own | 1 to 6 weeks. Every workout and exercise exists. Each override names an item of that day's workout | not_found, invalid_input |
-| propose_today_change | `changes`, each with an `action` (swap, set_sets, set_reps, set_weight, set_rest, add, remove, reorder), the exercise it applies to, and the new value | There is a workout today or a live session. Exercises exist. It does not touch a set already logged | nothing_to_change, not_found, invalid_input |
+| propose_exercise | `exercise` (id or name) to edit one, or leave out for a new one. Fields: `name`, `muscle_group`, `focus`, `equipment`, `default_unit`, `work_seconds`, `rest_seconds`, `note`, `alternates` (bodyweight, basic gym, full gym). A new exercise needs all of them except focus and note, including all three alternates (decided 17 Nov, question 23) | Vocabulary values exist. Name is not a near-duplicate. Seconds are in range | not_found, invalid_input, unknown_vocabulary, near_duplicate_name |
+| propose_workout | `workout` to edit, or leave out for new. `name`. `items` in order: `exercise`, `sets`, `reps`, optional `rest_seconds`, optional `superset` letter | Every exercise exists and is not archived. Numbers in range. A superset letter is used by at least two rows, and every row sharing it has the same sets | not_found, invalid_input |
+| propose_campaign | `campaign_id` to edit, or leave out for new. `name`, `start_date`, `week_count`. `days`: week, weekday (1 is Monday), a workout or rest, and optional overrides per item (exercise, sets, reps, weight, rest). Or `shift_forward_weeks: 1` on its own | 1 to 6 weeks. Every workout and exercise exists. Each override names an item of that day's workout. No day's overrides give superset members different set counts | not_found, invalid_input |
+| propose_today_change | `changes`, each with an `action` (swap, set_sets, set_reps, set_weight, set_rest, add, remove, reorder), the exercise it applies to, and the new value | There is a workout today or a live session. Exercises exist. It does not touch a set already logged. It does not give superset members different set counts | nothing_to_change, not_found, invalid_input |
 | propose_profile_update | Any of `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`. And or a `gym`: id to edit or none for new, `name`, `equipment`, `notes`, `make_default` | At least one change is present | not_found, invalid_input |
 
-A today proposal expires at the end of the day. A propose call repeated word for word within a minute returns the first proposal, so a coach app that retries does not fill the inbox with copies.
+A today proposal expires at the 3:00 am day rollover that ends its day (decided 17 Nov, question 24). A new campaign from an accepted proposal arrives as a draft, and the user activates it (question 21). A propose call repeated word for word within a minute returns the first proposal, so a coach app that retries does not fill the inbox with copies.
 
 ### What the connector may not do
 
@@ -395,7 +427,7 @@ A today proposal expires at the end of the day. A propose call repeated word for
 
 ## 4. Sign-in
 
-**In short:** you sign in to the app with your email, no password. Your coach app signs in to the connector by sending you to a Chalk and Iron page where you approve it once. Each person's data is fenced off by the database itself.
+**In short:** you sign in to the app with a passkey (Face ID or Touch ID), no password, and the app sends no email. An emailed code is the fallback only if passkeys fail their test. Your coach app signs in to the connector by sending you to a Chalk and Iron page where you approve it once. Each person's data is fenced off by the database itself.
 
 ### Signing in to the app
 
@@ -406,11 +438,11 @@ Decided 16 November: passkey sign-in is the first choice (see "Sign-in without a
 3. After the first sign-in the app offers a passkey (Face ID or Touch ID), so later sign-ins need no email.
 4. The sign-in stays active on that device until the user signs out.
 
-Why the code: on an iPhone, a link tapped in Mail opens in Safari. Safari and the home-screen app do not share sign-ins, so the link would sign in the wrong place. A typed code works inside the home-screen app. This adds to confirmed decision 4 in the spec and needs Nathan's approval (Decisions, row D).
+Why the code: on an iPhone, a link tapped in Mail opens in Safari. Safari and the home-screen app do not share sign-ins, so the link would sign in the wrong place. A typed code works inside the home-screen app. Nathan agreed this on 16 November as the fallback route (Decisions, row D).
 
 - **Recovery** is the same email flow. There is no password to forget.
 - **Sign-out** ends the sign-in on that device and clears what the app stored on it, after sending anything still unsent.
-- **Deleting an account** offers an export, marks the account, and a daily job removes everything 14 days later. Signing in during those 14 days offers to cancel.
+- **Deleting an account** offers an export (a zip holding one spreadsheet file per kind of record, plus one complete file for moving to another tool: question 32), marks the account, and a daily job removes everything 14 days later. Signing in during those 14 days offers to cancel.
 - **Passkeys** are to confirm: if Supabase's sign-in does not support them directly, they are added with a small standard library or moved to a later phase.
 - **Registration** is by single-use invite link from an admin. See "Invites and the admin page" below.
 
@@ -427,7 +459,7 @@ Decided by Nathan on 16 November.
   - **Deactivate.** Block an account at once. The person cannot sign in and their coach connection stops. Nothing is deleted.
   - **Reactivate.** Undo a deactivation. Everything is as it was.
   - **Reset.** For someone who is locked out. The app makes a single-use reset link and ready-to-paste instructions for the admin to send. Opening the link lets the person set up sign-in again. Their old sign-ins and coach connections are ended, and they reconnect their coach afterward.
-  - **Delete.** Remove an account and all its data, after the same 14-day grace period as a self-service delete (question 38).
+  - **Delete.** Remove an account and all its data, after the same 14-day grace period as a self-service delete. During those 14 days an admin can undo it (decided 17 Nov, question 38).
   - **Make or unmake an admin.**
 - **Safeguards.** The last remaining admin cannot be deactivated, deleted or unmade. Every admin action is recorded with who did it and when.
 - **What an admin cannot do.** An admin sees no one else's workouts, history, notes, coach profile or proposals. The rule that each user sees only their own data has no admin exception. The admin page reads account details only. One honest limit: whoever holds a reset link can get into that account, and an admin makes reset links. So a reset always signs the person out everywhere and shows them a notice the next time they sign in, which means a reset cannot happen quietly.
@@ -449,7 +481,7 @@ Both ChatGPT and Claude connect to a custom connector the same way, using the st
 
 1. The user pastes the connector link into their coach app.
 2. The coach app calls the link, is told "sign in first", and is pointed to Chalk and Iron's sign-in.
-3. The coach app opens a Chalk and Iron page in the browser. The user signs in with their email if needed, and sees one plain question: "Allow ChatGPT to read your training data and send you proposals?"
+3. The coach app opens a Chalk and Iron page in the browser. The user signs in if needed (by passkey, or by emailed code if the fallback is in use), and sees one plain question: "Allow ChatGPT to read your training data and send you proposals?"
 4. On Allow, the coach app receives its own pass. The user never sees or copies a key.
 5. The pass is short-lived and renews itself quietly. It is tied to one user and marked as a coach pass.
 6. Settings lists connected coach apps with a Disconnect button. Disconnecting cancels the pass at once.
@@ -468,7 +500,7 @@ Three layers, each enough by itself:
 2. **The connector acts as the user.** It reads the database with the user's own pass, not with an all-powerful key. A coach pass is narrower still: read, and add proposals.
 3. **Tests prove it.** For every table and every connector tool, an automated test signs in as user A and tries to read and write user B's data. Every attempt must fail.
 
-The all-powerful database key is used only by background jobs (emails, alerts, clean-up), kept in one small module, and never by anything that handles a user's request.
+The all-powerful database key is used only by background jobs (alerts, auto-finish, expiry, clean-up), kept in one small module, and never by anything that handles a user's request.
 
 ---
 
@@ -480,14 +512,17 @@ The all-powerful database key is used only by background jobs (emails, alerts, c
 
 | State | How it starts | Allowed | Not allowed |
 |---|---|---|---|
-| Planned (no session yet) | A campaign day, a missed day, a sent day or any library workout | Start it. Pull it to another day. A today proposal can change the plan | |
-| Active | Start is tapped. The plan is copied into the session at that moment | Start exercise, log, undo, edit or delete sets, switch warm-up, skip, reorder, add, swap, navigate, finish (always available, confirms if sets remain) | Changing the library by any of the above |
+| Planned (no session yet) | A campaign day, a missed day, a sent day or any library workout | Start it. Pull it to another day. A today proposal, or a day sent from the planner and accepted, can change the plan | |
+| Active | Start is tapped. The plan is copied into the session at that moment | Start exercise, log, undo, edit or delete sets, switch warm-up, set details (type and RPE), skip, reorder, add, swap, navigate, finish (always available, confirms if sets remain) | Changing the library by any of the above. Starting a second session while this one is active |
 | Finished, within 48 hours | Finish workout, or 30 minutes with no activity (end time is the last logged entry) | Reopen: clocks resume and the closed time is not counted. Edit or delete sets from History | |
 | Finished, after 48 hours | Time passes | Edit or delete sets from History. Records are recalculated | Reopening. Restarting clocks |
 
 Also:
 
 - A session belongs to the day it started, by the 3:00 am rule. It keeps running across 3:00 am.
+- Only one session can be active at a time, on any device. Starting another offers to resume or finish the first (decided 17 Nov, question 30).
+- Navigating to another exercise pauses the exercise clock of the one left. Coming back resumes it (Section 7).
+- Three things on the phone reach beyond the session. A swap to an alternate not in the library adds that exercise to the library (Section 2). The lb/kg switch is a remembered display choice and is not a library edit (decided 17 Nov, question 3). The one-line note is a deliberate edit by the user to the exercise (still assumed, awaiting Nathan's confirmation).
 - Sets left undone when a session finishes are marked Skipped and left out of efficiency. An exercise never started is Skipped.
 - If a today proposal is accepted mid-session: the session finishes with reason "replaced" and becomes an ad hoc session holding the work done. Its unreached sets are marked Replaced and left out of efficiency. A new session starts from the proposed workout.
 - Editing a workout or exercise never changes any session, active or finished.
@@ -496,26 +531,29 @@ Also:
 
 | State | Meaning | What can happen next |
 |---|---|---|
-| Pending | Waiting in the inbox | Accept, Decline, become out of date, expire |
+| Pending | Waiting in the inbox | Accept, Decline (or Dismiss, the same thing), become out of date, expire |
 | Accepted | Applied in full | Final |
-| Rejected | Declined or dismissed. Nothing changed | Final |
+| Rejected | Declined or dismissed. Nothing changed. Decline and Dismiss are the same action (decided 17 Nov, question 5) | Final |
 | Out of date | The user edited something it would change. Cannot be accepted | Dismiss. Final |
-| Expired | A today proposal that passed the end of its day | Final |
+| Expired | A today proposal whose day ended at the 3:00 am rollover | Final |
 
 - **Accept** is one all-or-nothing step in the database. First it re-checks that every record the proposal targets is unchanged since it was made. If that fails, the proposal becomes out of date and nothing is applied.
 - Accept and Decline need a connection, because the server applies them.
 - A proposal never blocks anything. The user can edit freely while one is pending.
 - The coach sees every state through `get_proposal_status`.
-- What each kind applies to: exercise and workout proposals change the library. Campaign proposals change a campaign. Today proposals change only the live session or today's prepared plan. Profile proposals change the coach profile or a gym.
+- What each kind applies to: exercise and workout proposals change the library. Campaign proposals change a campaign, and a new campaign arrives as a draft. Today proposals change only the live session or today's prepared plan. Profile proposals change the coach profile or a gym.
+- A day sent from the planner when today already has a workout follows the same states as a coach's today proposal, with source 'planner' (question 20).
+- The five states above are still an assumption, awaiting Nathan's answer to question 4.
 
 ### Campaign
 
 | State | Allowed | How it leaves |
 |---|---|---|
-| Draft | Edit everything. Copy. Any number can wait as drafts | The user activates it |
+| Draft | Made by the user, by copying, or by accepting a coach's new campaign. Edit everything. Copy. Any number can wait as drafts | The user activates it. If another campaign is active, activating ends it after a confirmation (decided 17 Nov, question 21) |
 | Active | Edit days and overrides at any time. Shift forward a week. Days become done or missed as time passes. Only one at a time | Its last day passes, or the user ends it |
 | Finished | Read. Copy into a new draft. Its sessions stay in History | Final |
 
+- Weeks run Monday to Sunday. A campaign may start on any date, and week 1 is the week holding its start date (decided 17 Nov, question 19).
 - When the active campaign finishes, the app prompts the user to ask their coach for the next one. It does not repeat or extend.
 - A day is **missed** when its date has passed with no session from it. Nothing moves. A missed workout stays available to start on a later day.
 - A day is **done** when a session that came from it exists, whatever date that session was logged on.
@@ -531,6 +569,7 @@ Also:
 - The app itself, so it opens with no connection.
 - Fonts, theme tokens and background images.
 - The whole library: exercises with alternates, workouts, vocabulary.
+- The phone's remembered lb/kg choice for each exercise.
 - The active campaign and today's plan.
 - The active session in full: plan, sets, clocks, rest timer, position.
 - For each exercise: last session's numbers and current records, so "last time" and record celebrations work offline.
@@ -560,7 +599,9 @@ Conflicts are rare here, since one person owns the data and usually uses one dev
 | A session is started offline and today's plan was changed on the server meanwhile | The session keeps the plan it started with. The user is told the plan changed |
 | The phone works out a record offline and the server disagrees | The server wins. The badge is corrected quietly on the next sync |
 | A proposal is accepted while a session has unsent sets | Accept needs a connection, and the outbox is sent first |
-| Library edits made on the phone offline (a note, a unit switch) and the same exercise edited in the planner | The last change to reach the server wins, field by field |
+| A note edited on the phone offline and the same exercise edited in the planner | The last change to reach the server wins, field by field |
+| The phone's lb/kg switch changed offline | Saved and sent like any other change. It is not a library edit, so it never conflicts with the planner and never makes a proposal out of date |
+| An exercise made by a swap while offline | It is created on the phone with its own id and sent with the outbox. If the user confirms its suggested details later, that is sent as an ordinary edit |
 
 Not available offline: sign-in, Accept and Decline, the planner, and anything the coach does.
 
@@ -579,9 +620,11 @@ Each clock is stored as two numbers: seconds already banked, and the moment it l
 
 | Clock | Starts | Stops or pauses |
 |---|---|---|
-| Workout clock | Session start | Finish. Resumes on reopen with the closed time left out |
-| Exercise clock, one per block | Start exercise | When the last set of the exercise or superset is logged |
+| Workout clock | Session start | Finish. Resumes on reopen with the closed time left out. Moving between exercises does not affect it |
+| Exercise clock, one per block | Start exercise | Pauses when the user moves to a different exercise, by previous or next or from the tray. Resumes from where it stopped when the user comes back. Stops for good when the last set of the exercise or superset is logged |
 | Rest timer | After a set, or after the last member of a superset round | Stored as the moment rest ends. +0:15 moves that moment. Skip clears it |
+
+**Moving between exercises** (decided 17 Nov, question 9). Only the exercise on screen in the workout has a running clock. Moving to another exercise pauses the one left. The new exercise's clock starts when Start exercise is tapped there. Coming back to the first exercise resumes its clock from where it stopped. A superset's members share one clock, so moving between members does not pause it. "On screen" means the exercise the workout is showing: locking the phone or closing the app does not pause it, and it keeps counting past double the budget. This matches the prototype. Still assumed, awaiting Nathan's confirmation: the clock resumes by itself when the user returns to a started, unfinished exercise, with no extra tap.
 
 These values are saved on the phone with the session and synced. After a crash, a closed tab or a restart, the app reads them and shows the correct times at once. The dial is drawn from the same numbers by the shared rules, so the acceptance tests for half, empty, half red and full red test plain arithmetic.
 
@@ -668,7 +711,7 @@ Every skin defines the same token names. Values below are the prototype's.
 ```
 
 - `tokens` holds exactly the nineteen tokens Section 6 of the spec lists.
-- `extras` holds three values the prototype uses that the spec's list does not name: text color on a selected button, display font weight, and whether headings are in capitals. See question 27.
+- `extras` holds three values the prototype uses that the spec's list does not name: text color on a selected button, display font weight, and whether headings are in capitals. Decided 17 Nov (question 27).
 - A value in braces, such as `{accent}`, points at another token.
 
 ### Accents, backgrounds and the fixed color
@@ -700,7 +743,7 @@ Every skin defines the same token names. Values below are the prototype's.
 - A build step turns the token files into CSS variables, one block per skin.
 - Switching skin sets one attribute on the page. It is instant and needs no reload.
 - The planner uses the same tokens as the phone.
-- The layout's positions and sizes are written once, apart from the tokens, and never refer to a skin. Text sits in boxes of fixed height, so a skin with a larger heading size cannot push anything else.
+- The layout's positions and sizes are written once, apart from the tokens, and never refer to a skin. Text sits in boxes of fixed height, so a skin with a larger heading size cannot push anything else. Text sizes may differ by skin, boxes keep fixed sizes, and nothing moves (decided 17 Nov, question 7).
 - The build fails if a color value or font name appears in any file outside `tokens/`.
 - The record card always shows in the Arcade skin and the workout summary in Liquid Color, whichever skin the user has chosen. The per-user gate applies to what the user can select, not to these moments.
 
@@ -728,7 +771,7 @@ All automated tests run on every pull request. One of the code checks compares `
 | Spec group | Test | Layer |
 |---|---|---|
 | Units and entry | 27.5 kg stores 60.627 lb and shows 27.5 kg | Rules, App |
-| | Switching lb to kg turns 60 lb into 27.22 kg, history then in kg | Rules, App |
+| | Switching lb to kg turns 60 lb into 27.2 kg, history then in kg, library default unit unchanged | Rules, App, and Database for the unchanged exercise |
 | | Weight steps of 5, reps steps of 1 | Rules, App |
 | | Weight not below 0, reps not below 1 | Rules, Database |
 | Supersets and rest | First member moves to second with no rest | Rules, App |
@@ -738,9 +781,10 @@ All automated tests run on every pull request. One of the code checks compares `
 | | Background notification at rest end | **Device**. The server side (alert scheduled, sent, cancelled on Skip) is automated |
 | Time budget, dial, efficiency | Superset budget 11:40. Single budget 7:30 | Rules |
 | | Clock does not run before Start exercise | Rules, App |
+| | Moving away pauses the clock, coming back resumes it, moving within a superset does not pause it | Rules, App |
 | | Fill at half, full, one and a half, double and 3.2 times the budget | Rules |
 | | 83% efficiency example | Rules |
-| Records | All five record tests | Rules, then Database for recalculation after an edit or delete |
+| Records | All five record tests, including a tie earning no badge and moving the record's date | Rules, then Database for recalculation after an edit or delete |
 | Graph | Three equal bars labeled 8, 8, 7. Volume point 1,380 lb | Rules for the numbers, App for the drawing |
 | Library never changed by use | Override on Monday week 3 leaves the rest at 8 | Database |
 | | Swap leaves the library workout unchanged | Database, App |
@@ -751,6 +795,7 @@ All automated tests run on every pull request. One of the code checks compares `
 | | Status readable after either | Connector |
 | | Today proposal leaves library, campaign and logged sets alone | Database |
 | | Outside-vocabulary value is an error and never reaches the inbox | Connector |
+| | Superset members with different set counts are an error and never reach the inbox | Connector, for workout, campaign and today proposals |
 | | One user's connector cannot reach another's data | Connector and Database, every tool and every table |
 | | No outgoing call to any LLM service | Code check: a scan for LLM libraries and addresses, plus a test that the server makes no outside calls beyond an allowed list (push notifications, and the email service if one is used) |
 | Theming | Switching skins moves and resizes nothing | App: record every element's position and size under each skin and compare |
@@ -765,7 +810,7 @@ All automated tests run on every pull request. One of the code checks compares `
 
 These are not in the spec's list but cannot be trusted from a desktop test:
 
-- The emailed code signs in inside the home-screen app.
+- The passkey signs in inside the home-screen app (or the emailed code, if the fallback is used).
 - The rest sound plays without stopping music from another app.
 - The notification permission prompt appears only after the app is on the home screen.
 - The connector sign-in completes from the ChatGPT iPhone app and the Claude iPhone app.
@@ -779,53 +824,56 @@ The three platform facts in Section 7 of the spec (notifications from iOS 16.4, 
 
 These are places where the spec is unclear, silent or disagrees with itself. They are listed, not resolved. Each has the assumption this design makes so that work is not blocked. Nathan's answer replaces the assumption.
 
+Nathan answered this list on 17 November. Where he decided, the row says so and the rest of this design and the spec follow it. Still open: questions 4, 12, 22 and 29 await his answer, 26 awaits his confirmation after examples, 14 has two follow-up points, and 39 is new. A few decided rows also carry a small detail still assumed, marked "awaiting Nathan's confirmation" (questions 3, 9, 17 and 20).
+
 ### A. The spec disagrees with itself
 
 | # | Question | Where | Assumed until decided |
 |---|---|---|---|
 | 1 | Who may register? "Nathan and a small group of friends" on a public web address, with self-service registration and no stated way to keep strangers out | Sections 2 and 10 | **Decided 16 Nov:** single-use invite links, made only by an admin on an admin page. The spec is updated |
-| 2 | Converted weights: Section 8 expects 60 lb to show as 27.22 kg (two decimals). Section 10 says converted weights show to one decimal (27.2). The prototype rounds to the nearest half | Sections 8 and 10 | One decimal for display, as the later rule says. The acceptance test would need changing to 27.2 |
-| 3 | "The library is never changed by use", yet the phone's unit switch and note line change the exercise during a workout | Sections 1, 2 and 5 | Those two are deliberate edits by the user, not changes "by use", and are allowed |
-| 4 | Proposal states: Section 3 lists pending, accepted, rejected. Section 10 adds out of date, and today proposals expire. Section 4 says `get_proposal_status` returns one of three | Sections 3, 4 and 10 | Five states, all visible to the coach |
-| 5 | "Decline discards it" and "any proposal can be dismissed at any time". Are Decline and Dismiss the same thing? | Sections 4 and 10 | Yes. Both end as rejected |
+| 2 | Converted weights: Section 8 expects 60 lb to show as 27.22 kg (two decimals). Section 10 says converted weights show to one decimal (27.2). The prototype rounds to the nearest half | Sections 8 and 10 | **Decided 17 Nov:** one decimal. Converted weights show to one decimal, so the acceptance test now expects 27.2 kg. A typed value still shows exactly as typed, and storage stays at three decimals in pounds (27.5 kg still stores as 60.627 lb). The spec is updated |
+| 3 | "The library is never changed by use", yet the phone's unit switch and note line change the exercise during a workout | Sections 1, 2 and 5 | **Decided 17 Nov:** the phone's lb/kg switch is a remembered display choice, kept apart from the exercise's library design. The exercise keeps its default unit as a library field, changed only by a deliberate edit in the planner or an accepted proposal. The switch is stored separately per exercise (`exercise_display_units`), does not raise the exercise's version and never makes a proposal out of date. On the phone, history, records and graphs show in the remembered unit. Bodyweight is not switchable. The spec is updated. Still assumed, awaiting Nathan's confirmation: the one-line note typed on the phone is a deliberate edit by the user to the exercise; and a later change to the default unit in the planner leaves the phone's remembered choice as it is |
+| 4 | Proposal states: Section 3 lists pending, accepted, rejected. Section 10 adds out of date, and today proposals expire. Section 4 says `get_proposal_status` returns one of three | Sections 3, 4 and 10 | **Awaiting Nathan's answer.** Assumed: five states, all visible to the coach |
+| 5 | "Decline discards it" and "any proposal can be dismissed at any time". Are Decline and Dismiss the same thing? | Sections 4 and 10 | **Decided 17 Nov:** yes. Both end as rejected. The spec is updated |
 | 6 | Sign-in by emailed link does not work inside the iPhone home-screen app | Section 9, decision 4 | **Decided 16 Nov:** agreed, as the fallback route. Passkey sign-in is the first choice (question 35) |
-| 7 | Skins must not resize elements, yet heading size and numeral size are tokens that differ by skin | Sections 1 and 6 | Text sizes may differ. Boxes keep fixed sizes, so nothing moves |
-| 8 | Section 9 opens with "seven points are not yet decided" and "rows 4 and 6 to 10 are confirmed", but the table has fourteen rows | Section 9 | No effect on the build. Worth tidying in the spec |
+| 7 | Skins must not resize elements, yet heading size and numeral size are tokens that differ by skin | Sections 1 and 6 | **Decided 17 Nov:** text sizes may differ by skin. Boxes keep fixed sizes, so nothing moves. The spec is updated |
+| 8 | Section 9 opens with "seven points are not yet decided" and "rows 4 and 6 to 10 are confirmed", but the table has fourteen rows | Section 9 | **Decided 17 Nov:** cleaned up. The opening of the spec's Section 9 now says which rows are answered, confirmed, changed or approved, and which are still open. Row 5 (hosting and stack) now says it is approved |
 
 ### B. The spec does not say
 
 | # | Question | Assumed until decided |
 |---|---|---|
-| 9 | Does the exercise clock keep running when the user moves to another exercise and comes back? The spec says it never stops while the exercise is "open". The prototype pauses it when you leave | It runs from Start exercise until the last set is logged, whichever exercise is on screen |
-| 10 | Superset budget when members have different set counts. The spec's formula assumes equal rounds | The prototype's method: each member's sets times its work seconds, plus rest between rounds of the longest member |
-| 11 | Which rest applies to the solo rounds at the end of an uneven superset: the remaining member's, or the first member's? | The remaining member's own rest |
-| 12 | Planned weight when a day has no weight override. A workout item has no weight field | The heaviest set from that exercise's last session, as the prototype does. Blank if there is no history |
-| 13 | How is a drop set marked, and where is RPE entered? Neither is in the prototype | A long press on a set row opens set details: type and RPE |
-| 14 | Bodyweight exercises: what counts as volume, and how are bars drawn? | Volume is total reps and bars show reps, as the prototype does. They are left out of workout volume in pounds |
-| 15 | Can a bodyweight exercise carry added weight (a weighted pull-up)? | No. It would be a separate exercise with a weight unit |
-| 16 | A swap to an alternate not yet in the library: what muscle group, equipment and unit does the new exercise get? Only a name is stored | It copies the original's muscle group, focus, work and rest. The user is asked for equipment and unit once |
-| 17 | Records and ties, and records within one session. Does a second set today that beats the first set today count? | A record must strictly beat the best before that set, including earlier sets today. A tie is not a record |
-| 18 | Estimated one-rep max "taken from the best set". Best by what measure, and over what period? | The set with the highest estimate, over all history, working and drop sets only |
-| 19 | Must a campaign start on a Monday? Which day starts the week? | Weeks run Monday to Sunday. A campaign may start on any date, and week 1 is the week holding that date |
-| 20 | "Send to phone as today's workout" when the campaign already has a workout today. Does it replace it or sit beside it? | It sits beside it. Home shows both |
-| 21 | When a proposed campaign is accepted, does it become active? What if another is active? | It arrives as a draft. The user activates it. Activating one ends the current one after a confirmation |
-| 22 | Can a workout or campaign proposal include brand-new exercises, or must each be proposed and accepted first? "Unknown exercises" are errors | They must exist first. This means two rounds of approval for a plan with new exercises |
-| 23 | Does the app require three alternates on a coach-proposed exercise, or is that only advice in the coach instructions? | Required for a new exercise from a coach. Optional when the user adds one by hand |
-| 24 | When does a today proposal expire: midnight, or the 3:00 am rollover? | The 3:00 am rollover, to match how days work everywhere else |
-| 25 | Is gym equipment free text, or picked from the equipment vocabulary? | A free list. Gyms have things the vocabulary does not, such as a rower |
-| 26 | Removing or renaming a vocabulary value that exercises use | Renaming carries through to every exercise. A value in use is archived, not deleted |
-| 27 | The prototype uses three style values the spec's token list does not name: text on a selected button, display font weight, and heading capitals | Added as "extras" in each skin file |
-| 28 | Who writes the starter library of about 40 exercises with alternates, and the starter work and rest seconds? | The coding agent drafts the list in Phase 1 for Nathan to edit |
-| 29 | The coach cannot see cardio, and cannot list its own past proposals. Neither has a tool | Not built. Raised in case Nathan wants a `list_cardio` or `list_proposals` tool |
-| 30 | Can a user have two sessions active at once, for example on two devices? | No. Starting a second offers to resume or finish the first |
+| 9 | Does the exercise clock keep running when the user moves to another exercise and comes back? The spec says it never stops while the exercise is "open". The prototype pauses it when you leave | **Decided 17 Nov** (Nathan said no to the earlier assumption): moving to another exercise pauses that exercise's clock. The other exercise's clock starts when Start exercise is tapped there. Coming back to the first exercise resumes its clock from where it stopped. This matches the prototype. Members of one superset share one clock, so moving between them does not pause it. The workout clock is unaffected. The spec is updated. Still assumed, awaiting Nathan's confirmation: the clock resumes by itself when the user returns to a started, unfinished exercise, with no extra tap |
+| 10 | Superset budget when members have different set counts. The spec's formula assumes equal rounds | **Decided 17 Nov:** uneven supersets should not exist. Every member of a superset has the same number of sets; reps can differ. So the budget is the spec's own formula: rounds × the sum of each member's work seconds + (rounds − 1) × the first member's rest. The planner keeps members' sets in step, and a workout proposal, campaign day override or today proposal that would give members different set counts is returned as an error. This reverses the spec's earlier rule on uneven supersets, and the spec is updated. The one case that can still make a superset uneven during a session is question 39 |
+| 11 | Which rest applies to the solo rounds at the end of an uneven superset: the remaining member's, or the first member's? | **Decided 17 Nov:** no longer arises in a design, because supersets are always even (question 10). For the live case, see question 39 |
+| 12 | The "seeded" weight: the weight pre-filled in the weight box when a day sets no weight. A workout item has no weight field, so where does that first number come from? | **Awaiting Nathan's answer.** Assumed: the heaviest set from that exercise's last session, as the prototype does. Blank if there is no history |
+| 13 | How is a drop set marked, and where is RPE (an effort rating: a 1 to 10 score for how hard a set felt) entered? Neither is in the prototype | **Decided 17 Nov:** a long press on a set row opens set details: type and RPE. The spec is updated |
+| 14 | Bodyweight exercises: what counts as volume, and how are bars drawn? | **Partly decided 17 Nov:** a bodyweight set is recorded as a weight of 1 bodyweight unit ("1 BW") and a rep count. Nathan's example: 20 push-ups is a weight of 1 BW and a count of 20. Its volume is 1 × reps, counted in BW units and kept apart from pounds totals. The spec is updated. **Two follow-up points await Nathan's answer.** Assumed: (a) a bodyweight exercise's graph draws bar height as reps, as the prototype does, because height as weight would make every bar the same; (b) a workout's summary shows bodyweight volume as its own figure beside the pounds total, for example "8,450 lb · 60 BW" |
+| 15 | Can a bodyweight exercise carry added weight (a weighted pull-up)? | **Decided 17 Nov:** no. It would be a separate exercise with a weight unit |
+| 16 | A swap to an alternate not yet in the library: what muscle group, equipment and unit does the new exercise get? Only a name is stored | **Decided 17 Nov:** the swap creates the new exercise straight away. The phone shows a simple one-tap confirm of suggested details: muscle group, focus, work and rest seconds copied from the original; unit bodyweight for the bodyweight tier, otherwise the original's unit; equipment suggested where it can be. If the user does not confirm, the exercise still enters the library with whatever is known, and missing fields stay empty. The planner flags exercises with missing fields as incomplete and never blocks their use. Those fields are optional only for this case, and stay required for a coach's proposed exercise (Section 2). The spec is updated |
+| 17 | Records and ties, and records within one session. Does a second set today that beats the first set today count? | **Decided 17 Nov:** a record must strictly beat the best before that set, including earlier sets today. A tie is not a record and gets no celebration or badge. Nathan's addition: when a set ties the best, the date shown for that record moves to the most recent date it was achieved. The spec is updated. Still assumed, awaiting Nathan's confirmation: the record then also shows that latest set's reps, where they differ (for example 60 lb × 10 tying a 6+ record of 60 lb × 8) |
+| 18 | Estimated one-rep max "taken from the best set". Best by what measure, and over what period? | **Decided 17 Nov:** the set with the highest estimate, over all history, working and drop sets only. The spec is updated |
+| 19 | Must a campaign start on a Monday? Which day starts the week? | **Decided 17 Nov:** weeks run Monday to Sunday. A campaign may start on any date, and week 1 is the week holding that date. The spec is updated |
+| 20 | "Send to phone as today's workout" when the campaign already has a workout today. Does it replace it or sit beside it? | **Decided 17 Nov:** it gets the proposal treatment. It arrives in the inbox as a card saying what would replace what, with Accept and Dismiss. Accept makes it today's workout for today only and changes neither the library nor the campaign. Dismiss changes nothing. It comes from the user's own planner, so its source is 'planner'. The existing rule for accepting a today proposal mid-session applies unchanged. The spec is updated. Still assumed, awaiting Nathan's confirmation: when today has no workout planned, a sent day becomes today's workout straight away, with no card |
+| 21 | When a proposed campaign is accepted, does it become active? What if another is active? | **Decided 17 Nov:** it arrives as a draft. The user activates it. Activating one ends the current one after a confirmation. The spec is updated |
+| 22 | Can a workout or campaign proposal include brand-new exercises, or must each be proposed and accepted first? "Unknown exercises" are errors | **Awaiting Nathan's answer.** Assumed: they must exist first. This means two rounds of approval for a plan with new exercises |
+| 23 | Does the app require three alternates on a coach-proposed exercise, or is that only advice in the coach instructions? | **Decided 17 Nov:** required for a new exercise from a coach. Optional when the user adds one by hand. The spec is updated |
+| 24 | When does a today proposal expire: midnight, or the 3:00 am rollover? | **Decided 17 Nov:** the 3:00 am rollover, to match how days work everywhere else. The spec is updated |
+| 25 | Is gym equipment free text, or picked from the equipment vocabulary? | **Decided 17 Nov:** a free list. Gyms have things the vocabulary does not, such as a rower. The spec is updated |
+| 26 | Removing or renaming a vocabulary value that exercises use | **Agreed 17 Nov, pending examples.** Nathan agreed with the assumption and asked for an example or two to confirm. The assumption: renaming carries through to every exercise, and a value in use is archived, not deleted. Example 1: renaming the equipment value "selectorized machine" to "pin machine" changes it on every exercise that uses it. Example 2: removing the focus value "brachialis" while an exercise uses it keeps it on that exercise but takes it out of the pickers, and it can be restored. **Awaiting Nathan's confirmation** |
+| 27 | The prototype uses three style values the spec's token list does not name: text on a selected button, display font weight, and heading capitals | **Decided 17 Nov:** added as "extras" in each skin file. The spec is updated |
+| 28 | Who writes the starter library of about 40 exercises with alternates, and the starter work and rest seconds? | **Decided 17 Nov:** a project task in the development work. The coding agent drafts the list in Phase 1 for Nathan to review. The spec's roadmap is updated |
+| 29 | The coach cannot see cardio, and cannot list its own past proposals. Neither has a tool | **Awaiting Nathan's answer.** Assumed: not built. Raised in case Nathan wants a `list_cardio` or `list_proposals` tool |
+| 30 | Can a user have two sessions active at once, for example on two devices? | **Decided 17 Nov:** no. Starting a second offers to resume or finish the first. The spec is updated |
 | 31 | May a small sign-in proof for the connector be done at the start of Phase 1, ahead of the Phase 4 connector work? | **Decided 16 Nov:** yes, as a throwaway proof like Phase 0. The spec's roadmap is updated |
-| 32 | Full data export: what format? | One file a spreadsheet can open per kind of record, in a zip, plus one complete file for moving to another tool |
+| 32 | Full data export: what format? | **Decided 17 Nov:** one file a spreadsheet can open per kind of record, in a zip, plus one complete file for moving to another tool. The spec is updated |
 | 33 | Weekly email: is it sent in a week with no sessions? What does the partner see? | **No longer applies.** Decided 16 Nov: the summary is read by the coach through `get_weekly_summary`. The emailed summary and accountability partner are deferred |
 | 34 | If someone loses access to their email, or every device holding their passkey, there is no self-service way back into the account | **Decided 16 Nov:** an admin resets the account and sends ready-to-paste reset instructions from their own email |
 | 35 | Should the app send any email at all? Sign-in is the only remaining reason for an email service and domain (Decisions, row H) | **Decided 16 Nov:** passkey sign-in first, no email sent by the app. Tested in the early proof. If it fails, sign in by emailed link and code, with an email service |
-| 36 | Backups on the free Supabase plan. As I understand it, the free plan keeps no automatic backups, so a mistake or a fault could lose history | Start on the free plan. Before friends join, either move to the paid plan or add a scheduled backup. Each user's own export button is available from Phase 5 |
-| 37 | What is the app's permanent web address? Passkeys and each friend's coach connection are tied to the address, so changing it later means everyone sets up again | Use Vercel's free address for building and testing. Choose the permanent address before the first friend is invited |
-| 38 | May an admin remove another person's account, and does the 14-day grace period apply? | **Partly decided 16 Nov:** admins can create, delete, deactivate, reactivate and reset accounts. Still assumed: an admin's delete keeps the 14-day grace period, during which an admin can undo it |
+| 36 | Backups on the free Supabase plan. As I understand it, the free plan keeps no automatic backups, so a mistake or a fault could lose history | **Decided 17 Nov:** start on the free plan. Before friends join, either move to the paid plan or add a scheduled backup. Each user's own export button is available from Phase 5. The spec's roadmap is updated |
+| 37 | What is the app's permanent web address? Passkeys and each friend's coach connection are tied to the address, so changing it later means everyone sets up again | **Decided 17 Nov:** use Vercel's free address for building and testing. Choose the permanent address before the first friend is invited. The spec's roadmap is updated |
+| 38 | May an admin remove another person's account, and does the 14-day grace period apply? | **Decided 16 and 17 Nov:** admins can create, delete, deactivate, reactivate and reset accounts (16 Nov). An admin's delete keeps the 14-day grace period, during which an admin can undo it (17 Nov). The spec is updated |
+| 39 | New, 17 Nov. A superset's design is always even (question 10), but two things can still make it uneven during a live session: switching one member's set to a warm-up adds a set for that member only (spec Section 2), and the user can skip one member's remaining sets. What happens then? | **Awaiting Nathan's answer.** Assumed: the design of a superset is always even. If a live session becomes uneven through a warm-up or a skip, the extra sets are done by that member alone, with that member's normal rest. Each extra set adds its work and rest seconds to the time budget, as the warm-up rule already says |
 
 ### C. Facts to confirm with a small test
 
@@ -856,6 +904,6 @@ I did not check these against current documentation in this sitting. Each is con
 
 ## What happens next
 
-1. Nathan answered every row of the decisions table on 16 November, and the answers are recorded at the top. Still to review: Section 10.
-2. The document is revised to match his answers, and the spec is updated where an answer changes it.
+1. Nathan answered every row of the decisions table on 16 November, and Section 10 on 17 November. Both sets of answers are recorded in this document, and the spec is updated wherever an answer changes a product rule.
+2. Still waiting on Nathan: questions 4, 12, 22 and 29 (his answer), 26 (his confirmation after the examples), the two follow-up points on question 14, and the new question 39. A few decided rows carry a small detail marked "awaiting Nathan's confirmation" (questions 3, 9, 17 and 20). Each has a working assumption, so none of them blocks the design.
 3. Once Nathan approves, Phase 1 begins on Opus 5.5 at high effort, on its own branch and pull request.
