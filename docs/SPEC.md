@@ -42,7 +42,9 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 
 ### Accounts
 
-- Registration, sign-in, sign-out, account recovery, profile editing and account deletion, all self-service.
+- Sign-in, sign-out, account recovery, profile editing and account deletion, all self-service.
+- Registration is by invite. An invite link works once. Only an admin can make one, on an admin page. The app gives the admin ready-to-paste invite text to send from their own email. A person who was invited cannot invite others unless an admin makes them an admin.
+- An admin manages accounts and invites only. An admin cannot see anyone else's training data.
 - Each user sees only their own library, history, campaigns and proposals.
 - A setup walkthrough covers adding the app to the home screen, allowing notifications, and connecting a coach.
 - Full data export on request.
@@ -106,7 +108,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 ### Other
 
 - **Cardio:** logged separately from weights with type, duration, distance and notes. Entry is manual in the web version.
-- **Weekly summary:** an email to the user each week, and to one accountability partner who has confirmed they want it.
+- **Weekly summary:** the coach reads the week's summary through the connector and writes it up in the user's own LLM project. The user can pass it on to an accountability partner themselves. An emailed summary and an in-app accountability partner are deferred to a later version.
 - **Music:** the app never interrupts audio from another app. In-app music controls wait for the native version.
 - **Look:** selectable skins, accent colors and backgrounds, with celebrations on a logged set, a record and a finished workout. Section 6 has the detail.
 
@@ -210,6 +212,7 @@ The coach reads freely but can only propose. A proposal changes nothing until th
 | get_today | Today's planned workout and live session progress |
 | list_sessions | Past sessions with time, volume, efficiency and records |
 | get_proposal_status | Whether a proposal is pending, accepted or rejected |
+| get_weekly_summary | One week's sessions, sets, reps and weights, total volume, records, efficiency, missed days and cardio |
 
 ### Propose tools
 
@@ -352,7 +355,8 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | Proposals | The same inbox as the phone, with room for longer proposals such as a full campaign |
 | Coach setup | Step-by-step connection for ChatGPT and for Claude, the coach instructions to copy, and a connection test |
 | Profile and gyms | Coach profile fields and gym equipment lists |
-| Account | Email, accountability partner, export, delete account |
+| Account | Email, export, delete account |
+| Admin (admins only) | Accounts, invites, ready-to-paste invite text, make or cancel an invite, make a user an admin, help a locked-out user. No training data |
 | Vocabulary | Editable lists of muscle groups, focus values and equipment |
 
 ### Prototype gaps to close
@@ -422,11 +426,11 @@ The build runs in seven phases. Phase 0 is a gate: its result decides how the co
 1. **Phase 0, connector write test.** Stand up a minimal connector with one read tool and one propose tool. Connect it to Nathan's ChatGPT Pro project and to a Claude project. Record whether each can read, whether each can propose, and whether the Coach button can open the project on an iPhone.
     - If ChatGPT Pro can propose: the connector is the default path.
     - If it can only read: the import link becomes the default for ChatGPT users, and the connector stays for reading.
-2. **Phase 1, foundation.** Accounts and sign-in, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary.
+2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary.
 3. **Phase 2, logging.** The active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, and crash-safe sessions. This phase must match the prototype.
 4. **Phase 3, planner.** Library for exercises, workouts and campaigns, the Plan view with per-day overrides, History, and sending a day to the phone.
-5. **Phase 4, coach.** The full connector tool set, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens.
-6. **Phase 5, reach.** Notifications for rest and proposals, the weekly email and accountability partner, cardio, export, the Arcade and Liquid Color skins, backgrounds and celebrations.
+5. **Phase 4, coach.** The full connector tool set including the weekly summary, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens.
+6. **Phase 5, reach.** Notifications for rest and proposals, cardio, export, the Arcade and Liquid Color skins, backgrounds and celebrations.
 7. **Phase 6, friends.** Onboarding polish for non-technical users, tested by one friend completing setup without help.
 
 A native iPhone app follows the web version and is not part of this package. It adds what a home-screen web app cannot do well: a lock-screen rest timer, Apple Music controls, Apple Health for cardio, and alerts that never depend on a connection.
@@ -516,7 +520,7 @@ The build is accepted when every test below passes as an automated test, except 
 
 ## 9. Open decisions
 
-Seven points are not yet decided. Row 1 is answered, and rows 4 and 6 to 10 are confirmed. Each has a default the coding agent builds unless Nathan says otherwise.
+Seven points are not yet decided. Row 1 is answered, rows 4 and 6 to 8 are confirmed, and rows 9 and 10 were changed on 16 November. Each has a default the coding agent builds unless Nathan says otherwise.
 
 | # | Decision | Default to build |
 | --- | --- | --- |
@@ -528,8 +532,8 @@ Seven points are not yet decided. Row 1 is answered, and rows 4 and 6 to 10 are 
 | 6 | What a coach proposal shows you before you accept or decline it (confirmed 16 Nov) | A plain list of changes, one line each, such as "Overhead Press becomes Dumbbell Shoulder Press". A side-by-side view of the whole workout before and after is not planned |
 | 7 | Do warm-up sets count toward volume? (confirmed 16 Nov) | No. They are logged and shown but excluded from volume and records |
 | 8 | Records for bodyweight exercises (confirmed 16 Nov) | Most reps in a set, in place of the four weight records |
-| 9 | What the accountability partner sees (confirmed 16 Nov) | The weekly email only: sessions done, the sets, reps and weights for each exercise, total volume, records and efficiency. They confirm by email before the first one |
-| 10 | Weekly email timing (confirmed 16 Nov) | Sunday evening in the user's time zone to start with. Each user picks their own day and time in settings |
+| 9 | What the accountability partner sees (changed 16 Nov) | Deferred. In this version the coach reads the weekly summary through the connector (sessions done, the sets, reps and weights for each exercise, total volume, records and efficiency) and the user shares it themselves |
+| 10 | Weekly email timing (changed 16 Nov) | Deferred with the emailed summary. Not built in this version |
 | 11 | Totals unit for new users | Pounds |
 | 12 | Steel plate and Chalkboard backgrounds | Keep both. Revisit after real use |
 | 13 | Trainerize history import | Not built. Revisit if export from Trainerize proves possible |
@@ -602,10 +606,12 @@ These rules settle what happens outside the normal path. Nathan decided them in 
 ### Accounts
 
 - Each account has its own library, seeded with a starter set of about 40 common exercises with alternates.
-- No data is shared between accounts in the first version, apart from the accountability email.
+- No data is shared between accounts in the first version.
+- Accounts are created only from a single-use invite link made by an admin. Nathan's account is the first admin.
 - Deleting an account offers an export first. Everything is removed permanently after a 14-day grace period.
 
 ### Later enhancements
 
 - Merging two library exercises into one, combining their histories and records.
 - View-only access for a friend to another person's workouts and results, without notes or account details.
+- A weekly summary sent by email, and an accountability partner who receives it after confirming.

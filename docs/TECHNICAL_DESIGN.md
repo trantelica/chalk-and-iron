@@ -1,6 +1,6 @@
 # Chalk and Iron: technical design
 
-16 November 2026 · Written for Nathan's review · Status: **proposed, not approved**
+16 November 2026 · Written for Nathan's review · Status: **proposed, not approved** · Revised the same day after Nathan's first answers
 
 This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md` and changes nothing in it. No app code is written until Nathan approves this document.
 
@@ -14,21 +14,22 @@ Written by Fable 5.2 on 16 November 2026, as `docs/MODEL_AND_EFFORT.md` sets out
 
 These are the choices in this design that cost money, add an account, or change something the spec says. Everything else is engineering detail.
 
-| # | Decision | What this design proposes |
-|---|---|---|
-| A | Stack and hosting | One web app on Vercel, with Supabase for the database and sign-in. This is the spec's starting suggestion. Section 1 |
-| B | An email-sending service and a domain name | Needed for sign-in emails and the weekly summary. Supabase's built-in email is only for testing. This means one new account (Resend is the suggestion) and a domain. Section 1 |
-| C | Paid plans | The free Supabase plan pauses a project that goes quiet and keeps no backups. I recommend the paid plan before friends join. Section 1 |
-| D | Sign-in on the iPhone home-screen app | An emailed link opens in Safari, which is a separate box from the home-screen app, so the link alone would not sign the app in. I propose the email carries a link **and** a six-digit code. This adjusts confirmed decision 4 in the spec, so it needs your yes. Section 4 |
-| E | Who can register | The spec says "Nathan and a small group of friends" but does not say how strangers are kept out. I propose an invite link. Section 4 and question 1 |
-| F | Rest alerts in the background | Sent by the server at the moment rest ends, using a scheduler inside Supabase. No third account. Section 7 |
-| G | The open questions | Section 10 lists 34 places where the spec is unclear or disagrees with itself. Each has a stated assumption so the build can proceed, but they are yours to settle. |
+| # | Decision | What this design proposes | Nathan's answer, 16 Nov |
+|---|---|---|---|
+| A | Stack and hosting | One web app on Vercel, with Supabase for the database and sign-in. This is the spec's starting suggestion. Section 1 | Not yet answered |
+| B | An email-sending service and a domain name | First draft: needed for sign-in emails and the weekly summary | **Changed.** The weekly summary is read by the coach through the connector and is not emailed. The emailed summary and the accountability partner are deferred to a later version. Invites are ready-to-paste text that the admin sends from their own email. That leaves sign-in as the only thing that might need email: see row H |
+| C | Paid plans | First draft: paid Supabase plan before friends join | **Start on the free plan.** Nathan uses the app 4 to 6 times a week, so a pause is not a real risk. Backups are a separate point and stay open: question 36 |
+| D | Sign-in on the iPhone home-screen app | An emailed link opens in Safari, which the iPhone treats as a different app from the home-screen app, so the link alone would not sign the app in. The email would carry a link **and** a six-digit code to type into the app. Section 4 | Explained again, awaiting an answer. Row H may remove the issue altogether |
+| E | Who can register | An invite link | **Decided.** Single-use invite links. Only an admin can make them, on an admin page. A person who was invited cannot invite others unless made an admin. Section 4 |
+| F | Rest alerts in the background | Sent by the server at the moment rest ends, using a scheduler inside Supabase. No third account. Section 7 | Not yet answered |
+| G | The open questions | Section 10 lists places where the spec is unclear or disagrees with itself. Each has a stated assumption so the build can proceed, but they are yours to settle | To be reviewed next |
+| H | New: should the app send any email at all? | Sign-in is now the only reason for an email service. Two routes. **Email code:** the well-trodden route, self-service recovery, needs an email service and a domain. **Passkey only** (Face ID or Touch ID, no email): no email service, and the Safari problem in row D disappears, but recovery goes through the admin and it depends on facts not yet confirmed. Recommended: try passkey-only in the early sign-in proof (question 31, approved). Use it if it passes, fall back to email code if it does not. Section 4 | New, awaiting an answer |
 
 ---
 
 ## 1. Stack and hosting
 
-**In short:** one codebase, hosted on Vercel, holding the phone app, the planner and the connector. Supabase holds the data and handles sign-in. Two accounts Nathan already has, plus an email-sending service.
+**In short:** one codebase, hosted on Vercel, holding the phone app, the planner and the connector. Supabase holds the data and handles sign-in. Two accounts Nathan already has. An email-sending service is added only if sign-in by emailed code is kept (Decisions, row H).
 
 ### Recommended
 
@@ -40,8 +41,8 @@ These are the choices in this design that cost money, add an account, or change 
 | Database | Supabase Postgres | Nathan has the account. A real relational database suits this data, which is all relationships (campaign, day, workout, item, override) |
 | Sign-in | Supabase Auth | Email sign-in is built in. To confirm: passkeys and the connector sign-in (Section 4) |
 | Per-user isolation | Postgres row-level security | The database itself refuses to hand one user's rows to another. See Section 4 |
-| Scheduled work | Supabase's built-in scheduler (pg_cron) | Rest alerts, weekly emails, session auto-finish, proposal expiry, account deletion. Keeps everything inside the two accounts |
-| Email | Resend (suggested), connected to Supabase Auth and used for the weekly summary | Supabase's own email sender is rate-limited and meant for testing only. Needs a domain name to send from |
+| Scheduled work | Supabase's built-in scheduler (pg_cron) | Rest alerts, session auto-finish, proposal expiry, account deletion. Keeps everything inside the two accounts |
+| Email | Only if sign-in by emailed code is kept: Resend (suggested), connected to Supabase Auth | Supabase's own email sender is rate-limited and meant for testing only. Needs a domain name to send from. The app sends no other email: the weekly summary goes through the coach, and invites are pasted into the admin's own email |
 | Notifications | Standard Web Push, sent from the server | The only route to a home-screen web app on iPhone |
 | Storage on the phone | The browser's built-in database (IndexedDB), through the small Dexie library | Holds the active session and a queue of unsent changes. Section 6 |
 | Connector | The official MCP software kit for TypeScript, running at `/mcp` | Same protocol Phase 0 proved. Reuses the ideas of `phase0/`, not its code |
@@ -65,8 +66,9 @@ These are the choices in this design that cost money, add an account, or change 
 ### Costs and accounts to expect
 
 - Vercel: the free tier is likely enough to start.
-- Supabase: the free tier pauses an idle project and has no backups. For an app whose whole point is keeping history, I recommend the paid tier before any friend joins. I have not checked today's price.
-- Email service: usually free at this volume. Needs a domain name, a small yearly cost.
+- Supabase: start on the free tier (Nathan's decision, 16 Nov). It pauses only a project left idle, which regular use rules out. As I understand it the free tier keeps no automatic backups, which is the open point in question 36.
+- Email service: only if sign-in by emailed code is kept. Usually free at this volume, and it needs a domain name, a small yearly cost.
+- Web address: the app needs one permanent address either way. Vercel gives a free one. See question 37.
 - No secrets go in the repository. Keys live in Vercel's and Supabase's own settings.
 
 ---
@@ -100,8 +102,7 @@ These are the choices in this design that cost money, add an account, or change 
 | background | 'flat', 'steel' or 'board' | Used by the Chalk and Iron skin only |
 | skins_available | list of text | The per-user gate from Section 6 of the spec. Default: all three |
 | coach_link | text | The link the Coach button opens |
-| weekly_email_on | yes/no | |
-| weekly_email_weekday, weekly_email_time | number, time | Default Sunday evening |
+| is_admin | yes/no | Default no. An admin can open the admin page. It gives no access to anyone else's training data |
 | setup_done | list of text | Which walkthrough steps are finished |
 | delete_requested_at | timestamp or empty | Starts the 14-day grace period |
 
@@ -109,7 +110,18 @@ These are the choices in this design that cost money, add an account, or change 
 
 **gyms**: `name`, `equipment` (list of text), `notes`, `is_default`, `archived_at`, `version`. The database allows only one default gym per user.
 
-**accountability_partners**. At most one per user: `email`, `status` ('invited', 'confirmed', 'stopped'), `confirm_code_hash`, `confirmed_at`.
+**invites**. One row per invite link. Only an admin can create one.
+
+| Field | Type | Notes |
+|---|---|---|
+| code_hash | text | The link's secret is stored scrambled, so reading the database does not reveal a usable link |
+| label | text | Who it is for, as the admin typed it |
+| created_by | link to an admin | |
+| expires_at | timestamp | Default 7 days after it is made |
+| used_at, used_by | timestamp and link, or empty | Filled in the moment someone registers with it. A used link never works again |
+| cancelled_at | timestamp or empty | |
+
+The emailed weekly summary and the accountability partner are deferred, so they have no tables in this version.
 
 **push_subscriptions**. One row per device that allowed notifications: `endpoint`, `keys`, `device_label`, `last_success_at`.
 
@@ -294,14 +306,13 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 
 - **rest_alerts**: `session_id`, `fire_at`, `status`. See Section 7.
 - **received_changes**: the ids of changes already received from phones, so a repeat is ignored. See Section 6.
-- **weekly_email_log**: which week was sent to whom, so no one gets two.
 - **starter library**: about 40 exercises and the starter vocabulary live as a data file in the repository and are copied into each new account at registration.
 
 ---
 
 ## 3. Connector contracts
 
-**In short:** the sixteen tool names in the spec are kept as they are. Eleven tools read and five propose. A propose tool can do exactly one thing: add a pending proposal. The database, not only the code, enforces that.
+**In short:** the sixteen tool names in the spec are kept as they are, and one read tool is added, `get_weekly_summary` (Nathan's decision, 16 Nov). Twelve tools read and five propose. A propose tool can do exactly one thing: add a pending proposal. The database, not only the code, enforces that.
 
 ### Rules shared by every tool
 
@@ -345,6 +356,9 @@ Validation errors are returned to the coach before anything reaches the inbox, a
 | get_today | None | Today's date. What is planned, with overrides applied and last session's numbers per exercise. Any missed workouts still available. The live session if one is running: elapsed time, efficiency, volume, current exercise, each exercise's logged sets and Skipped or Replaced marks. Pending today proposals | not_signed_in |
 | list_sessions | Optional: `from`, `to`, `limit` (default 20), `next` | Per session: id, date, workout name, source, gym, duration, volume, efficiency, records set, and each exercise with its sets and Skipped marks | invalid_input |
 | get_proposal_status | `proposal_id` | Status, kind, created and decided times | not_found |
+| get_weekly_summary | Optional: `week_of` (any date in the week wanted). Without it, the most recent full week | The week's dates. Sessions done and planned days missed. For each session: the exercises with sets, reps and weights. Total volume, records set, efficiency. Cardio entries for the week | invalid_input |
+
+**The weekly summary goes through the coach.** The app cannot push anything to the user's LLM, because the app never calls an LLM (rule 1). So the summary is a read tool: the user asks their coach for the week, or sets their coach app to ask on a schedule, and the coach writes it up. For an accountability partner, the coach writes a version to share and the user sends it themselves. Whether a coach app's scheduled tasks can use a custom connector is not confirmed (Section 10C).
 
 `get_campaign` gains one optional input the spec does not list, `campaign_id`, so a coach can read a draft it is asked to edit. With no input it behaves exactly as the spec describes.
 
@@ -392,7 +406,28 @@ Why the code: on an iPhone, a link tapped in Mail opens in Safari. Safari and th
 - **Sign-out** ends the sign-in on that device and clears what the app stored on it, after sending anything still unsent.
 - **Deleting an account** offers an export, marks the account, and a daily job removes everything 14 days later. Signing in during those 14 days offers to cancel.
 - **Passkeys** are to confirm: if Supabase's sign-in does not support them directly, they are added with a small standard library or moved to a later phase.
-- **Registration** is by invite link in this design (question 1).
+- **Registration** is by single-use invite link from an admin. See "Invites and the admin page" below.
+
+### Invites and the admin page
+
+Decided by Nathan on 16 November.
+
+- **Admins.** An account is either an ordinary user or an admin. Nathan's account is made the first admin once, when the app is set up. An admin can make another user an admin. An ordinary user cannot invite anyone.
+- **Invite links are single-use.** Each link registers one account and then stops working. It also stops after 7 days if unused, and an admin can cancel it at any time.
+- **Ready-to-paste invite.** Making an invite shows a block of text holding the link and the setup steps (register, add to the home screen, allow notifications, connect a coach). The admin copies it into their own email or message. The app sends nothing.
+- **The admin page** shows: the list of accounts (name, email, date joined), invites (waiting, used, expired, cancelled), and buttons to make or cancel an invite, make someone an admin, and help someone who is locked out.
+- **What an admin cannot do.** An admin sees no one else's workouts, history, notes, coach profile or proposals. The rule that each user sees only their own data has no admin exception. The admin page reads account details only.
+
+### Sign-in without any email (option, Decisions row H)
+
+With the weekly email deferred and invites pasted by hand, sign-in is the only thing left that needs an email service. It could be dropped too:
+
+1. A friend opens their invite link, types a name and email address (kept as a contact detail only), and creates a passkey with Face ID or Touch ID.
+2. From then on, signing in is one Face ID or Touch ID check. Apple keeps the passkey in iCloud Keychain, so it is available in Safari and in the home-screen app alike, and on the person's other Apple devices. The Safari problem in row D does not arise.
+3. On a computer without the passkey, the sign-in page shows a code to scan with the phone.
+4. If someone loses every device, an admin makes them a single-use recovery link from the admin page.
+
+What it depends on, none of it confirmed yet: that Supabase's sign-in can use a passkey as the only sign-in method, that passkeys work inside the iPhone home-screen app, and that they work on the page ChatGPT and Claude open when connecting a coach. The early sign-in proof tests all three. If any fails, the design falls back to the emailed code above.
 
 ### Signing the coach in to the connector
 
@@ -409,7 +444,7 @@ Both ChatGPT and Claude connect to a custom connector the same way, using the st
 
 **ChatGPT and Claude differences.** The mechanism is the same. The setup screens differ, so the Coach setup page has separate steps for each. Each app registers itself with the connector in its own way, and the design supports both common ways. Claude as a coach has never been tested (a carried open item). ChatGPT has been tested only without sign-in.
 
-**Proving it early.** Connector sign-in is named a "hard spot" in `docs/MODEL_AND_EFFORT.md`. I recommend a small proof at the start of Phase 1: sign-in plus one read tool on real accounts, tested from ChatGPT and from Claude, on the web and on the iPhone. If it fails, the fallback is chosen before the data model is built on top of it. This moves a slice of Phase 4 work forward and needs Nathan's agreement (question 31).
+**Proving it early.** Connector sign-in is named a "hard spot" in `docs/MODEL_AND_EFFORT.md`. Phase 1 starts with a small proof: sign-in plus one read tool on real accounts, tested from ChatGPT and from Claude, on the web and on the iPhone. If it fails, the fallback is chosen before the data model is built on top of it. This moves a slice of Phase 4 work forward. Nathan approved it on 16 November (question 31). The same proof tries passkey-only sign-in (Decisions, row H).
 
 ### Keeping one user's data from another's
 
@@ -703,7 +738,7 @@ All automated tests run on every pull request. A phase is not offered for accept
 | | Today proposal leaves library, campaign and logged sets alone | Database |
 | | Outside-vocabulary value is an error and never reaches the inbox | Connector |
 | | One user's connector cannot reach another's data | Connector and Database, every tool and every table |
-| | No outgoing call to any LLM service | Code check: a scan for LLM libraries and addresses, plus a test that the server makes no outside calls beyond an allowed list (email, push) |
+| | No outgoing call to any LLM service | Code check: a scan for LLM libraries and addresses, plus a test that the server makes no outside calls beyond an allowed list (push notifications, and the email service if one is used) |
 | Theming | Switching skins moves and resizes nothing | App: record every element's position and size under each skin and compare |
 | | No color or font outside the token files | Code check |
 | | Reduced motion: no dust or shake | App, with reduced motion switched on |
@@ -734,12 +769,12 @@ These are places where the spec is unclear, silent or disagrees with itself. The
 
 | # | Question | Where | Assumed until decided |
 |---|---|---|---|
-| 1 | Who may register? "Nathan and a small group of friends" on a public web address, with self-service registration and no stated way to keep strangers out | Sections 2 and 10 | Registration needs an invite link that Nathan can make and cancel |
+| 1 | Who may register? "Nathan and a small group of friends" on a public web address, with self-service registration and no stated way to keep strangers out | Sections 2 and 10 | **Decided 16 Nov:** single-use invite links, made only by an admin on an admin page. The spec is updated |
 | 2 | Converted weights: Section 8 expects 60 lb to show as 27.22 kg (two decimals). Section 10 says converted weights show to one decimal (27.2). The prototype rounds to the nearest half | Sections 8 and 10 | One decimal for display, as the later rule says. The acceptance test would need changing to 27.2 |
 | 3 | "The library is never changed by use", yet the phone's unit switch and note line change the exercise during a workout | Sections 1, 2 and 5 | Those two are deliberate edits by the user, not changes "by use", and are allowed |
 | 4 | Proposal states: Section 3 lists pending, accepted, rejected. Section 10 adds out of date, and today proposals expire. Section 4 says `get_proposal_status` returns one of three | Sections 3, 4 and 10 | Five states, all visible to the coach |
 | 5 | "Decline discards it" and "any proposal can be dismissed at any time". Are Decline and Dismiss the same thing? | Sections 4 and 10 | Yes. Both end as rejected |
-| 6 | Sign-in by emailed link does not work inside the iPhone home-screen app | Section 9, decision 4 | The email carries a link and a six-digit code |
+| 6 | Sign-in by emailed link does not work inside the iPhone home-screen app | Section 9, decision 4 | The email carries a link and a six-digit code. Awaiting Nathan's answer, together with question 35 |
 | 7 | Skins must not resize elements, yet heading size and numeral size are tokens that differ by skin | Sections 1 and 6 | Text sizes may differ. Boxes keep fixed sizes, so nothing moves |
 | 8 | Section 9 opens with "seven points are not yet decided" and "rows 4 and 6 to 10 are confirmed", but the table has fourteen rows | Section 9 | No effect on the build. Worth tidying in the spec |
 
@@ -769,10 +804,14 @@ These are places where the spec is unclear, silent or disagrees with itself. The
 | 28 | Who writes the starter library of about 40 exercises with alternates, and the starter work and rest seconds? | The coding agent drafts the list in Phase 1 for Nathan to edit |
 | 29 | The coach cannot see cardio, and cannot list its own past proposals. Neither has a tool | Not built. Raised in case Nathan wants a `list_cardio` or `list_proposals` tool |
 | 30 | Can a user have two sessions active at once, for example on two devices? | No. Starting a second offers to resume or finish the first |
-| 31 | May a small sign-in proof for the connector be done at the start of Phase 1, ahead of the Phase 4 connector work? | Yes, as a throwaway proof like Phase 0 |
+| 31 | May a small sign-in proof for the connector be done at the start of Phase 1, ahead of the Phase 4 connector work? | **Decided 16 Nov:** yes, as a throwaway proof like Phase 0. The spec's roadmap is updated |
 | 32 | Full data export: what format? | One file a spreadsheet can open per kind of record, in a zip, plus one complete file for moving to another tool |
-| 33 | Weekly email: is it sent in a week with no sessions? What does the partner see? | Sent to the user with a short "no sessions" note. Not sent to the partner |
-| 34 | If someone loses access to their email, there is no way back into the account | Nathan can change an account's email by hand in Supabase. No self-service route |
+| 33 | Weekly email: is it sent in a week with no sessions? What does the partner see? | **No longer applies.** Decided 16 Nov: the summary is read by the coach through `get_weekly_summary`. The emailed summary and accountability partner are deferred |
+| 34 | If someone loses access to their email, or every device holding their passkey, there is no self-service way back into the account | An admin helps from the admin page, with a single-use recovery link or a change of email |
+| 35 | Should the app send any email at all? Sign-in is the only remaining reason for an email service and domain (Decisions, row H) | Try passkey-only sign-in in the early proof. Use it if it passes. Otherwise sign in by emailed code, with an email service |
+| 36 | Backups on the free Supabase plan. As I understand it, the free plan keeps no automatic backups, so a mistake or a fault could lose history | Start on the free plan. Before friends join, either move to the paid plan or add a scheduled backup. Each user's own export button is available from Phase 5 |
+| 37 | What is the app's permanent web address? Passkeys and each friend's coach connection are tied to the address, so changing it later means everyone sets up again | Use Vercel's free address for building and testing. Choose the permanent address before the first friend is invited |
+| 38 | May an admin remove another person's account, and does the 14-day grace period apply? | An admin can block sign-in at once. Removal follows the same 14-day grace period as a self-service delete |
 
 ### C. Facts to confirm with a small test
 
@@ -789,6 +828,8 @@ I did not check these against current documentation in this sitting. Each is con
 | A web app's sound can mix with music without interrupting it | The rest sound becomes optional and off by default |
 | The home-screen app keeps its stored data indefinitely | The app warns when unsent sets exist and syncs more eagerly |
 | The Vercel and Supabase free tiers fit this use | Paid tiers |
+| A coach app's scheduled tasks can call a custom connector, so the weekly summary can arrive without being asked for | The user asks their coach for the week's summary by hand |
+| A passkey can be the only sign-in method with Supabase, and works in the iPhone home-screen app and on the coach-connection page | Sign in by emailed code, which needs an email service and a domain |
 
 ### D. Carried from the kickoff brief, still open
 
@@ -801,6 +842,6 @@ I did not check these against current documentation in this sitting. Each is con
 
 ## What happens next
 
-1. Nathan reviews this document and answers what he can in Section 10.
+1. Nathan answered five of the decisions on 16 November, and they are recorded in the table at the top. Still to answer: rows A, D, F and H, and Section 10.
 2. The document is revised to match his answers, and the spec is updated where an answer changes it.
 3. Once Nathan approves, Phase 1 begins on Opus 5.5 at high effort, on its own branch and pull request.
