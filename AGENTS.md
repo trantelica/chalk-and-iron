@@ -20,6 +20,7 @@ This is the single briefing for any agent working on Chalk and Iron. The same fi
 | What to build, rules, edge cases | `docs/SPEC.md` (GitHub) |
 | Look and feel reference | `prototype/index.html` (GitHub) |
 | Connector test already run | `phase0/README.md`, `phase0/api/mcp.js` (GitHub) |
+| Which model and effort level to use at each stage (standing instruction) | `docs/MODEL_AND_EFFORT.md` (GitHub) |
 | Coach wording (parked draft) | `docs/COACH_INSTRUCTIONS.md` (GitHub) |
 
 ---
