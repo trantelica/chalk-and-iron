@@ -12,19 +12,19 @@ Every new account starts with these exercises and the starter vocabulary. This p
 ## How it is put together
 
 - Names follow the coach naming rule: equipment, then variation, then movement.
-- Units are pounds for weighted lifts and bodyweight (BW) for bodyweight ones.
+- Units are pounds for weighted lifts and bodyweight (BW) for bodyweight and band ones.
 - Work is 45 seconds per set for every exercise. Rest is 120 seconds for multi-joint lifts and 90 for single-joint and core work, the spec's defaults (Section 9, row 3). These have no researched source yet (row 14).
 - Every exercise has three swaps: bodyweight (your own weight, may use a fixed bar or a stable bench), basic gym (dumbbells, bands, barbell, kettlebell) and full gym (machines and cables). Every swap is itself an exercise in this library, so the app links the two and a swap uses that exercise's own history.
 - By equipment: bodyweight 53, dumbbell 42, cable 39, selectorized machine 25, plate-loaded machine 23, barbell 18, band 14, Smith machine 10, kettlebell 3.
 
 ## Logging conventions from the coach
 
-These are in the exercises' notes. Nathan decided on 17 November 2026 how records and totals treat them (spec Section 3, design Section 10E point 9). The changes to the data arrive at the start of Phase 2.
+These are in the exercises' notes. Nathan decided on 17 November 2026 how records and totals treat them (spec Section 3, design Section 10E point 9). Bands are already bodyweight below; the assisted and load-count changes arrive at the start of Phase 2.
 
-- **Dumbbells:** log pounds per dumbbell, and reps per side for one-sided lifts. Records use the single-dumbbell weight. Each exercise gets a load count (2 for a pair or per side) so volume is the total weight moved.
+- **Dumbbells:** log pounds per dumbbell, and reps per side for one-sided lifts. Records use the single-dumbbell weight. Each exercise gets a load count (2 for a pair or for any single-side lift logged per side, 4 for both) so volume is the total weight moved.
 - **Assisted machines** (assisted dip, assisted pull-up): log the machine's assistance. More assistance makes the rep easier, so progress shows as the number going down. Records count less assistance as better, and volume counts reps.
 - **Sleds:** log the added plates, and count one fixed-distance trip as one rep. No special rule: a sled is a lift over a longer distance.
-- **Bands:** treated as bodyweight, because band resistance is not standardized or labeled. Use the same band and setup each time. The 14 band exercises below still show pounds until Phase 2 switches them to BW.
+- **Bands:** treated as bodyweight, because band resistance is not standardized or labeled. Use the same band and setup each time. The 14 band exercises below are bodyweight (BW).
 
 ## Exercises
 
@@ -64,7 +64,7 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Dumbbell One-Arm Row | lats | dumbbell | lb | 120 | Bodyweight Inverted Row | Barbell Bent-Over Row | Selectorized Machine Seated Row |  |
 | Bodyweight Chin-Up | lats | bodyweight | bw | 120 | Bodyweight Supinated Inverted Row | Dumbbell Alternating Curl | Selectorized Machine Assisted Pull-Up | Use an underhand grip. |
 | Dumbbell Pullover | lats | dumbbell | lb | 90 | Bodyweight Pull-Up | Band Lat Pulldown | Plate-Loaded Machine Pullover | Keep a soft elbow bend and move from the shoulders. |
-| Band Lat Pulldown | lats | band | lb | 120 | Bodyweight Pull-Up | Dumbbell Pullover | Cable Lat Pulldown | Use a secure overhead anchor. |
+| Band Lat Pulldown | lats | band | bw | 120 | Bodyweight Pull-Up | Dumbbell Pullover | Cable Lat Pulldown | Use a secure overhead anchor. |
 | Cable Wide-Grip Lat Pulldown | lats | cable | lb | 120 | Bodyweight Pull-Up | Band Lat Pulldown | Cable Lat Pulldown | Pull the bar toward your upper chest. |
 | Selectorized Machine Assisted Pull-Up | lats | selectorized machine | lb | 120 | Bodyweight Pull-Up | Dumbbell Pullover | Cable Lat Pulldown | Enter the machine's assistance setting. More assistance makes the rep easier. |
 | Plate-Loaded Machine Lat Pulldown | lats | plate-loaded machine | lb | 120 | Bodyweight Pull-Up | Dumbbell Pullover | Cable Lat Pulldown |  |
@@ -111,7 +111,7 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Cable Seated Shoulder Press | front | cable | lb | 120 | Bodyweight Pike Push-Up | Dumbbell Seated Shoulder Press | Selectorized Machine Shoulder Press | Sit between two low pulleys. Start with the handles near shoulder height and press overhead. |
 | Dumbbell Lateral Raise | side | dumbbell | lb | 90 | Bodyweight Side-Lying Lateral Raise | Band Lateral Raise | Cable Lateral Raise |  |
 | Bodyweight Side-Lying Lateral Raise | side | bodyweight | bw | 90 | Bodyweight Prone T Raise | Dumbbell Lateral Raise | Cable Lateral Raise | Use the weight of your straight arm and lift it under control. |
-| Band Lateral Raise | side | band | lb | 90 | Bodyweight Side-Lying Lateral Raise | Dumbbell Lateral Raise | Cable Lateral Raise | Stand on the band to anchor it. |
+| Band Lateral Raise | side | band | bw | 90 | Bodyweight Side-Lying Lateral Raise | Dumbbell Lateral Raise | Cable Lateral Raise | Stand on the band to anchor it. |
 | Dumbbell Upright Row | side | dumbbell | lb | 120 | Bodyweight Side-Lying Lateral Raise | Dumbbell Lateral Raise | Cable Lateral Raise | Lead with your elbows and use a comfortable range. |
 | Cable Lateral Raise | side | cable | lb | 90 | Bodyweight Side-Lying Lateral Raise | Dumbbell Lateral Raise | Plate-Loaded Machine Lateral Raise |  |
 | Plate-Loaded Machine Lateral Raise | side | plate-loaded machine | lb | 90 | Bodyweight Side-Lying Lateral Raise | Dumbbell Lateral Raise | Cable Lateral Raise |  |
@@ -120,7 +120,7 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Cable Face Pull | rear | cable | lb | 90 | Bodyweight Prone T Raise | Band Pull-Apart | Selectorized Machine Reverse Pec Deck |  |
 | Bodyweight Prone T Raise | rear | bodyweight | bw | 90 | Bodyweight Prone W Raise | Band Pull-Apart | Cable Face Pull | Reach your arms out to the sides and lift slightly. |
 | Bodyweight Prone W Raise | rear | bodyweight | bw | 90 | Bodyweight Prone T Raise | Band Pull-Apart | Cable Face Pull | Bend your elbows and lift your arms into a W. |
-| Band Pull-Apart | rear | band | lb | 90 | Bodyweight Prone T Raise | Dumbbell Bent-Over Reverse Fly | Cable Face Pull | Keep your ribs still as your hands move apart. |
+| Band Pull-Apart | rear | band | bw | 90 | Bodyweight Prone T Raise | Dumbbell Bent-Over Reverse Fly | Cable Face Pull | Keep your ribs still as your hands move apart. |
 | Dumbbell Bent-Over Reverse Fly | rear | dumbbell | lb | 90 | Bodyweight Prone T Raise | Band Pull-Apart | Cable Face Pull | Keep a soft bend in the elbows. |
 | Dumbbell Lying Reverse Lateral Raise | rear | dumbbell | lb | 90 | Bodyweight Prone T Raise | Dumbbell Bent-Over Reverse Fly | Selectorized Machine Reverse Pec Deck | Lie chest-down and lift your arms out to the sides. |
 | Cable Rear Delt Fly | rear | cable | lb | 90 | Bodyweight Prone T Raise | Band Pull-Apart | Cable Face Pull | Sweep your arms out with a steady elbow angle. |
@@ -131,7 +131,7 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Exercise | Focus | Equipment | Unit | Rest s | Bodyweight swap | Basic gym swap | Full gym swap | Note |
 |---|---|---|---|---|---|---|---|---|
 | Dumbbell Incline Curl | long head | dumbbell | lb | 90 | Bodyweight Chin-Up | Dumbbell Alternating Curl | Cable Bayesian Curl |  |
-| Band Curl | long head | band | lb | 90 | Bodyweight Chin-Up | Dumbbell Incline Curl | Cable Bayesian Curl | Anchor the band under your feet. |
+| Band Curl | long head | band | bw | 90 | Bodyweight Chin-Up | Dumbbell Incline Curl | Cable Bayesian Curl | Anchor the band under your feet. |
 | Cable Bayesian Curl | long head | cable | lb | 90 | Bodyweight Chin-Up | Dumbbell Incline Curl | Cable Curl | Face away from the low pulley with your upper arm slightly behind you. |
 | Barbell Curl | short head | barbell | lb | 90 | Bodyweight Chin-Up | Barbell EZ-Bar Curl | Cable Curl | Use a straight bar with an underhand grip. |
 | Selectorized Machine Preacher Curl | short head | selectorized machine | lb | 90 | Bodyweight Chin-Up | Dumbbell Preacher Curl | Cable Preacher Curl |  |
@@ -145,7 +145,7 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Dumbbell Hammer Curl | brachialis | dumbbell | lb | 90 | Bodyweight Neutral-Grip Pull-Up | Band Hammer Curl | Cable Rope Hammer Curl |  |
 | Barbell Reverse Curl | brachialis | barbell | lb | 90 | Bodyweight Neutral-Grip Pull-Up | Dumbbell Reverse Curl | Cable Reverse Curl |  |
 | Bodyweight Neutral-Grip Pull-Up | brachialis | bodyweight | bw | 120 | Bodyweight Chin-Up | Dumbbell Hammer Curl | Cable Lat Pulldown | Use parallel handles and avoid swinging. |
-| Band Hammer Curl | brachialis | band | lb | 90 | Bodyweight Neutral-Grip Pull-Up | Dumbbell Hammer Curl | Cable Rope Hammer Curl | Keep your palms facing each other. |
+| Band Hammer Curl | brachialis | band | bw | 90 | Bodyweight Neutral-Grip Pull-Up | Dumbbell Hammer Curl | Cable Rope Hammer Curl | Keep your palms facing each other. |
 | Cable Rope Hammer Curl | brachialis | cable | lb | 90 | Bodyweight Neutral-Grip Pull-Up | Dumbbell Hammer Curl | Cable Reverse Curl | Keep a neutral grip through the rep. |
 | Dumbbell Reverse Curl | brachialis | dumbbell | lb | 90 | Bodyweight Neutral-Grip Pull-Up | Barbell Reverse Curl | Cable Reverse Curl | Keep your palms down throughout the curl. |
 | Cable Reverse Curl | brachialis | cable | lb | 90 | Bodyweight Neutral-Grip Pull-Up | Barbell Reverse Curl | Cable Rope Hammer Curl | Keep your elbows still and palms facing down. |
@@ -163,7 +163,7 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Cable Rope Pushdown | lateral head | cable | lb | 90 | Bodyweight Bar Triceps Extension | Band Pushdown | Selectorized Machine Triceps Extension |  |
 | Bodyweight Bar Triceps Extension | lateral head | bodyweight | bw | 90 | Bodyweight Kneeling Triceps Extension | Band Pushdown | Cable Rope Pushdown | Use a secure fixed bar and let your elbows bend. |
 | Bodyweight Kneeling Triceps Extension | lateral head | bodyweight | bw | 90 | Bodyweight Bar Triceps Extension | Band Pushdown | Cable Rope Pushdown | Keep your elbows in and move through them. |
-| Band Pushdown | lateral head | band | lb | 90 | Bodyweight Bar Triceps Extension | Dumbbell Triceps Kickback | Cable Rope Pushdown | Use a secure overhead anchor. |
+| Band Pushdown | lateral head | band | bw | 90 | Bodyweight Bar Triceps Extension | Dumbbell Triceps Kickback | Cable Rope Pushdown | Use a secure overhead anchor. |
 | Dumbbell Triceps Kickback | lateral head | dumbbell | lb | 90 | Bodyweight Kneeling Triceps Extension | Band Pushdown | Cable Triceps Kickback | Keep your upper arm still as you straighten the elbow. |
 | Cable Straight-Bar Pushdown | lateral head | cable | lb | 90 | Bodyweight Bar Triceps Extension | Band Pushdown | Selectorized Machine Triceps Pushdown | Keep your elbows near your sides. |
 | Cable V-Bar Pushdown | lateral head | cable | lb | 90 | Bodyweight Bar Triceps Extension | Band Pushdown | Cable Rope Pushdown | Keep your torso still. |
@@ -202,12 +202,12 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Bodyweight Side Plank Hip Lift | obliques | bodyweight | bw | 90 | Bodyweight Russian Twist | Dumbbell Side Bend | Cable Woodchop | Lift and lower your hips under control. |
 | Bodyweight Russian Twist | obliques | bodyweight | bw | 90 | Bodyweight Side Plank Hip Lift | Dumbbell Side Bend | Cable Woodchop | Rotate your rib cage under control. |
 | Dumbbell Side Bend | obliques | dumbbell | lb | 90 | Bodyweight Side Plank Hip Lift | Band Woodchop | Cable Woodchop | Keep your shoulders facing forward. |
-| Band Woodchop | obliques | band | lb | 90 | Bodyweight Side Plank Hip Lift | Dumbbell Side Bend | Cable Woodchop | Use a secure anchor and control the return. |
+| Band Woodchop | obliques | band | bw | 90 | Bodyweight Side Plank Hip Lift | Dumbbell Side Bend | Cable Woodchop | Use a secure anchor and control the return. |
 | Selectorized Machine Rotary Torso | obliques | selectorized machine | lb | 90 | Bodyweight Side Plank Hip Lift | Dumbbell Side Bend | Cable Woodchop | Use a controlled range and set the machine for each side. |
 | Cable Pallof Press | deep core | cable | lb | 90 | Bodyweight Dead Bug | Band Pallof Press | Cable Half-Kneeling Pallof Press |  |
 | Bodyweight Dead Bug | deep core | bodyweight | bw | 90 | Bodyweight Bird Dog | Band Pallof Press | Cable Pallof Press | Keep your lower back steady as opposite limbs move. |
 | Bodyweight Bird Dog | deep core | bodyweight | bw | 90 | Bodyweight Dead Bug | Band Pallof Press | Cable Pallof Press | Keep your hips level while reaching. |
-| Band Pallof Press | deep core | band | lb | 90 | Bodyweight Dead Bug | Band Woodchop | Cable Pallof Press | Press straight ahead without rotating. |
+| Band Pallof Press | deep core | band | bw | 90 | Bodyweight Dead Bug | Band Woodchop | Cable Pallof Press | Press straight ahead without rotating. |
 | Cable Half-Kneeling Pallof Press | deep core | cable | lb | 90 | Bodyweight Bird Dog | Band Pallof Press | Cable Pallof Press | Brace and keep your shoulders square. |
 
 ### Glutes (17)
@@ -228,8 +228,8 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Plate-Loaded Machine Reverse Glute-Ham | max | plate-loaded machine | lb | 120 | Bodyweight Back Extension | Dumbbell Romanian Deadlift | Cable Pull-Through | Keep your torso on the pad and swing only through a controlled hip range. |
 | Bodyweight Clamshell | medius | bodyweight | bw | 90 | Bodyweight Side-Lying Leg Raise | Band Lateral Walk | Selectorized Machine Hip Abduction | Keep your hips stacked as your top knee opens. |
 | Bodyweight Side-Lying Leg Raise | medius | bodyweight | bw | 90 | Bodyweight Clamshell | Band Lateral Walk | Selectorized Machine Hip Abduction | Keep your pelvis stacked and your toes pointing forward. |
-| Band Lateral Walk | medius | band | lb | 90 | Bodyweight Clamshell | Band Clamshell | Selectorized Machine Hip Abduction | Maintain tension in the band throughout each step. |
-| Band Clamshell | medius | band | lb | 90 | Bodyweight Clamshell | Band Lateral Walk | Selectorized Machine Hip Abduction | Keep your hips stacked. |
+| Band Lateral Walk | medius | band | bw | 90 | Bodyweight Clamshell | Band Clamshell | Selectorized Machine Hip Abduction | Maintain tension in the band throughout each step. |
+| Band Clamshell | medius | band | bw | 90 | Bodyweight Clamshell | Band Lateral Walk | Selectorized Machine Hip Abduction | Keep your hips stacked. |
 | Cable Standing Hip Abduction | medius | cable | lb | 90 | Bodyweight Clamshell | Band Lateral Walk | Selectorized Machine Hip Abduction | Keep your hips square as your leg moves out. |
 
 ### Calves (10)
@@ -278,7 +278,7 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Plate-Loaded Machine Bulgarian Split Squat |  | plate-loaded machine | lb | 120 | Bodyweight Split Squat | Dumbbell Bulgarian Split Squat | Smith Machine Bulgarian Split Squat | Set a stable rear-foot support and log reps per side. |
 | Bodyweight Reverse Nordic Curl |  | bodyweight | bw | 90 | Bodyweight Sissy Squat | Band Leg Extension | Selectorized Machine Leg Extension | Keep your hips extended as you lean back from your knees. |
 | Bodyweight Sissy Squat |  | bodyweight | bw | 90 | Bodyweight Reverse Nordic Curl | Band Leg Extension | Selectorized Machine Leg Extension | Use a stable support and keep the range controlled. |
-| Band Leg Extension |  | band | lb | 90 | Bodyweight Reverse Nordic Curl | Dumbbell Goblet Squat | Selectorized Machine Leg Extension | Use a secure anchor and extend only at the knee. |
+| Band Leg Extension |  | band | bw | 90 | Bodyweight Reverse Nordic Curl | Dumbbell Goblet Squat | Selectorized Machine Leg Extension | Use a secure anchor and extend only at the knee. |
 | Cable Leg Extension |  | cable | lb | 90 | Bodyweight Reverse Nordic Curl | Band Leg Extension | Selectorized Machine Leg Extension | Use an ankle cuff and keep your thigh still. |
 | Plate-Loaded Machine Sled Push |  | plate-loaded machine | lb | 120 | Bodyweight Step-Up | Dumbbell Walking Lunge | Plate-Loaded Machine Sled Backward Drag | Log the added plates. Count one fixed-distance trip as one rep and keep the distance and surface consistent. |
 | Plate-Loaded Machine Sled Backward Drag |  | plate-loaded machine | lb | 120 | Bodyweight Reverse Lunge | Dumbbell Reverse Lunge | Plate-Loaded Machine Sled Push | Hold the sled handles or tow strap and walk backward. Count one fixed-distance trip as one rep. |
@@ -296,7 +296,7 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Cable Romanian Deadlift |  | cable | lb | 120 | Bodyweight Single-Leg Romanian Deadlift | Barbell Romanian Deadlift | Smith Machine Romanian Deadlift | Hinge away from the low pulley while keeping tension in the cable. |
 | Bodyweight Sliding Leg Curl |  | bodyweight | bw | 90 | Bodyweight Nordic Curl | Band Lying Leg Curl | Selectorized Machine Seated Leg Curl | Use sliders or a towel on a smooth surface. |
 | Bodyweight Nordic Curl |  | bodyweight | bw | 90 | Bodyweight Sliding Leg Curl | Band Lying Leg Curl | Selectorized Machine Seated Leg Curl | Use a purpose-built bench or secure ankle anchor. |
-| Band Lying Leg Curl |  | band | lb | 90 | Bodyweight Sliding Leg Curl | Dumbbell Romanian Deadlift | Selectorized Machine Lying Leg Curl | Use a secure low anchor around the line of the ankles. |
+| Band Lying Leg Curl |  | band | bw | 90 | Bodyweight Sliding Leg Curl | Dumbbell Romanian Deadlift | Selectorized Machine Lying Leg Curl | Use a secure low anchor around the line of the ankles. |
 | Selectorized Machine Lying Leg Curl |  | selectorized machine | lb | 90 | Bodyweight Sliding Leg Curl | Band Lying Leg Curl | Selectorized Machine Seated Leg Curl | Align your knees with the machine pivot. |
 | Cable Standing Leg Curl |  | cable | lb | 90 | Bodyweight Sliding Leg Curl | Band Lying Leg Curl | Plate-Loaded Machine Standing Leg Curl | Use an ankle cuff and keep your thigh still. |
 | Plate-Loaded Machine Standing Leg Curl |  | plate-loaded machine | lb | 90 | Bodyweight Sliding Leg Curl | Band Lying Leg Curl | Selectorized Machine Standing Leg Curl | Line up your knee with the machine pivot and log reps per side. |
@@ -310,7 +310,7 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Bodyweight Side-Lying Adduction |  | bodyweight | bw | 90 | Bodyweight Short-Lever Copenhagen Hip Lift | Dumbbell Lateral Lunge | Selectorized Machine Hip Adduction | Lift the bottom leg while keeping your hips stacked. |
 | Bodyweight Short-Lever Copenhagen Hip Lift |  | bodyweight | bw | 90 | Bodyweight Side-Lying Adduction | Dumbbell Lateral Lunge | Selectorized Machine Hip Adduction | Support your top knee on a stable bench and lift your hips. |
 | Dumbbell Lateral Lunge |  | dumbbell | lb | 90 | Bodyweight Side-Lying Adduction | Band Hip Adduction | Selectorized Machine Hip Adduction | Step sideways and sit back over the working leg. |
-| Band Hip Adduction |  | band | lb | 90 | Bodyweight Side-Lying Adduction | Dumbbell Lateral Lunge | Cable Standing Hip Adduction | Anchor the band to the side and draw your working leg inward. |
+| Band Hip Adduction |  | band | bw | 90 | Bodyweight Side-Lying Adduction | Dumbbell Lateral Lunge | Cable Standing Hip Adduction | Anchor the band to the side and draw your working leg inward. |
 | Cable Standing Hip Adduction |  | cable | lb | 90 | Bodyweight Side-Lying Adduction | Dumbbell Lateral Lunge | Selectorized Machine Hip Adduction | Sweep the cuffed leg inward without turning your hips. |
 
 ### Abductors (2)
@@ -318,7 +318,7 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 | Exercise | Focus | Equipment | Unit | Rest s | Bodyweight swap | Basic gym swap | Full gym swap | Note |
 |---|---|---|---|---|---|---|---|---|
 | Selectorized Machine Hip Abduction |  | selectorized machine | lb | 90 | Bodyweight Side-Lying Leg Raise | Band Lateral Walk | Cable Standing Hip Abduction |  |
-| Band Standing Hip Abduction |  | band | lb | 90 | Bodyweight Side-Lying Leg Raise | Band Lateral Walk | Selectorized Machine Hip Abduction | Keep your trunk still as your leg moves out. |
+| Band Standing Hip Abduction |  | band | bw | 90 | Bodyweight Side-Lying Leg Raise | Band Lateral Walk | Selectorized Machine Hip Abduction | Keep your trunk still as your leg moves out. |
 
 ## Vocabulary
 

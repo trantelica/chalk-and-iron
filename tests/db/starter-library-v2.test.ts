@@ -8,6 +8,9 @@ import { nameKey } from '@/rules/names';
 
 const v1 = JSON.parse(readFileSync(join(import.meta.dirname, 'starter-library-v1.json'), 'utf8'));
 const upgrade = readFileSync(join(import.meta.dirname, '..', '..', 'supabase', 'migrations', '20261117000600_starter_library_v2.sql'), 'utf8');
+// Bands became bodyweight after version 2 shipped (Nathan, 17 Nov 2026), so an
+// upgraded account also runs that step to match a new account.
+const bands = readFileSync(join(import.meta.dirname, '..', '..', 'supabase', 'migrations', '20261117000700_bands_are_bodyweight.sql'), 'utf8');
 
 async function registerWith(db: Db, admin: string, email: string, library: unknown) {
   const code = (await db.as<{ code: string }>(admin, `select code from admin_create_invite($1)`, [email]))[0].code;
@@ -44,6 +47,7 @@ describe('starter library version 2 for existing accounts', () => {
     expect((await library(db, old)).length).toBe(42);
 
     await db.pg.exec(upgrade);
+    await db.pg.exec(bands);
     const fresh = await registerWith(db, admin, 'fresh@example.test', starter);
     const upgraded = await library(db, old);
     expect(upgraded.length).toBe(227);
@@ -58,6 +62,7 @@ describe('starter library version 2 for existing accounts', () => {
     const before = (await db.pg.query(`select id, version, name from exercises order by id`)).rows;
     const altsBefore = (await db.pg.query(`select id, name, alternate_exercise_id from exercise_alternates order by id`)).rows;
     await db.pg.exec(upgrade);
+    await db.pg.exec(bands);
     expect((await db.pg.query(`select id, version, name from exercises order by id`)).rows).toEqual(before);
     expect((await db.pg.query(`select id, name, alternate_exercise_id from exercise_alternates order by id`)).rows).toEqual(altsBefore);
   }, 60000);
@@ -82,6 +87,7 @@ describe('starter library version 2 for existing accounts', () => {
     }
 
     await db.pg.exec(upgrade);
+    await db.pg.exec(bands);
 
     const curl = await exerciseByName(db, me, 'Barbell Curl');
     expect(curl.note).toBe('My cue');

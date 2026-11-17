@@ -43,11 +43,12 @@ describe('starter library', () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
-  it('uses the default seconds: 45 work, 120 rest multi-joint, 90 single-joint, and bodyweight units for bodyweight equipment', () => {
+  it('uses the default seconds: 45 work, 120 rest multi-joint, 90 single-joint, and bodyweight units for bodyweight and band equipment', () => {
     for (const e of starter.exercises) {
       expect(e.work_seconds).toBe(45);
       expect([90, 120]).toContain(e.rest_seconds);
-      expect(e.default_unit === 'bw', e.name).toBe(e.equipment === 'bodyweight');
+      // Bands are bodyweight: their resistance is not standardized (Nathan, 17 Nov 2026).
+      expect(e.default_unit === 'bw', e.name).toBe(e.equipment === 'bodyweight' || e.equipment === 'band');
     }
   });
 
