@@ -29,7 +29,7 @@ The tappable prototype is the reference for look, layout and interaction: `proto
 | Workout | An ordered list of exercises with sets, reps and rest |
 | Campaign | One to six consecutive weeks with workouts assigned to days |
 | Session | One performed workout, with everything logged in it |
-| Superset | Two or more exercises bound together and performed in alternation |
+| Superset | Two or three exercises bound together and performed in alternation, each with the same number of sets |
 | Time budget | The time allocated to an exercise for its work and rest |
 | Proposal | A change requested by a coach, waiting for the user's decision |
 | Skin | A complete visual theme applied to the fixed layout |
@@ -69,6 +69,8 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - A set is logged with weight and reps. Both can be typed or stepped. Steps are 5 in the selected unit for weight and 1 for reps.
 - The weight display is switched per exercise between pounds and kilograms. The phone remembers the choice for that exercise as a display setting. It is not an edit to the library exercise and does not change its default unit. Bodyweight exercises have no switch.
 - Last session's numbers for the exercise are shown while logging.
+- **Seeded weight.** When the plan sets no weight, the weight box for each set is pre-filled with the weight of the same set from the last session of that exercise. If that session had no such set, it is pre-filled with that session's heaviest set. For example, if set 1 was 80 lb and set 2 was 90 lb last time, today's set 1 seeds 80 and set 2 seeds 90, and a third set seeds 90. Tapping into the box clears it for a new number. Logging without touching it commits the seeded value.
+- Reps are pre-filled from the planned reps.
 - Sets have a type: warm-up, working or drop set. An effort rating (RPE, a 1 to 10 score for how hard a set felt) is optional. A long press on a set row opens set details, where the type and RPE are set. Tapping a set in the set list switches it between warm-up and working, whether or not the workout planned a warm-up. When a set becomes a warm-up, a working set is added after it, so the number of working sets stays as planned, and the time budget grows by one set's work and rest. Tapping it back removes the added set if it has not been logged.
 - During a workout the user can skip, reorder or add exercises from the workout tray.
 - A session survives a closed tab, a crash or a lost connection. Sets logged offline sync when the connection returns.
@@ -76,8 +78,9 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 
 ### Supersets
 
-- Exercises sharing a superset letter are performed in alternation.
-- Every member of a superset has the same number of sets. Reps can differ.
+- Exercises sharing a superset letter are performed in alternation. A superset has two or three exercises.
+- Every member of a superset has the same number of sets. Reps can differ. Members stay paired and equal, in the plan and during a workout. Any change to sets in a superset applies to all its members.
+- Switching a set to a warm-up inside a superset switches that whole round: each member's set in that round becomes a warm-up, and each member gains one working set. Switching back undoes it for all members, if the added sets are not logged.
 - Logging a set moves to the next member with no rest. Rest starts after the last member of each round.
 - A superset shares one exercise clock and one time budget.
 
@@ -92,6 +95,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - Four personal records per exercise: heaviest single set, best set of 6 or more reps, best of 10 or more, best of 20 or more.
 - The Stats screen shows the workout's elapsed time, efficiency, volume, sets done and records, then the active exercise's graph, estimated one-rep max and records.
 - The graph clusters one bar per set by session. Bar height is weight and the number above is reps. A line shows session volume on a right-hand scale.
+- For a bodyweight exercise every bar is the same height (1 BW), with the reps above, and the line shows the session's total reps.
 - The browser History view shows past sessions by workout and by exercise. It is read-only.
 
 ### Quick-swap
@@ -134,8 +138,8 @@ The app database is the single source of truth. Every record belongs to one user
 | Session exercise | exercise, order, superset letter, planned sets, reps, weight and rest, time budget, start time, elapsed seconds, skipped flag | A snapshot of the plan at session start |
 | Set log | set number, weight in lb, entered value, entered unit, reps, set type, RPE, time logged, record types | One row per set. A bodyweight set is recorded as a weight of 1 bodyweight unit ("1 BW") and a rep count |
 | Cardio log | date, type, duration, distance and unit, notes | Separate from sessions |
-| Proposal | source, kind, payload, summary lines, status, created, decided | Status: pending, accepted, rejected |
-| Vocabulary | muscle groups, focus values, equipment values | One editable list per user, seeded from Section 4 |
+| Proposal | source, kind, payload, summary lines, status, created, decided | Status: pending, accepted, rejected, out of date or expired (Section 10 covers the last two) |
+| Vocabulary | muscle groups, focus values, equipment values | One editable list per user, seeded from Section 4. Edited only in the browser planner |
 
 A session stores a snapshot of what was planned. Later edits to the library or campaign never rewrite a past session.
 
@@ -150,7 +154,7 @@ A session stores a snapshot of what was planned. Later edits to the library or c
 ### Time budget and exercise clock
 
 - Time budget for one exercise = sets × work seconds per set + (sets − 1) × rest seconds.
-- For a superset: rounds × the sum of each member's work seconds + (rounds − 1) × the first member's rest seconds. Every member has the same number of sets, so the rounds are that number.
+- For a superset: rounds × the sum of each member's work seconds + (rounds − 1) × the first member's rest seconds. Every member has the same number of sets, so the rounds are that number. A warm-up switch in a superset adds one round to the budget: each member's work seconds plus one rest.
 - A workout item's rest, when set, replaces the exercise default. A campaign day override replaces both.
 - The exercise clock starts at Start exercise and stops when the last set of the exercise or superset is logged.
 - The clock counts only while its exercise is open, meaning it is the exercise on screen in the workout. Locking the phone or closing the app does not change that. While open, the clock never stops counting, including past double the budget.
@@ -168,7 +172,7 @@ A session stores a snapshot of what was planned. Later edits to the library or c
 - **Heaviest single set:** the heaviest weight logged for any number of reps.
 - **Best 6+, 10+ and 20+:** the heaviest weight logged in a set of at least that many reps.
 - A logged set is checked against every type it qualifies for. All types it beats are stored on the set.
-- A record must strictly beat the best before that set, including earlier sets in the same session. A tie is not a record and gets no celebration or badge. When a set ties a record, the date shown for that record moves to the most recent date it was achieved.
+- A record must strictly beat the best before that set, including earlier sets in the same session. A tie is not a record and gets no celebration or badge. When a set ties a record, the record moves to that most recent set, showing its reps and date.
 - The celebration fires once per set and names the highest rep threshold beaten.
 - No record is awarded in an exercise's first-ever session, because there is nothing to beat.
 - Warm-up sets never count toward records.
@@ -176,9 +180,9 @@ A session stores a snapshot of what was planned. Later edits to the library or c
 ### Derived values
 
 - Volume = weight × reps, summed over working and drop sets.
-- A bodyweight set counts as a weight of 1 BW, so its volume is 1 × reps, counted in BW units and kept apart from pounds totals. For example, 20 push-ups is a weight of 1 BW and a count of 20.
+- A bodyweight set counts as a weight of 1 BW, so its volume is 1 × reps, counted in BW units and kept apart from pounds totals. For example, 20 push-ups is a weight of 1 BW and a count of 20. For a bodyweight exercise, total reps is treated the same way total weight is for a weighted one, everywhere volume is used.
 - Estimated one-rep max = weight × (1 + reps ÷ 30), taken from the set with the highest estimate over all history, working and drop sets only.
-- The graph's trend line is session volume for that exercise.
+- The graph's trend line is session volume for that exercise, which for a bodyweight exercise is its total reps.
 
 ## 4. Coach connection
 
@@ -218,16 +222,20 @@ The coach reads freely but can only propose. A proposal changes nothing until th
 | get_campaign | The active campaign with days and overrides |
 | get_today | Today's planned workout and live session progress |
 | list_sessions | Past sessions with time, volume, efficiency and records |
-| get_proposal_status | Whether a proposal is pending, accepted or rejected |
+| get_proposal_status | Whether a proposal is pending, accepted, rejected, out of date or expired |
+| list_proposals | Past and pending proposals, newest first, with their status |
+| list_cardio | Cardio entries over a date range |
 | get_weekly_summary | One week's sessions, sets, reps and weights, total volume, records, efficiency, missed days and cardio |
+
+There are nineteen tools: fourteen read tools and five propose tools.
 
 ### Propose tools
 
 | Tool | Proposes |
 | --- | --- |
 | propose_exercise | A new exercise, or edits to one |
-| propose_workout | A new workout, or edits to one |
-| propose_campaign | A new campaign, or edits to days and overrides |
+| propose_workout | A new workout, or edits to one. It may bring new exercises with it |
+| propose_campaign | A new campaign, or edits to days and overrides. It may bring new exercises and new workouts with it |
 | propose_today_change | Changes to today's session: swap, sets, reps, weight, rest, add, remove, reorder |
 | propose_profile_update | Changes to the coach profile or a gym |
 
@@ -241,7 +249,9 @@ Every propose tool requires one plain-language summary line per change, which is
 - A proposal for today's session never changes the library or the campaign, and never alters sets already logged.
 - A proposal for today's session expires at the 3:00 am day rollover that ends its day.
 - An accepted proposal for a new campaign arrives as a draft. The user activates it.
-- Proposals are validated when received. Unknown exercises, values outside the vocabulary, near-duplicate names, a new exercise without all three alternates, and a superset whose members would have different set counts are returned to the coach as errors, before the user sees anything.
+- A workout or campaign proposal can bundle the new exercises it needs (and, for a campaign, new workouts) in the same proposal. One card lists everything, and one Accept applies all of it or none.
+- A proposal is in one of five states: pending, accepted, rejected, out of date or expired. The coach can see each one.
+- Proposals are validated when received. Unknown exercises (not in the library and not defined in the same proposal), values outside the vocabulary, near-duplicate names, a new exercise without all three alternates, and a superset with fewer than two or more than three members, or with members of different set counts, are returned to the coach as errors, before the user sees anything.
 
 ### Coach instructions
 
@@ -252,11 +262,12 @@ Every propose tool requires one plain-language summary line per change, which is
 - Name exercises as equipment, then variation, then movement, for example "Cable Overhead Triceps Extension".
 - Give every new exercise three alternates: bodyweight, basic gym and full gym. The app requires them.
 - Set work seconds and rest seconds on every new exercise.
-- Give every member of a superset the same number of sets.
+- Keep supersets to two or three exercises, each with the same number of sets.
+- Bundle any new exercises a workout or campaign needs into that same proposal.
 - Vary focus on purpose, such as different triceps heads across a week.
 - Always propose, and say plainly that the change is waiting for approval in the app.
 
-The app enforces the vocabulary, the three alternates and even supersets, and warns on duplicates. The judgment about which movements complement each other stays with the coach.
+The app enforces the vocabulary, the three alternates and the superset rules, and warns on duplicates. The judgment about which movements complement each other stays with the coach.
 
 ### Starter vocabulary
 
@@ -353,7 +364,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 ### Browser planner (prototyped)
 
 - **Plan** is the future. Pick a campaign, a week and a day. The workout pane lists that day's rows, where exercise, sets, reps, weight and rest can be overridden. An overridden value shows the library value beside it. Clicking an exercise loads it in the exercise panel. A button sends the day to the phone as today's workout. If today already has a workout, the sent day arrives in the inbox as a card saying what would replace what, with Accept and Dismiss. Accept makes it today's workout for today only and changes neither the library nor the campaign. Dismiss changes nothing.
-- Changing the sets of one superset member changes every member, so supersets stay even. This applies to workouts and to day overrides.
+- Changing the sets of one superset member changes every member, so supersets stay equal. This applies to workouts and to day overrides. An exercise joining a superset takes its set count, and a superset holds two or three exercises.
 - **Library** holds three tabs. Exercises is an editable table. An exercise with missing fields, such as one added by a swap and never confirmed, is flagged as incomplete, with the empty fields shown. The flag never blocks its use. Workouts shows the selected workout's rows beside the exercise panel. Campaigns shows a grid of weeks by days.
 - **History** is the past. It lists sessions by workout and shows any exercise's graph and records. Nothing in it can be edited.
 - The exercise panel shows an exercise's details, swaps, graph and records wherever it appears.
@@ -367,7 +378,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | Profile and gyms | Coach profile fields and gym equipment lists |
 | Account | Email, export, delete account |
 | Admin (admins only) | Accounts and single-use links. Create, deactivate, reactivate, reset and delete an account, make a user an admin, with ready-to-paste invite and reset text. No training data |
-| Vocabulary | Editable lists of muscle groups, focus values and equipment |
+| Vocabulary | Editable lists of muscle groups, focus values and equipment. This is the only place the vocabulary is managed. The phone has no vocabulary screen, to keep it uncluttered |
 
 ### Prototype gaps to close
 
@@ -443,7 +454,7 @@ The build runs in seven phases. Phase 0 is a gate: its result decides how the co
 2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary. It also includes a project task: draft the starter library of about 40 exercises, each with its three alternates and starter work and rest seconds, for Nathan to review.
 3. **Phase 2, logging.** The active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, and crash-safe sessions. This phase must match the prototype.
 4. **Phase 3, planner.** Library for exercises, workouts and campaigns, the Plan view with per-day overrides, History, and sending a day to the phone.
-5. **Phase 4, coach.** The full connector tool set including the weekly summary, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens.
+5. **Phase 4, coach.** The full connector tool set, all nineteen tools, including the weekly summary, cardio and the proposal list, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens.
 6. **Phase 5, reach.** Notifications for rest and proposals, cardio, export, the Arcade and Liquid Color skins, backgrounds and celebrations.
 7. **Phase 6, friends.** Onboarding polish for non-technical users, tested by one friend completing setup without help. Before the first friend is invited: choose the app's permanent web address (building and testing use Vercel's free address), and either move Supabase to its paid plan or add a scheduled backup.
 
@@ -467,10 +478,12 @@ The build is accepted when every test below passes as an automated test, except 
 - [ ] Switching an exercise from lb to kg turns an entry of 60 lb into 27.2 kg, and its history then displays in kg. The library exercise's default unit is unchanged.
 - [ ] Weight steps are plus and minus 5 in the selected unit. Reps step by 1.
 - [ ] Weight cannot go below 0 and reps cannot go below 1.
+- [ ] With last session at 80 lb then 90 lb, and no weight planned, today's set 1 is pre-filled with 80, set 2 with 90 and set 3 with 90. Tapping into the box clears it. Logging set 1 untouched stores 80 lb.
 
 ### Supersets and rest
 
 - [ ] In a two-exercise superset, logging the first member moves to the second with no rest.
+- [ ] In a two-exercise superset of 3 rounds, switching round 1 to a warm-up makes round 1 a warm-up for both members and leaves 3 working rounds for both, 4 rounds in all. Switching it back returns both to 3.
 - [ ] Logging the second member starts rest and returns to the first.
 - [ ] +0:15 adds 15 seconds to a running rest. Skip ends it.
 - [ ] When rest reaches zero the app shows a banner and plays a sound.
@@ -499,6 +512,7 @@ The build is accepted when every test below passes as an automated test, except 
 
 - [ ] A session of 60 lb for 8, 8 and 7 reps draws three bars of equal height labeled 8, 8 and 7.
 - [ ] That session's point on the volume line reads 1,380 lb on the right-hand scale.
+- [ ] A bodyweight session of 20, 18 and 15 reps draws three bars of equal height labeled 20, 18 and 15, and its volume point reads 53 BW.
 
 ### The library is never changed by use
 
@@ -511,10 +525,11 @@ The build is accepted when every test below passes as an automated test, except 
 
 - [ ] Any propose tool call creates one pending proposal and changes no other record.
 - [ ] Accept applies every change in the proposal. Decline applies none.
-- [ ] The proposal's status is readable through get_proposal_status after either decision.
+- [ ] A workout proposal that bundles a new exercise adds both the exercise and the workout on Accept, and neither on Decline.
+- [ ] The proposal's status is readable through get_proposal_status and list_proposals after either decision.
 - [ ] A proposal for today's session leaves the library, the campaign and already-logged sets unchanged.
 - [ ] A proposal using an equipment value outside the vocabulary is returned to the coach as an error and never reaches the inbox.
-- [ ] A workout proposal that gives two members of a superset different set counts is returned to the coach as an error and never reaches the inbox.
+- [ ] A workout proposal that gives two members of a superset different set counts, or puts four exercises in one superset, is returned to the coach as an error and never reaches the inbox.
 - [ ] One user's connector cannot read or propose against another user's data.
 - [ ] The codebase contains no outgoing call to any LLM service. The connector only answers calls that a user's LLM makes to it.
 
@@ -591,7 +606,7 @@ These rules settle what happens outside the normal path. Nathan decided them in 
 - A planned day with no session shows as Missed. Nothing moves automatically, and the coach can see it.
 - Any planned workout can be pulled to another day and is logged on the day it was done. A missed workout can be done on a later day alongside that day's own workout.
 - More than one workout can be logged in a day, one after another. Only one session can be active at a time. Starting another while one is active offers to resume or finish the first.
-- A day sent from the planner when today already has a workout arrives in the inbox as a card, with Accept and Dismiss. Accept makes it today's workout for today only. It changes neither the library nor the campaign.
+- A day sent from the planner when today already has a workout arrives in the inbox as a card, with Accept and Dismiss. Accept makes it today's workout for today only. It changes neither the library nor the campaign, so the campaign's own day shows as Missed if it is not done, and the user can remove that day from the campaign if they do not mean to do it. When today has no workout planned, a sent day becomes today's workout at once, with no card.
 - Weeks run Monday to Sunday. A campaign may start on any date, and week 1 is the week holding its start date.
 - One campaign is active at a time. Others wait as drafts. An accepted proposal for a new campaign arrives as a draft. Activating a draft while another campaign is active ends that one after a confirmation.
 - A campaign can be shifted forward by a week, by the user or by an accepted proposal. There is no pause state. The shifted week does not count toward the six-week limit.
@@ -603,25 +618,32 @@ These rules settle what happens outside the normal path. Nathan decided them in 
 - A planned day that has not been performed follows the current design of its workout, with its own overrides on top.
 - Exercises and workouts are archived, never deleted. Archived items leave the pickers, keep their history and can be restored.
 - An archived workout still used by a campaign keeps running and carries a clear Archived tag.
-- An exercise added by a swap may have empty fields if its suggested details were never confirmed. The planner flags it as incomplete and never blocks its use. A new exercise proposed by a coach must be complete, including its three alternates. One added by hand need not have alternates.
+- An exercise added by a swap may have empty fields if its suggested details were never confirmed. The planner flags it as incomplete and never blocks its use. A new exercise proposed by a coach must be complete, including its three alternates. One added by hand or by a swap need not have alternates, and a swap-made exercise without them is not flagged as incomplete.
+- Renaming a vocabulary value carries through to every exercise that uses it. A value in use is archived, not deleted: the exercises keep it, the pickers drop it, and it can be restored. The vocabulary is managed only in the browser planner, never on the phone.
 
 ### Units and display
 
 - Every weight is stored in pounds. Each surface derives what it shows.
 - The planner has a pounds or kilograms view toggle that applies to everything on screen.
-- On the phone, each exercise keeps its own pounds or kilograms switch. The switch is a remembered display choice, kept apart from the library. It does not change the exercise or its default unit, and it never makes a proposal out of date. Bodyweight exercises have no switch.
+- On the phone, each exercise keeps its own pounds or kilograms switch. The switch is a remembered display choice, kept apart from the library. It does not change the exercise or its default unit, and it never makes a proposal out of date. If the default unit is later changed in the planner, the phone's remembered choice stays. Bodyweight exercises have no switch.
 - Converted weights show to one decimal. A typed value always shows exactly as typed, when shown in the unit it was typed in.
-- A bodyweight set is recorded as 1 BW and a rep count. Its volume is counted in BW units and kept apart from pounds totals.
+- Switching units alone never changes a weight. A converted or seeded weight logged without changes keeps its exact pounds value.
+- A bodyweight set is recorded as 1 BW and a rep count. Its volume is total reps, counted in BW units and kept apart from pounds totals.
 
 ### Supersets
 
-- Uneven supersets do not exist. Every member of a superset has the same number of sets. Reps can differ.
-- The planner keeps members' sets in step. A workout proposal, a campaign day override or a today proposal that would give members different set counts is returned as an error.
-- Still open: what happens when a warm-up switch or a skip makes one member's sets differ during a live session (technical design, question 39).
+- A superset has two or three exercises.
+- Supersets are always paired and equal, in the plan and during a workout. Every member has the same number of sets. Reps can differ.
+- Any change to sets in a superset applies to all its members. The planner changes them together, in workouts and day overrides, and an exercise joining a superset takes its set count. A coach's workout proposal, campaign day override or today proposal that would give members different set counts is returned as an error.
+- A warm-up switch inside a superset is a paired effect: the whole round becomes a warm-up and every member gains one working set.
+- One member of a superset can be swapped for another exercise, which takes the same sets.
+- Finishing a workout part-way through a round can leave members with different numbers of logged sets. That is a record of what happened, not a plan.
 
 ### Proposals
 
+- A proposal is pending, accepted, rejected, out of date or expired. The coach can see each state.
 - If the user edits something a pending proposal would change, the proposal is marked out of date. It cannot be accepted, and the coach can see that.
+- A workout or campaign proposal may bundle new exercises, and a campaign proposal new workouts too. One Accept applies all of it or none. An exercise counts as unknown only if it is neither in the library nor defined in the same proposal.
 - Any proposal can be dismissed at any time. Dismissing is the same as declining: the proposal ends as rejected. A proposal never blocks an action.
 - A proposal for today's session expires at the 3:00 am day rollover.
 - If a proposal for today's workout is accepted mid-session, the work already logged is saved as its own ad hoc session, and the proposed workout starts as a new session. Sets not yet reached are marked Replaced and excluded from efficiency.
