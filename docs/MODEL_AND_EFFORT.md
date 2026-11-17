@@ -12,6 +12,19 @@ Which AI model and how much thinking effort to use at each stage of Chalk and Ir
 | Hard spots in any phase | Opus 5.5 | High | Offline sync, timers that survive a closed app, connector sign-in |
 | Reviewing each phase | Opus 5.5 | High | A fresh, stronger pass before Nathan accepts the work |
 
+## Phase 2: how the work divides (17 Nov 2026)
+
+Phase 2 holds more Opus work than any other phase. The rules above already decide it; this writes the split down. Nathan agreed it on 17 November 2026.
+
+1. **Opening session: Opus 5.5, high.** The items carried from the Phase 1 review (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10):
+   - the two account fixes (a reset that stays shut after its link is opened, and the 14-day clean-up on real Supabase), because they are sign-in and access work;
+   - the `assisted` and `load_count` fields, because they change the data model;
+   - running the database and account tests against Supabase's own local version;
+   - the throwaway iPhone test page for notifications, server-sent rest alerts and screen wake.
+2. **Then Sonnet 5.5, medium,** for the screens and features: the active workout screen, the dial, the tray, supersets, typed and stepped entry, unit switching, records, stats, swap, breaking a superset into individual exercises, and the safe area.
+3. **Hard spots to an Opus 5.5 high-effort helper** when the build reaches them: the rest timer and clocks that survive a closed app, and crash-safe sessions with sets logged offline and sent later.
+4. **Review: a fresh Opus 5.5 high-effort session,** as for every phase.
+
 ## The Fable 5.2 date rule
 
 Fable 5.2 is used on **16 November 2026 only**. Any work that carries over into 17 November 2026 or later is done on **Opus 5.5**. Where this guide says Fable 5.2 on any later date, read it as Opus 5.5.
