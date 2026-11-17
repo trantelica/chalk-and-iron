@@ -1,3 +1,28 @@
+# AGENTS.md: Chalk and Iron
+
+This is the single briefing for any agent working on Chalk and Iron. The same file lives in the GitHub repository (`trantelica/chalk-and-iron`) and in the local project folder. Keep the two identical.
+
+## Guiding rules
+
+1. **Speak plainly.** Nathan is not a developer. Use everyday language and avoid engineer jargon. If a technical term is unavoidable, explain it in a few words.
+2. **Follow the folder schema strictly** whenever you create folders or file anything in the local project folder. Read it first: `Project Context -N/Folder Schema -S/Folder Schema.md`. In short: find it in -N, trust it in -S, support it in -sub, sort uncertainty in -gov. The schema covers the local folders only. The GitHub repository keeps its own code layout (`docs/`, `phase0/`, `prototype/`).
+3. **When unsure where something goes locally, do not guess.** Put it in `00 FOLDER GOVERNANCE -gov` and tell Nathan.
+4. **Ask before outward-facing or hard-to-undo actions** (deleting, publishing, sending, merging).
+5. **No development before approval.** Nathan approves the technical design first (see below). Until then, write documents only, not app code.
+
+## Where to find things
+
+| Need | Read |
+|---|---|
+| Folder and naming rules for local files | `Project Context -N/Folder Schema -S/Folder Schema.md` (local) |
+| Project status and GitHub details | `Project Context -N/Project Overview -S/Project Overview.md` (local) |
+| What to build, rules, edge cases | `docs/SPEC.md` (GitHub) |
+| Look and feel reference | `prototype/index.html` (GitHub) |
+| Connector test already run | `phase0/README.md`, `phase0/api/mcp.js` (GitHub) |
+| Coach wording (parked draft) | `docs/COACH_INSTRUCTIONS.md` (GitHub) |
+
+---
+
 # Kickoff brief for the coding agent
 
 You are building Chalk and Iron under Nathan's oversight. Nathan is the product owner and is not a developer. Explain choices in plain language and ask him when a product decision is missing. Do not guess at product behavior.
