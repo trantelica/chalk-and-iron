@@ -54,15 +54,15 @@ The OAuth server for the coach connection is switched on in Phase 4, when the re
 
 ### D. Checks on your iPhone
 
-Tick each one and tell the coding agent. Your retests of the reset on 17 November covered the reset checks before the link is opened, but no box has been ticked here yet. The Phase 1 review added two account checks that come with the Phase 2 fixes (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
+Tick each one and tell the coding agent. **All ticked by Nathan on 17 November 2026**, after running `…0700_bands_are_bodyweight.sql`. Phase 1 has no screen that lists exercises, only the count on the home screen ("Your library holds 227 exercises"). So the two library checks below rest on that count and on the reports the two updates print in the SQL Editor, not on seeing the exercises themselves. Browsing the library, with each exercise's details, arrives with the planner in Phase 3 (`docs/SPEC.md` Section 7). The Phase 1 review added two account checks that come with the Phase 2 fixes (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
 
-- [ ] The invite link registers you, and the passkey is created.
-- [ ] Signing out and back in with Face ID works in Safari.
-- [ ] The same works in the home-screen app.
-- [ ] The admin page lists your account and makes an invite with ready-to-paste text.
-- [ ] A second test account (a second email of yours) registers from that invite and sees its own 227 exercises, and the admin page shows it.
-- [ ] After running `…0600_starter_library_v2.sql`, your own account shows 227 exercises, and "Plate-Loaded Machine Leg Press" is now "Plate-Loaded Machine Angled Leg Press" (one leg press, not two).
-- [ ] After running `…0700_bands_are_bodyweight.sql`, a band exercise such as Band Curl shows as bodyweight (BW).
-- [ ] Deactivating the test account stops it signing in. Reactivating lets it back in.
-- [ ] Making a reset link for the test account signs it out at once, and its old passkey stops working, before the link is opened.
-- [ ] Opening the reset link makes a new passkey and shows the reset notice.
+- [x] The invite link registers you, and the passkey is created.
+- [x] Signing out and back in with Face ID works in Safari.
+- [x] The same works in the home-screen app.
+- [x] The admin page lists your account and makes an invite with ready-to-paste text.
+- [x] A second test account (a second email of yours) registers from that invite and sees its own 227 exercises, and the admin page shows it.
+- [x] After running `…0600_starter_library_v2.sql`, your own account shows 227 exercises, and "Plate-Loaded Machine Leg Press" is now "Plate-Loaded Machine Angled Leg Press" (one leg press, not two).
+- [x] After running `…0700_bands_are_bodyweight.sql`, a band exercise such as Band Curl shows as bodyweight (BW).
+- [x] Deactivating the test account stops it signing in. Reactivating lets it back in.
+- [x] Making a reset link for the test account signs it out at once, and its old passkey stops working, before the link is opened.
+- [x] Opening the reset link makes a new passkey and shows the reset notice.
