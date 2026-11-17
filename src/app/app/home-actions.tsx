@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { browserClient } from '@/lib/supabase/browser';
 
-export function HomeActions({ notice, passkeyCheck }: { notice?: string; passkeyCheck?: boolean }) {
+export function HomeActions({ notice, passkeyCheck }: { notice?: React.ReactNode; passkeyCheck?: boolean }) {
   const sb = browserClient();
   const [needsPasskey, setNeedsPasskey] = useState(false);
   const [msg, setMsg] = useState('');
@@ -16,9 +16,9 @@ export function HomeActions({ notice, passkeyCheck }: { notice?: string; passkey
   if (notice) {
     if (hidden) return null;
     return (
-      <div className="notice">
-        {notice}{' '}
-        <button className="btn" onClick={async () => { await sb.rpc('dismiss_reset_notice'); setHidden(true); }}>OK</button>
+      <div className="notice" role="alert">
+        {notice}
+        <button className="btn" onClick={async () => { await sb.rpc('dismiss_reset_notice'); setHidden(true); }}>Got it</button>
       </div>
     );
   }

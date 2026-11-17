@@ -26,7 +26,19 @@ export default async function PhoneHome() {
   return (
     <main className="page">
       <h1>Chalk and Iron</h1>
-      {p.reset_notice_at && <HomeActions notice="Your sign-in was reset by an admin. Your old passkey was removed, you were signed out everywhere, and your coach was disconnected. Connect your coach again when you are ready." />}
+      {p.reset_notice_at && (
+        <HomeActions
+          notice={
+            <>
+              <div>Welcome back. Your sign-in was reset.</div>
+              <div><strong>Action required: reconnect your coach.</strong></div>
+              <div className="notice-detail">
+                The reset disconnected ChatGPT or Claude. Open your coach app&apos;s connector settings, find Chalk and Iron, and connect it again.
+              </div>
+            </>
+          }
+        />
+      )}
       {p.delete_requested_at && (
         <div className="notice">Your account is set to be deleted. <Link href="/planner/account">Cancel deletion</Link></div>
       )}

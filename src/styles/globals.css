@@ -34,7 +34,10 @@ h1 {
 h2 { margin: 18px 0 0; font-size: 13px; letter-spacing: 1.5px; font-weight: 700; color: var(--muted-text); text-transform: uppercase; }
 .muted { color: var(--muted-text); font-size: 14px; }
 .panel { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
-.notice { border-radius: var(--radius); background: var(--accent); color: var(--on-accent); padding: 12px 14px; font-weight: 700; }
+.notice { border-radius: var(--radius); background: var(--accent); color: var(--on-accent); padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.notice strong { font-size: 17px; }
+.notice-detail { font-size: 14px; }
+.notice .btn { align-self: flex-start; background: var(--on-accent); color: var(--accent); border-color: var(--on-accent); }
 .error { border: 1px solid var(--overage-red); border-radius: var(--radius); padding: 10px 12px; }
 
 label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 700; color: var(--muted-text); }
