@@ -74,6 +74,6 @@ Write `docs/TECHNICAL_DESIGN.md` and stop for Nathan's review. It must cover:
 ## Known open items to carry
 
 - Whether the Coach button can open ChatGPT inside a specific project. Nathan wants this, so that project instructions apply to the coach chat.
-- Whether Claude works as a coach through the same connector. Untested.
+- Whether Claude works as a coach through the same connector. Answered 17 November 2026 by the Phase 1 sign-in proof: yes, on the web, in a Project and in the iPhone app.
 - Default work and rest seconds have no researched source yet.
 - The coach instructions in `docs/COACH_INSTRUCTIONS.md` are a parked draft. Nathan will revise them after using the coach for real.

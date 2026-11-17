@@ -945,22 +945,24 @@ I did not check these against current documentation in this sitting. Each is con
 
 ### E. Phase 1 findings (17 November 2026)
 
-Added during Phase 1 on Opus 5.5 at high effort. The sign-in proof's research was done by an Opus 5.5 high-effort helper, as `docs/MODEL_AND_EFFORT.md` asks for hard spots. Sources are listed in `proofs/connector-signin/README.md`. None of this is proven until Nathan runs the proof.
+Added during Phase 1 on Opus 5.5 at high effort. The sign-in proof's research was done by an Opus 5.5 high-effort helper, as `docs/MODEL_AND_EFFORT.md` asks for hard spots. Sources are listed in `proofs/connector-signin/README.md`.
+
+**Proof result, 17 November 2026.** Nathan ran the proof. Passkey-only sign-in worked on the iPhone, in Safari and in the home-screen app, with no email sent. ChatGPT (web, a project, the iPhone app, the Codex and Dot agents) and Claude (web, a Project, the iPhone app) both connected through Supabase's OAuth server and read as coach passes. Disconnect stopped both at once. Still to check: that a coach pass renews itself the next day. The design's first choices stand: Supabase for app sign-in and coach sign-in, and passkeys with no email. The fallbacks in 10C are not needed. Details are in `proofs/connector-signin/README.md`.
 
 What the research found, against the facts in 10C:
 
 | Fact from 10C | What Phase 1 found |
 |---|---|
-| Supabase's sign-in can act as the sign-in for the connector | Yes, in beta: an OAuth 2.1 server with PKCE and dynamic client registration, and a consent page we host at `/oauth/consent`. To confirm by the proof |
+| Supabase's sign-in can act as the sign-in for the connector | Yes, in beta: an OAuth 2.1 server with PKCE and dynamic client registration, and a consent page we host at `/oauth/consent`. Confirmed by the proof on 17 Nov, for ChatGPT and Claude |
 | A coach pass can be told apart inside the database | Yes: a coach pass carries a `client_id` claim. The database rules use it in one function, `app.is_coach()` |
 | Supabase's sign-in supports passkeys | Yes, natively, in beta. The app uses them, so it has no passkey table of its own and no extra passkey library |
-| A passkey can be the only sign-in method | Yes, with one server step: a passkey can be added only to an existing, signed-in person, so opening an invite or reset link creates the sign-in record, signs the person in once with a one-time token that is never emailed, and then creates the passkey. To confirm by the proof |
+| A passkey can be the only sign-in method | Yes, with one server step: a passkey can be added only to an existing, signed-in person, so opening an invite or reset link creates the sign-in record, signs the person in once with a one-time token that is never emailed, and then creates the passkey. Confirmed by the proof on 17 Nov, on the iPhone in Safari and in the home-screen app |
 
 Points that differ from or add to this design. Each is recorded here for Nathan, not decided by the build:
 
 1. Section 4 says the connector supports "both common ways" for a coach app to register itself. Supabase supports only one (dynamic client registration). Claude's connector setting must be "Register automatically".
 2. Supabase does not name the connector in a coach pass's audience, as MCP asks. The connector makes up for it by accepting passes only from this Supabase project and checking each with Supabase on every call. Phase 4 keeps both checks.
-3. "Disconnecting cancels the pass at once" holds only because of that per-call check. A pass checked locally would stay valid until it expires, about an hour. To confirm by the proof.
+3. "Disconnecting cancels the pass at once" holds only because of that per-call check. A pass checked locally would stay valid until it expires, about an hour. Confirmed by the proof on 17 Nov: with the per-call check, Disconnect stopped ChatGPT and Claude at once. Phase 4 keeps the per-call check.
 4. The Supabase project needs the newer signing keys (ECC P-256), so the connector can check passes. This is a setup step in `docs/SETUP.md`.
 5. A reset also removes the person's old passkeys, through Supabase's admin tools (`src/server/accounts.ts`), so they can make a new one.
 6. **For Nathan:** a passkey belongs to one web address. Question 37 chose the permanent address "before the first friend is invited". It needs choosing before Nathan makes his own real passkey, or his passkey and coach connection must be redone after the change.
@@ -977,7 +979,7 @@ Choices the build made within the design:
 ### D. Carried from the kickoff brief, still open
 
 - Whether the Coach button can open ChatGPT inside a specific project.
-- Whether Claude works as a coach through the same connector.
+- Whether Claude works as a coach through the same connector. **Answered 17 Nov by the sign-in proof: yes**, on the web, in a Project and in the iPhone app.
 - Default work and rest seconds have no researched source.
 - `docs/COACH_INSTRUCTIONS.md` is a parked draft.
 

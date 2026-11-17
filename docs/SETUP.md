@@ -4,11 +4,11 @@
 
 The Phase 1 foundation is built and tested on a local test database, but it does not run anywhere yet. Two things are waiting on your hands, in this order.
 
-## 1. Run the sign-in proof first
+## 1. Run the sign-in proof first (done 17 November 2026)
 
 Follow `proofs/connector-signin/README.md`. It uses **throwaway** Supabase and Vercel projects, separate from the real ones. It settles whether ChatGPT and Claude can sign in to the connector, and whether a passkey alone works on your iPhone, in Safari and as a home-screen app. Record the results in its checklist and tell the coding agent.
 
-If the proof fails, stop there. The design's fallbacks are chosen before going further (design Section 10E).
+**Result:** it passed on 17 November 2026 (design Section 10E). The only check left is that a coach pass renews itself the next day. Once that is recorded, delete the throwaway Supabase and Vercel projects. Deleting them also frees the Supabase free-plan slot for the real project.
 
 ## 2. Then set up the real app
 
@@ -26,7 +26,7 @@ A passkey is tied to one web address. If the address changes later, every passke
 4. **Authentication > Passkeys** (or Sign In / Providers, wherever the dashboard shows passkeys). Turn passkeys on, with the permanent address as the site.
 5. **Authentication > Sign In / Providers > Email.** Turn off "Allow new users to sign up". Accounts are made only from invite links, by the app's server.
 6. **SQL Editor.** Paste and run each file in `supabase/migrations/`, in name order: `…0100_foundation.sql`, then `…0200_accounts.sql`, then `…0300_schedules.sql`. If the third says the scheduler extension is missing, turn on **pg_cron** under Database > Extensions and run it again.
-7. **Settings > API Keys.** Keep the project URL, the publishable key and the secret key ready for step B3.
+7. **Settings > API Keys.** Keep the project URL, the publishable key and the secret key ready for step B3. The project URL is the bare address, like `https://abcd1234.supabase.co`, with no `/rest/v1` on the end. The secret key starts `sb_secret_`. A public key in its place gives the error "This endpoint requires a valid Bearer token".
 
 The OAuth server for the coach connection is switched on in Phase 4, when the real connector is built.
 
