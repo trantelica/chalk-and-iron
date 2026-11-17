@@ -12,10 +12,10 @@ The tappable prototype is the reference for look, layout and interaction: `proto
 
 ### Rules the build must never break
 
-1. **No AI inside the app.** The app makes no calls to any LLM. All coaching comes from the user's own ChatGPT or Claude project through the connector.
+1. **No AI inside the app.** The app makes no outgoing calls to any LLM. The user's LLM calls the app, never the reverse. All coaching comes from the user's own ChatGPT or Claude project through the connector.
 2. **No silent coach changes.** Every change a coach requests arrives as a proposal the user accepts or rejects. Nothing a coach sends is applied directly.
 3. **The library is never changed by use.** A workout never alters an exercise. A campaign never alters a workout. Day-level changes live on the campaign day only.
-4. **One canonical unit.** Weights are stored in kilograms. Entry and display use each exercise's own unit, pounds or kilograms.
+4. **One canonical unit.** Weights are stored in pounds. Entry and display use each exercise's own unit, pounds or kilograms.
 5. **The app owns the history.** Every set ever logged stays in the app database. The LLM reads it through the connector and holds no data of record.
 6. **One layout, many skins.** Themes change colors, fonts, corners and backgrounds. They never move or resize elements.
 7. **No hard-coded colors or fonts.** Every visual value comes from a theme token.
@@ -66,7 +66,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - A set is logged with weight and reps. Both can be typed or stepped. Steps are 5 in the selected unit for weight and 1 for reps.
 - The unit is switched per exercise between pounds and kilograms, and the choice is remembered for that exercise.
 - Last session's numbers for the exercise are shown while logging.
-- Sets have a type: warm-up, working or drop set. An effort rating (RPE) is optional.
+- Sets have a type: warm-up, working or drop set. An effort rating (RPE) is optional. Tapping a set in the set list switches it between warm-up and working, whether or not the workout planned a warm-up. When a set becomes a warm-up, a working set is added after it, so the number of working sets stays as planned, and the time budget grows by one set's work and rest. Tapping it back removes the added set if it has not been logged.
 - During a workout the user can skip, reorder or add exercises from the workout tray.
 - A session survives a closed tab, a crash or a lost connection. Sets logged offline sync when the connection returns.
 - The screen stays awake during a session.
@@ -127,7 +127,7 @@ The app database is the single source of truth. Every record belongs to one user
 | Campaign day | week, weekday, workout, overrides | Override per item: exercise, sets, reps, weight and unit, rest seconds. Any subset |
 | Session | date, source, gym, start, end, status | Source is a campaign day or an ad hoc workout |
 | Session exercise | exercise, order, superset letter, planned sets, reps, weight and rest, time budget, start time, elapsed seconds, skipped flag | A snapshot of the plan at session start |
-| Set log | set number, weight in kg, entered value, entered unit, reps, set type, RPE, time logged, record types | One row per set |
+| Set log | set number, weight in lb, entered value, entered unit, reps, set type, RPE, time logged, record types | One row per set |
 | Cardio log | date, type, duration, distance and unit, notes | Separate from sessions |
 | Proposal | source, kind, payload, summary lines, status, created, decided | Status: pending, accepted, rejected |
 | Vocabulary | muscle groups, focus values, equipment values | One editable list per user, seeded from Section 4 |
@@ -136,7 +136,7 @@ A session stores a snapshot of what was planned. Later edits to the library or c
 
 ### Units
 
-- Canonical storage is kilograms. One pound is 0.45359237 kg.
+- Canonical storage is pounds. One pound is 0.45359237 kg.
 - Each set also stores the value and unit the user entered, so the app shows exactly what was typed.
 - Entry is accepted in either unit and converted before saving.
 - History, records and graphs for an exercise display in that exercise's current unit. Workout totals display in the user's totals unit.
@@ -267,7 +267,7 @@ Equipment values: barbell, dumbbell, kettlebell, cable, selectorized machine, pl
 
 - Whether a ChatGPT Pro plan can call propose tools is unconfirmed. Search results on 16 November 2026 disagree, and the pages were not opened: [OpenAI's help article](https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-connectors) describes full support on Business, Enterprise and Edu; [a Boomi setup guide](https://help.boomi.com/docs/Atomsphere/Platform/Connect_chatgpt_setup) says Plus and Pro are read-only; [an Obot article](https://obot.ai/?p=3333) says any paid user can write.
 - Phase 0 in Section 7 settles it with a test on Nathan's account.
-- **Fallback, the import link:** the coach writes its proposal as a link to the app. Opening the link creates the same pending proposal. It costs one extra tap and needs no write access.
+- **Fallback, the import link:** the coach writes its proposal as a link to the app. Opening the link creates the same pending proposal. It costs one extra tap and needs no write access. A third route, raised by Nathan and not yet designed: a separate agent service acts as the coach. If the agent can use MCP, it attaches to the same connector with nothing new to build. If it can only drive a browser, it needs its own delegate login to the planner, and everything it saves through that login must still arrive as a proposal, never as a direct edit.
 - Also untested: whether the Coach button can open the ChatGPT iPhone app straight into a chosen project.
 
 ## 5. Screens and behavior
@@ -283,7 +283,7 @@ Top to bottom, in a fixed order across all skins:
 3. **Exercise:** superset label when bound, the exercise name, and its muscle group and equipment.
 4. **Note:** one editable line that stays with the exercise across workouts.
 5. **Dial row:** the dial, the exercise clock in text, and +0:15 and Skip rest.
-6. **Set list:** one row per set showing done, now or planned, with a badge on any record.
+6. **Set list:** one row per set showing done, now or planned, with a badge on any record. Tapping a row switches that set between warm-up and working.
 7. **Last time:** the previous session's weight and reps for this exercise.
 8. **Entry:** weight with the lb and kg switch, reps, and step buttons labeled with their amount. Tapping a number opens the keypad.
 9. **Actions:** Swap, Stats, and the main button.
@@ -445,7 +445,7 @@ The build is accepted when every test below passes as an automated test, except 
 
 ### Units and entry
 
-- [ ] Typing 62.5 with lb selected and logging stores 28.350 kg and shows 62.5 lb afterward.
+- [ ] Typing 27.5 with kg selected and logging stores 60.627 lb and shows 27.5 kg afterward.
 - [ ] Switching an exercise from lb to kg turns an entry of 60 lb into 27.22 kg, and its history then displays in kg.
 - [ ] Weight steps are plus and minus 5 in the selected unit. Reps step by 1.
 - [ ] Weight cannot go below 0 and reps cannot go below 1.
@@ -474,7 +474,7 @@ The build is accepted when every test below passes as an automated test, except 
 - [ ] Logging 65 lb for 8 is a 6+ record, and the celebration names 6+.
 - [ ] With a prior heaviest set of 60 lb, logging 65 lb for 5 is a heaviest-set record and not a 6+ record.
 - [ ] No record is awarded in an exercise's first-ever session.
-- [ ] A warm-up set never produces a record.
+- [ ] A warm-up set never produces a record. Marking the first of 3 planned sets as a warm-up leaves 3 working sets to do, 4 sets in all.
 
 ### Graph
 
@@ -496,7 +496,7 @@ The build is accepted when every test below passes as an automated test, except 
 - [ ] A proposal for today's session leaves the library, the campaign and already-logged sets unchanged.
 - [ ] A proposal using an equipment value outside the vocabulary is returned to the coach as an error and never reaches the inbox.
 - [ ] One user's connector cannot read or propose against another user's data.
-- [ ] The codebase contains no call to any LLM service.
+- [ ] The codebase contains no outgoing call to any LLM service. The connector only answers calls that a user's LLM makes to it.
 
 ### Theming
 
@@ -516,20 +516,20 @@ The build is accepted when every test below passes as an automated test, except 
 
 ## 9. Open decisions
 
-Fourteen points are not yet decided. Each has a default the coding agent builds unless Nathan says otherwise.
+Eight points are not yet decided, and rows 4 and 6 to 10 are confirmed. Each has a default the coding agent builds unless Nathan says otherwise.
 
 | # | Decision | Default to build |
 | --- | --- | --- |
-| 1 | Can ChatGPT Pro propose through the connector? | Test in Phase 0. If not, use the import link for ChatGPT |
+| 1 | Can ChatGPT Pro propose through the connector? | Test in Phase 0. If not, use the import link for ChatGPT. A third route is an outside agent acting as the coach: see Section 4 |
 | 2 | Are Arcade and Liquid Color earned or given? | Given to everyone, behind a per-user setting |
-| 3 | Default work and rest seconds for new exercises | 45 work. Rest 120 for multi-joint lifts and 75 for single-joint. Editable per exercise |
-| 4 | Sign-in method | Emailed sign-in link, with a passkey offered after first sign-in |
-| 5 | Hosting and stack | The coding agent proposes one. Nathan has a Vercel account, so a web app on Vercel with a Postgres database is the starting suggestion |
-| 6 | Proposal detail | A plain list of changes. A before-and-after view comes later |
-| 7 | Do warm-up sets count toward volume? | No. They are logged and shown but excluded from volume and records |
-| 8 | Records for bodyweight exercises | Most reps in a set, in place of the four weight records |
-| 9 | What the accountability partner sees | The weekly email only: sessions done, total volume, records and efficiency. They confirm by email before the first one |
-| 10 | Weekly email timing | Sunday evening in the user's time zone |
+| 3 | Default work and rest seconds for new exercises | 45 work. Rest 120 for multi-joint lifts and 90 for single-joint. Editable per exercise |
+| 4 | Sign-in method (confirmed 16 Nov) | Emailed sign-in link, with a passkey offered after first sign-in |
+| 5 | Hosting and stack | The coding agent proposes one. Nathan has a Vercel account and a Supabase account, so a web app on Vercel with Supabase for the Postgres database and sign-in is the starting suggestion |
+| 6 | What a coach proposal shows you before you accept or decline it (confirmed 16 Nov) | A plain list of changes, one line each, such as "Overhead Press becomes Dumbbell Shoulder Press". A side-by-side view of the whole workout before and after is not planned |
+| 7 | Do warm-up sets count toward volume? (confirmed 16 Nov) | No. They are logged and shown but excluded from volume and records |
+| 8 | Records for bodyweight exercises (confirmed 16 Nov) | Most reps in a set, in place of the four weight records |
+| 9 | What the accountability partner sees (confirmed 16 Nov) | The weekly email only: sessions done, the sets, reps and weights for each exercise, total volume, records and efficiency. They confirm by email before the first one |
+| 10 | Weekly email timing (confirmed 16 Nov) | Sunday evening in the user's time zone to start with. Each user picks their own day and time in settings |
 | 11 | Totals unit for new users | Pounds |
 | 12 | Steel plate and Chalkboard backgrounds | Keep both. Revisit after real use |
 | 13 | Trainerize history import | Not built. Revisit if export from Trainerize proves possible |
