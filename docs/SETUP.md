@@ -16,16 +16,16 @@ The proof has passed, and the permanent address is chosen (below). The Vercel pr
 
 ### The permanent address (decided 17 November 2026)
 
-The app's permanent address is **https://chalkandiron-trantelica.vercel.app**, chosen by Nathan on 17 November 2026. A passkey is tied to one web address. If the address changes later, every passkey made before the change stops working, and every coach connection has to be redone. So this address stays.
+The app's permanent address is **https://chalkandiron.vercel.app**, chosen by Nathan on 17 November 2026. A passkey is tied to one web address. If the address changes later, every passkey made before the change stops working, and every coach connection has to be redone. So this address stays.
 
-(`chalk-and-iron.vercel.app` and `chalkandiron.vercel.app` were both already taken by other Vercel accounts.)
+It was chosen in two steps on the same day. Nathan first picked `https://chalkandiron-trantelica.vercel.app`, because the short address looked taken: it showed "not found", and Vercel refused to add it a second time. In fact it already belonged to his own project and had simply not been built yet. Nathan then switched to the short address. Both accounts made new passkeys through reset links, and the long address now forwards to the short one (`REDIRECT_FROM_HOSTS`). Invite and reset links always use `NEXT_PUBLIC_APP_ORIGIN`.
 
 ### A. Supabase (about 15 minutes)
 
 1. Create a new Supabase project on the free plan, named `chalk-and-iron`.
 2. **Settings > JWT Keys.** Make sure the key is the newer ECC (P-256) kind, as in the proof (step A2 there).
-3. **Authentication > URL Configuration.** Set the Site URL to `https://chalkandiron-trantelica.vercel.app`.
-4. **Authentication > Passkeys** (or Sign In / Providers). Turn passkeys on. Relying Party Display Name: `Chalk and Iron`. Relying Party ID: `chalkandiron-trantelica.vercel.app`. Relying Party Origins: `https://chalkandiron-trantelica.vercel.app`.
+3. **Authentication > URL Configuration.** Set the Site URL to `https://chalkandiron.vercel.app`.
+4. **Authentication > Passkeys** (or Sign In / Providers). Turn passkeys on. Relying Party Display Name: `Chalk and Iron`. Relying Party ID: `chalkandiron.vercel.app`. Relying Party Origins: `https://chalkandiron.vercel.app`.
 5. **Authentication > Sign In / Providers > Email.** Turn off "Allow new users to sign up". Accounts are made only from invite links, by the app's server.
 6. **SQL Editor.** Paste and run each file in `supabase/migrations/`, in name order: `…0100_foundation.sql`, `…0200_accounts.sql`, `…0300_schedules.sql`, `…0400_reset_cuts_off_at_once.sql`, then `…0500_reset_only_through_server.sql`. If the third says the scheduler extension is missing, turn on **pg_cron** under Database > Extensions and run it again.
 7. **Settings > API Keys.** Keep the project URL, the publishable key and the secret key ready for step B3. The project URL is the bare address, like `https://abcd1234.supabase.co`, with no `/rest/v1` on the end. The secret key starts `sb_secret_`. A public key in its place gives the error "This endpoint requires a valid Bearer token".
@@ -40,6 +40,8 @@ The OAuth server for the coach connection is switched on in Phase 4, when the re
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - `SUPABASE_SECRET_KEY`, which is never pasted anywhere else
+   - `NEXT_PUBLIC_APP_ORIGIN`: `https://chalkandiron.vercel.app`
+   - `REDIRECT_FROM_HOSTS`: `chalkandiron-trantelica.vercel.app`
 4. Deploy.
 
 ### C. Your admin account
