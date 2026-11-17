@@ -453,7 +453,7 @@ The build runs in seven phases. Phase 0 is a gate: its result decides how the co
 1. **Phase 0, connector write test.** Stand up a minimal connector with one read tool and one propose tool. Connect it to Nathan's ChatGPT Pro project and to a Claude project. Record whether each can read, whether each can propose, and whether the Coach button can open the project on an iPhone.
     - If ChatGPT Pro can propose: the connector is the default path.
     - If it can only read: the import link becomes the default for ChatGPT users, and the connector stays for reading.
-2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary. It also includes a project task: draft the starter library of about 40 exercises, each with its three alternates and starter work and rest seconds, for Nathan to review.
+2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary. It also includes a project task: draft the starter library of about 40 exercises, each with its three alternates and starter work and rest seconds, for Nathan to review. **Done 17 Nov:** after an outside coach's review, Nathan approved version 2, 227 exercises, for every account (`docs/STARTER_LIBRARY.md`).
 3. **Phase 2, logging.** The active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, breaking a superset into individual exercises, and crash-safe sessions. This phase must match the prototype, except for what the prototype lacks, such as breaking a superset.
 4. **Phase 3, planner.** Library for exercises, workouts and campaigns, the Plan view with per-day overrides, History, and sending a day to the phone.
 5. **Phase 4, coach.** The full connector tool set, all nineteen tools, including the weekly summary, cardio and the proposal list, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens.
@@ -658,7 +658,7 @@ These rules settle what happens outside the normal path. Nathan decided them in 
 
 ### Accounts
 
-- Each account has its own library, seeded with a starter set of about 40 common exercises with alternates.
+- Each account has its own library, seeded with the starter library: 227 common exercises with alternates (version 2, approved by Nathan on 17 November 2026). Every alternate is itself a starter exercise.
 - No data is shared between accounts in the first version.
 - Accounts are created only from a single-use invite link made by an admin. Nathan's account is the first admin.
 - Deleting an account offers an export first. Everything is removed permanently after a 14-day grace period. The same applies when an admin deletes an account, and an admin can undo it during the grace period.

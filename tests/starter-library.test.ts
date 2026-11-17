@@ -6,9 +6,18 @@ import { nameKey } from '@/rules/names';
 const groups = new Map(starter.vocabulary.muscle_groups.map((g) => [g.name, g.focus]));
 
 describe('starter library', () => {
-  it('holds about 40 exercises', () => {
-    expect(starter.exercises.length).toBeGreaterThanOrEqual(38);
-    expect(starter.exercises.length).toBeLessThanOrEqual(45);
+  it('holds the 227 exercises Nathan approved on 17 November 2026 (version 2)', () => {
+    expect(starter.version).toBe(2);
+    expect(starter.exercises.length).toBe(227);
+  });
+
+  it('links every alternate to another starter exercise, so a swap keeps its own history', () => {
+    const names = new Set(starter.exercises.map((e) => e.name));
+    for (const e of starter.exercises) {
+      for (const a of [e.alternates.bodyweight, e.alternates.basic_gym, e.alternates.full_gym]) {
+        expect(names.has(a), `${e.name} -> ${a}`).toBe(true);
+      }
+    }
   });
 
   it('uses only vocabulary values, with a focus from the exercise\'s own muscle group', () => {

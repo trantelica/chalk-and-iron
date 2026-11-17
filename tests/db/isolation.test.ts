@@ -2,7 +2,7 @@
 // another user's data", and design Section 4: for every table, an automated
 // test signs in as user A and tries to read and write user B's data.
 import { beforeAll, describe, expect, it } from 'vitest';
-import { makeDb, type Db } from './harness';
+import { makeDb, starter, type Db } from './harness';
 import { fillAccount, OWNED_TABLES } from './fixtures';
 
 let db: Db;
@@ -63,7 +63,7 @@ describe('every table is fenced off per person', () => {
     const mine = await db.as(a, `select count(*)::int as n from set_logs`);
     expect(mine[0]).toEqual({ n: 1 });
     const mineAsCoach = await db.as(a, `select count(*)::int as n from exercises`, [], { coach: true });
-    expect(mineAsCoach[0]).toEqual({ n: 42 });
+    expect(mineAsCoach[0]).toEqual({ n: starter.exercises.length });
   });
 });
 
@@ -115,9 +115,9 @@ describe('a deactivated account sees nothing', () => {
     }
     await expect(db.as(c, `insert into cardio_logs (user_id, local_date, type, duration_seconds) values ($1, '2026-11-17', 'Run', 60)`, [c])).rejects.toThrow();
     const kept = await db.server<{ n: number }>(`select count(*)::int as n from exercises where user_id = $1`, [c]);
-    expect(kept[0].n).toBe(42);
+    expect(kept[0].n).toBe(starter.exercises.length);
     await db.as(a, `select admin_set_active($1, true)`, [c]);
     const back = await db.as(c, `select count(*)::int as n from exercises`);
-    expect(back[0]).toEqual({ n: 42 });
+    expect(back[0]).toEqual({ n: starter.exercises.length });
   });
 });

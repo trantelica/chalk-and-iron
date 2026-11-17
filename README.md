@@ -17,7 +17,7 @@ Phase 1, the foundation, is built: the database with per-user isolation, passkey
 | `docs/MODEL_AND_EFFORT.md` | Which AI model and effort level to use at each stage |
 | `docs/COACH_INSTRUCTIONS.md` | Draft instructions a user pastes into their LLM project |
 | `docs/SETUP.md` | Steps for Nathan: run the sign-in proof, then set up the real app |
-| `docs/STARTER_LIBRARY.md` | The starter library and vocabulary, for Nathan's review |
+| `docs/STARTER_LIBRARY.md` | The starter library (version 2, 227 exercises, approved) and vocabulary, made from the data file |
 | `AGENTS.md` | The kickoff brief for the coding agent |
 | `src/` | The app: pages, server code and the shared rules |
 | `supabase/migrations/` | The database: tables, per-user rules, accounts and admin functions |

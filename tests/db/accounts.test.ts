@@ -121,7 +121,7 @@ describe('resetting a locked-out person', () => {
     await db.pg.query(`insert into auth.sessions (user_id) values ($1), ($1)`, [sam]);
     const before = Math.floor(Date.now() / 1000) - 60;
     // Before the reset, Sam's existing pass works, from the app and from a coach.
-    expect((await db.as<{ n: number }>(sam, `select count(*)::int as n from exercises`, [], { issuedAt: before }))[0].n).toBe(42);
+    expect((await db.as<{ n: number }>(sam, `select count(*)::int as n from exercises`, [], { issuedAt: before }))[0].n).toBe(starter.exercises.length);
     const [{ code }] = await db.server<{ code: string }>(`select code from server_create_reset($1, $2)`, [admin, sam]);
     // Straight away, without the link being opened: every session is gone...
     expect((await db.pg.query(`select 1 from auth.sessions where user_id = $1`, [sam])).rows).toHaveLength(0);
@@ -135,19 +135,19 @@ describe('resetting a locked-out person', () => {
     const [{ who }] = await db.server<{ who: string }>(`select redeem_reset($1) as who`, [code]);
     expect(who).toBe(sam);
     const after = Math.floor(Date.now() / 1000) + 1;
-    expect((await db.as<{ n: number }>(sam, `select count(*)::int as n from exercises`, [], { issuedAt: after }))[0].n).toBe(42);
+    expect((await db.as<{ n: number }>(sam, `select count(*)::int as n from exercises`, [], { issuedAt: after }))[0].n).toBe(starter.exercises.length);
     const [notice] = await db.as<{ reset_notice_at: Date | null }>(sam, `select reset_notice_at from profiles`, [], { issuedAt: after });
     expect(notice.reset_notice_at).not.toBeNull();
     await expect(db.server(`select redeem_reset($1)`, [code])).rejects.toThrow(/not valid/);
     // Training data is untouched.
-    expect((await db.server<{ n: number }>(`select count(*)::int as n from exercises where user_id = $1`, [sam]))[0].n).toBe(42);
+    expect((await db.server<{ n: number }>(`select count(*)::int as n from exercises where user_id = $1`, [sam]))[0].n).toBe(starter.exercises.length);
   });
 
   it('a reset of one person leaves everyone else signed in', async () => {
     const sam = await db.register('sam@example.test', 'Sam', { inviter: admin });
     const before = Math.floor(Date.now() / 1000) - 60;
     await db.server(`select code from server_create_reset($1, $2)`, [admin, sam]);
-    expect((await db.as<{ n: number }>(admin, `select count(*)::int as n from exercises`, [], { issuedAt: before }))[0].n).toBe(42);
+    expect((await db.as<{ n: number }>(admin, `select count(*)::int as n from exercises`, [], { issuedAt: before }))[0].n).toBe(starter.exercises.length);
   });
 
   it('a reset can only be made through the server, and only for an admin', async () => {
