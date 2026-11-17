@@ -12,7 +12,7 @@ export interface Db {
   /** Runs SQL as the server (service role, skips row-level security). */
   server<T = Record<string, unknown>>(sql: string, params?: unknown[]): Promise<T[]>;
   /** Runs SQL as a signed-in person. Pass coach: true for a coach app's pass. */
-  as<T = Record<string, unknown>>(user: string, sql: string, params?: unknown[], opts?: { coach?: boolean; issuedAt?: number }): Promise<T[]>;
+  as<T = Record<string, unknown>>(user: string, sql: string, params?: unknown[], opts?: { coach?: boolean; issuedAt?: number; signedInAt?: number }): Promise<T[]>;
   /** Creates an account through a real invite, as registration does. */
   register(email: string, name?: string, opts?: { admin?: boolean; inviter?: string }): Promise<string>;
 }
@@ -40,7 +40,9 @@ export async function makeDb(): Promise<Db> {
     as: (user, sql, params, opts) => {
       // A pass carries the moment it was issued ("iat"). By default it is a fresh one.
       const iat = opts?.issuedAt ?? Math.floor(Date.now() / 1000) + 1;
-      const claims: Record<string, unknown> = { sub: user, role: 'authenticated', iat };
+      // And when its sign-in began ("amr"), which renewing a pass keeps. By default, when it was issued.
+      const signedIn = opts?.signedInAt ?? iat;
+      const claims: Record<string, unknown> = { sub: user, role: 'authenticated', iat, amr: [{ method: 'otp', timestamp: signedIn }] };
       if (opts?.coach) claims.client_id = 'test-coach-app';
       return run('authenticated', claims, sql, params);
     },

@@ -143,6 +143,30 @@ describe('resetting a locked-out person', () => {
     expect((await db.server<{ n: number }>(`select count(*)::int as n from exercises where user_id = $1`, [sam]))[0].n).toBe(starter.exercises.length);
   });
 
+  it('stays shut after the link is opened: a pass renewed from an older sign-in is refused (Phase 1 review)', async () => {
+    const sam = await db.register('sam@example.test', 'Sam', { inviter: admin });
+    const before = Math.floor(Date.now() / 1000) - 60;
+    const [{ code }] = await db.server<{ code: string }>(`select code from server_create_reset($1, $2)`, [admin, sam]);
+    await db.server(`select redeem_reset($1)`, [code]);
+    const after = Math.floor(Date.now() / 1000) + 1;
+    // A device or coach app that kept its renewal token fetches a fresh pass after the link is opened.
+    // The pass is new, but its sign-in began before the reset, so it sees nothing.
+    for (const coach of [false, true]) {
+      expect(await db.as(sam, `select count(*)::int as n from exercises`, [], { issuedAt: after, signedInAt: before, coach })).toEqual([{ n: 0 }]);
+      expect(await db.as(sam, `select count(*)::int as n from profiles`, [], { issuedAt: after, signedInAt: before, coach })).toEqual([{ n: 0 }]);
+    }
+    await expect(db.as(sam, `insert into cardio_logs (user_id, local_date, type, duration_seconds) values ($1, '2026-11-17', 'Run', 60)`, [sam], { issuedAt: after, signedInAt: before })).rejects.toThrow();
+    // A sign-in made through the link, or later, works.
+    expect((await db.as<{ n: number }>(sam, `select count(*)::int as n from exercises`, [], { issuedAt: after, signedInAt: after }))[0].n).toBe(starter.exercises.length);
+    // A pass with no sign-in time falls back to when it was issued.
+    const [{ n }] = await db.pg.transaction(async (tx) => {
+      await tx.query(`select set_config('request.jwt.claims', $1, true)`, [JSON.stringify({ sub: sam, role: 'authenticated', iat: after })]);
+      await tx.exec(`set local role authenticated`);
+      return (await tx.query<{ n: number }>(`select count(*)::int as n from exercises`)).rows;
+    });
+    expect(n).toBe(starter.exercises.length);
+  });
+
   it('a reset of one person leaves everyone else signed in', async () => {
     const sam = await db.register('sam@example.test', 'Sam', { inviter: admin });
     const before = Math.floor(Date.now() / 1000) - 60;

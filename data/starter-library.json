@@ -114,6 +114,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Push-Up",
         "basic_gym": "Dumbbell Bench Press",
@@ -130,6 +132,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Push-Up",
         "basic_gym": "Barbell Bench Press",
@@ -146,6 +150,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Feet-Elevated Push-Up",
         "basic_gym": "Barbell Incline Bench Press",
@@ -162,6 +168,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Wide Push-Up",
         "basic_gym": "Dumbbell Fly",
@@ -178,6 +186,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Incline Push-Up",
         "basic_gym": "Dumbbell Bench Press",
@@ -194,6 +204,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Push-Up",
         "basic_gym": "Dumbbell Decline Press",
@@ -210,6 +222,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Dumbbell Pullover",
@@ -226,6 +240,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pull-Up",
         "basic_gym": "Dumbbell Pullover",
@@ -242,6 +258,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Inverted Row",
         "basic_gym": "Dumbbell One-Arm Row",
@@ -258,6 +276,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Inverted Row",
         "basic_gym": "Barbell Bent-Over Row",
@@ -274,6 +294,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Inverted Row",
         "basic_gym": "Dumbbell Chest-Supported Row",
@@ -290,6 +312,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Hip Hinge",
         "basic_gym": "Kettlebell Deadlift",
@@ -306,6 +330,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pike Push-Up",
         "basic_gym": "Dumbbell Shoulder Press",
@@ -322,6 +348,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pike Push-Up",
         "basic_gym": "Barbell Overhead Press",
@@ -338,6 +366,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Lateral Raise",
         "basic_gym": "Band Lateral Raise",
@@ -354,6 +384,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone T Raise",
         "basic_gym": "Band Pull-Apart",
@@ -370,6 +402,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use a straight bar with an underhand grip.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Barbell EZ-Bar Curl",
@@ -386,6 +420,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Dumbbell Alternating Curl",
@@ -402,6 +438,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Neutral-Grip Pull-Up",
         "basic_gym": "Band Hammer Curl",
@@ -418,6 +456,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Dumbbell Preacher Curl",
@@ -434,6 +474,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Band Pushdown",
@@ -450,6 +492,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Dumbbell Overhead Triceps Extension",
@@ -466,6 +510,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Diamond Push-Up",
         "basic_gym": "Dumbbell Close-Grip Press",
@@ -482,6 +528,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Barbell Skull Crusher",
@@ -498,6 +546,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Self-Resisted Wrist Curl",
         "basic_gym": "Barbell Wrist Curl",
@@ -514,6 +564,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Neutral-Grip Pull-Up",
         "basic_gym": "Dumbbell Reverse Curl",
@@ -530,6 +582,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Crunch",
         "basic_gym": "Dumbbell Weighted Crunch",
@@ -546,6 +600,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Reverse Crunch",
         "basic_gym": "Dumbbell Weighted Crunch",
@@ -562,6 +618,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Dead Bug",
         "basic_gym": "Band Pallof Press",
@@ -578,6 +636,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Russian Twist",
         "basic_gym": "Dumbbell Side Bend",
@@ -594,6 +654,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Glute Bridge",
         "basic_gym": "Dumbbell Hip Thrust",
@@ -610,6 +672,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Hip Hinge",
         "basic_gym": "Dumbbell Swing",
@@ -626,6 +690,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Squat",
         "basic_gym": "Dumbbell Goblet Squat",
@@ -642,6 +708,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use the angled sled. Keep your pelvis against the pad and engage the stops after the set.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Squat",
         "basic_gym": "Dumbbell Goblet Squat",
@@ -658,6 +726,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Log pounds per dumbbell and reps per side. Keep the same convention for comparisons.",
+      "load_count": 4,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Split Squat",
         "basic_gym": "Dumbbell Reverse Lunge",
@@ -674,6 +744,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Sissy Squat",
         "basic_gym": "Band Leg Extension",
@@ -690,6 +762,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Single-Leg Romanian Deadlift",
         "basic_gym": "Dumbbell Romanian Deadlift",
@@ -706,6 +780,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Nordic Curl",
         "basic_gym": "Band Lying Leg Curl",
@@ -722,6 +798,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Single-Leg Calf Raise",
         "basic_gym": "Dumbbell Standing Calf Raise",
@@ -738,6 +816,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bent-Knee Calf Raise",
         "basic_gym": "Dumbbell Seated Calf Raise",
@@ -754,6 +834,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Adduction",
         "basic_gym": "Band Hip Adduction",
@@ -770,6 +852,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Leg Raise",
         "basic_gym": "Band Lateral Walk",
@@ -786,6 +870,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a stable bench or fixed bar.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Push-Up",
         "basic_gym": "Dumbbell Bench Press",
@@ -802,6 +888,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Push-Up",
         "basic_gym": "Barbell Bench Press",
@@ -818,6 +906,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Set the safeties before you start.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Push-Up",
         "basic_gym": "Barbell Bench Press",
@@ -834,6 +924,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a stable bench for your feet.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Push-Up",
         "basic_gym": "Dumbbell Incline Press",
@@ -850,6 +942,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Feet-Elevated Push-Up",
         "basic_gym": "Dumbbell Incline Press",
@@ -866,6 +960,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Set the seat so the handles start near your upper chest.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Feet-Elevated Push-Up",
         "basic_gym": "Dumbbell Incline Press",
@@ -882,6 +978,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Feet-Elevated Push-Up",
         "basic_gym": "Dumbbell Incline Press",
@@ -898,6 +996,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Push-Up",
         "basic_gym": "Dumbbell Fly",
@@ -914,6 +1014,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep a soft bend in your elbows.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Wide Push-Up",
         "basic_gym": "Dumbbell Incline Fly",
@@ -930,6 +1032,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep the elbow angle steady as your arms open.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Feet-Elevated Push-Up",
         "basic_gym": "Dumbbell Fly",
@@ -946,6 +1050,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Sweep the handles upward and inward.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Feet-Elevated Push-Up",
         "basic_gym": "Dumbbell Incline Fly",
@@ -962,6 +1068,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Adjust the seat so your upper arms are near shoulder height.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Wide Push-Up",
         "basic_gym": "Dumbbell Fly",
@@ -978,6 +1086,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a decline bench with a secure leg support.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Dip",
         "basic_gym": "Dumbbell Bench Press",
@@ -994,6 +1104,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Sweep the handles down and inward.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Dip",
         "basic_gym": "Dumbbell Decline Press",
@@ -1010,6 +1122,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Enter the machine's assistance setting. More assistance makes the rep easier.",
+      "load_count": 1,
+      "assisted": true,
       "alternates": {
         "bodyweight": "Bodyweight Dip",
         "basic_gym": "Dumbbell Decline Press",
@@ -1026,6 +1140,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use an underhand grip.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Supinated Inverted Row",
         "basic_gym": "Dumbbell Alternating Curl",
@@ -1042,6 +1158,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep a soft elbow bend and move from the shoulders.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pull-Up",
         "basic_gym": "Band Lat Pulldown",
@@ -1058,6 +1176,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a secure overhead anchor.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pull-Up",
         "basic_gym": "Dumbbell Pullover",
@@ -1074,6 +1194,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Pull the bar toward your upper chest.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pull-Up",
         "basic_gym": "Band Lat Pulldown",
@@ -1090,6 +1212,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Enter the machine's assistance setting. More assistance makes the rep easier.",
+      "load_count": 1,
+      "assisted": true,
       "alternates": {
         "bodyweight": "Bodyweight Pull-Up",
         "basic_gym": "Dumbbell Pullover",
@@ -1106,6 +1230,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pull-Up",
         "basic_gym": "Dumbbell Pullover",
@@ -1122,6 +1248,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Adjust the seat so the machine pivot lines up with your shoulders.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pull-Up",
         "basic_gym": "Dumbbell Pullover",
@@ -1138,6 +1266,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep the elbow angle steady as you sweep the bar toward your thighs.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pull-Up",
         "basic_gym": "Dumbbell Pullover",
@@ -1154,6 +1284,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a fixed bar and keep your body straight.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Feet-Elevated Inverted Row",
         "basic_gym": "Barbell Bent-Over Row",
@@ -1170,6 +1302,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a fixed bar and a stable bench.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Inverted Row",
         "basic_gym": "Barbell Bent-Over Row",
@@ -1186,6 +1320,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a stable high bench or a dedicated seal row bench.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Inverted Row",
         "basic_gym": "Dumbbell Chest-Supported Row",
@@ -1202,6 +1338,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your chest on the bench.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Inverted Row",
         "basic_gym": "Barbell Seal Row",
@@ -1218,6 +1356,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Inverted Row",
         "basic_gym": "Barbell Bent-Over Row",
@@ -1234,6 +1374,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your chest against the pad.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Inverted Row",
         "basic_gym": "Barbell Seal Row",
@@ -1250,6 +1392,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your elbows close and row toward your lower ribs.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Supinated Inverted Row",
         "basic_gym": "Dumbbell One-Arm Row",
@@ -1266,6 +1410,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your torso square through the pull.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Inverted Row",
         "basic_gym": "Dumbbell One-Arm Row",
@@ -1282,6 +1428,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Record the load on the working arm.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Inverted Row",
         "basic_gym": "Dumbbell One-Arm Row",
@@ -1298,6 +1446,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a back extension bench and move at your hips.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone Back Extension",
         "basic_gym": "Barbell Deadlift",
@@ -1314,6 +1464,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Lie face down and lift your chest slightly.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Back Extension",
         "basic_gym": "Barbell Deadlift",
@@ -1330,6 +1482,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Start with the bell centered between your feet.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Back Extension",
         "basic_gym": "Barbell Deadlift",
@@ -1346,6 +1500,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Soften your knees and hinge at the hips.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Hip Hinge",
         "basic_gym": "Dumbbell Romanian Deadlift",
@@ -1362,6 +1518,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Back Extension",
         "basic_gym": "Barbell Deadlift",
@@ -1378,6 +1536,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep the bar close to your legs.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Back Extension",
         "basic_gym": "Barbell Deadlift",
@@ -1394,6 +1554,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Reach your arms into a Y and lift them slightly off the floor.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone T Raise",
         "basic_gym": "Band Pull-Apart",
@@ -1410,6 +1572,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Lift your shoulders straight up.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone Y Raise",
         "basic_gym": "Barbell Shrug",
@@ -1426,6 +1590,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your arms long.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone Y Raise",
         "basic_gym": "Dumbbell Shrug",
@@ -1442,6 +1608,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Raise and lower your shoulders under control.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone Y Raise",
         "basic_gym": "Dumbbell Shrug",
@@ -1458,6 +1626,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your arms long and raise and lower your shoulders under control.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone Y Raise",
         "basic_gym": "Dumbbell Shrug",
@@ -1474,6 +1644,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Lower the top of your head toward the floor between your hands.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Feet-Elevated Pike Push-Up",
         "basic_gym": "Barbell Overhead Press",
@@ -1490,6 +1662,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Support your feet on a stable bench.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pike Push-Up",
         "basic_gym": "Barbell Overhead Press",
@@ -1506,6 +1680,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your torso supported against the bench.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pike Push-Up",
         "basic_gym": "Dumbbell Shoulder Press",
@@ -1522,6 +1698,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pike Push-Up",
         "basic_gym": "Barbell Overhead Press",
@@ -1538,6 +1716,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Set seat height so the handles start near shoulder level.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pike Push-Up",
         "basic_gym": "Barbell Overhead Press",
@@ -1554,6 +1734,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pike Push-Up",
         "basic_gym": "Barbell Overhead Press",
@@ -1570,6 +1752,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use the weight of your straight arm and lift it under control.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone T Raise",
         "basic_gym": "Dumbbell Lateral Raise",
@@ -1586,6 +1770,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Stand on the band to anchor it.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Lateral Raise",
         "basic_gym": "Dumbbell Lateral Raise",
@@ -1602,6 +1788,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Lead with your elbows and use a comfortable range.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Lateral Raise",
         "basic_gym": "Dumbbell Lateral Raise",
@@ -1618,6 +1806,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Lateral Raise",
         "basic_gym": "Dumbbell Lateral Raise",
@@ -1634,6 +1824,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Lateral Raise",
         "basic_gym": "Dumbbell Lateral Raise",
@@ -1650,6 +1842,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Reach your arms out to the sides and lift slightly.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone W Raise",
         "basic_gym": "Band Pull-Apart",
@@ -1666,6 +1860,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Bend your elbows and lift your arms into a W.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone T Raise",
         "basic_gym": "Band Pull-Apart",
@@ -1682,6 +1878,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your ribs still as your hands move apart.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone T Raise",
         "basic_gym": "Dumbbell Bent-Over Reverse Fly",
@@ -1698,6 +1896,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep a soft bend in the elbows.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone T Raise",
         "basic_gym": "Band Pull-Apart",
@@ -1714,6 +1914,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Lie chest-down and lift your arms out to the sides.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone T Raise",
         "basic_gym": "Dumbbell Bent-Over Reverse Fly",
@@ -1730,6 +1932,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Sweep your arms out with a steady elbow angle.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone T Raise",
         "basic_gym": "Band Pull-Apart",
@@ -1746,6 +1950,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your chest against the pad.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Prone T Raise",
         "basic_gym": "Band Pull-Apart",
@@ -1762,6 +1968,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use an underhand grip on a fixed bar.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Dumbbell One-Arm Row",
@@ -1778,6 +1986,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Supinate as you curl and keep your upper arm still.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Barbell Curl",
@@ -1794,6 +2004,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep the back of your upper arm on the pad.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Barbell Curl",
@@ -1810,6 +2022,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your elbows near your sides.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Barbell Curl",
@@ -1826,6 +2040,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your upper arms supported throughout the rep.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Barbell Curl",
@@ -1842,6 +2058,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Anchor the band under your feet.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Dumbbell Incline Curl",
@@ -1858,6 +2076,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Face away from the low pulley with your upper arm slightly behind you.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Dumbbell Incline Curl",
@@ -1874,6 +2094,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use parallel handles and avoid swinging.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Dumbbell Hammer Curl",
@@ -1890,6 +2112,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your palms facing each other.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Neutral-Grip Pull-Up",
         "basic_gym": "Dumbbell Hammer Curl",
@@ -1906,6 +2130,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep a neutral grip through the rep.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Neutral-Grip Pull-Up",
         "basic_gym": "Dumbbell Hammer Curl",
@@ -1922,6 +2148,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use a secure fixed bar and let your elbows bend.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Kneeling Triceps Extension",
         "basic_gym": "Band Pushdown",
@@ -1938,6 +2166,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your elbows in and move through them.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Band Pushdown",
@@ -1954,6 +2184,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use a secure overhead anchor.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Dumbbell Triceps Kickback",
@@ -1970,6 +2202,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your upper arm still as you straighten the elbow.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Kneeling Triceps Extension",
         "basic_gym": "Band Pushdown",
@@ -1986,6 +2220,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your elbows near your sides.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Band Pushdown",
@@ -2002,6 +2238,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your torso still.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Band Pushdown",
@@ -2018,6 +2256,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your upper arm still.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Kneeling Triceps Extension",
         "basic_gym": "Dumbbell Triceps Kickback",
@@ -2034,6 +2274,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Band Pushdown",
@@ -2050,6 +2292,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your upper arms steady.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Dumbbell Skull Crusher",
@@ -2066,6 +2310,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your ribs down as your elbows bend.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Dumbbell Skull Crusher",
@@ -2082,6 +2328,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use a secure stance and keep your upper arms steady.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Dumbbell Overhead Triceps Extension",
@@ -2098,6 +2346,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Place your hands close together.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Push-Up",
         "basic_gym": "Barbell Close-Grip Bench Press",
@@ -2114,6 +2364,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your elbows near your torso.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Diamond Push-Up",
         "basic_gym": "Barbell Close-Grip Bench Press",
@@ -2130,6 +2382,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Diamond Push-Up",
         "basic_gym": "Barbell Close-Grip Bench Press",
@@ -2146,6 +2400,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Set the seat so the handles start in a comfortable position.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Diamond Push-Up",
         "basic_gym": "Dumbbell Close-Grip Press",
@@ -2162,6 +2418,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use your opposite hand to resist wrist flexion.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Dumbbell Wrist Curl",
@@ -2178,6 +2436,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Support your forearms.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Self-Resisted Wrist Curl",
         "basic_gym": "Dumbbell Wrist Curl",
@@ -2194,6 +2454,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Move at the wrist with your forearm supported.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Self-Resisted Wrist Curl",
         "basic_gym": "Dumbbell Wrist Curl",
@@ -2210,6 +2472,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use your opposite hand to resist wrist extension.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Neutral-Grip Pull-Up",
         "basic_gym": "Dumbbell Wrist Extension",
@@ -2226,6 +2490,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your palms down throughout the curl.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Neutral-Grip Pull-Up",
         "basic_gym": "Barbell Reverse Curl",
@@ -2242,6 +2508,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Support your forearm with your palm down.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Self-Resisted Wrist Extension",
         "basic_gym": "Dumbbell Reverse Curl",
@@ -2258,6 +2526,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your elbows still and palms facing down.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Neutral-Grip Pull-Up",
         "basic_gym": "Barbell Reverse Curl",
@@ -2274,6 +2544,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Support your forearm and move at the wrist.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Self-Resisted Wrist Extension",
         "basic_gym": "Dumbbell Wrist Extension",
@@ -2290,6 +2562,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Curl your ribs toward your pelvis.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Reverse Crunch",
         "basic_gym": "Dumbbell Weighted Crunch",
@@ -2306,6 +2580,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Tilt your pelvis to lift your hips slightly.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Crunch",
         "basic_gym": "Dumbbell Weighted Crunch",
@@ -2322,6 +2598,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Hold the dumbbell close to your chest.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Crunch",
         "basic_gym": "Dumbbell Side Bend",
@@ -2338,6 +2616,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Curl your ribs toward your pelvis through a controlled range.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Crunch",
         "basic_gym": "Dumbbell Weighted Crunch",
@@ -2354,6 +2634,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your lower back steady as opposite limbs move.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bird Dog",
         "basic_gym": "Band Pallof Press",
@@ -2370,6 +2652,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your hips level while reaching.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Dead Bug",
         "basic_gym": "Band Pallof Press",
@@ -2386,6 +2670,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Press straight ahead without rotating.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Dead Bug",
         "basic_gym": "Band Woodchop",
@@ -2402,6 +2688,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Brace and keep your shoulders square.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bird Dog",
         "basic_gym": "Band Pallof Press",
@@ -2418,6 +2706,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Lift and lower your hips under control.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Russian Twist",
         "basic_gym": "Dumbbell Side Bend",
@@ -2434,6 +2724,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Rotate your rib cage under control.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side Plank Hip Lift",
         "basic_gym": "Dumbbell Side Bend",
@@ -2450,6 +2742,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your shoulders facing forward.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side Plank Hip Lift",
         "basic_gym": "Band Woodchop",
@@ -2466,6 +2760,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use a secure anchor and control the return.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side Plank Hip Lift",
         "basic_gym": "Dumbbell Side Bend",
@@ -2482,6 +2778,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use a controlled range and set the machine for each side.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side Plank Hip Lift",
         "basic_gym": "Dumbbell Side Bend",
@@ -2498,6 +2796,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Finish at the hips without arching your lower back.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Single-Leg Glute Bridge",
         "basic_gym": "Barbell Hip Thrust",
@@ -2514,6 +2814,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your pelvis level.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Glute Bridge",
         "basic_gym": "Barbell Hip Thrust",
@@ -2530,6 +2832,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a stable bench and pad the dumbbell if needed.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Glute Bridge",
         "basic_gym": "Barbell Hip Thrust",
@@ -2546,6 +2850,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Position the pad over the crease of your hips.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Glute Bridge",
         "basic_gym": "Barbell Hip Thrust",
@@ -2562,6 +2868,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Set the pad or belt over your hip crease and record the weight stack setting.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Glute Bridge",
         "basic_gym": "Barbell Hip Thrust",
@@ -2578,6 +2886,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Position the bench securely and set the stops.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Glute Bridge",
         "basic_gym": "Barbell Hip Thrust",
@@ -2594,6 +2904,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Reach your hips back with soft knees.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Back Extension",
         "basic_gym": "Kettlebell Swing",
@@ -2610,6 +2922,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Drive the weight with your hips.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Hip Hinge",
         "basic_gym": "Kettlebell Swing",
@@ -2626,6 +2940,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Let your hips travel back before driving them forward.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Hip Hinge",
         "basic_gym": "Kettlebell Swing",
@@ -2642,6 +2958,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your torso on the pad and swing only through a controlled hip range.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Back Extension",
         "basic_gym": "Dumbbell Romanian Deadlift",
@@ -2658,6 +2976,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your hips stacked as your top knee opens.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Leg Raise",
         "basic_gym": "Band Lateral Walk",
@@ -2674,6 +2994,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your pelvis stacked and your toes pointing forward.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Clamshell",
         "basic_gym": "Band Lateral Walk",
@@ -2690,6 +3012,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Maintain tension in the band throughout each step.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Clamshell",
         "basic_gym": "Band Clamshell",
@@ -2706,6 +3030,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your hips stacked.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Clamshell",
         "basic_gym": "Band Lateral Walk",
@@ -2722,6 +3048,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your hips square as your leg moves out.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Clamshell",
         "basic_gym": "Band Lateral Walk",
@@ -2738,6 +3066,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Heels-Elevated Squat",
         "basic_gym": "Barbell Back Squat",
@@ -2754,6 +3084,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a stable wedge under your heels.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Squat",
         "basic_gym": "Barbell Back Squat",
@@ -2770,6 +3102,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your elbows up and the bar supported on your shoulders.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Squat",
         "basic_gym": "Barbell Back Squat",
@@ -2786,6 +3120,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Hold one dumbbell against your chest.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Squat",
         "basic_gym": "Barbell Back Squat",
@@ -2802,6 +3138,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Hold one bell close to your chest.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Squat",
         "basic_gym": "Barbell Back Squat",
@@ -2818,6 +3156,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your pelvis and back against the pad.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Squat",
         "basic_gym": "Dumbbell Goblet Squat",
@@ -2834,6 +3174,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your back against the pad and set the stops before lifting.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Squat",
         "basic_gym": "Barbell Back Squat",
@@ -2850,6 +3192,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Set the safety stop and keep your back against the pad.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Heels-Elevated Squat",
         "basic_gym": "Barbell Back Squat",
@@ -2866,6 +3210,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Set the stops and keep your feet planted.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Squat",
         "basic_gym": "Barbell Back Squat",
@@ -2882,6 +3228,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Center the belt at your hips and keep your feet planted.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Squat",
         "basic_gym": "Dumbbell Goblet Squat",
@@ -2898,6 +3246,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Set the safety stops before lifting.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Squat",
         "basic_gym": "Barbell Back Squat",
@@ -2914,6 +3264,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Lower straight down between your feet.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Reverse Lunge",
         "basic_gym": "Dumbbell Bulgarian Split Squat",
@@ -2930,6 +3282,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Step back and drive through your front foot.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Split Squat",
         "basic_gym": "Dumbbell Bulgarian Split Squat",
@@ -2946,6 +3300,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a stable step and lower under control.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Split Squat",
         "basic_gym": "Dumbbell Bulgarian Split Squat",
@@ -2962,6 +3318,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Step forward and control the descent.",
+      "load_count": 4,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Split Squat",
         "basic_gym": "Dumbbell Walking Lunge",
@@ -2978,6 +3336,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep most of the load over the front leg.",
+      "load_count": 4,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Split Squat",
         "basic_gym": "Dumbbell Bulgarian Split Squat",
@@ -2994,6 +3354,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Step through smoothly and log reps per side.",
+      "load_count": 4,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Reverse Lunge",
         "basic_gym": "Dumbbell Forward Lunge",
@@ -3010,6 +3372,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Drive through the top foot and control the way down.",
+      "load_count": 4,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Step-Up",
         "basic_gym": "Dumbbell Reverse Lunge",
@@ -3026,6 +3390,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Set the safety stops and log reps per side.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Split Squat",
         "basic_gym": "Dumbbell Bulgarian Split Squat",
@@ -3042,6 +3408,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Use a stable rear support and set the safety stops.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Split Squat",
         "basic_gym": "Dumbbell Bulgarian Split Squat",
@@ -3058,6 +3426,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Set a stable rear-foot support and log reps per side.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Split Squat",
         "basic_gym": "Dumbbell Bulgarian Split Squat",
@@ -3074,6 +3444,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your hips extended as you lean back from your knees.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Sissy Squat",
         "basic_gym": "Band Leg Extension",
@@ -3090,6 +3462,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use a stable support and keep the range controlled.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Reverse Nordic Curl",
         "basic_gym": "Band Leg Extension",
@@ -3106,6 +3480,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use a secure anchor and extend only at the knee.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Reverse Nordic Curl",
         "basic_gym": "Dumbbell Goblet Squat",
@@ -3122,6 +3498,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use an ankle cuff and keep your thigh still.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Reverse Nordic Curl",
         "basic_gym": "Band Leg Extension",
@@ -3138,6 +3516,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your hips square as you hinge.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Hip Hinge",
         "basic_gym": "Barbell Romanian Deadlift",
@@ -3154,6 +3534,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep the dumbbells close to your legs.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Single-Leg Romanian Deadlift",
         "basic_gym": "Barbell Romanian Deadlift",
@@ -3170,6 +3552,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Keep your hips square and lower under control.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Single-Leg Romanian Deadlift",
         "basic_gym": "Dumbbell Romanian Deadlift",
@@ -3186,6 +3570,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Hinge away from the low pulley while keeping tension in the cable.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Single-Leg Romanian Deadlift",
         "basic_gym": "Barbell Romanian Deadlift",
@@ -3202,6 +3588,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use sliders or a towel on a smooth surface.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Nordic Curl",
         "basic_gym": "Band Lying Leg Curl",
@@ -3218,6 +3606,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use a purpose-built bench or secure ankle anchor.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Sliding Leg Curl",
         "basic_gym": "Band Lying Leg Curl",
@@ -3234,6 +3624,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use a secure low anchor around the line of the ankles.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Sliding Leg Curl",
         "basic_gym": "Dumbbell Romanian Deadlift",
@@ -3250,6 +3642,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Align your knees with the machine pivot.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Sliding Leg Curl",
         "basic_gym": "Band Lying Leg Curl",
@@ -3266,6 +3660,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use an ankle cuff and keep your thigh still.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Sliding Leg Curl",
         "basic_gym": "Band Lying Leg Curl",
@@ -3282,6 +3678,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Pause briefly at the top.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Single-Leg Calf Raise",
         "basic_gym": "Dumbbell Standing Calf Raise",
@@ -3298,6 +3696,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use light hand support for balance.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Standing Calf Raise",
         "basic_gym": "Dumbbell Standing Calf Raise",
@@ -3314,6 +3714,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your knees nearly straight.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Standing Calf Raise",
         "basic_gym": "Dumbbell Seated Calf Raise",
@@ -3330,6 +3732,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Set the stops and use a secure platform if elevating your feet.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Standing Calf Raise",
         "basic_gym": "Dumbbell Standing Calf Raise",
@@ -3346,6 +3750,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Hold a steady bend in your knees.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Single-Leg Bent-Knee Calf Raise",
         "basic_gym": "Dumbbell Seated Calf Raise",
@@ -3362,6 +3768,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Hold a stable support and keep the knee bent.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bent-Knee Calf Raise",
         "basic_gym": "Dumbbell Seated Calf Raise",
@@ -3378,6 +3786,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Pad the load on your thighs and lift your heels.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bent-Knee Calf Raise",
         "basic_gym": "Dumbbell Standing Calf Raise",
@@ -3394,6 +3804,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Place the pad above your knees and move at the ankles.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bent-Knee Calf Raise",
         "basic_gym": "Dumbbell Seated Calf Raise",
@@ -3410,6 +3822,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Lift the bottom leg while keeping your hips stacked.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Short-Lever Copenhagen Hip Lift",
         "basic_gym": "Dumbbell Lateral Lunge",
@@ -3426,6 +3840,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Support your top knee on a stable bench and lift your hips.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Adduction",
         "basic_gym": "Dumbbell Lateral Lunge",
@@ -3442,6 +3858,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Step sideways and sit back over the working leg.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Adduction",
         "basic_gym": "Band Hip Adduction",
@@ -3458,6 +3876,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Anchor the band to the side and draw your working leg inward.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Adduction",
         "basic_gym": "Dumbbell Lateral Lunge",
@@ -3474,6 +3894,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Sweep the cuffed leg inward without turning your hips.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Adduction",
         "basic_gym": "Dumbbell Lateral Lunge",
@@ -3490,6 +3912,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your trunk still as your leg moves out.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Leg Raise",
         "basic_gym": "Band Lateral Walk",
@@ -3506,6 +3930,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Log the added plates. Count one fixed-distance trip as one rep and keep the distance and surface consistent.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Step-Up",
         "basic_gym": "Dumbbell Walking Lunge",
@@ -3522,6 +3948,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Hold the sled handles or tow strap and walk backward. Count one fixed-distance trip as one rep.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Reverse Lunge",
         "basic_gym": "Dumbbell Reverse Lunge",
@@ -3538,6 +3966,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Stay in place and pull the sled toward you hand over hand. Count one fixed-distance pull as one rep.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Inverted Row",
         "basic_gym": "Dumbbell One-Arm Row",
@@ -3554,6 +3984,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Line up your knee with the machine pivot and log reps per side.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Sliding Leg Curl",
         "basic_gym": "Band Lying Leg Curl",
@@ -3570,6 +4002,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Record the stack setting and log reps per side.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Sliding Leg Curl",
         "basic_gym": "Band Lying Leg Curl",
@@ -3586,6 +4020,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Keep your torso steady and press the handles down through a comfortable range.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Bar Triceps Extension",
         "basic_gym": "Band Pushdown",
@@ -3602,6 +4038,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Jump onto a stable platform, land softly, and step down. Record reps and keep track of platform height.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Step-Up",
         "basic_gym": "Kettlebell Swing",
@@ -3618,6 +4056,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Use the angled grips on the EZ bar and keep your upper arms steady.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Barbell Curl",
@@ -3634,6 +4074,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Curl palms up, turn your forearms palms down at the top, and lower under control. Turn palms up again at the bottom.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Neutral-Grip Pull-Up",
         "basic_gym": "Dumbbell Reverse Curl",
@@ -3650,6 +4092,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Sit between two low pulleys. Start with the handles near shoulder height and press overhead.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pike Push-Up",
         "basic_gym": "Dumbbell Seated Shoulder Press",
@@ -3666,6 +4110,8 @@
       "work_seconds": 45,
       "rest_seconds": 120,
       "note": "Sit facing away from the pulleys. Start with the handles at chest height and press forward.",
+      "load_count": 2,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Push-Up",
         "basic_gym": "Dumbbell Bench Press",
@@ -3682,6 +4128,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Sit facing a low pulley and curl with your palms up. Keep your upper arms steady.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Chin-Up",
         "basic_gym": "Dumbbell Alternating Curl",
@@ -3698,6 +4146,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Set the pads or handles to a comfortable starting position. Raise your arms out to the sides.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Lateral Raise",
         "basic_gym": "Dumbbell Lateral Raise",
@@ -3714,6 +4164,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Stand tall and raise the handles out to the sides. Lower under control.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Side-Lying Lateral Raise",
         "basic_gym": "Dumbbell Lateral Raise",
@@ -3730,6 +4182,8 @@
       "work_seconds": 45,
       "rest_seconds": 90,
       "note": "Start with your arms out to the sides. Keep a soft bend in your elbows and sweep the handles down in an arc toward your hips.",
+      "load_count": 1,
+      "assisted": false,
       "alternates": {
         "bodyweight": "Bodyweight Pull-Up",
         "basic_gym": "Band Lat Pulldown",

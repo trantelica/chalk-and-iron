@@ -28,11 +28,12 @@ export const device = (): SupabaseClient =>
   createClient(url(), key(), { auth: { persistSession: false, autoRefreshToken: false } });
 
 let n = 0;
-let firstAdmin: { id: string; client: SupabaseClient } | null = null;
+type Person = Awaited<ReturnType<typeof signInOnNewDevice>> & { email: string };
+let firstAdmin: Person | null = null;
 
 /** Makes an account through a real invite, as registration does, and signs one device in.
  *  The first account made is the admin, who invites the rest. */
-export async function registerAccount(name = 'Test') {
+export async function registerAccount(name = 'Test'): Promise<Person> {
   n += 1;
   const email = `t${Date.now()}${n}@example.test`;
   let code: string;
@@ -100,6 +101,9 @@ export async function connectCoach(person: SupabaseClient) {
   const loc = auth.headers.get('location') ?? '';
   const authorizationId = new URL(loc, 'http://x').searchParams.get('authorization_id');
   if (!authorizationId) throw new Error(`authorize: ${auth.status} ${loc} ${await auth.text()}`);
+  // As the consent page does: read the request, then approve it.
+  const details = await person.auth.oauth.getAuthorizationDetails(authorizationId);
+  if (details.error) throw details.error;
   const ok = await person.auth.oauth.approveAuthorization(authorizationId, { skipBrowserRedirect: true });
   if (ok.error) throw ok.error;
   const redirectUrl = (ok.data as { redirect_url?: string; redirect_to?: string }).redirect_url ?? (ok.data as { redirect_to?: string }).redirect_to ?? '';
