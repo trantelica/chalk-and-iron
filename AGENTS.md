@@ -5,8 +5,8 @@ This is the single briefing for any agent working on Chalk and Iron. The same fi
 ## Guiding rules
 
 1. **Speak plainly.** Nathan is not a developer. Use everyday language and avoid engineer jargon. If a technical term is unavoidable, explain it in a few words.
-2. **Follow the folder schema strictly** whenever you create folders or file anything in the local project folder. Read it first: `Project Context -N/Folder Schema -S/Folder Schema.md`. In short: find it in -N, trust it in -S, support it in -sub, sort uncertainty in -gov. The schema covers the local folders only. The GitHub repository keeps its own code layout (`docs/`, `phase0/`, `prototype/`).
-3. **When unsure where something goes locally, do not guess.** Put it in `00 FOLDER GOVERNANCE -gov` and tell Nathan.
+2. **Follow the folder schema strictly** whenever you create folders or file anything on Nathan's MacBook. Read it first: `Project Context -N/Folder Schema -S/Folder Schema.md`. In short: find it in -N, trust it in -S, support it in -sub, sort uncertainty in -gov. The schema applies only to folders on Nathan's MacBook. It does not apply to the GitHub repository, which keeps its own code layout (`docs/`, `phase0/`, `prototype/`).
+3. **When unsure where something goes on the MacBook, do not guess.** Put it in `00 FOLDER GOVERNANCE -gov` and tell Nathan.
 4. **Ask before outward-facing or hard-to-undo actions** (deleting, publishing, sending, merging).
 5. **No development before approval.** Nathan approves the technical design first (see below). Until then, write documents only, not app code.
 
