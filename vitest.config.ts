@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     include: ['tests/**/*.test.ts'],
     // These need Supabase's local version: npm run test:supabase.
-    exclude: ['tests/supabase/**'],
+    exclude: ['tests/supabase/**', 'tests/browser/**'],
     testTimeout: 60000,
     hookTimeout: 120000,
   },

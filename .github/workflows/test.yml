@@ -35,3 +35,12 @@ jobs:
         run: npx supabase start -x studio,imgproxy,storage-api,realtime,edge-runtime,logflare,vector,postgres-meta,supavisor,mailpit
       - run: node scripts/supabase-test-env.mjs >> "$GITHUB_ENV"
       - run: npm run test:supabase
+      - name: Build the app against Supabase's local version
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ env.SUPABASE_TEST_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ env.SUPABASE_TEST_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_APP_ORIGIN: http://localhost:3000
+      - run: npx playwright install --with-deps chromium
+      - name: Passkey steps in a test browser
+        run: npm run test:browser
