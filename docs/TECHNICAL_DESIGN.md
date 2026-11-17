@@ -1,10 +1,10 @@
 # Chalk and Iron: technical design
 
-16 November 2026 · Written for Nathan's review · Status: **proposed, not approved** · Revised twice on 16 November after Nathan's answers to the decisions table, and twice on 17 November after his answers to Section 10
+16 November 2026 · Written for Nathan's review · Status: **approved 17 November 2026** · Revised twice on 16 November after Nathan's answers to the decisions table, and twice on 17 November after his answers to Section 10
 
-**Where it stands, 17 November.** Every row of the decisions table and every question in Section 10 is answered. Two small details are still marked "awaiting Nathan's confirmation": how a workout's bodyweight volume sits beside its pounds total (question 14), and a few parts of how the seeded weight works (question 12). One working assumption about skipping inside a superset is also awaiting confirmation (question 39). Nathan also made one feature request on 17 November, now decided: breaking a superset into individual exercises during a workout (question 41). A few details of how it works are this design's own choices, marked in that row. None of this blocks the design. The next step is still Nathan's approval.
+**Approved by Nathan on 17 November 2026.** Every row of the decisions table and every question in Section 10 is answered. The few details still marked "awaiting Nathan's confirmation" (questions 12, 14 and 39) and this design's own choices for question 41 stand as written unless Nathan changes them later. On approval Nathan also narrowed one rule: only a proposal that replaces today's workout with a different one splits a running session (Section 5). Phase 1 may now begin.
 
-This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md`. Where Nathan's answers change a product rule, the spec has been updated to match. No app code is written until Nathan approves this document.
+This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md`. Where Nathan's answers change a product rule, the spec has been updated to match. Nathan approved it on 17 November 2026, so Phase 1 may begin.
 
 Written by Fable 5.2 on 16 November 2026, as `docs/MODEL_AND_EFFORT.md` sets out. Any later revision is done on Opus 5.5 at high effort.
 
@@ -562,7 +562,8 @@ Also:
   - This design's own choices, not yet shown to Nathan: the exercises keep the superset's place in the order, one after another, and can be reordered in the tray like any exercise; once broken, the paired warm-up rule and the equal-sets rule no longer apply to them.
 - Finishing a workout part-way through a superset round can leave the members with different numbers of logged sets. That is a record of what happened, not a plan, and it is allowed.
 - Sets left undone when a session finishes are marked Skipped and left out of efficiency. An exercise never started is Skipped.
-- If a today proposal is accepted mid-session (other than one that only breaks a superset, which is applied inside the session: Section 3): the session finishes with reason "replaced" and becomes an ad hoc session holding the work done. Its unreached sets are marked Replaced and left out of efficiency. A new session starts from the proposed workout.
+- Only a proposal that replaces today's workout with a different one, such as a day sent from the planner, splits a running session (decided 17 Nov). If one is accepted mid-session, the session finishes with reason "replaced" and becomes an ad hoc session holding the work done. Its unreached sets are marked Replaced and left out of efficiency. A new session starts from the proposed workout.
+- Every other today change accepted mid-session (swap, sets, reps, weight, rest, add, remove, reorder, break a superset) is applied inside the running session, to sets not yet logged. The session carries on.
 - Editing a workout or exercise never changes any session, active or finished.
 
 ### Proposal
@@ -959,4 +960,4 @@ I did not check these against current documentation in this sitting. Each is con
    - question 14: whether a workout's bodyweight volume shows as its own figure beside the pounds total;
    - question 39: whether Skip inside a superset skips the whole superset;
    - question 41, Nathan's request to break a superset during a workout: decided, including that a superset of three splits into all three. Five small details are this design's own choices, listed in that row, for Nathan to see when he reviews.
-3. The next step is still Nathan's approval of this design. Once he approves, Phase 1 begins on Opus 5.5 at high effort, on its own branch and pull request.
+3. Nathan approved this design on 17 November 2026. Phase 1 begins in a new session on Opus 5.5 at high effort, on its own branch and pull request, starting with the small connector sign-in proof (question 31).

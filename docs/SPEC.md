@@ -653,7 +653,8 @@ These rules settle what happens outside the normal path. Nathan decided them in 
 - A workout or campaign proposal may bundle new exercises, and a campaign proposal new workouts too. One Accept applies all of it or none. An exercise counts as unknown only if it is neither in the library nor defined in the same proposal.
 - Any proposal can be dismissed at any time. Dismissing is the same as declining: the proposal ends as rejected. A proposal never blocks an action.
 - A proposal for today's session expires at the 3:00 am day rollover.
-- If a proposal for today's workout is accepted mid-session (other than one that only breaks a superset, which is applied inside the session), the work already logged is saved as its own ad hoc session, and the proposed workout starts as a new session. Sets not yet reached are marked Replaced and excluded from efficiency.
+- Only a proposal that replaces today's workout with a different one, such as a day sent from the planner, splits a running session. If one is accepted mid-session, the work already logged is saved as its own ad hoc session, and the proposed workout starts as a new session. Sets not yet reached are marked Replaced and excluded from efficiency.
+- Every other change to today's workout accepted mid-session (a swap, a change to sets, reps, weight or rest, adding, removing or reordering exercises, or breaking a superset) is applied inside the running session, to sets not yet logged. The session carries on.
 
 ### Accounts
 

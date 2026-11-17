@@ -13,7 +13,7 @@ The app is not built yet. This repository holds the specification, a tappable pr
 | Path | What it is |
 | --- | --- |
 | `docs/SPEC.md` | The build specification: requirements, data model, coach connection, screens, theming, roadmap, acceptance tests and open decisions |
-| `docs/TECHNICAL_DESIGN.md` | The proposed technical design: stack, database, connector contracts, sign-in, offline, timers, theme tokens, testing and open questions. Awaiting Nathan's approval |
+| `docs/TECHNICAL_DESIGN.md` | The proposed technical design: stack, database, connector contracts, sign-in, offline, timers, theme tokens, testing and open questions. Approved by Nathan on 17 November 2026 |
 | `docs/MODEL_AND_EFFORT.md` | Which AI model and effort level to use at each stage |
 | `docs/COACH_INSTRUCTIONS.md` | Draft instructions a user pastes into their LLM project |
 | `AGENTS.md` | The kickoff brief for the coding agent |
@@ -28,4 +28,4 @@ In the phone view, the settings button has a demo clock speed. Set it to 60× to
 
 ## For the coding agent
 
-Start with `AGENTS.md`. It is the kickoff brief: what to read, what is settled, and the first deliverable, a technical design for review before any app code. That design is written in `docs/TECHNICAL_DESIGN.md` and is not yet approved. No app code starts until Nathan approves it.
+Start with `AGENTS.md`. It is the kickoff brief: what to read, what is settled, and the first deliverable, a technical design for review before any app code. That design is in `docs/TECHNICAL_DESIGN.md` and was approved by Nathan on 17 November 2026. Phase 1 is next.
