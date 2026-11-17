@@ -18,3 +18,20 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: build-only-placeholder
+
+  # Database and account tests against Supabase's own local version, so they
+  # meet the same limits as the live project (decided 17 Nov 2026, design
+  # Section 10E point 10).
+  supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Start Supabase's local version
+        run: npx supabase start -x studio,imgproxy,storage-api,realtime,edge-runtime,logflare,vector,postgres-meta,supavisor,mailpit
+      - run: node scripts/supabase-test-env.mjs >> "$GITHUB_ENV"
+      - run: npm run test:supabase
