@@ -1,6 +1,6 @@
 # Chalk and Iron: technical design
 
-16 November 2026 · Written for Nathan's review · Status: **proposed, not approved** · Revised the same day after Nathan's first answers
+16 November 2026 · Written for Nathan's review · Status: **proposed, not approved** · Revised twice the same day after Nathan's answers
 
 This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md` and changes nothing in it. No app code is written until Nathan approves this document.
 
@@ -19,11 +19,11 @@ These are the choices in this design that cost money, add an account, or change 
 | A | Stack and hosting | One web app on Vercel, with Supabase for the database and sign-in. This is the spec's starting suggestion. Section 1 | Not yet answered |
 | B | An email-sending service and a domain name | First draft: needed for sign-in emails and the weekly summary | **Changed.** The weekly summary is read by the coach through the connector and is not emailed. The emailed summary and the accountability partner are deferred to a later version. Invites are ready-to-paste text that the admin sends from their own email. That leaves sign-in as the only thing that might need email: see row H |
 | C | Paid plans | First draft: paid Supabase plan before friends join | **Start on the free plan.** Nathan uses the app 4 to 6 times a week, so a pause is not a real risk. Backups are a separate point and stay open: question 36 |
-| D | Sign-in on the iPhone home-screen app | An emailed link opens in Safari, which the iPhone treats as a different app from the home-screen app, so the link alone would not sign the app in. The email would carry a link **and** a six-digit code to type into the app. Section 4 | Explained again, awaiting an answer. Row H may remove the issue altogether |
-| E | Who can register | An invite link | **Decided.** Single-use invite links. Only an admin can make them, on an admin page. A person who was invited cannot invite others unless made an admin. Section 4 |
+| D | Sign-in on the iPhone home-screen app | An emailed link opens in Safari, which the iPhone treats as a different app from the home-screen app, so the link alone would not sign the app in. The email would carry a link **and** a six-digit code to type into the app. Section 4 | **Agreed**, as the fallback route. Row H makes passkey sign-in the first choice, which avoids the issue |
+| E | Who can register | An invite link | **Decided.** Single-use invite links. Only an admin can make them, on an admin page. A person who was invited cannot invite others unless made an admin. Admins can create, delete, deactivate, reactivate and reset accounts. Section 4 |
 | F | Rest alerts in the background | Sent by the server at the moment rest ends, using a scheduler inside Supabase. No third account. Section 7 | Not yet answered |
 | G | The open questions | Section 10 lists places where the spec is unclear or disagrees with itself. Each has a stated assumption so the build can proceed, but they are yours to settle | To be reviewed next |
-| H | New: should the app send any email at all? | Sign-in is now the only reason for an email service. Two routes. **Email code:** the well-trodden route, self-service recovery, needs an email service and a domain. **Passkey only** (Face ID or Touch ID, no email): no email service, and the Safari problem in row D disappears, but recovery goes through the admin and it depends on facts not yet confirmed. Recommended: try passkey-only in the early sign-in proof (question 31, approved). Use it if it passes, fall back to email code if it does not. Section 4 | New, awaiting an answer |
+| H | New: should the app send any email at all? | Sign-in is now the only reason for an email service. Two routes. **Email code:** the well-trodden route, self-service recovery, needs an email service and a domain. **Passkey only** (Face ID or Touch ID, no email): no email service, and the Safari problem in row D disappears, but recovery goes through the admin and it depends on facts not yet confirmed. Recommended: try passkey-only in the early sign-in proof (question 31, approved). Use it if it passes, fall back to email code if it does not. Section 4 | **Decided.** Passkey sign-in first, and the app sends no email. A lost sign-in is reset by an admin, who gets ready-to-paste reset instructions to send from their own email. If the passkey test fails, fall back to the emailed link and code, with a passkey still offered |
 
 ---
 
@@ -103,6 +103,7 @@ These are the choices in this design that cost money, add an account, or change 
 | skins_available | list of text | The per-user gate from Section 6 of the spec. Default: all three |
 | coach_link | text | The link the Coach button opens |
 | is_admin | yes/no | Default no. An admin can open the admin page. It gives no access to anyone else's training data |
+| account_status | 'active' or 'inactive' | An inactive account cannot sign in and its coach connection is refused. Its data is kept |
 | setup_done | list of text | Which walkthrough steps are finished |
 | delete_requested_at | timestamp or empty | Starts the 14-day grace period |
 
@@ -110,11 +111,13 @@ These are the choices in this design that cost money, add an account, or change 
 
 **gyms**: `name`, `equipment` (list of text), `notes`, `is_default`, `archived_at`, `version`. The database allows only one default gym per user.
 
-**invites**. One row per invite link. Only an admin can create one.
+**invites**. One row per single-use link, whether it invites a new person or resets an existing account's sign-in. Only an admin can create one.
 
 | Field | Type | Notes |
 |---|---|---|
 | code_hash | text | The link's secret is stored scrambled, so reading the database does not reveal a usable link |
+| purpose | 'invite' or 'reset' | |
+| for_user | link or empty | The account a reset link belongs to |
 | label | text | Who it is for, as the admin typed it |
 | created_by | link to an admin | |
 | expires_at | timestamp | Default 7 days after it is made |
@@ -304,6 +307,7 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 
 ### Housekeeping
 
+- **admin_actions**: who did what to which account, and when. Written for every admin action. Holds no training data.
 - **rest_alerts**: `session_id`, `fire_at`, `status`. See Section 7.
 - **received_changes**: the ids of changes already received from phones, so a repeat is ignored. See Section 6.
 - **starter library**: about 40 exercises and the starter vocabulary live as a data file in the repository and are copied into each new account at registration.
@@ -395,6 +399,8 @@ A today proposal expires at the end of the day. A propose call repeated word for
 
 ### Signing in to the app
 
+Decided 16 November: passkey sign-in is the first choice (see "Sign-in without any email" below). The emailed link and code described here are the fallback, used only if the passkey test at the start of Phase 1 fails.
+
 1. The user types their email. The app sends an email holding a sign-in link and a six-digit code.
 2. In a desktop browser the link signs them in. In the iPhone home-screen app they type the code.
 3. After the first sign-in the app offers a passkey (Face ID or Touch ID), so later sign-ins need no email.
@@ -415,19 +421,27 @@ Decided by Nathan on 16 November.
 - **Admins.** An account is either an ordinary user or an admin. Nathan's account is made the first admin once, when the app is set up. An admin can make another user an admin. An ordinary user cannot invite anyone.
 - **Invite links are single-use.** Each link registers one account and then stops working. It also stops after 7 days if unused, and an admin can cancel it at any time.
 - **Ready-to-paste invite.** Making an invite shows a block of text holding the link and the setup steps (register, add to the home screen, allow notifications, connect a coach). The admin copies it into their own email or message. The app sends nothing.
-- **The admin page** shows: the list of accounts (name, email, date joined), invites (waiting, used, expired, cancelled), and buttons to make or cancel an invite, make someone an admin, and help someone who is locked out.
-- **What an admin cannot do.** An admin sees no one else's workouts, history, notes, coach profile or proposals. The rule that each user sees only their own data has no admin exception. The admin page reads account details only.
+- **The admin page** shows the list of accounts (name, email, date joined, active or inactive) and the list of links (waiting, used, expired, cancelled).
+- **What an admin can do** (decided 16 November):
+  - **Create.** Type a person's name and email and get their single-use invite, as ready-to-paste text.
+  - **Deactivate.** Block an account at once. The person cannot sign in and their coach connection stops. Nothing is deleted.
+  - **Reactivate.** Undo a deactivation. Everything is as it was.
+  - **Reset.** For someone who is locked out. The app makes a single-use reset link and ready-to-paste instructions for the admin to send. Opening the link lets the person set up sign-in again. Their old sign-ins and coach connections are ended, and they reconnect their coach afterward.
+  - **Delete.** Remove an account and all its data, after the same 14-day grace period as a self-service delete (question 38).
+  - **Make or unmake an admin.**
+- **Safeguards.** The last remaining admin cannot be deactivated, deleted or unmade. Every admin action is recorded with who did it and when.
+- **What an admin cannot do.** An admin sees no one else's workouts, history, notes, coach profile or proposals. The rule that each user sees only their own data has no admin exception. The admin page reads account details only. One honest limit: whoever holds a reset link can get into that account, and an admin makes reset links. So a reset always signs the person out everywhere and shows them a notice the next time they sign in, which means a reset cannot happen quietly.
 
-### Sign-in without any email (option, Decisions row H)
+### Sign-in without any email (first choice, Decisions row H)
 
 With the weekly email deferred and invites pasted by hand, sign-in is the only thing left that needs an email service. It could be dropped too:
 
 1. A friend opens their invite link, types a name and email address (kept as a contact detail only), and creates a passkey with Face ID or Touch ID.
 2. From then on, signing in is one Face ID or Touch ID check. Apple keeps the passkey in iCloud Keychain, so it is available in Safari and in the home-screen app alike, and on the person's other Apple devices. The Safari problem in row D does not arise.
 3. On a computer without the passkey, the sign-in page shows a code to scan with the phone.
-4. If someone loses every device, an admin makes them a single-use recovery link from the admin page.
+4. If someone is locked out, an admin resets their sign-in from the admin page and sends them the ready-to-paste reset instructions. The app sends no email.
 
-What it depends on, none of it confirmed yet: that Supabase's sign-in can use a passkey as the only sign-in method, that passkeys work inside the iPhone home-screen app, and that they work on the page ChatGPT and Claude open when connecting a coach. The early sign-in proof tests all three. If any fails, the design falls back to the emailed code above.
+What it depends on, none of it confirmed yet: that Supabase's sign-in can use a passkey as the only sign-in method, that passkeys work inside the iPhone home-screen app, and that they work on the page ChatGPT and Claude open when connecting a coach. The early sign-in proof tests all three. If any fails, the design falls back to the emailed link and code above, which needs an email service and a domain. A passkey is still offered in that case wherever it works.
 
 ### Signing the coach in to the connector
 
@@ -707,7 +721,7 @@ Every skin defines the same token names. Values below are the prototype's.
 | Code checks | Scans of the codebase run on every pull request | Small scripts |
 | Device | Nathan, by hand, on an iPhone | A written checklist per phase |
 
-All automated tests run on every pull request. A phase is not offered for acceptance until they pass.
+All automated tests run on every pull request. One of the code checks compares `docs/COACH_INSTRUCTIONS.md` with the connector's tool list and fails if the instructions name a tool that does not exist or leave one out, so the coach instructions cannot fall behind the connector. A phase is not offered for acceptance until they pass.
 
 ### Each acceptance test
 
@@ -774,7 +788,7 @@ These are places where the spec is unclear, silent or disagrees with itself. The
 | 3 | "The library is never changed by use", yet the phone's unit switch and note line change the exercise during a workout | Sections 1, 2 and 5 | Those two are deliberate edits by the user, not changes "by use", and are allowed |
 | 4 | Proposal states: Section 3 lists pending, accepted, rejected. Section 10 adds out of date, and today proposals expire. Section 4 says `get_proposal_status` returns one of three | Sections 3, 4 and 10 | Five states, all visible to the coach |
 | 5 | "Decline discards it" and "any proposal can be dismissed at any time". Are Decline and Dismiss the same thing? | Sections 4 and 10 | Yes. Both end as rejected |
-| 6 | Sign-in by emailed link does not work inside the iPhone home-screen app | Section 9, decision 4 | The email carries a link and a six-digit code. Awaiting Nathan's answer, together with question 35 |
+| 6 | Sign-in by emailed link does not work inside the iPhone home-screen app | Section 9, decision 4 | **Decided 16 Nov:** agreed, as the fallback route. Passkey sign-in is the first choice (question 35) |
 | 7 | Skins must not resize elements, yet heading size and numeral size are tokens that differ by skin | Sections 1 and 6 | Text sizes may differ. Boxes keep fixed sizes, so nothing moves |
 | 8 | Section 9 opens with "seven points are not yet decided" and "rows 4 and 6 to 10 are confirmed", but the table has fourteen rows | Section 9 | No effect on the build. Worth tidying in the spec |
 
@@ -807,11 +821,11 @@ These are places where the spec is unclear, silent or disagrees with itself. The
 | 31 | May a small sign-in proof for the connector be done at the start of Phase 1, ahead of the Phase 4 connector work? | **Decided 16 Nov:** yes, as a throwaway proof like Phase 0. The spec's roadmap is updated |
 | 32 | Full data export: what format? | One file a spreadsheet can open per kind of record, in a zip, plus one complete file for moving to another tool |
 | 33 | Weekly email: is it sent in a week with no sessions? What does the partner see? | **No longer applies.** Decided 16 Nov: the summary is read by the coach through `get_weekly_summary`. The emailed summary and accountability partner are deferred |
-| 34 | If someone loses access to their email, or every device holding their passkey, there is no self-service way back into the account | An admin helps from the admin page, with a single-use recovery link or a change of email |
-| 35 | Should the app send any email at all? Sign-in is the only remaining reason for an email service and domain (Decisions, row H) | Try passkey-only sign-in in the early proof. Use it if it passes. Otherwise sign in by emailed code, with an email service |
+| 34 | If someone loses access to their email, or every device holding their passkey, there is no self-service way back into the account | **Decided 16 Nov:** an admin resets the account and sends ready-to-paste reset instructions from their own email |
+| 35 | Should the app send any email at all? Sign-in is the only remaining reason for an email service and domain (Decisions, row H) | **Decided 16 Nov:** passkey sign-in first, no email sent by the app. Tested in the early proof. If it fails, sign in by emailed link and code, with an email service |
 | 36 | Backups on the free Supabase plan. As I understand it, the free plan keeps no automatic backups, so a mistake or a fault could lose history | Start on the free plan. Before friends join, either move to the paid plan or add a scheduled backup. Each user's own export button is available from Phase 5 |
 | 37 | What is the app's permanent web address? Passkeys and each friend's coach connection are tied to the address, so changing it later means everyone sets up again | Use Vercel's free address for building and testing. Choose the permanent address before the first friend is invited |
-| 38 | May an admin remove another person's account, and does the 14-day grace period apply? | An admin can block sign-in at once. Removal follows the same 14-day grace period as a self-service delete |
+| 38 | May an admin remove another person's account, and does the 14-day grace period apply? | **Partly decided 16 Nov:** admins can create, delete, deactivate, reactivate and reset accounts. Still assumed: an admin's delete keeps the 14-day grace period, during which an admin can undo it |
 
 ### C. Facts to confirm with a small test
 
@@ -828,7 +842,7 @@ I did not check these against current documentation in this sitting. Each is con
 | A web app's sound can mix with music without interrupting it | The rest sound becomes optional and off by default |
 | The home-screen app keeps its stored data indefinitely | The app warns when unsent sets exist and syncs more eagerly |
 | The Vercel and Supabase free tiers fit this use | Paid tiers |
-| A coach app's scheduled tasks can call a custom connector, so the weekly summary can arrive without being asked for | The user asks their coach for the week's summary by hand |
+| A coach app's scheduled tasks can call a custom connector, so the weekly summary can arrive without being asked for | The user asks their coach for the week's summary by hand. Nathan plans a scheduled task on the LLM side, or his Dot agent, which he has shown can call the connector |
 | A passkey can be the only sign-in method with Supabase, and works in the iPhone home-screen app and on the coach-connection page | Sign in by emailed code, which needs an email service and a domain |
 
 ### D. Carried from the kickoff brief, still open
@@ -842,6 +856,6 @@ I did not check these against current documentation in this sitting. Each is con
 
 ## What happens next
 
-1. Nathan answered five of the decisions on 16 November, and they are recorded in the table at the top. Still to answer: rows A, D, F and H, and Section 10.
+1. Nathan answered five of the decisions on 16 November, and they are recorded in the table at the top. Still to answer: rows A and F, and Section 10.
 2. The document is revised to match his answers, and the spec is updated where an answer changes it.
 3. Once Nathan approves, Phase 1 begins on Opus 5.5 at high effort, on its own branch and pull request.

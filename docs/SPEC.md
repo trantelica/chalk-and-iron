@@ -42,9 +42,10 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 
 ### Accounts
 
-- Sign-in, sign-out, account recovery, profile editing and account deletion, all self-service.
+- Sign-in, sign-out, profile editing and account deletion are self-service. Sign-in is by passkey (Face ID or Touch ID) and the app sends no email.
+- A person who is locked out is reset by an admin. The app gives the admin ready-to-paste reset instructions with a single-use link to send from their own email.
 - Registration is by invite. An invite link works once. Only an admin can make one, on an admin page. The app gives the admin ready-to-paste invite text to send from their own email. A person who was invited cannot invite others unless an admin makes them an admin.
-- An admin manages accounts and invites only. An admin cannot see anyone else's training data.
+- An admin can create, deactivate, reactivate, reset and delete accounts, and make another user an admin. An admin cannot see anyone else's training data.
 - Each user sees only their own library, history, campaigns and proposals.
 - A setup walkthrough covers adding the app to the home screen, allowing notifications, and connecting a coach.
 - Full data export on request.
@@ -336,7 +337,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 
 | Screen | Contents |
 | --- | --- |
-| Sign in and register | Email entry, sign-in confirmation, first-run setup steps |
+| Sign in and register | Opening an invite link, name and email, passkey setup, sign-in, first-run setup steps |
 | Home | Today's workout with a Start button, pending proposals, the campaign week at a glance, and Start another workout |
 | Cardio entry | Type, duration, distance, notes, and a list of recent entries |
 | Settings | Look (skin, accent, background), totals unit, notifications, coach link, sign out |
@@ -356,7 +357,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | Coach setup | Step-by-step connection for ChatGPT and for Claude, the coach instructions to copy, and a connection test |
 | Profile and gyms | Coach profile fields and gym equipment lists |
 | Account | Email, export, delete account |
-| Admin (admins only) | Accounts, invites, ready-to-paste invite text, make or cancel an invite, make a user an admin, help a locked-out user. No training data |
+| Admin (admins only) | Accounts and single-use links. Create, deactivate, reactivate, reset and delete an account, make a user an admin, with ready-to-paste invite and reset text. No training data |
 | Vocabulary | Editable lists of muscle groups, focus values and equipment |
 
 ### Prototype gaps to close
@@ -520,14 +521,14 @@ The build is accepted when every test below passes as an automated test, except 
 
 ## 9. Open decisions
 
-Seven points are not yet decided. Row 1 is answered, rows 4 and 6 to 8 are confirmed, and rows 9 and 10 were changed on 16 November. Each has a default the coding agent builds unless Nathan says otherwise.
+Seven points are not yet decided. Row 1 is answered, rows 6 to 8 are confirmed, and rows 4, 9 and 10 were changed on 16 November. Each has a default the coding agent builds unless Nathan says otherwise.
 
 | # | Decision | Default to build |
 | --- | --- | --- |
 | 1 | Can ChatGPT Pro propose through the connector? | Tested in Phase 0 on 16 Nov: yes. ChatGPT on the web, an existing project, the iPhone app and a Dot agent all read and proposed. The connector is the default path. The import link and a separate agent login are not needed |
 | 2 | Are Arcade and Liquid Color earned or given? | Given to everyone, behind a per-user setting |
 | 3 | Default work and rest seconds for new exercises | 45 work. Rest 120 for multi-joint lifts and 90 for single-joint. Editable per exercise |
-| 4 | Sign-in method (confirmed 16 Nov) | Emailed sign-in link, with a passkey offered after first sign-in |
+| 4 | Sign-in method (changed 16 Nov) | Passkey first, with no email sent by the app. A locked-out person is reset by an admin with a single-use link. If the passkey test at the start of Phase 1 fails: an emailed link and six-digit code, with a passkey offered after first sign-in |
 | 5 | Hosting and stack | The coding agent proposes one. Nathan has a Vercel account and a Supabase account, so a web app on Vercel with Supabase for the Postgres database and sign-in is the starting suggestion |
 | 6 | What a coach proposal shows you before you accept or decline it (confirmed 16 Nov) | A plain list of changes, one line each, such as "Overhead Press becomes Dumbbell Shoulder Press". A side-by-side view of the whole workout before and after is not planned |
 | 7 | Do warm-up sets count toward volume? (confirmed 16 Nov) | No. They are logged and shown but excluded from volume and records |
