@@ -1,0 +1,38 @@
+# Model and effort guide
+
+Which AI model and how much thinking effort to use at each stage of Chalk and Iron. This is a standing instruction: switch according to this table and tell Nathan what you switched to and why, in plain language. Pause and ask only when the work leaves its row (see "When work leaves its row").
+
+## The table
+
+| Stage | Model | Effort | Why |
+|---|---|---|---|
+| Technical design | Fable 5.2 (16 Nov 2026 only), then Opus 5.5 | High or xhigh | Schema, sync and sign-in decisions are expensive to undo |
+| Phase 1, foundation | Opus 5.5 | High | The data model and per-user isolation get built here |
+| Phases 2 to 5, most features | Sonnet 5.5 | Medium | Screens and features against a settled design and a prototype |
+| Hard spots in any phase | Opus 5.5 | High | Offline sync, timers that survive a closed app, connector sign-in |
+| Reviewing each phase | Opus 5.5 | High | A fresh, stronger pass before Nathan accepts the work |
+
+## The Fable 5.2 date rule
+
+Fable 5.2 is used on **16 November 2026 only**. Any work that carries over into 17 November 2026 or later is done on **Opus 5.5**. Where this guide says Fable 5.2 on any later date, read it as Opus 5.5.
+
+If the technical design is still in progress at midnight on 16 November:
+1. Save the work so far to `docs/TECHNICAL_DESIGN.md` on its branch and commit it.
+2. Add a short "where I stopped" note at the top of the file.
+3. Continue in a new session on Opus 5.5 at high effort, starting from that file.
+
+## How to run it
+
+- **One session per stage.** Choose the model and effort when the session starts.
+- **Hard spots go to a helper.** Offline sync, timers that survive a closed app, and connector sign-in are handed to an Opus 5.5 high-effort helper with a short brief. It reports back, then the phase carries on. Tell Nathan when this happens.
+- **Reviews are fresh.** Each phase ends with a new Opus 5.5 high-effort session that did not do the building. It checks the pull request against the spec and acceptance tests and reports to Nathan in plain language before he accepts the phase.
+
+## When work leaves its row
+
+Stop and tell Nathan, in plain terms, when:
+- A Sonnet phase fails the same test twice in a row, or hits a design question the spec does not answer. Propose moving that piece to Opus 5.5.
+- A Phase 2 to 5 task touches the data model or per-user isolation. That is Phase 1 kind of work and moves up to Opus 5.5.
+
+## Keeping this current
+
+If the table changes, update this file and the pointer in `AGENTS.md` in the same sitting.
