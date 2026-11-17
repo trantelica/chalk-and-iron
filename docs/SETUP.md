@@ -1,6 +1,6 @@
 # Setting up the real app
 
-17 November 2026 · Phase 1 · For Nathan
+17 November 2026 · Phase 1, and the start of Phase 2 · For Nathan
 
 The Phase 1 foundation was accepted by Nathan and merged on 17 November 2026. It runs at https://chalkandiron.vercel.app on the real Supabase project `chalk-and-iron`, built from `main`. Your account and a test account are set up. This page records how it was set up, in order, and the checks still to tick.
 
@@ -66,3 +66,39 @@ Tick each one and tell the coding agent. **All ticked by Nathan on 17 November 2
 - [x] Deactivating the test account stops it signing in. Reactivating lets it back in.
 - [x] Making a reset link for the test account signs it out at once, and its old passkey stops working, before the link is opened.
 - [x] Opening the reset link makes a new passkey and shows the reset notice.
+
+## 3. The start of Phase 2 (17 November 2026)
+
+The opening items of Phase 2 are on pull request #7 (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10). These steps follow once it is merged into `main`, which rebuilds the live app.
+
+### E. Review the load counts first
+
+Read "Load counts" in `docs/STARTER_LIBRARY.md`, and the "Load" column in its tables. Tell the coding agent any you would change, before step F runs `…0800`.
+
+### F. Supabase SQL Editor, in this order
+
+1. `…0800_assisted_and_load_count.sql`. It adds the assisted flag and the load count to every exercise and sets them for the starter exercises in every account. It ends with a table: an account untouched since registration shows 83 exercises set. A second run sets nothing.
+2. `…0900_reset_stays_shut.sql`. The database lock that keeps a reset shut after its link is opened.
+3. `…1000_iphone_test_page.sql`. Throwaway: the iPhone test page's two tables and a job that runs every 5 seconds. It turns on pg_net. If it says pg_net or pg_cron is missing, turn it on under Database > Extensions and run it again.
+4. **The clean-up check.** Paste and run this one line. It changes nothing; it only asks whether the database may remove a deleted account's sign-in record, as the daily clean-up must:
+
+   `select t as "table", has_table_privilege(t, 'DELETE') as allowed from unnest(array['auth.users', 'auth.sessions', 'auth.refresh_tokens']) t;`
+
+   Tell the coding agent what the "allowed" column shows. If `auth.users` says false, the clean-up moves to the app's server before the first friend is invited.
+
+### G. Vercel: the notification keys
+
+Notifications need a pair of keys. The public one goes in the app; the private one stays in Vercel. Two environment variables, values from the coding agent (never pasted anywhere else): `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY`. Then redeploy.
+
+### H. On your iPhone
+
+1. The app now tells the iPhone it is a full home-screen app, which notifications need. Delete the Chalk and Iron icon from your home screen, open https://chalkandiron.vercel.app in Safari, Share > Add to Home Screen, and open it from there. Your passkey and data are unaffected.
+2. Check the safe area: the heading no longer sits behind the camera cut-out or runs into the clock, and nothing sits on the home bar.
+3. Tap **iPhone checks** on the home screen and work down the page. Tell the coding agent what happened at each step:
+   - [ ] **Notifications.** Allow, then "Send one now". A notification appears.
+   - [ ] **Rest alert, phone locked.** Start a 30-second rest and lock the phone. "Rest over" arrives when the rest ends. Note how late it says it was.
+   - [ ] **Rest alert, another app open.** The same, with another app on screen instead.
+   - [ ] **Screen stays awake.** With Keep awake on, the screen stays on past the Auto-Lock time.
+   - [ ] Extra: **the rest sound with music.** The beep plays over music from another app, and the music keeps going.
+4. **Reset retest.** With your test account signed in on two devices (the iPhone and a computer), make a reset link for it on the admin page. Both are signed out at once. Open the link on the iPhone and make the new passkey. The computer stays signed out, even after reloading.
+
