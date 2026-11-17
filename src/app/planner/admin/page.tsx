@@ -9,6 +9,12 @@ import { inviteLink, inviteText, resetLink, resetText } from '@/lib/link-text';
 interface Account { id: string; display_name: string; email: string; joined: string; account_status: string; is_admin: boolean; delete_requested_at: string | null; purge_after: string | null }
 interface LinkRow { id: string; purpose: string; label: string; for_name: string | null; created_at: string; expires_at: string; state: string; used_by_name: string | null }
 
+// Links always use the app's permanent address, whichever address this page
+// was opened on, because a passkey only works on that one address.
+function appOrigin(): string {
+  return process.env.NEXT_PUBLIC_APP_ORIGIN || window.location.origin;
+}
+
 export default function Admin() {
   const sb = browserClient();
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -43,7 +49,7 @@ export default function Admin() {
   async function makeInvite() {
     const data = (await act('admin_create_invite', { p_label: label })) as Array<{ code: string; expires_at: string }> | undefined;
     if (!data?.[0]) return;
-    setPaste(inviteText(label, inviteLink(window.location.origin, data[0].code), new Date(data[0].expires_at)));
+    setPaste(inviteText(label, inviteLink(appOrigin(), data[0].code), new Date(data[0].expires_at)));
     setLabel('');
   }
   async function makeReset(a: Account) {
@@ -53,7 +59,7 @@ export default function Admin() {
       .then((x) => x.json()).catch(() => ({ error: 'No connection. Try again.' }));
     await load();
     if (r.error) { setError(r.error); return; }
-    setPaste(resetText(a.display_name, resetLink(window.location.origin, r.code), new Date(r.expires_at)));
+    setPaste(resetText(a.display_name, resetLink(appOrigin(), r.code), new Date(r.expires_at)));
   }
 
   return (
