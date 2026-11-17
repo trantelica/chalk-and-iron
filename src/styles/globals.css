@@ -1,0 +1,65 @@
+/* Layout and shapes only. Every color, font, corner and shadow is a theme
+   token (src/styles/tokens.generated.css, built from tokens/). Positions and
+   sizes here never depend on the skin (spec rule 6). */
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--background);
+  color: var(--text);
+  font-family: var(--body-font);
+  font-size: 16px;
+  line-height: 1.45;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--accent); }
+
+.page { max-width: 440px; margin: 0 auto; padding: 24px 18px 64px; display: flex; flex-direction: column; gap: 14px; }
+.page.wide { max-width: 980px; }
+
+.display {
+  font-family: var(--display-font);
+  font-weight: var(--display-weight);
+  text-transform: var(--display-case);
+}
+h1 {
+  margin: 0;
+  height: 44px;
+  overflow: hidden;
+  font-family: var(--display-font);
+  font-weight: var(--display-weight);
+  text-transform: var(--display-case);
+  font-size: var(--heading-size);
+  line-height: 44px;
+}
+h2 { margin: 18px 0 0; font-size: 13px; letter-spacing: 1.5px; font-weight: 700; color: var(--muted-text); text-transform: uppercase; }
+.muted { color: var(--muted-text); font-size: 14px; }
+.panel { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.notice { border-radius: var(--radius); background: var(--accent); color: var(--on-accent); padding: 12px 14px; font-weight: 700; }
+.error { border: 1px solid var(--overage-red); border-radius: var(--radius); padding: 10px 12px; }
+
+label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 700; color: var(--muted-text); }
+input[type='text'], input[type='email'], textarea {
+  min-height: 44px; padding: 8px 10px; background: var(--sheet); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-small);
+}
+textarea { min-height: 220px; font-size: 13px; }
+
+.btn {
+  min-height: 44px; min-width: 44px; padding: 0 14px; cursor: pointer;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-radius: var(--radius); font-weight: 700; font-size: 14px;
+}
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn.primary {
+  background: var(--accent); color: var(--on-accent); border: 0; box-shadow: var(--shadow);
+  font-family: var(--display-font); font-weight: var(--display-weight); text-transform: var(--display-case);
+  font-size: 19px; letter-spacing: 1px; min-height: 54px;
+}
+.btn.selected { background: var(--selected-fill); color: var(--on-selected); border-color: var(--selected-fill); }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted-text); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+.tag { display: inline-block; padding: 2px 6px; border-radius: var(--radius-small); border: 1px solid var(--border); font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+.tag.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }

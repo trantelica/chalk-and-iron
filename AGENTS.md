@@ -23,6 +23,8 @@ This is the single briefing for any agent working on Chalk and Iron. The same fi
 | Which model and effort level to use at each stage (standing instruction) | `docs/MODEL_AND_EFFORT.md` (GitHub) |
 | How it will be built (approved 17 November 2026) | `docs/TECHNICAL_DESIGN.md` (GitHub) |
 | Coach wording (parked draft) | `docs/COACH_INSTRUCTIONS.md` (GitHub) |
+| Setting up the real app, and the sign-in proof | `docs/SETUP.md`, `proofs/connector-signin/README.md` (GitHub) |
+| Starter library for review | `docs/STARTER_LIBRARY.md`, from `data/starter-library.json` (GitHub) |
 
 ---
 

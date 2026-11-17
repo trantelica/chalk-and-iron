@@ -1,0 +1,30 @@
+{
+  "id": "chalk",
+  "name": "Chalk and Iron",
+  "tokens": {
+    "background": "#0d0d0d",
+    "text": "#f2efe6",
+    "muted-text": "#b5b1a6",
+    "line": "#33312d",
+    "border": "#6b6860",
+    "surface": "transparent",
+    "sheet": "#1a1917",
+    "accent": "#ff5a26",
+    "on-accent": "#0d0d0d",
+    "secondary-accent": "{accent}",
+    "selected-fill": "#f2efe6",
+    "dial-fill": "#3a3833",
+    "display-font": "Anton",
+    "body-font": "Inter",
+    "radius": "0px",
+    "radius-small": "0px",
+    "shadow": "none",
+    "heading-size": "34px",
+    "numeral-size": "46px"
+  },
+  "extras": {
+    "on-selected": "#0d0d0d",
+    "display-weight": "400",
+    "display-case": "uppercase"
+  }
+}

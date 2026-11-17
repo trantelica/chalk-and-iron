@@ -8,7 +8,7 @@ This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md`. W
 
 Written by Fable 5.2 on 16 November 2026, as `docs/MODEL_AND_EFFORT.md` sets out. Any later revision is done on Opus 5.5 at high effort.
 
-Both revisions of 17 November 2026 were done on Opus 5.5 at high effort.
+Both revisions of 17 November 2026 were done on Opus 5.5 at high effort. Section 10E, added during Phase 1 on 17 November 2026, records what the Phase 1 sign-in research found.
 
 **How to read it.** Each section opens with a short plain-language summary. The tables underneath are the detail the coding agent builds from. Nathan does not need to check every field. The parts that need his attention are the summaries, the "Decisions for Nathan" list just below, and Section 10.
 
@@ -942,6 +942,37 @@ I did not check these against current documentation in this sitting. Each is con
 | The Vercel and Supabase free tiers fit this use | Paid tiers |
 | A coach app's scheduled tasks can call a custom connector, so the weekly summary can arrive without being asked for | The user asks their coach for the week's summary by hand. Nathan plans a scheduled task on the LLM side, or his Dot agent, which he has shown can call the connector |
 | A passkey can be the only sign-in method with Supabase, and works in the iPhone home-screen app and on the coach-connection page | Sign in by emailed code, which needs an email service and a domain |
+
+### E. Phase 1 findings (17 November 2026)
+
+Added during Phase 1 on Opus 5.5 at high effort. The sign-in proof's research was done by an Opus 5.5 high-effort helper, as `docs/MODEL_AND_EFFORT.md` asks for hard spots. Sources are listed in `proofs/connector-signin/README.md`. None of this is proven until Nathan runs the proof.
+
+What the research found, against the facts in 10C:
+
+| Fact from 10C | What Phase 1 found |
+|---|---|
+| Supabase's sign-in can act as the sign-in for the connector | Yes, in beta: an OAuth 2.1 server with PKCE and dynamic client registration, and a consent page we host at `/oauth/consent`. To confirm by the proof |
+| A coach pass can be told apart inside the database | Yes: a coach pass carries a `client_id` claim. The database rules use it in one function, `app.is_coach()` |
+| Supabase's sign-in supports passkeys | Yes, natively, in beta. The app uses them, so it has no passkey table of its own and no extra passkey library |
+| A passkey can be the only sign-in method | Yes, with one server step: a passkey can be added only to an existing, signed-in person, so opening an invite or reset link creates the sign-in record, signs the person in once with a one-time token that is never emailed, and then creates the passkey. To confirm by the proof |
+
+Points that differ from or add to this design. Each is recorded here for Nathan, not decided by the build:
+
+1. Section 4 says the connector supports "both common ways" for a coach app to register itself. Supabase supports only one (dynamic client registration). Claude's connector setting must be "Register automatically".
+2. Supabase does not name the connector in a coach pass's audience, as MCP asks. The connector makes up for it by accepting passes only from this Supabase project and checking each with Supabase on every call. Phase 4 keeps both checks.
+3. "Disconnecting cancels the pass at once" holds only because of that per-call check. A pass checked locally would stay valid until it expires, about an hour. To confirm by the proof.
+4. The Supabase project needs the newer signing keys (ECC P-256), so the connector can check passes. This is a setup step in `docs/SETUP.md`.
+5. A reset also removes the person's old passkeys, through Supabase's admin tools (`src/server/accounts.ts`), so they can make a new one.
+6. **For Nathan:** a passkey belongs to one web address. Question 37 chose the permanent address "before the first friend is invited". It needs choosing before Nathan makes his own real passkey, or his passkey and coach connection must be redone after the change.
+7. Vercel's preview Deployment Protection blocks ChatGPT, Claude and passkeys, so it is off for the proof project.
+8. Both Supabase features are in beta, and the passkey interface may change without notice. The fallbacks in 10C stand: a passkey library (SimpleWebAuthn) with the same one-time-token step, or a sign-in company.
+
+Choices the build made within the design:
+
+- Deactivating an account blocks it twice: the database shows it nothing (including its coach), and the server also blocks sign-in in Supabase.
+- An invite or reset link carries its secret after "#", so opening the link never sends the secret to the server or its logs.
+- The first admin is made by a one-time invite (`scripts/bootstrap-admin.mjs`) that works only while the app has no accounts.
+- The tests run on a local in-memory Postgres with a small stand-in for Supabase's sign-in schema (`tests/db/`), because there is no Supabase project yet. The same migrations then run on the real project.
 
 ### D. Carried from the kickoff brief, still open
 
