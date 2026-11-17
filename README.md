@@ -13,7 +13,7 @@ The app is not built yet. This repository holds the specification, a tappable pr
 | Path | What it is |
 | --- | --- |
 | `docs/SPEC.md` | The build specification: requirements, data model, coach connection, screens, theming, roadmap, acceptance tests and open decisions |
-| `docs/TECHNICAL_DESIGN.md` | The proposed technical design: stack, database, connector contracts, sign-in, offline, timers, theme tokens, testing and open questions. Approved by Nathan on 17 November 2026 |
+| `docs/TECHNICAL_DESIGN.md` | The technical design: stack, database, connector contracts, sign-in, offline, timers, theme tokens, testing and open questions. Approved by Nathan on 17 November 2026 |
 | `docs/MODEL_AND_EFFORT.md` | Which AI model and effort level to use at each stage |
 | `docs/COACH_INSTRUCTIONS.md` | Draft instructions a user pastes into their LLM project |
 | `AGENTS.md` | The kickoff brief for the coding agent |
