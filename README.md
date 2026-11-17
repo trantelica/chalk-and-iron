@@ -6,7 +6,7 @@ A weight-lifting tracker with three parts:
 - a browser planner for building exercises, workouts and campaigns,
 - a connector that lets each user's own ChatGPT or Claude project act as their coach.
 
-Nothing is built yet. This repository holds the specification and a tappable prototype.
+The app is not built yet. This repository holds the specification, a tappable prototype, and the connector test that proved the coach path.
 
 ## What is here
 
@@ -14,6 +14,8 @@ Nothing is built yet. This repository holds the specification and a tappable pro
 | --- | --- |
 | `docs/SPEC.md` | The build specification: requirements, data model, coach connection, screens, theming, roadmap, acceptance tests and open decisions |
 | `docs/COACH_INSTRUCTIONS.md` | Draft instructions a user pastes into their LLM project |
+| `AGENTS.md` | The kickoff brief for the coding agent |
+| `phase0/` | The throwaway connector test, already run |
 | `prototype/index.html` | A single-file prototype of the phone app and the browser planner, on sample data |
 
 ## Running the prototype
@@ -24,6 +26,4 @@ In the phone view, the settings button has a demo clock speed. Set it to 60× to
 
 ## For the coding agent
 
-Read `docs/SPEC.md` in full before writing code. Section 1 lists eight rules the build must never break. Section 7 gives the order of work, and Phase 0 is a test that must run first. Section 8 is the acceptance test list. Section 9 lists open decisions with the default to build.
-
-Where the prototype and the spec disagree, the spec wins.
+Start with `AGENTS.md`. It is the kickoff brief: what to read, what is settled, and the first deliverable, a technical design for review before any app code.

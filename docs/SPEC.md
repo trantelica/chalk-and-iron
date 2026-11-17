@@ -227,7 +227,7 @@ Every propose tool requires one plain-language summary line per change, which is
 
 - The Coach button shows a count of pending proposals. A notification is sent when one arrives.
 - A proposal card shows the summary lines, what it applies to (today only, the library, or a campaign), and Accept and Decline.
-- Accept applies the whole proposal or none of it. Decline discards it.
+- Accept applies the whole proposal or none of it. Decline discards it. The app's Accept is always required, even when the LLM client has already asked the user to confirm, because it is the only confirmation the app controls.
 - A proposal for today's session never changes the library or the campaign, and never alters sets already logged.
 - A proposal for today's session expires at the end of the day.
 - Proposals are validated when received. Unknown exercises, values outside the vocabulary and near-duplicate names are returned to the coach as errors, before the user sees anything.
@@ -265,10 +265,10 @@ Equipment values: barbell, dumbbell, kettlebell, cable, selectorized machine, pl
 
 ### Unconfirmed, and the fallback
 
-- Whether a ChatGPT Pro plan can call propose tools is unconfirmed. Search results on 16 November 2026 disagree, and the pages were not opened: [OpenAI's help article](https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-connectors) describes full support on Business, Enterprise and Edu; [a Boomi setup guide](https://help.boomi.com/docs/Atomsphere/Platform/Connect_chatgpt_setup) says Plus and Pro are read-only; [an Obot article](https://obot.ai/?p=3333) says any paid user can write.
+- The Phase 0 test on 16 November 2026 confirmed that a ChatGPT Pro plan can read and propose through the connector: on the web, inside an existing project, in the iPhone app and from a Dot agent. Before the test this was unconfirmed. Search results on 16 November 2026 disagree, and the pages were not opened: [OpenAI's help article](https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-connectors) describes full support on Business, Enterprise and Edu; [a Boomi setup guide](https://help.boomi.com/docs/Atomsphere/Platform/Connect_chatgpt_setup) says Plus and Pro are read-only; [an Obot article](https://obot.ai/?p=3333) says any paid user can write.
 - Phase 0 in Section 7 settles it with a test on Nathan's account.
 - **Fallback, the import link:** the coach writes its proposal as a link to the app. Opening the link creates the same pending proposal. It costs one extra tap and needs no write access. A third route, raised by Nathan and not yet designed: a separate agent service acts as the coach. If the agent can use MCP, it attaches to the same connector with nothing new to build. If it can only drive a browser, it needs its own delegate login to the planner, and everything it saves through that login must still arrive as a proposal, never as a direct edit.
-- Also untested: whether the Coach button can open the ChatGPT iPhone app straight into a chosen project.
+- Still open after Phase 0: whether the Coach button can open ChatGPT straight into a chosen project. Nathan wants the coach chat to land inside a specific project, so that the project's instructions apply. Connector sign-in and Claude as a coach are also untested.
 
 ## 5. Screens and behavior
 
@@ -516,11 +516,11 @@ The build is accepted when every test below passes as an automated test, except 
 
 ## 9. Open decisions
 
-Eight points are not yet decided, and rows 4 and 6 to 10 are confirmed. Each has a default the coding agent builds unless Nathan says otherwise.
+Seven points are not yet decided. Row 1 is answered, and rows 4 and 6 to 10 are confirmed. Each has a default the coding agent builds unless Nathan says otherwise.
 
 | # | Decision | Default to build |
 | --- | --- | --- |
-| 1 | Can ChatGPT Pro propose through the connector? | Test in Phase 0. If not, use the import link for ChatGPT. A third route is an outside agent acting as the coach: see Section 4 |
+| 1 | Can ChatGPT Pro propose through the connector? | Tested in Phase 0 on 16 Nov: yes. ChatGPT on the web, an existing project, the iPhone app and a Dot agent all read and proposed. The connector is the default path. The import link and a separate agent login are not needed |
 | 2 | Are Arcade and Liquid Color earned or given? | Given to everyone, behind a per-user setting |
 | 3 | Default work and rest seconds for new exercises | 45 work. Rest 120 for multi-joint lifts and 90 for single-joint. Editable per exercise |
 | 4 | Sign-in method (confirmed 16 Nov) | Emailed sign-in link, with a passkey offered after first sign-in |
