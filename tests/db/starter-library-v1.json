@@ -1,0 +1,781 @@
+{
+  "_about": "Starter vocabulary (docs/SPEC.md Section 4) and starter library, copied into every new account at registration. DRAFT for Nathan's review: see docs/STARTER_LIBRARY.md. Work seconds are 45 for every exercise and rest is 120 for multi-joint lifts and 90 for single-joint, the spec's defaults (Section 9, row 3), which have no researched source yet.",
+  "version": 1,
+  "vocabulary": {
+    "muscle_groups": [
+      {
+        "name": "Chest",
+        "focus": [
+          "upper",
+          "mid",
+          "lower"
+        ]
+      },
+      {
+        "name": "Back",
+        "focus": [
+          "lats",
+          "upper back",
+          "mid back",
+          "lower back"
+        ]
+      },
+      {
+        "name": "Shoulders",
+        "focus": [
+          "front",
+          "side",
+          "rear"
+        ]
+      },
+      {
+        "name": "Biceps",
+        "focus": [
+          "long head",
+          "short head",
+          "brachialis"
+        ]
+      },
+      {
+        "name": "Triceps",
+        "focus": [
+          "long head",
+          "lateral head",
+          "medial head"
+        ]
+      },
+      {
+        "name": "Forearms",
+        "focus": [
+          "flexors",
+          "extensors",
+          "grip"
+        ]
+      },
+      {
+        "name": "Core",
+        "focus": [
+          "abs",
+          "obliques",
+          "deep core"
+        ]
+      },
+      {
+        "name": "Glutes",
+        "focus": [
+          "max",
+          "medius"
+        ]
+      },
+      {
+        "name": "Calves",
+        "focus": [
+          "gastrocnemius",
+          "soleus"
+        ]
+      },
+      {
+        "name": "Quads",
+        "focus": []
+      },
+      {
+        "name": "Hamstrings",
+        "focus": []
+      },
+      {
+        "name": "Adductors",
+        "focus": []
+      },
+      {
+        "name": "Abductors",
+        "focus": []
+      }
+    ],
+    "equipment": [
+      "barbell",
+      "dumbbell",
+      "kettlebell",
+      "cable",
+      "selectorized machine",
+      "plate-loaded machine",
+      "Smith machine",
+      "bodyweight",
+      "band",
+      "cardio machine"
+    ]
+  },
+  "exercises": [
+    {
+      "name": "Barbell Bench Press",
+      "muscle_group": "Chest",
+      "focus": "mid",
+      "equipment": "barbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Push-Up",
+        "basic_gym": "Dumbbell Bench Press",
+        "full_gym": "Selectorized Machine Chest Press"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Dumbbell Bench Press",
+      "muscle_group": "Chest",
+      "focus": "mid",
+      "equipment": "dumbbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Push-Up",
+        "basic_gym": "Barbell Bench Press",
+        "full_gym": "Selectorized Machine Chest Press"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Dumbbell Incline Press",
+      "muscle_group": "Chest",
+      "focus": "upper",
+      "equipment": "dumbbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Feet-Elevated Push-Up",
+        "basic_gym": "Barbell Incline Bench Press",
+        "full_gym": "Smith Machine Incline Press"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Cable Standing Fly",
+      "muscle_group": "Chest",
+      "focus": "mid",
+      "equipment": "cable",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Wide Push-Up",
+        "basic_gym": "Dumbbell Fly",
+        "full_gym": "Selectorized Machine Pec Deck"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Bodyweight Push-Up",
+      "muscle_group": "Chest",
+      "focus": "mid",
+      "equipment": "bodyweight",
+      "default_unit": "bw",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Incline Push-Up",
+        "basic_gym": "Dumbbell Bench Press",
+        "full_gym": "Selectorized Machine Chest Press"
+      },
+      "review_note": "Multi-joint, so 120 s rest by the default rule. May feel long for push-ups."
+    },
+    {
+      "name": "Bodyweight Dip",
+      "muscle_group": "Chest",
+      "focus": "lower",
+      "equipment": "bodyweight",
+      "default_unit": "bw",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Incline Push-Up",
+        "basic_gym": "Dumbbell Decline Press",
+        "full_gym": "Selectorized Machine Assisted Dip"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Bodyweight Pull-Up",
+      "muscle_group": "Back",
+      "focus": "lats",
+      "equipment": "bodyweight",
+      "default_unit": "bw",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Chin-Up",
+        "basic_gym": "Dumbbell Pullover",
+        "full_gym": "Cable Lat Pulldown"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Cable Lat Pulldown",
+      "muscle_group": "Back",
+      "focus": "lats",
+      "equipment": "cable",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Pull-Up",
+        "basic_gym": "Dumbbell Pullover",
+        "full_gym": "Plate-Loaded Machine Lat Pulldown"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Barbell Bent-Over Row",
+      "muscle_group": "Back",
+      "focus": "mid back",
+      "equipment": "barbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Inverted Row",
+        "basic_gym": "Dumbbell One-Arm Row",
+        "full_gym": "Cable Seated Row"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Dumbbell One-Arm Row",
+      "muscle_group": "Back",
+      "focus": "lats",
+      "equipment": "dumbbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Inverted Row",
+        "basic_gym": "Barbell Bent-Over Row",
+        "full_gym": "Selectorized Machine Seated Row"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Cable Seated Row",
+      "muscle_group": "Back",
+      "focus": "mid back",
+      "equipment": "cable",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Inverted Row",
+        "basic_gym": "Dumbbell Chest-Supported Row",
+        "full_gym": "Plate-Loaded Machine Row"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Barbell Deadlift",
+      "muscle_group": "Back",
+      "focus": "lower back",
+      "equipment": "barbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Back Extension",
+        "basic_gym": "Kettlebell Deadlift",
+        "full_gym": "Selectorized Machine Back Extension"
+      },
+      "review_note": "Filed under Back, lower back. Could equally sit under Hamstrings or Glutes."
+    },
+    {
+      "name": "Barbell Overhead Press",
+      "muscle_group": "Shoulders",
+      "focus": "front",
+      "equipment": "barbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Pike Push-Up",
+        "basic_gym": "Dumbbell Shoulder Press",
+        "full_gym": "Selectorized Machine Shoulder Press"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Dumbbell Shoulder Press",
+      "muscle_group": "Shoulders",
+      "focus": "front",
+      "equipment": "dumbbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Pike Push-Up",
+        "basic_gym": "Barbell Overhead Press",
+        "full_gym": "Selectorized Machine Shoulder Press"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Dumbbell Lateral Raise",
+      "muscle_group": "Shoulders",
+      "focus": "side",
+      "equipment": "dumbbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Pike Push-Up",
+        "basic_gym": "Band Lateral Raise",
+        "full_gym": "Cable Lateral Raise"
+      },
+      "review_note": "No true bodyweight side-delt movement exists. The pike push-up is the closest general shoulder option."
+    },
+    {
+      "name": "Cable Face Pull",
+      "muscle_group": "Shoulders",
+      "focus": "rear",
+      "equipment": "cable",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Prone Y-T-W Raise",
+        "basic_gym": "Band Pull-Apart",
+        "full_gym": "Selectorized Machine Reverse Pec Deck"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Barbell Curl",
+      "muscle_group": "Biceps",
+      "focus": "short head",
+      "equipment": "barbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Chin-Up",
+        "basic_gym": "Dumbbell Curl",
+        "full_gym": "Cable Curl"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Dumbbell Incline Curl",
+      "muscle_group": "Biceps",
+      "focus": "long head",
+      "equipment": "dumbbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Chin-Up",
+        "basic_gym": "Band Curl",
+        "full_gym": "Cable Bayesian Curl"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Dumbbell Hammer Curl",
+      "muscle_group": "Biceps",
+      "focus": "brachialis",
+      "equipment": "dumbbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Towel Curl",
+        "basic_gym": "Band Hammer Curl",
+        "full_gym": "Cable Rope Hammer Curl"
+      },
+      "review_note": "The towel curl is a weak bodyweight stand-in. Consider whether a chin-up is better here."
+    },
+    {
+      "name": "Selectorized Machine Preacher Curl",
+      "muscle_group": "Biceps",
+      "focus": "short head",
+      "equipment": "selectorized machine",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Chin-Up",
+        "basic_gym": "Dumbbell Preacher Curl",
+        "full_gym": "Cable Preacher Curl"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Cable Rope Pushdown",
+      "muscle_group": "Triceps",
+      "focus": "lateral head",
+      "equipment": "cable",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Bench Dip",
+        "basic_gym": "Band Pushdown",
+        "full_gym": "Selectorized Machine Triceps Extension"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Cable Overhead Triceps Extension",
+      "muscle_group": "Triceps",
+      "focus": "long head",
+      "equipment": "cable",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Bar Triceps Extension",
+        "basic_gym": "Dumbbell Overhead Triceps Extension",
+        "full_gym": "Selectorized Machine Overhead Triceps Extension"
+      },
+      "review_note": "The spec's own naming example."
+    },
+    {
+      "name": "Barbell Close-Grip Bench Press",
+      "muscle_group": "Triceps",
+      "focus": "medial head",
+      "equipment": "barbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Diamond Push-Up",
+        "basic_gym": "Dumbbell Close-Grip Press",
+        "full_gym": "Smith Machine Close-Grip Bench Press"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Dumbbell Skull Crusher",
+      "muscle_group": "Triceps",
+      "focus": "long head",
+      "equipment": "dumbbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Bar Triceps Extension",
+        "basic_gym": "Barbell Skull Crusher",
+        "full_gym": "Cable Overhead Triceps Extension"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Dumbbell Wrist Curl",
+      "muscle_group": "Forearms",
+      "focus": "flexors",
+      "equipment": "dumbbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Towel Hang",
+        "basic_gym": "Barbell Wrist Curl",
+        "full_gym": "Cable Wrist Curl"
+      },
+      "review_note": "The towel hang is timed, not counted in reps. Flagged for your review."
+    },
+    {
+      "name": "Barbell Reverse Curl",
+      "muscle_group": "Forearms",
+      "focus": "extensors",
+      "equipment": "barbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Pull-Up",
+        "basic_gym": "Dumbbell Reverse Curl",
+        "full_gym": "Cable Reverse Curl"
+      },
+      "review_note": "A pull-up is only a loose bodyweight stand-in for the forearm extensors."
+    },
+    {
+      "name": "Cable Kneeling Crunch",
+      "muscle_group": "Core",
+      "focus": "abs",
+      "equipment": "cable",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Crunch",
+        "basic_gym": "Dumbbell Weighted Crunch",
+        "full_gym": "Selectorized Machine Ab Crunch"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Bodyweight Hanging Knee Raise",
+      "muscle_group": "Core",
+      "focus": "abs",
+      "equipment": "bodyweight",
+      "default_unit": "bw",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Reverse Crunch",
+        "basic_gym": "Dumbbell Lying Leg Raise",
+        "full_gym": "Cable Reverse Crunch"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Cable Pallof Press",
+      "muscle_group": "Core",
+      "focus": "deep core",
+      "equipment": "cable",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Dead Bug",
+        "basic_gym": "Band Pallof Press",
+        "full_gym": "Selectorized Machine Ab Crunch"
+      },
+      "review_note": "The full-gym alternate trains abs more than deep core. No machine targets deep core well."
+    },
+    {
+      "name": "Cable Woodchop",
+      "muscle_group": "Core",
+      "focus": "obliques",
+      "equipment": "cable",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Russian Twist",
+        "basic_gym": "Dumbbell Side Bend",
+        "full_gym": "Selectorized Machine Rotary Torso"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Barbell Hip Thrust",
+      "muscle_group": "Glutes",
+      "focus": "max",
+      "equipment": "barbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Glute Bridge",
+        "basic_gym": "Dumbbell Hip Thrust",
+        "full_gym": "Plate-Loaded Machine Hip Thrust"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Kettlebell Swing",
+      "muscle_group": "Glutes",
+      "focus": "max",
+      "equipment": "kettlebell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Glute Bridge",
+        "basic_gym": "Dumbbell Swing",
+        "full_gym": "Cable Pull-Through"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Barbell Back Squat",
+      "muscle_group": "Quads",
+      "focus": null,
+      "equipment": "barbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Squat",
+        "basic_gym": "Dumbbell Goblet Squat",
+        "full_gym": "Plate-Loaded Machine Hack Squat"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Plate-Loaded Machine Leg Press",
+      "muscle_group": "Quads",
+      "focus": null,
+      "equipment": "plate-loaded machine",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Squat",
+        "basic_gym": "Dumbbell Goblet Squat",
+        "full_gym": "Plate-Loaded Machine Hack Squat"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Dumbbell Bulgarian Split Squat",
+      "muscle_group": "Quads",
+      "focus": null,
+      "equipment": "dumbbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Split Squat",
+        "basic_gym": "Dumbbell Reverse Lunge",
+        "full_gym": "Smith Machine Split Squat"
+      },
+      "review_note": "Weight is per dumbbell or total. Worth deciding how you will enter it."
+    },
+    {
+      "name": "Selectorized Machine Leg Extension",
+      "muscle_group": "Quads",
+      "focus": null,
+      "equipment": "selectorized machine",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Sissy Squat",
+        "basic_gym": "Band Leg Extension",
+        "full_gym": "Cable Leg Extension"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Barbell Romanian Deadlift",
+      "muscle_group": "Hamstrings",
+      "focus": null,
+      "equipment": "barbell",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 120,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Single-Leg Romanian Deadlift",
+        "basic_gym": "Dumbbell Romanian Deadlift",
+        "full_gym": "Smith Machine Romanian Deadlift"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Selectorized Machine Seated Leg Curl",
+      "muscle_group": "Hamstrings",
+      "focus": null,
+      "equipment": "selectorized machine",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Nordic Curl",
+        "basic_gym": "Dumbbell Lying Leg Curl",
+        "full_gym": "Selectorized Machine Lying Leg Curl"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Selectorized Machine Standing Calf Raise",
+      "muscle_group": "Calves",
+      "focus": "gastrocnemius",
+      "equipment": "selectorized machine",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Single-Leg Calf Raise",
+        "basic_gym": "Dumbbell Standing Calf Raise",
+        "full_gym": "Smith Machine Calf Raise"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Selectorized Machine Seated Calf Raise",
+      "muscle_group": "Calves",
+      "focus": "soleus",
+      "equipment": "selectorized machine",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Bent-Knee Calf Raise",
+        "basic_gym": "Dumbbell Seated Calf Raise",
+        "full_gym": "Plate-Loaded Machine Seated Calf Raise"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Selectorized Machine Hip Adduction",
+      "muscle_group": "Adductors",
+      "focus": null,
+      "equipment": "selectorized machine",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Side-Lying Adduction",
+        "basic_gym": "Band Hip Adduction",
+        "full_gym": "Cable Standing Hip Adduction"
+      },
+      "review_note": ""
+    },
+    {
+      "name": "Selectorized Machine Hip Abduction",
+      "muscle_group": "Abductors",
+      "focus": null,
+      "equipment": "selectorized machine",
+      "default_unit": "lb",
+      "work_seconds": 45,
+      "rest_seconds": 90,
+      "note": "",
+      "alternates": {
+        "bodyweight": "Bodyweight Side-Lying Leg Raise",
+        "basic_gym": "Band Lateral Walk",
+        "full_gym": "Cable Standing Hip Abduction"
+      },
+      "review_note": "Also trains Glutes, medius."
+    }
+  ]
+}

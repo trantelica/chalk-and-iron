@@ -23,6 +23,8 @@ This is the single briefing for any agent working on Chalk and Iron. The same fi
 | Which model and effort level to use at each stage (standing instruction) | `docs/MODEL_AND_EFFORT.md` (GitHub) |
 | How it will be built (approved 17 November 2026) | `docs/TECHNICAL_DESIGN.md` (GitHub) |
 | Coach wording (parked draft) | `docs/COACH_INSTRUCTIONS.md` (GitHub) |
+| Setting up the real app, and the sign-in proof | `docs/SETUP.md`, `proofs/connector-signin/README.md` (GitHub) |
+| Starter library (version 2, 227 exercises, approved 17 November 2026) | `docs/STARTER_LIBRARY.md`, made from `data/starter-library.json` (GitHub) |
 
 ---
 
@@ -42,6 +44,7 @@ You are building Chalk and Iron under Nathan's oversight. Nathan is the product 
 - The test connector had no sign-in. The real one needs it.
 - Weights are stored in pounds.
 - The technical design, `docs/TECHNICAL_DESIGN.md`, was approved by Nathan on 17 November 2026. Build from it and the spec together. Where they disagree, stop and ask Nathan.
+- Phase 1 (foundation) was accepted by Nathan and merged on 17 November 2026. Phase 2 opens with the items carried from the Phase 1 review (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
 - Section 9 of the spec lists the product decisions still open, each with a default to build.
 
 ## Your first deliverable: a technical design, before any app code (done, approved 17 November 2026)
@@ -72,6 +75,6 @@ Write `docs/TECHNICAL_DESIGN.md` and stop for Nathan's review. It must cover:
 ## Known open items to carry
 
 - Whether the Coach button can open ChatGPT inside a specific project. Nathan wants this, so that project instructions apply to the coach chat.
-- Whether Claude works as a coach through the same connector. Untested.
+- Whether Claude works as a coach through the same connector. Answered 17 November 2026 by the Phase 1 sign-in proof: yes, on the web, in a Project and in the iPhone app.
 - Default work and rest seconds have no researched source yet.
 - The coach instructions in `docs/COACH_INSTRUCTIONS.md` are a parked draft. Nathan will revise them after using the coach for real.

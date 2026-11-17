@@ -1,0 +1,30 @@
+{
+  "id": "arcade",
+  "name": "Arcade",
+  "tokens": {
+    "background": "#1a0b3b",
+    "text": "#ffffff",
+    "muted-text": "#d9ccff",
+    "line": "#4a2f96",
+    "border": "#2de2e6",
+    "surface": "#2a1560",
+    "sheet": "#2a1560",
+    "accent": "#ffe14d",
+    "on-accent": "#1a0b3b",
+    "secondary-accent": "#ff3da6",
+    "selected-fill": "#2de2e6",
+    "dial-fill": "#4a2f96",
+    "display-font": "Bungee",
+    "body-font": "Space Grotesk",
+    "radius": "16px",
+    "radius-small": "12px",
+    "shadow": "0 5px 0 rgba(0,0,0,.45)",
+    "heading-size": "24px",
+    "numeral-size": "36px"
+  },
+  "extras": {
+    "on-selected": "#1a0b3b",
+    "display-weight": "400",
+    "display-case": "none"
+  }
+}

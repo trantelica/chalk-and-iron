@@ -1,0 +1,30 @@
+{
+  "id": "liquid",
+  "name": "Liquid Color",
+  "tokens": {
+    "background": "linear-gradient(rgba(14,10,46,.45),rgba(14,10,46,.45)),radial-gradient(circle at 15% 12%,#2f6bff 0%,rgba(47,107,255,0) 45%),radial-gradient(circle at 90% 55%,#e0408a 0%,rgba(224,64,138,0) 50%),radial-gradient(circle at 30% 95%,#f08a4b 0%,rgba(240,138,75,0) 45%),#2a1470",
+    "text": "#ffffff",
+    "muted-text": "#e6e9ff",
+    "line": "rgba(255,255,255,.25)",
+    "border": "rgba(255,255,255,.45)",
+    "surface": "rgba(14,10,46,.5)",
+    "sheet": "#241462",
+    "accent": "#ffffff",
+    "on-accent": "#2a1470",
+    "secondary-accent": "#ffffff",
+    "selected-fill": "#ffffff",
+    "dial-fill": "rgba(255,255,255,.28)",
+    "display-font": "Outfit",
+    "body-font": "Outfit",
+    "radius": "24px",
+    "radius-small": "18px",
+    "shadow": "none",
+    "heading-size": "30px",
+    "numeral-size": "42px"
+  },
+  "extras": {
+    "on-selected": "#2a1470",
+    "display-weight": "700",
+    "display-case": "none"
+  }
+}

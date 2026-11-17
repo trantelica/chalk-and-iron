@@ -1,0 +1,40 @@
+{
+  "on-accent": "#0d0d0d",
+  "accents": [
+    {
+      "id": "ember",
+      "name": "Ember",
+      "value": "#ff5a26"
+    },
+    {
+      "id": "purple",
+      "name": "Purple",
+      "value": "#a855f7"
+    },
+    {
+      "id": "pink",
+      "name": "Pink",
+      "value": "#ff4fa3"
+    },
+    {
+      "id": "crimson",
+      "name": "Crimson",
+      "value": "#ff2d55"
+    },
+    {
+      "id": "blue",
+      "name": "Blue",
+      "value": "#2d7dff"
+    },
+    {
+      "id": "yellow",
+      "name": "Yellow",
+      "value": "#ffd60a"
+    },
+    {
+      "id": "green",
+      "name": "Green",
+      "value": "#39e75f"
+    }
+  ]
+}

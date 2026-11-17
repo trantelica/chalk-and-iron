@@ -1,0 +1,39 @@
+{
+  "_about": "Backgrounds for the Chalk and Iron skin. Steel plate and Chalkboard are pre-rendered images (spec Section 6), added in Phase 5. Until then they fall back to their base color.",
+  "skin": "chalk",
+  "backgrounds": [
+    {
+      "id": "flat",
+      "name": "Flat black",
+      "image": null,
+      "tokens": {}
+    },
+    {
+      "id": "steel",
+      "name": "Steel plate",
+      "image": "backgrounds/steel-plate.webp",
+      "tokens": {
+        "background": "#1d2126",
+        "muted-text": "#c3c9cf",
+        "line": "#414950",
+        "border": "#8a949e",
+        "dial-fill": "#434b53",
+        "sheet": "#1d2126"
+      }
+    },
+    {
+      "id": "board",
+      "name": "Chalkboard",
+      "image": "backgrounds/chalkboard.webp",
+      "frame": "#a98b5d",
+      "tokens": {
+        "background": "#222b2a",
+        "muted-text": "#d2cdc0",
+        "line": "#46504e",
+        "border": "#8d948f",
+        "dial-fill": "#465250",
+        "sheet": "#222b2a"
+      }
+    }
+  ]
+}

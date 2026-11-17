@@ -1,0 +1,11 @@
+{
+  "_about": "The one fixed color: the dial's overage red (spec Section 6). Plus the fallback font stacks used behind each bundled font.",
+  "overage-red": "#b3261e",
+  "font-fallbacks": {
+    "Anton": "'Arial Narrow', Impact, sans-serif",
+    "Inter": "system-ui, sans-serif",
+    "Bungee": "'Arial Black', sans-serif",
+    "Space Grotesk": "system-ui, sans-serif",
+    "Outfit": "system-ui, sans-serif"
+  }
+}
