@@ -72,7 +72,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - **Seeded weight.** When the plan sets no weight, the weight box for each set is pre-filled with the weight of the same set from the last session of that exercise. If that session had no such set, it is pre-filled with that session's heaviest set. For example, if set 1 was 80 lb and set 2 was 90 lb last time, today's set 1 seeds 80 and set 2 seeds 90, and a third set seeds 90. Tapping into the box clears it for a new number. Logging without touching it commits the seeded value.
 - Reps are pre-filled from the planned reps.
 - Sets have a type: warm-up, working or drop set. An effort rating (RPE, a 1 to 10 score for how hard a set felt) is optional. A long press on a set row opens set details, where the type and RPE are set. Tapping a set in the set list switches it between warm-up and working, whether or not the workout planned a warm-up. When a set becomes a warm-up, a working set is added after it, so the number of working sets stays as planned, and the time budget grows by one set's work and rest. Tapping it back removes the added set if it has not been logged.
-- During a workout the user can skip, reorder or add exercises from the workout tray.
+- During a workout the user can skip, reorder or add exercises from the workout tray, and break a superset into individual exercises (see Supersets).
 - A session survives a closed tab, a crash or a lost connection. Sets logged offline sync when the connection returns.
 - The screen stays awake during a session.
 
@@ -83,6 +83,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - Switching a set to a warm-up inside a superset switches that whole round: each member's set in that round becomes a warm-up, and each member gains one working set. Switching back undoes it for all members, if the added sets are not logged.
 - Logging a set moves to the next member with no rest. Rest starts after the last member of each round.
 - A superset shares one exercise clock and one time budget.
+- **Breaking a superset.** When equipment for a superset is taken or in use, the user can break the superset into individual exercises during a workout. Each keeps its sets, reps and weight as defined. A break splits every member apart, including in a superset of three. It applies to that session only and never changes the library workout or the campaign. After the break each exercise has its own exercise clock and time budget, and rest follows every set, using that exercise's own rest. It can be done before the superset starts or part-way through: sets already logged stay, and only the sets left are done individually. It can be undone until a set is logged after the break.
 
 ### Timers
 
@@ -135,7 +136,7 @@ The app database is the single source of truth. Every record belongs to one user
 | Campaign | name, start date, week count (1 to 6), status | Status: draft, active, finished |
 | Campaign day | week, weekday, workout, overrides | Override per item: exercise, sets, reps, weight and unit, rest seconds. Any subset |
 | Session | date, source, gym, start, end, status | Source is a campaign day or an ad hoc workout |
-| Session exercise | exercise, order, superset letter, planned sets, reps, weight and rest, time budget, start time, elapsed seconds, skipped flag | A snapshot of the plan at session start |
+| Session exercise | exercise, order, superset letter, planned sets, reps, weight and rest, time budget, start time, elapsed seconds, skipped flag | A snapshot of the plan at session start. Breaking a superset changes only this snapshot, never the library |
 | Set log | set number, weight in lb, entered value, entered unit, reps, set type, RPE, time logged, record types | One row per set. A bodyweight set is recorded as a weight of 1 bodyweight unit ("1 BW") and a rep count |
 | Cardio log | date, type, duration, distance and unit, notes | Separate from sessions |
 | Proposal | source, kind, payload, summary lines, status, created, decided | Status: pending, accepted, rejected, out of date or expired (Section 10 covers the last two) |
@@ -155,6 +156,7 @@ A session stores a snapshot of what was planned. Later edits to the library or c
 
 - Time budget for one exercise = sets × work seconds per set + (sets − 1) × rest seconds.
 - For a superset: rounds × the sum of each member's work seconds + (rounds − 1) × the first member's rest seconds. Every member has the same number of sets, so the rounds are that number. A warm-up switch in a superset adds one round to the budget: each member's work seconds plus one rest.
+- When a superset is broken apart, each exercise gets its own budget by the one-exercise formula, for the sets it has left and with its own rest. The superset's clock stops at the break, and the time it has run counts toward efficiency for the sets logged before the break.
 - A workout item's rest, when set, replaces the exercise default. A campaign day override replaces both.
 - The exercise clock starts at Start exercise and stops when the last set of the exercise or superset is logged.
 - The clock counts only while its exercise is open, meaning it is the exercise on screen in the workout. Locking the phone or closing the app does not change that. While open, the clock never stops counting, including past double the budget.
@@ -236,7 +238,7 @@ There are nineteen tools: fourteen read tools and five propose tools.
 | propose_exercise | A new exercise, or edits to one |
 | propose_workout | A new workout, or edits to one. It may bring new exercises with it |
 | propose_campaign | A new campaign, or edits to days and overrides. It may bring new exercises and new workouts with it |
-| propose_today_change | Changes to today's session: swap, sets, reps, weight, rest, add, remove, reorder |
+| propose_today_change | Changes to today's session: swap, sets, reps, weight, rest, add, remove, reorder, break a superset into individual exercises |
 | propose_profile_update | Changes to the coach profile or a gym |
 
 Every propose tool requires one plain-language summary line per change, which is what the user reads. Each returns a proposal id and the status "pending".
@@ -303,7 +305,7 @@ Top to bottom, in a fixed order across all skins:
 
 1. **Top row:** settings, a pull tab labeled Workout that opens the tray, and the Coach button with its pending count.
 2. **Header:** previous and next exercise, workout name with position, and the workout clock labeled Workout.
-3. **Exercise:** superset label when bound, the exercise name, and its muscle group and equipment.
+3. **Exercise:** superset label when bound, the exercise name, and its muscle group and equipment. New, not prototyped: the superset label offers Break superset.
 4. **Note:** one editable line that stays with the exercise across workouts.
 5. **Dial row:** the dial, the exercise clock in text, and +0:15 and Skip rest.
 6. **Set list:** one row per set showing done, now or planned, with a badge on any record. Tapping a row switches that set between warm-up and working. A long press opens set details: type (warm-up, working or drop set) and RPE.
@@ -327,7 +329,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 - A bar and counts show sets done and exercises done.
 - Each exercise row shows one box per set that fills as sets are logged, the weights and reps logged or planned, and Done or Now.
 - Superset members show their letter. Tapping a row jumps to that exercise.
-- New, not prototyped: each row can be skipped or dragged to reorder, and an Add exercise control picks from the library.
+- New, not prototyped: each row can be skipped or dragged to reorder, and an Add exercise control picks from the library. A superset's rows offer Break superset, with Undo until a set is logged after the break.
 
 ### Phone: stats (prototyped)
 
@@ -452,7 +454,7 @@ The build runs in seven phases. Phase 0 is a gate: its result decides how the co
     - If ChatGPT Pro can propose: the connector is the default path.
     - If it can only read: the import link becomes the default for ChatGPT users, and the connector stays for reading.
 2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary. It also includes a project task: draft the starter library of about 40 exercises, each with its three alternates and starter work and rest seconds, for Nathan to review.
-3. **Phase 2, logging.** The active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, and crash-safe sessions. This phase must match the prototype.
+3. **Phase 2, logging.** The active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, breaking a superset into individual exercises, and crash-safe sessions. This phase must match the prototype, except for what the prototype lacks, such as breaking a superset.
 4. **Phase 3, planner.** Library for exercises, workouts and campaigns, the Plan view with per-day overrides, History, and sending a day to the phone.
 5. **Phase 4, coach.** The full connector tool set, all nineteen tools, including the weekly summary, cardio and the proposal list, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens.
 6. **Phase 5, reach.** Notifications for rest and proposals, cardio, export, the Arcade and Liquid Color skins, backgrounds and celebrations.
@@ -492,6 +494,8 @@ The build is accepted when every test below passes as an automated test, except 
 ### Time budget, dial and efficiency
 
 - [ ] A superset of 4 rounds with 45 and 40 work seconds and 120 rest seconds has a budget of 11:40.
+- [ ] Breaking that superset before it starts, where the second member's own rest is 90 seconds, gives two exercises of 4 sets each with their planned reps and weights unchanged, budgets of 9:00 and 7:10, and rest after every set. The library workout still shows the superset.
+- [ ] Breaking that superset after 2 rounds keeps the 4 logged sets as logged, leaves each exercise 2 sets to do, and counts the superset's time so far toward efficiency for those 4 sets.
 - [ ] A single exercise of 3 sets with 50 work seconds and 150 rest seconds has a budget of 7:30.
 - [ ] The exercise clock does not run before Start exercise.
 - [ ] Moving to another exercise pauses the first exercise's clock, and coming back resumes it from the same reading. Moving between members of a superset does not pause it.
@@ -633,11 +637,14 @@ These rules settle what happens outside the normal path. Nathan decided them in 
 ### Supersets
 
 - A superset has two or three exercises.
-- Supersets are always paired and equal, in the plan and during a workout. Every member has the same number of sets. Reps can differ.
+- Supersets are always paired and equal, in the plan and during a workout, unless the user breaks one apart. Every member has the same number of sets. Reps can differ.
 - Any change to sets in a superset applies to all its members. The planner changes them together, in workouts and day overrides, and an exercise joining a superset takes its set count. A coach's workout proposal, campaign day override or today proposal that would give members different set counts is returned as an error.
 - A warm-up switch inside a superset is a paired effect: the whole round becomes a warm-up and every member gains one working set.
 - One member of a superset can be swapped for another exercise, which takes the same sets.
 - Finishing a workout part-way through a round can leave members with different numbers of logged sets. That is a record of what happened, not a plan.
+- During a workout a superset can be broken into individual exercises, for example when a machine is taken. Every member is split apart, including in a superset of three; pulling one out and keeping a pair is not offered. Each keeps its sets, reps and weight as defined. Sets already logged stay, and only the sets left are done individually, each with its own clock, budget and rest after every set. It applies to that session only and never changes the library workout or the campaign. It can be undone until a set is logged after the break.
+- Broken-apart exercises keep the superset's place in the order and can be reordered like any exercise. The paired warm-up and equal-sets rules no longer apply to them.
+- The coach can propose the same break as a today-only change. Accepted during a workout, it is applied inside that session and does not start a new one. History and the coach see the exercises as they were actually done.
 
 ### Proposals
 
@@ -646,7 +653,7 @@ These rules settle what happens outside the normal path. Nathan decided them in 
 - A workout or campaign proposal may bundle new exercises, and a campaign proposal new workouts too. One Accept applies all of it or none. An exercise counts as unknown only if it is neither in the library nor defined in the same proposal.
 - Any proposal can be dismissed at any time. Dismissing is the same as declining: the proposal ends as rejected. A proposal never blocks an action.
 - A proposal for today's session expires at the 3:00 am day rollover.
-- If a proposal for today's workout is accepted mid-session, the work already logged is saved as its own ad hoc session, and the proposed workout starts as a new session. Sets not yet reached are marked Replaced and excluded from efficiency.
+- If a proposal for today's workout is accepted mid-session (other than one that only breaks a superset, which is applied inside the session), the work already logged is saved as its own ad hoc session, and the proposed workout starts as a new session. Sets not yet reached are marked Replaced and excluded from efficiency.
 
 ### Accounts
 
