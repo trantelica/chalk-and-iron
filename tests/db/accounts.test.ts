@@ -116,20 +116,44 @@ describe('the last admin is protected', () => {
 });
 
 describe('resetting a locked-out person', () => {
-  it('ends every sign-in and coach connection, leaves a notice, and works once', async () => {
+  it('making the link cuts off the old sign-in at once: sessions ended, older passes refused, notice left', async () => {
     const sam = await db.register('sam@example.test', 'Sam', { inviter: admin });
     await db.pg.query(`insert into auth.sessions (user_id) values ($1), ($1)`, [sam]);
+    const before = Math.floor(Date.now() / 1000) - 60;
+    // Before the reset, Sam's existing pass works, from the app and from a coach.
+    expect((await db.as<{ n: number }>(sam, `select count(*)::int as n from exercises`, [], { issuedAt: before }))[0].n).toBe(42);
     const [{ code }] = await db.as<{ code: string }>(admin, `select code from admin_create_reset($1)`, [sam]);
-    // Nothing happens until the link is opened.
-    expect((await db.pg.query(`select 1 from auth.sessions where user_id = $1`, [sam])).rows).toHaveLength(2);
+    // Straight away, without the link being opened: every session is gone...
+    expect((await db.pg.query(`select 1 from auth.sessions where user_id = $1`, [sam])).rows).toHaveLength(0);
+    // ...and the old pass sees nothing and can change nothing, for the app and a coach.
+    for (const coach of [false, true]) {
+      expect(await db.as(sam, `select count(*)::int as n from exercises`, [], { issuedAt: before, coach })).toEqual([{ n: 0 }]);
+      expect(await db.as(sam, `select count(*)::int as n from profiles`, [], { issuedAt: before, coach })).toEqual([{ n: 0 }]);
+    }
+    await expect(db.as(sam, `insert into cardio_logs (user_id, local_date, type, duration_seconds) values ($1, '2026-11-17', 'Run', 60)`, [sam], { issuedAt: before })).rejects.toThrow();
+    // Opening the link works once, and a pass issued after it works again.
     const [{ who }] = await db.server<{ who: string }>(`select redeem_reset($1) as who`, [code]);
     expect(who).toBe(sam);
-    expect((await db.pg.query(`select 1 from auth.sessions where user_id = $1`, [sam])).rows).toHaveLength(0);
-    const [notice] = await db.as<{ reset_notice_at: Date | null }>(sam, `select reset_notice_at from profiles`);
+    const after = Math.floor(Date.now() / 1000) + 1;
+    expect((await db.as<{ n: number }>(sam, `select count(*)::int as n from exercises`, [], { issuedAt: after }))[0].n).toBe(42);
+    const [notice] = await db.as<{ reset_notice_at: Date | null }>(sam, `select reset_notice_at from profiles`, [], { issuedAt: after });
     expect(notice.reset_notice_at).not.toBeNull();
     await expect(db.server(`select redeem_reset($1)`, [code])).rejects.toThrow(/not valid/);
     // Training data is untouched.
     expect((await db.server<{ n: number }>(`select count(*)::int as n from exercises where user_id = $1`, [sam]))[0].n).toBe(42);
+  });
+
+  it('a reset of one person leaves everyone else signed in', async () => {
+    const sam = await db.register('sam@example.test', 'Sam', { inviter: admin });
+    const before = Math.floor(Date.now() / 1000) - 60;
+    await db.as(admin, `select code from admin_create_reset($1)`, [sam]);
+    expect((await db.as<{ n: number }>(admin, `select count(*)::int as n from exercises`, [], { issuedAt: before }))[0].n).toBe(42);
+  });
+
+  it('a person who is not an admin cannot reset anyone', async () => {
+    const sam = await db.register('sam@example.test', 'Sam', { inviter: admin });
+    await expect(db.as(sam, `select code from admin_create_reset($1)`, [admin])).rejects.toThrow(/Only an admin/);
+    await expect(db.as(admin, `select code from admin_create_reset($1)`, [sam], { coach: true })).rejects.toThrow(/Only an admin/);
   });
 
   it('an invite link cannot be used as a reset, nor a reset as an invite', async () => {

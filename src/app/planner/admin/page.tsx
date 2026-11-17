@@ -47,9 +47,13 @@ export default function Admin() {
     setLabel('');
   }
   async function makeReset(a: Account) {
-    const data = (await act('admin_create_reset', { p_user: a.id }, `Make a reset link for ${a.display_name}? Opening it signs them out everywhere.`)) as Array<{ code: string; expires_at: string }> | undefined;
-    if (!data?.[0]) return;
-    setPaste(resetText(a.display_name, resetLink(window.location.origin, data[0].code), new Date(data[0].expires_at)));
+    if (!confirm(`Reset ${a.display_name}'s sign-in? Their passkeys stop working and they are signed out everywhere, straight away. They get back in only with the new link.`)) return;
+    setError('');
+    const r = await fetch('/api/admin/reset', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ userId: a.id }) })
+      .then((x) => x.json()).catch(() => ({ error: 'No connection. Try again.' }));
+    await load();
+    if (r.error) { setError(r.error); return; }
+    setPaste(resetText(a.display_name, resetLink(window.location.origin, r.code), new Date(r.expires_at)));
   }
 
   return (

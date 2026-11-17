@@ -27,7 +27,7 @@ The app's permanent address is **https://chalkandiron-trantelica.vercel.app**, c
 3. **Authentication > URL Configuration.** Set the Site URL to `https://chalkandiron-trantelica.vercel.app`.
 4. **Authentication > Passkeys** (or Sign In / Providers). Turn passkeys on. Relying Party Display Name: `Chalk and Iron`. Relying Party ID: `chalkandiron-trantelica.vercel.app`. Relying Party Origins: `https://chalkandiron-trantelica.vercel.app`.
 5. **Authentication > Sign In / Providers > Email.** Turn off "Allow new users to sign up". Accounts are made only from invite links, by the app's server.
-6. **SQL Editor.** Paste and run each file in `supabase/migrations/`, in name order: `…0100_foundation.sql`, then `…0200_accounts.sql`, then `…0300_schedules.sql`. If the third says the scheduler extension is missing, turn on **pg_cron** under Database > Extensions and run it again.
+6. **SQL Editor.** Paste and run each file in `supabase/migrations/`, in name order: `…0100_foundation.sql`, `…0200_accounts.sql`, `…0300_schedules.sql`, then `…0400_reset_cuts_off_at_once.sql`. If the third says the scheduler extension is missing, turn on **pg_cron** under Database > Extensions and run it again.
 7. **Settings > API Keys.** Keep the project URL, the publishable key and the secret key ready for step B3. The project URL is the bare address, like `https://abcd1234.supabase.co`, with no `/rest/v1` on the end. The secret key starts `sb_secret_`. A public key in its place gives the error "This endpoint requires a valid Bearer token".
 
 The OAuth server for the coach connection is switched on in Phase 4, when the real connector is built.
@@ -58,4 +58,5 @@ Tick each one and tell the coding agent:
 - [ ] The admin page lists your account and makes an invite with ready-to-paste text.
 - [ ] A second test account (a second email of yours) registers from that invite and sees its own 42 exercises, and the admin page shows it.
 - [ ] Deactivating the test account stops it signing in. Reactivating lets it back in.
-- [ ] A reset link for the test account signs it out, makes a new passkey, and shows the reset notice.
+- [ ] Making a reset link for the test account signs it out at once, and its old passkey stops working, before the link is opened.
+- [ ] Opening the reset link makes a new passkey and shows the reset notice.

@@ -18,7 +18,7 @@ export default function Reset() {
   return (
     <main className="page">
       <h1>Set up sign-in</h1>
-      <p className="muted">This makes a new passkey for your account. It signs you out everywhere else and disconnects your coach. Your training history is not touched.</p>
+      <p className="muted">Your old sign-in was switched off when this link was made. This makes a new passkey for your account. Your training history is not touched.</p>
       <button className="btn primary" onClick={go} disabled={busy}>{busy ? 'Setting up…' : 'Create new passkey'}</button>
       {error && <div className="error">{error}</div>}
     </main>

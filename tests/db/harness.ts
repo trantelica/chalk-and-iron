@@ -12,7 +12,7 @@ export interface Db {
   /** Runs SQL as the server (service role, skips row-level security). */
   server<T = Record<string, unknown>>(sql: string, params?: unknown[]): Promise<T[]>;
   /** Runs SQL as a signed-in person. Pass coach: true for a coach app's pass. */
-  as<T = Record<string, unknown>>(user: string, sql: string, params?: unknown[], opts?: { coach?: boolean }): Promise<T[]>;
+  as<T = Record<string, unknown>>(user: string, sql: string, params?: unknown[], opts?: { coach?: boolean; issuedAt?: number }): Promise<T[]>;
   /** Creates an account through a real invite, as registration does. */
   register(email: string, name?: string, opts?: { admin?: boolean; inviter?: string }): Promise<string>;
 }
@@ -37,8 +37,13 @@ export async function makeDb(): Promise<Db> {
   const db: Db = {
     pg,
     server: (sql, params) => run('service_role', { role: 'service_role' }, sql, params),
-    as: (user, sql, params, opts) =>
-      run('authenticated', opts?.coach ? { sub: user, role: 'authenticated', client_id: 'test-coach-app' } : { sub: user, role: 'authenticated' }, sql, params),
+    as: (user, sql, params, opts) => {
+      // A pass carries the moment it was issued ("iat"). By default it is a fresh one.
+      const iat = opts?.issuedAt ?? Math.floor(Date.now() / 1000) + 1;
+      const claims: Record<string, unknown> = { sub: user, role: 'authenticated', iat };
+      if (opts?.coach) claims.client_id = 'test-coach-app';
+      return run('authenticated', claims, sql, params);
+    },
     async register(email, name = email.split('@')[0], opts = {}) {
       let code: string;
       if (opts.inviter) {

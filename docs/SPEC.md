@@ -43,7 +43,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 ### Accounts
 
 - Sign-in, sign-out, profile editing and account deletion are self-service. Sign-in is by passkey (Face ID or Touch ID) and the app sends no email.
-- A person who is locked out is reset by an admin. The app gives the admin ready-to-paste reset instructions with a single-use link to send from their own email.
+- A person who is locked out is reset by an admin. The app gives the admin ready-to-paste reset instructions with a single-use link to send from their own email. Making the reset link cuts off the old sign-in at once: old passkeys stop working, the person is signed out everywhere and their coach is disconnected. Opening the link sets up a new passkey.
 - Registration is by invite. An invite link works once. Only an admin can make one, on an admin page. The app gives the admin ready-to-paste invite text to send from their own email. A person who was invited cannot invite others unless an admin makes them an admin.
 - An admin can create, deactivate, reactivate, reset and delete accounts, and make another user an admin. An admin cannot see anyone else's training data. An admin's delete has the same 14-day grace period as a self-service delete, and an admin can undo it during that time.
 - Each user sees only their own library, history, campaigns and proposals.

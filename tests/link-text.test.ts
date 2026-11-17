@@ -11,9 +11,10 @@ describe('ready-to-paste invite and reset text', () => {
     const t = inviteText('Sam', 'https://x/register#code=1', when);
     for (const part of ['Hi Sam', 'https://x/register#code=1', 'passkey', 'Add to Home Screen', 'notifications', 'coach', 'November 24']) expect(t).toContain(part);
   });
-  it('a reset says it signs out everywhere and keeps history', () => {
+  it('a reset says the old sign-in is already off, and history is kept', () => {
     const t = resetText('Sam', 'https://x/reset#code=1', when);
-    expect(t).toContain('signs you out everywhere');
+    expect(t).toContain('already been switched off');
+    expect(t).toContain('signed out everywhere');
     expect(t).toContain('history is not touched');
   });
 });

@@ -62,14 +62,22 @@ export async function redeemReset(code: string) {
   const { data: userId, error } = await admin.rpc('redeem_reset', { p_code: code });
   if (error || !userId) throw new LinkError(error?.message ?? 'This reset link is not valid.');
 
-  // Remove old passkeys so the person can make a new one.
-  const keys = await admin.auth.admin.passkey.listPasskeys({ userId: userId as string });
-  for (const k of keys.data ?? []) {
-    await admin.auth.admin.passkey.deletePasskey({ userId: userId as string, passkeyId: k.id });
-  }
+  // Old passkeys were removed when the link was made. Clear any made since.
+  await removePasskeys(userId as string);
   const { data: u } = await admin.auth.admin.getUserById(userId as string);
   if (!u.user?.email) throw new Error('The account has no email to sign in with');
   return { tokenHash: await oneTimeSignIn(u.user.email) };
+}
+
+/** Removes every passkey a person has, so only a new one can sign them in. */
+export async function removePasskeys(userId: string) {
+  const admin = adminClient();
+  const keys = await admin.auth.admin.passkey.listPasskeys({ userId });
+  if (keys.error) throw keys.error;
+  for (const k of keys.data ?? []) {
+    const { error } = await admin.auth.admin.passkey.deletePasskey({ userId, passkeyId: k.id });
+    if (error) throw error;
+  }
 }
 
 /** Blocks or unblocks sign-in for an account, alongside the database's own block. */

@@ -17,7 +17,7 @@ export default async function PhoneHome() {
     return (
       <main className="page">
         <h1>Chalk and Iron</h1>
-        <div className="error">This account is not active. Ask your admin.</div>
+        <div className="error">This account can&apos;t be opened right now. It may have been deactivated, or its sign-in reset. Ask your admin.</div>
         <HomeActions />
       </main>
     );
@@ -26,7 +26,7 @@ export default async function PhoneHome() {
   return (
     <main className="page">
       <h1>Chalk and Iron</h1>
-      {p.reset_notice_at && <HomeActions notice="Your sign-in was reset by an admin. You were signed out everywhere and your coach was disconnected. Connect your coach again when you are ready." />}
+      {p.reset_notice_at && <HomeActions notice="Your sign-in was reset by an admin. Your old passkey was removed, you were signed out everywhere, and your coach was disconnected. Connect your coach again when you are ready." />}
       {p.delete_requested_at && (
         <div className="notice">Your account is set to be deleted. <Link href="/planner/account">Cancel deletion</Link></div>
       )}
