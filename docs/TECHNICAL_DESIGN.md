@@ -982,6 +982,7 @@ Points that differ from or add to this design. Each is recorded here for Nathan,
     - **The three iPhone checks** in spec Section 7 (notifications, server-sent rest alerts, screen wake) were not done in Phase 1, because each needs later screens. Approved by Nathan on 17 Nov: a small throwaway test page at the start of Phase 2, before the timers are built on them. If one fails, Section 10C's fallback is chosen then.
     - **Safe area.** Nathan found the header partly behind the iPhone's camera cut-out and running into the clock. The cause: the app asks the iPhone to draw to the screen's edges (`viewportFit: 'cover'` and a see-through status bar in `src/app/layout.tsx`), but the page leaves no room for them (`src/styles/globals.css` has no safe-area padding). Not a blocker for Phase 1 (Nathan). Phase 2 adds the safe-area space to every screen (spec Section 5).
     - Still to check: the coach pass renewing itself the next day (proof result above).
+    - **Nathan accepted Phase 1 on 17 Nov**, after ticking all ten iPhone checks in `docs/SETUP.md`, and the pull request was merged into `main`.
 
 Choices the build made within the design:
 

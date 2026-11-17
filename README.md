@@ -6,7 +6,7 @@ A weight-lifting tracker with three parts:
 - a browser planner for building exercises, workouts and campaigns,
 - a connector that lets each user's own ChatGPT or Claude project act as their coach.
 
-Phase 1, the foundation, is built: the database with per-user isolation, passkey sign-in, invites and the admin page, theme tokens and the starter library. It runs at https://chalkandiron.vercel.app, built from the `phase-1-foundation` branch until Phase 1 is merged. See `docs/SETUP.md`.
+Phase 1, the foundation, was accepted by Nathan and merged on 17 November 2026: the database with per-user isolation, passkey sign-in, invites and the admin page, theme tokens and the starter library. It runs at https://chalkandiron.vercel.app, built from `main`. Phase 2 (logging) is next. See `docs/SETUP.md`.
 
 ## What is here
 

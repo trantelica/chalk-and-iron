@@ -44,6 +44,7 @@ You are building Chalk and Iron under Nathan's oversight. Nathan is the product 
 - The test connector had no sign-in. The real one needs it.
 - Weights are stored in pounds.
 - The technical design, `docs/TECHNICAL_DESIGN.md`, was approved by Nathan on 17 November 2026. Build from it and the spec together. Where they disagree, stop and ask Nathan.
+- Phase 1 (foundation) was accepted by Nathan and merged on 17 November 2026. Phase 2 opens with the items carried from the Phase 1 review (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
 - Section 9 of the spec lists the product decisions still open, each with a default to build.
 
 ## Your first deliverable: a technical design, before any app code (done, approved 17 November 2026)

@@ -2,7 +2,7 @@
 
 17 November 2026 · Phase 1 · For Nathan
 
-The Phase 1 foundation is built and tested, and it runs at https://chalkandiron.vercel.app on the real Supabase project `chalk-and-iron`, built from the `phase-1-foundation` branch until Phase 1 is merged. Your account and a test account are set up. This page records how it was set up, in order, and the checks still to tick.
+The Phase 1 foundation was accepted by Nathan and merged on 17 November 2026. It runs at https://chalkandiron.vercel.app on the real Supabase project `chalk-and-iron`, built from `main`. Your account and a test account are set up. This page records how it was set up, in order, and the checks still to tick.
 
 ## 1. Run the sign-in proof first (done 17 November 2026)
 
@@ -36,7 +36,7 @@ The OAuth server for the coach connection is switched on in Phase 4, when the re
 
 ### B. Vercel (about 10 minutes)
 
-1. Done: the project `chalkandiron` exists, linked to the repository, framework Next.js, Vercel Authentication off. Until Phase 1 is merged, it is built from the `phase-1-foundation` branch.
+1. Done: the project `chalkandiron` exists, linked to the repository, framework Next.js, Vercel Authentication off. It was built from the `phase-1-foundation` branch until Phase 1 was merged on 17 November 2026, and is built from `main` since.
 2. Done: its address is the permanent one above.
 3. **Settings > Environment Variables**, names only here, values from Supabase:
    - `NEXT_PUBLIC_SUPABASE_URL`
