@@ -13,7 +13,18 @@ body {
 button, input, select, textarea { font: inherit; color: inherit; }
 a { color: var(--accent); }
 
-.page { max-width: 440px; margin: 0 auto; padding: 24px 18px 64px; display: flex; flex-direction: column; gap: 14px; }
+/* Every screen stays inside the iPhone's safe area (spec Section 5, Nathan,
+   17 Nov 2026): the app draws to the screen's edges (layout.tsx), so each
+   page leaves room for the clock, the camera cut-out and the home bar. On a
+   screen without them the insets are zero and the plain spacing applies. */
+.page {
+  max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px;
+  padding:
+    calc(24px + env(safe-area-inset-top, 0px))
+    calc(18px + env(safe-area-inset-right, 0px))
+    calc(64px + env(safe-area-inset-bottom, 0px))
+    calc(18px + env(safe-area-inset-left, 0px));
+}
 .page.wide { max-width: 980px; }
 
 .display {

@@ -156,6 +156,9 @@ describe('resetting a locked-out person', () => {
       expect(await db.as(sam, `select count(*)::int as n from profiles`, [], { issuedAt: after, signedInAt: before, coach })).toEqual([{ n: 0 }]);
     }
     await expect(db.as(sam, `insert into cardio_logs (user_id, local_date, type, duration_seconds) values ($1, '2026-11-17', 'Run', 60)`, [sam], { issuedAt: after, signedInAt: before })).rejects.toThrow();
+    // A pass issued in the same whole second as the reset, just before it, is refused too.
+    const [{ cut }] = await db.server<{ cut: number }>(`select extract(epoch from sign_ins_cut_at)::int as cut from profiles where id = $1`, [sam]);
+    expect(await db.as(sam, `select count(*)::int as n from profiles`, [], { issuedAt: cut - 1 })).toEqual([{ n: 0 }]);
     // A sign-in made through the link, or later, works.
     expect((await db.as<{ n: number }>(sam, `select count(*)::int as n from exercises`, [], { issuedAt: after, signedInAt: after }))[0].n).toBe(starter.exercises.length);
     // A pass with no sign-in time falls back to when it was issued.

@@ -38,7 +38,8 @@ describe('a reset on real Supabase', () => {
     expect(await seesOwnProfile(coach.access)).toBe(false);
     expect(await sql(`select count(*)::int as n from auth.sessions where user_id = $1`, [sam.id])).toEqual([{ n: 0 }]);
 
-    // Opening the link lifts the block, and still none of the old ones get back in.
+    // Opening the link (a moment later) lifts the block, and still none of the old ones get back in.
+    await new Promise((r) => setTimeout(r, 1100));
     const { tokenHash } = await redeemReset(code);
     expect((await renew(phone.refresh_token)).ok).toBe(false);
     expect((await renew(laptop.refresh_token)).ok).toBe(false);
@@ -81,6 +82,7 @@ describe('a reset on real Supabase', () => {
     expect(error).toBeNull();
     await adminClient().auth.admin.updateUserById(lee.id, { ban_duration: '876000h' });
     const { code } = await createReset(admin.id, lee.id);
+    await new Promise((r) => setTimeout(r, 1100));
     await redeemReset(code);
     const { data } = await adminClient().auth.admin.getUserById(lee.id);
     expect(data.user?.banned_until).toBeTruthy();
