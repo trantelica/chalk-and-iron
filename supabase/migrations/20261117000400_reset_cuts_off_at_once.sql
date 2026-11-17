@@ -7,7 +7,7 @@
 -- Plain-language summary for Nathan:
 --   * Making a reset link now signs the person out everywhere, disconnects
 --     their coach apps and (through the app's server) removes their old
---     passkeys, straight away.
+--     passkeys and blocks sign-in until the link is opened, straight away.
 --   * As a second lock, the database refuses every pass issued before the
 --     reset, from the app or from a coach, even one still in someone's hands.
 --   * Opening the link is then the only way back in: it makes a new passkey.

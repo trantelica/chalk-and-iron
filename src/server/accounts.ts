@@ -64,6 +64,10 @@ export async function redeemReset(code: string) {
 
   // Old passkeys were removed when the link was made. Clear any made since.
   await removePasskeys(userId as string);
+  // Lift the sign-in block set when the link was made, unless an admin has
+  // deactivated the account, which keeps its own block.
+  const { data: profile } = await admin.from('profiles').select('account_status').eq('id', userId as string).maybeSingle();
+  if (profile?.account_status === 'active') await setSignInBlocked(userId as string, false);
   const { data: u } = await admin.auth.admin.getUserById(userId as string);
   if (!u.user?.email) throw new Error('The account has no email to sign in with');
   return { tokenHash: await oneTimeSignIn(u.user.email) };
