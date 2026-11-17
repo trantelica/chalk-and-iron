@@ -139,7 +139,7 @@ A session stores a snapshot of what was planned. Later edits to the library or c
 - Canonical storage is pounds. One pound is 0.45359237 kg.
 - Each set also stores the value and unit the user entered, so the app shows exactly what was typed.
 - Entry is accepted in either unit and converted before saving.
-- History, records and graphs for an exercise display in that exercise's current unit. Workout totals display in the user's totals unit.
+- History, records and graphs for an exercise display in that exercise's current unit. Workout totals display in the user's totals unit. In the planner, a view toggle shows everything in pounds or kilograms.
 
 ### Time budget and exercise clock
 
@@ -545,3 +545,67 @@ Eight points are not yet decided, and rows 4 and 6 to 10 are confirmed. Each has
 - Weight steps are 5 in either unit.
 - The tray is the full workout view. Stats and the graph share one screen, for the active exercise only.
 - A finished campaign prompts the user to ask their coach for the next one.
+
+## 10. Edge-case rules
+
+These rules settle what happens outside the normal path. Nathan decided them in review on 16 November 2026.
+
+### Logged sets
+
+- A logged set can be edited or deleted during the session and later from History.
+- Records are recalculated whenever a set changes. A record that no longer holds is removed.
+- Log set offers Undo for a few seconds after each set.
+
+### Skipping, finishing and reopening
+
+- A skipped exercise is excluded from efficiency. It is marked Skipped in the session, in History and in what the coach reads.
+- Sets left undone in a started exercise are treated the same way: marked Skipped and excluded from efficiency. The sets that were done count as normal.
+- Finish workout is always available. It asks for confirmation when sets remain.
+- A session with no activity for 30 minutes finishes itself. Its end time is the last logged entry.
+- A finished workout can be reopened for 48 hours. Its clocks resume, and the time it was closed is not counted.
+- After 48 hours its sets can still be edited from History, but its clocks cannot be restarted.
+
+### Days and campaigns
+
+- The day rolls over at 3:00 am in the user's time zone. A session belongs to the day it started.
+- A planned day with no session shows as Missed. Nothing moves automatically, and the coach can see it.
+- Any planned workout can be pulled to another day and is logged on the day it was done. A missed workout can be done on a later day alongside that day's own workout.
+- More than one workout can be logged in a day.
+- One campaign is active at a time. Others wait as drafts.
+- A campaign can be shifted forward by a week, by the user or by an accepted proposal. There is no pause state. The shifted week does not count toward the six-week limit.
+
+### Designs and history
+
+- Exercise, workout and campaign designs can be edited at any time.
+- A completed session is a frozen record. No later edit to a design changes it.
+- A planned day that has not been performed follows the current design of its workout, with its own overrides on top.
+- Exercises and workouts are archived, never deleted. Archived items leave the pickers, keep their history and can be restored.
+- An archived workout still used by a campaign keeps running and carries a clear Archived tag.
+
+### Units and display
+
+- Every weight is stored in pounds. Each surface derives what it shows.
+- The planner has a pounds or kilograms view toggle that applies to everything on screen.
+- On the phone, each exercise keeps its own pounds or kilograms switch.
+- Converted weights show to one decimal. A typed value always shows exactly as typed.
+
+### Supersets
+
+- When members have different set counts, the later rounds are the remaining member alone, with normal rest.
+
+### Proposals
+
+- If the user edits something a pending proposal would change, the proposal is marked out of date. It cannot be accepted, and the coach can see that.
+- Any proposal can be dismissed at any time. A proposal never blocks an action.
+- If a proposal for today's workout is accepted mid-session, the work already logged is saved as its own ad hoc session, and the proposed workout starts as a new session. Sets not yet reached are marked Replaced and excluded from efficiency.
+
+### Accounts
+
+- Each account has its own library, seeded with a starter set of about 40 common exercises with alternates.
+- No data is shared between accounts in the first version, apart from the accountability email.
+- Deleting an account offers an export first. Everything is removed permanently after a 14-day grace period.
+
+### Later enhancements
+
+- Merging two library exercises into one, combining their histories and records.
+- View-only access for a friend to another person's workouts and results, without notes or account details.
