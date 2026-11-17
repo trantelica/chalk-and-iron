@@ -2,7 +2,7 @@
 
 17 November 2026 · Phase 1 · For Nathan
 
-The Phase 1 foundation is built and tested on a local test database, but it does not run anywhere yet. Two things are waiting on your hands, in this order.
+The Phase 1 foundation is built and tested, and it runs at https://chalkandiron.vercel.app on the real Supabase project `chalk-and-iron`, built from the `phase-1-foundation` branch until Phase 1 is merged. Your account and a test account are set up. This page records how it was set up, in order, and the checks still to tick.
 
 ## 1. Run the sign-in proof first (done 17 November 2026)
 
@@ -53,7 +53,7 @@ The OAuth server for the coach connection is switched on in Phase 4, when the re
 
 ### D. Checks on your iPhone
 
-Tick each one and tell the coding agent:
+Tick each one and tell the coding agent. Your retests of the reset on 17 November covered the reset checks before the link is opened, but no box has been ticked here yet. The Phase 1 review added two account checks that come with the Phase 2 fixes (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
 
 - [ ] The invite link registers you, and the passkey is created.
 - [ ] Signing out and back in with Face ID works in Safari.

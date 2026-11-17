@@ -32,12 +32,12 @@ out.push(`- By equipment: ${Object.entries(byEquip).sort((a, b) => b[1] - a[1]).
 out.push('');
 out.push('## Logging conventions from the coach');
 out.push('');
-out.push('These are in the exercises\' notes. How the app treats them in records and totals is a Phase 2 question, listed in `docs/TECHNICAL_DESIGN.md` Section 10E.');
+out.push('These are in the exercises\' notes. Nathan decided on 17 November 2026 how records and totals treat them (spec Section 3, design Section 10E point 9). The changes to the data arrive at the start of Phase 2.');
 out.push('');
-out.push('- **Dumbbells:** log pounds per dumbbell, and reps per side for one-sided lifts.');
-out.push('- **Assisted machines** (assisted dip, assisted pull-up): log the machine\'s assistance. More assistance makes the rep easier, so progress shows as the number going down.');
-out.push('- **Sleds:** log the added plates, and count one fixed-distance trip as one rep.');
-out.push('- **Bands:** log the band\'s nominal resistance if it has one, and use the same band and setup each time.');
+out.push('- **Dumbbells:** log pounds per dumbbell, and reps per side for one-sided lifts. Records use the single-dumbbell weight. Each exercise gets a load count (2 for a pair or per side) so volume is the total weight moved.');
+out.push('- **Assisted machines** (assisted dip, assisted pull-up): log the machine\'s assistance. More assistance makes the rep easier, so progress shows as the number going down. Records count less assistance as better, and volume counts reps.');
+out.push('- **Sleds:** log the added plates, and count one fixed-distance trip as one rep. No special rule: a sled is a lift over a longer distance.');
+out.push('- **Bands:** treated as bodyweight, because band resistance is not standardized or labeled. Use the same band and setup each time. The 14 band exercises below still show pounds until Phase 2 switches them to BW.');
 out.push('');
 out.push('## Exercises');
 for (const g of lib.vocabulary.muscle_groups) {

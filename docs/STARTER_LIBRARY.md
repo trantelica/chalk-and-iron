@@ -19,12 +19,12 @@ Every new account starts with these exercises and the starter vocabulary. This p
 
 ## Logging conventions from the coach
 
-These are in the exercises' notes. How the app treats them in records and totals is a Phase 2 question, listed in `docs/TECHNICAL_DESIGN.md` Section 10E.
+These are in the exercises' notes. Nathan decided on 17 November 2026 how records and totals treat them (spec Section 3, design Section 10E point 9). The changes to the data arrive at the start of Phase 2.
 
-- **Dumbbells:** log pounds per dumbbell, and reps per side for one-sided lifts.
-- **Assisted machines** (assisted dip, assisted pull-up): log the machine's assistance. More assistance makes the rep easier, so progress shows as the number going down.
-- **Sleds:** log the added plates, and count one fixed-distance trip as one rep.
-- **Bands:** log the band's nominal resistance if it has one, and use the same band and setup each time.
+- **Dumbbells:** log pounds per dumbbell, and reps per side for one-sided lifts. Records use the single-dumbbell weight. Each exercise gets a load count (2 for a pair or per side) so volume is the total weight moved.
+- **Assisted machines** (assisted dip, assisted pull-up): log the machine's assistance. More assistance makes the rep easier, so progress shows as the number going down. Records count less assistance as better, and volume counts reps.
+- **Sleds:** log the added plates, and count one fixed-distance trip as one rep. No special rule: a sled is a lift over a longer distance.
+- **Bands:** treated as bodyweight, because band resistance is not standardized or labeled. Use the same band and setup each time. The 14 band exercises below still show pounds until Phase 2 switches them to BW.
 
 ## Exercises
 

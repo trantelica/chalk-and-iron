@@ -6,7 +6,7 @@ A weight-lifting tracker with three parts:
 - a browser planner for building exercises, workouts and campaigns,
 - a connector that lets each user's own ChatGPT or Claude project act as their coach.
 
-Phase 1, the foundation, is built: the database with per-user isolation, passkey sign-in, invites and the admin page, theme tokens and the starter library. It is tested on a local test database and does not run anywhere yet. See `docs/SETUP.md`.
+Phase 1, the foundation, is built: the database with per-user isolation, passkey sign-in, invites and the admin page, theme tokens and the starter library. It runs at https://chalkandiron.vercel.app, built from the `phase-1-foundation` branch until Phase 1 is merged. See `docs/SETUP.md`.
 
 ## What is here
 
@@ -36,7 +36,7 @@ In the phone view, the settings button has a demo clock speed. Set it to 60× to
 
 ## For the coding agent
 
-Start with `AGENTS.md`. It is the kickoff brief: what to read, what is settled, and the first deliverable, a technical design for review before any app code. That design is in `docs/TECHNICAL_DESIGN.md` and was approved by Nathan on 17 November 2026. Phase 1 is built and awaits review and Nathan's acceptance.
+Start with `AGENTS.md`. It is the kickoff brief: what to read, what is settled, and the first deliverable, a technical design for review before any app code. That design is in `docs/TECHNICAL_DESIGN.md` and was approved by Nathan on 17 November 2026. Phase 1 is built and was reviewed on 17 November 2026 (design Section 10E, point 10). It awaits Nathan's acceptance.
 
 ## Running the tests
 

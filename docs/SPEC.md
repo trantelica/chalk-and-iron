@@ -131,7 +131,7 @@ The app database is the single source of truth. Every record belongs to one user
 | User | email, display name, totals unit, skin, accent, background | Totals unit is the unit for volume and summaries |
 | Coach profile | goals, injuries and limits, weekly schedule, free notes | One per user. Read by the coach, edited by the user or by accepted proposal |
 | Gym | name, equipment list, notes, default flag | The equipment list is free text, not limited to the equipment vocabulary, so it can hold things such as a rower. Notes hold limits such as "dumbbells to 50 lb" |
-| Exercise | name, muscle group, focus, equipment, default unit, work seconds per set, rest seconds, note, three alternates, archived flag | Unit is lb, kg or bodyweight |
+| Exercise | name, muscle group, focus, equipment, default unit, work seconds per set, rest seconds, note, three alternates, assisted flag, load count, archived flag | Unit is lb, kg or bodyweight. The assisted flag and load count are the counting rules below (decided 17 Nov) |
 | Workout | name, ordered items | Item: exercise, sets, reps, rest seconds (optional), superset letter (optional) |
 | Campaign | name, start date, week count (1 to 6), status | Status: draft, active, finished |
 | Campaign day | week, weekday, workout, overrides | Override per item: exercise, sets, reps, weight and unit, rest seconds. Any subset |
@@ -178,10 +178,14 @@ A session stores a snapshot of what was planned. Later edits to the library or c
 - The celebration fires once per set and names the highest rep threshold beaten.
 - No record is awarded in an exercise's first-ever session, because there is nothing to beat.
 - Warm-up sets never count toward records.
+- **Assisted machines** (decided by Nathan, 17 Nov), such as the assisted dip and assisted pull-up: the number logged is the machine's assistance, so less is better. The exercise carries an assisted flag. Each record is the least assistance logged for that many reps or more, and a new record must use strictly less. There is no estimated one-rep max. Volume counts total reps, as for a bodyweight exercise.
 
 ### Derived values
 
-- Volume = weight × reps, summed over working and drop sets.
+- Volume = weight × reps × the exercise's load count, summed over working and drop sets. Volume is the total weight moved.
+- **Load count** (decided by Nathan, 17 Nov): how many times the logged weight is moved in one rep. It is 1 for most exercises, 2 for a pair of dumbbells or a one-sided lift logged per side, and 4 for a pair of dumbbells logged per side. Dumbbell weight is always logged and recorded per single dumbbell: records, the seeded weight, last time, and the graph's bars use that logged number. Only volume uses the load count.
+- **Bands are bodyweight exercises** (decided by Nathan, 17 Nov), because band resistance is not standardized or labeled. A band set is 1 BW and a rep count, like a push-up.
+- **Sleds** need no special rule (decided by Nathan, 17 Nov): a sled is a lift over a longer distance. The weight is the added plates and one fixed-distance trip is one rep.
 - A bodyweight set counts as a weight of 1 BW, so its volume is 1 × reps, counted in BW units and kept apart from pounds totals. For example, 20 push-ups is a weight of 1 BW and a count of 20. For a bodyweight exercise, total reps is treated the same way total weight is for a weighted one, everywhere volume is used.
 - Estimated one-rep max = weight × (1 + reps ÷ 30), taken from the set with the highest estimate over all history, working and drop sets only.
 - The graph's trend line is session volume for that exercise, which for a bodyweight exercise is its total reps.
@@ -298,6 +302,8 @@ Equipment values: barbell, dumbbell, kettlebell, cable, selectorized machine, pl
 ## 5. Screens and behavior
 
 The prototype shows every screen marked "prototyped" below, and the build should match it. Screens marked "new" have no prototype and are specified here only.
+
+**Every phone screen stays inside the iPhone's safe area** (Nathan, 17 Nov, from using the Phase 1 app). Nothing is drawn behind the clock and status icons, the camera cut-out (the Dynamic Island) or the home bar. In Phase 1 the header sat partly behind the camera cut-out and ran into the clock, because the app draws to the screen's edges without leaving that space. Phase 2 fixes this for every screen, in every skin.
 
 ### Phone: active workout (prototyped)
 
@@ -453,12 +459,12 @@ The build runs in seven phases. Phase 0 is a gate: its result decides how the co
 1. **Phase 0, connector write test.** Stand up a minimal connector with one read tool and one propose tool. Connect it to Nathan's ChatGPT Pro project and to a Claude project. Record whether each can read, whether each can propose, and whether the Coach button can open the project on an iPhone.
     - If ChatGPT Pro can propose: the connector is the default path.
     - If it can only read: the import link becomes the default for ChatGPT users, and the connector stays for reading.
-2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary. It also includes a project task: draft the starter library of about 40 exercises, each with its three alternates and starter work and rest seconds, for Nathan to review. **Done 17 Nov:** after an outside coach's review, Nathan approved version 2, 227 exercises, for every account (`docs/STARTER_LIBRARY.md`).
-3. **Phase 2, logging.** The active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, breaking a superset into individual exercises, and crash-safe sessions. This phase must match the prototype, except for what the prototype lacks, such as breaking a superset.
+2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary. It also includes a project task: draft the starter library of about 40 exercises, each with its three alternates and starter work and rest seconds, for Nathan to review. **Done 17 Nov:** after an outside coach's review, Nathan approved version 2, 227 exercises, for every account (`docs/STARTER_LIBRARY.md`). The Phase 1 review on 17 Nov left a few items for the start of Phase 2, listed there and in `docs/TECHNICAL_DESIGN.md` Section 10E, point 10.
+3. **Phase 2, logging.** It opens with the items carried from the Phase 1 review: the two account fixes, tests against Supabase's own local version, the three iPhone checks below, the counting rules for assisted machines, bands and dumbbells (Section 3), and the safe area (Section 5). Then the active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, breaking a superset into individual exercises, and crash-safe sessions. This phase must match the prototype, except for what the prototype lacks, such as breaking a superset.
 4. **Phase 3, planner.** Library for exercises, workouts and campaigns, the Plan view with per-day overrides, History, and sending a day to the phone.
 5. **Phase 4, coach.** The full connector tool set, all nineteen tools, including the weekly summary, cardio and the proposal list, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens.
 6. **Phase 5, reach.** Notifications for rest and proposals, cardio, export, the Arcade and Liquid Color skins, backgrounds and celebrations.
-7. **Phase 6, friends.** Onboarding polish for non-technical users, tested by one friend completing setup without help. Before the first friend is invited: choose the app's permanent web address (chosen 17 November 2026: `https://chalkandiron.vercel.app`), and either move Supabase to its paid plan or add a scheduled backup.
+7. **Phase 6, friends.** Onboarding polish for non-technical users, tested by one friend completing setup without help. Before the first friend is invited: choose the app's permanent web address (chosen 17 November 2026: `https://chalkandiron.vercel.app`), and either move Supabase to its paid plan or add a scheduled backup, and make sure the two account fixes from the Phase 1 review are in and tested (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
 
 A native iPhone app follows the web version and is not part of this package. It adds what a home-screen web app cannot do well: a lock-screen rest timer, Apple Music controls, Apple Health for cardio, and alerts that never depend on a connection.
 
@@ -468,7 +474,7 @@ A native iPhone app follows the web version and is not part of this package. It 
 - A rest alert while the app is in the background is sent from the server, so it needs a connection.
 - Keeping the screen awake uses Screen Wake Lock, available to home-screen web apps from iOS 18.4.
 
-These come from search results on 16 November 2026 ([CoderCops](https://blog.codercops.com/blog/progressive-web-apps-2026), [MobiLoud](https://www.mobiloud.com/blog/progressive-web-apps-ios)), and the pages were not opened. Confirm each on a real iPhone in Phase 1.
+These come from search results on 16 November 2026 ([CoderCops](https://blog.codercops.com/blog/progressive-web-apps-2026), [MobiLoud](https://www.mobiloud.com/blog/progressive-web-apps-ios)), and the pages were not opened. Confirm each on a real iPhone. Phase 1 did not, because each needs screens that later phases build. Proposed on 17 November 2026, awaiting Nathan's confirmation: confirm all three with a small throwaway test page at the start of Phase 2, before the timers and alerts are built on them.
 
 ## 8. Acceptance tests
 
@@ -510,6 +516,9 @@ The build is accepted when every test below passes as an automated test, except 
 - [ ] Logging 65 lb for 8 is a 6+ record, and the celebration names 6+.
 - [ ] With a prior heaviest set of 60 lb, logging 65 lb for 5 is a heaviest-set record and not a 6+ record.
 - [ ] No record is awarded in an exercise's first-ever session.
+- [ ] On an assisted machine with a prior best of 50 lb of assistance for 8 reps, logging 40 lb for 8 is a 6+ record and logging 60 lb for 8 is not.
+- [ ] A Dumbbell Bench Press set of 50 lb for 10, with a load count of 2, shows and records 50 lb and adds 1,000 lb to volume.
+- [ ] A band set is logged as 1 BW and a rep count, and adds its reps to BW volume.
 - [ ] A warm-up set never produces a record. Marking the first of 3 planned sets as a warm-up leaves 3 working sets to do, 4 sets in all.
 
 ### Graph
@@ -584,6 +593,7 @@ Row 1 is answered. Row 4 was changed on 16 November. Row 5, hosting and stack, w
 - Weight steps are 5 in either unit.
 - The tray is the full workout view. Stats and the graph share one screen, for the active exercise only.
 - A finished campaign prompts the user to ask their coach for the next one.
+- Counting rules (17 Nov): assisted machines count less assistance as better; bands are bodyweight; dumbbells are logged and recorded per single dumbbell, with a load count for total weight moved; sleds count like any lift, one trip per rep. Section 3 has the detail.
 
 ## 10. Edge-case rules
 
@@ -632,7 +642,8 @@ These rules settle what happens outside the normal path. Nathan decided them in 
 - On the phone, each exercise keeps its own pounds or kilograms switch. The switch is a remembered display choice, kept apart from the library. It does not change the exercise or its default unit, and it never makes a proposal out of date. If the default unit is later changed in the planner, the phone's remembered choice stays. Bodyweight exercises have no switch.
 - Converted weights show to one decimal. A typed value always shows exactly as typed, when shown in the unit it was typed in.
 - Switching units alone never changes a weight. A converted or seeded weight logged without changes keeps its exact pounds value.
-- A bodyweight set is recorded as 1 BW and a rep count. Its volume is total reps, counted in BW units and kept apart from pounds totals.
+- A bodyweight set is recorded as 1 BW and a rep count. Its volume is total reps, counted in BW units and kept apart from pounds totals. Band exercises count as bodyweight.
+- Dumbbell weights are logged, shown and recorded per single dumbbell. Only volume multiplies by the exercise's load count (Section 3).
 
 ### Supersets
 
