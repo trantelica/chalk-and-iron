@@ -8,7 +8,8 @@ This is the single briefing for any agent working on Chalk and Iron. The same fi
 2. **Follow the folder schema strictly** whenever you create folders or file anything on Nathan's MacBook. Read it first: `Project Context -N/Folder Schema -S/Folder Schema.md`. In short: find it in -N, trust it in -S, support it in -sub, sort uncertainty in -gov. The schema applies only to folders on Nathan's MacBook. It does not apply to the GitHub repository, which keeps its own code layout (`docs/`, `phase0/`, `prototype/`).
 3. **When unsure where something goes on the MacBook, do not guess.** Put it in `00 FOLDER GOVERNANCE -gov` and tell Nathan.
 4. **Ask before outward-facing or hard-to-undo actions** (deleting, publishing, sending, merging).
-5. **No development before approval.** Nathan approves the technical design first (see below). Until then, write documents only, not app code.
+5. **Keep documents current.** Documents must be maintained and must not grow stale. When you change something, update every document that describes it in the same sitting, including both copies of this file (MacBook and GitHub). If you notice an out-of-date document, fix it or tell Nathan.
+6. **No development before approval.** Nathan approves the technical design first (see below). Until then, write documents only, not app code.
 
 ## Where to find things
 
