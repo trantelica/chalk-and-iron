@@ -474,7 +474,7 @@ A native iPhone app follows the web version and is not part of this package. It 
 - A rest alert while the app is in the background is sent from the server, so it needs a connection.
 - Keeping the screen awake uses Screen Wake Lock, available to home-screen web apps from iOS 18.4.
 
-These come from search results on 16 November 2026 ([CoderCops](https://blog.codercops.com/blog/progressive-web-apps-2026), [MobiLoud](https://www.mobiloud.com/blog/progressive-web-apps-ios)), and the pages were not opened. Confirm each on a real iPhone. Phase 1 did not, because each needs screens that later phases build. Proposed on 17 November 2026, awaiting Nathan's confirmation: confirm all three with a small throwaway test page at the start of Phase 2, before the timers and alerts are built on them.
+These come from search results on 16 November 2026 ([CoderCops](https://blog.codercops.com/blog/progressive-web-apps-2026), [MobiLoud](https://www.mobiloud.com/blog/progressive-web-apps-ios)), and the pages were not opened. Confirm each on a real iPhone. Phase 1 did not, because each needs screens that later phases build. Approved by Nathan on 17 November 2026: confirm all three with a small throwaway test page at the start of Phase 2, before the timers and alerts are built on them.
 
 ## 8. Acceptance tests
 
