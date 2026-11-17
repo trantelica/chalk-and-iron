@@ -12,18 +12,20 @@ Follow `proofs/connector-signin/README.md`. It uses **throwaway** Supabase and V
 
 ## 2. Then set up the real app
 
-Do this only after the proof passes, and **after you choose the app's permanent web address** (see "A decision first" below).
+The proof has passed, and the permanent address is chosen (below). The Vercel project `chalkandiron` was created on 17 November 2026 with Vercel Authentication off.
 
-### A decision first: the permanent address
+### The permanent address (decided 17 November 2026)
 
-A passkey is tied to one web address. If the address changes later, every passkey made before the change stops working, including yours, and every coach connection has to be redone. The design planned to choose the address "before the first friend is invited". The proof shows it should be chosen **before you make your own real passkey**. Either a custom domain you own, or a Vercel address you keep for good, such as `chalk-and-iron.vercel.app`.
+The app's permanent address is **https://chalkandiron-trantelica.vercel.app**, chosen by Nathan on 17 November 2026. A passkey is tied to one web address. If the address changes later, every passkey made before the change stops working, and every coach connection has to be redone. So this address stays.
+
+(`chalk-and-iron.vercel.app` and `chalkandiron.vercel.app` were both already taken by other Vercel accounts.)
 
 ### A. Supabase (about 15 minutes)
 
 1. Create a new Supabase project on the free plan, named `chalk-and-iron`.
 2. **Settings > JWT Keys.** Make sure the key is the newer ECC (P-256) kind, as in the proof (step A2 there).
-3. **Authentication > URL Configuration.** Set the Site URL to the permanent address.
-4. **Authentication > Passkeys** (or Sign In / Providers, wherever the dashboard shows passkeys). Turn passkeys on, with the permanent address as the site.
+3. **Authentication > URL Configuration.** Set the Site URL to `https://chalkandiron-trantelica.vercel.app`.
+4. **Authentication > Passkeys** (or Sign In / Providers). Turn passkeys on. Relying Party Display Name: `Chalk and Iron`. Relying Party ID: `chalkandiron-trantelica.vercel.app`. Relying Party Origins: `https://chalkandiron-trantelica.vercel.app`.
 5. **Authentication > Sign In / Providers > Email.** Turn off "Allow new users to sign up". Accounts are made only from invite links, by the app's server.
 6. **SQL Editor.** Paste and run each file in `supabase/migrations/`, in name order: `…0100_foundation.sql`, then `…0200_accounts.sql`, then `…0300_schedules.sql`. If the third says the scheduler extension is missing, turn on **pg_cron** under Database > Extensions and run it again.
 7. **Settings > API Keys.** Keep the project URL, the publishable key and the secret key ready for step B3. The project URL is the bare address, like `https://abcd1234.supabase.co`, with no `/rest/v1` on the end. The secret key starts `sb_secret_`. A public key in its place gives the error "This endpoint requires a valid Bearer token".
@@ -32,8 +34,8 @@ The OAuth server for the coach connection is switched on in Phase 4, when the re
 
 ### B. Vercel (about 10 minutes)
 
-1. Create a Vercel project from the GitHub repository `trantelica/chalk-and-iron`. Root Directory: the repository root. Framework: Next.js.
-2. Give it the permanent address (Settings > Domains).
+1. Done: the project `chalkandiron` exists, linked to the repository, framework Next.js, Vercel Authentication off. Until Phase 1 is merged, it is built from the `phase-1-foundation` branch.
+2. Done: its address is the permanent one above.
 3. **Settings > Environment Variables**, names only here, values from Supabase:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`

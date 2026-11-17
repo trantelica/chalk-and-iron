@@ -965,7 +965,7 @@ Points that differ from or add to this design. Each is recorded here for Nathan,
 3. "Disconnecting cancels the pass at once" holds only because of that per-call check. A pass checked locally would stay valid until it expires, about an hour. Confirmed by the proof on 17 Nov: with the per-call check, Disconnect stopped ChatGPT and Claude at once. Phase 4 keeps the per-call check.
 4. The Supabase project needs the newer signing keys (ECC P-256), so the connector can check passes. This is a setup step in `docs/SETUP.md`.
 5. A reset also removes the person's old passkeys, through Supabase's admin tools (`src/server/accounts.ts`), so they can make a new one.
-6. **For Nathan:** a passkey belongs to one web address. Question 37 chose the permanent address "before the first friend is invited". It needs choosing before Nathan makes his own real passkey, or his passkey and coach connection must be redone after the change.
+6. **For Nathan:** a passkey belongs to one web address. Question 37 chose the permanent address "before the first friend is invited". It needs choosing before Nathan makes his own real passkey, or his passkey and coach connection must be redone after the change. **Decided 17 Nov:** Nathan chose `https://chalkandiron-trantelica.vercel.app` as the permanent address, before making his real passkey.
 7. Vercel's preview Deployment Protection blocks ChatGPT, Claude and passkeys, so it is off for the proof project.
 8. Both Supabase features are in beta, and the passkey interface may change without notice. The fallbacks in 10C stand: a passkey library (SimpleWebAuthn) with the same one-time-token step, or a sign-in company.
 

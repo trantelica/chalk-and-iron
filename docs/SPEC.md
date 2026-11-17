@@ -458,7 +458,7 @@ The build runs in seven phases. Phase 0 is a gate: its result decides how the co
 4. **Phase 3, planner.** Library for exercises, workouts and campaigns, the Plan view with per-day overrides, History, and sending a day to the phone.
 5. **Phase 4, coach.** The full connector tool set, all nineteen tools, including the weekly summary, cardio and the proposal list, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens.
 6. **Phase 5, reach.** Notifications for rest and proposals, cardio, export, the Arcade and Liquid Color skins, backgrounds and celebrations.
-7. **Phase 6, friends.** Onboarding polish for non-technical users, tested by one friend completing setup without help. Before the first friend is invited: choose the app's permanent web address (building and testing use Vercel's free address), and either move Supabase to its paid plan or add a scheduled backup.
+7. **Phase 6, friends.** Onboarding polish for non-technical users, tested by one friend completing setup without help. Before the first friend is invited: choose the app's permanent web address (chosen 17 November 2026: `https://chalkandiron-trantelica.vercel.app`), and either move Supabase to its paid plan or add a scheduled backup.
 
 A native iPhone app follows the web version and is not part of this package. It adds what a home-screen web app cannot do well: a lock-screen rest timer, Apple Music controls, Apple Health for cardio, and alerts that never depend on a connection.
 
