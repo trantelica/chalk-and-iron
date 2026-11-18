@@ -106,12 +106,12 @@ Notifications need a pair of keys. The public one goes in the app; the private o
    - [x] **Rest alert, another app open.** The same, with another app on screen instead. *(17 Nov: pass. A banner on the phone, not on the watch, as an unlocked iPhone does.)*
    - [x] **Screen stays awake.** With Keep awake on, the screen stays on past the Auto-Lock time. *(17 Nov: pass.)*
    - [x] Extra: **the rest sound with music.** *(17 Nov: "mix with music" plays over music off silent, including 20 seconds after the tap, and is muted on silent. Every way of playing on silent stops the music. Nathan decided the sound follows silent mode and the banner carries the alert.)*
-4. **Reset retest.** Your own account makes the link; your test account (the second email) is the one reset. Three windows:
+4. **Reset retest.** **All passed, 17 November 2026.** Your own account makes the link; your test account (the second email) is the one reset. Three windows:
    - **Mac, window 1, your own account:** in Chrome (or any browser where you are signed in as yourself), open https://chalkandiron.vercel.app/planner/admin.
    - **Mac, window 2, the test account:** in Safari, choose **File > New Private Window**, open https://chalkandiron.vercel.app/signin, tap **Sign in** and pick the test account's passkey. You land on the home screen.
    - **iPhone, the test account:** in **Safari** (not the home-screen icon, which is your own account), open https://chalkandiron.vercel.app/signin and sign in with the test account's passkey.
-   - [ ] In window 1, find the test account in the accounts table and click **Reset sign-in**, then **OK**. Copy the link from the text that appears and send it to yourself (for example in Messages to your own number).
-   - [ ] Within a few seconds, reload window 2 and the iPhone's Safari page. Both are sent to the sign-in page.
-   - [ ] On the iPhone, open the reset link in Safari and make the new passkey. You see the reset notice and the home screen.
-   - [ ] Reload window 2 on the Mac. It stays on the sign-in page. (Do not sign in again there: the new passkey may have copied itself to the Mac through iCloud, and would rightly work.)
+   - [x] In window 1, find the test account in the accounts table and click **Reset sign-in**, then **OK**. Copy the link from the text that appears and send it to yourself (for example in Messages to your own number).
+   - [x] Within a few seconds, reload window 2 and the iPhone's Safari page. Both are sent to the sign-in page.
+   - [x] On the iPhone, open the reset link in Safari and make the new passkey. You see the reset notice and the home screen.
+   - [x] Reload window 2 on the Mac. It stays on the sign-in page. (Do not sign in again there: the new passkey may have copied itself to the Mac through iCloud, and would rightly work.)
 
