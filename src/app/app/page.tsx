@@ -50,6 +50,8 @@ export default async function PhoneHome() {
       <div className="row">
         <Link className="btn" href="/planner/account">Account</Link>
         {p.is_admin && <Link className="btn" href="/planner/admin">Admin</Link>}
+        {/* THROWAWAY: the iPhone checks page, removed once they are done. */}
+        <Link className="btn" href="/app/lab">iPhone checks</Link>
       </div>
     </main>
   );

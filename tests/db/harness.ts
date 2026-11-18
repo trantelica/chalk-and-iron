@@ -12,7 +12,7 @@ export interface Db {
   /** Runs SQL as the server (service role, skips row-level security). */
   server<T = Record<string, unknown>>(sql: string, params?: unknown[]): Promise<T[]>;
   /** Runs SQL as a signed-in person. Pass coach: true for a coach app's pass. */
-  as<T = Record<string, unknown>>(user: string, sql: string, params?: unknown[], opts?: { coach?: boolean; issuedAt?: number }): Promise<T[]>;
+  as<T = Record<string, unknown>>(user: string, sql: string, params?: unknown[], opts?: { coach?: boolean; issuedAt?: number; signedInAt?: number }): Promise<T[]>;
   /** Creates an account through a real invite, as registration does. */
   register(email: string, name?: string, opts?: { admin?: boolean; inviter?: string }): Promise<string>;
 }
@@ -21,7 +21,10 @@ export async function makeDb(): Promise<Db> {
   const pg = await PGlite.create();
   await pg.exec(readFileSync(join(import.meta.dirname, 'supabase-shim.sql'), 'utf8'));
   const dir = join(root, 'supabase', 'migrations');
-  for (const f of readdirSync(dir).filter((f) => f.endsWith('.sql') && !f.includes('schedules')).sort()) {
+  // Skipped here, because this stand-in has no scheduler and no web calls:
+  // the scheduled jobs, and the throwaway iPhone test page's tables.
+  const skip = (f: string) => f.includes('schedules') || f.includes('iphone_test_page');
+  for (const f of readdirSync(dir).filter((f) => f.endsWith('.sql') && !skip(f)).sort()) {
     await pg.exec(readFileSync(join(dir, f), 'utf8'));
   }
 
@@ -40,7 +43,9 @@ export async function makeDb(): Promise<Db> {
     as: (user, sql, params, opts) => {
       // A pass carries the moment it was issued ("iat"). By default it is a fresh one.
       const iat = opts?.issuedAt ?? Math.floor(Date.now() / 1000) + 1;
-      const claims: Record<string, unknown> = { sub: user, role: 'authenticated', iat };
+      // And when its sign-in began ("amr"), which renewing a pass keeps. By default, when it was issued.
+      const signedIn = opts?.signedInAt ?? iat;
+      const claims: Record<string, unknown> = { sub: user, role: 'authenticated', iat, amr: [{ method: 'otp', timestamp: signedIn }] };
       if (opts?.coach) claims.client_id = 'test-coach-app';
       return run('authenticated', claims, sql, params);
     },

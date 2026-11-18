@@ -40,4 +40,6 @@ Start with `AGENTS.md`. It is the kickoff brief: what to read, what is settled, 
 
 ## Running the tests
 
-`npm install`, then `npm test`. The tests need no accounts: the database tests run on a local in-memory Postgres.
+`npm install`, then `npm test`. These quick tests need no accounts: the database tests run on a local in-memory Postgres.
+
+Two more sets run in GitHub's test runs on every pull request, against Supabase's own local version (they need Docker, which GitHub's machines have): `npm run test:supabase` for the account tests, and `npm run test:browser` for the passkey steps in a test browser. See `.github/workflows/test.yml` for the order: `npx supabase start`, then `node scripts/supabase-test-env.mjs`, then the tests.
