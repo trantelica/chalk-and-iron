@@ -31,6 +31,7 @@ export function LabChecks({ vapidKey }: { vapidKey: string }) {
   const [soundMsg, setSoundMsg] = useState('');
   const lock = useRef<WakeLockSentinel | null>(null);
   const wantWake = useRef(false);
+  const sound = useRef<{ mode: string; ctx: AudioContext } | null>(null);
 
   useEffect(() => {
     const ua = navigator.userAgent;
@@ -124,22 +125,33 @@ export function LabChecks({ vapidKey }: { vapidKey: string }) {
     setWakeMsg('Stopped.');
   }
 
-  function playSound() {
+  // mix: plays over music, but an iPhone on silent mutes it.
+  // loud: plays even on silent, but the iPhone may pause music.
+  async function playSound(mode: 'mix' | 'loud') {
     try {
-      // Ask the iPhone to mix this sound with other apps' music, not stop it.
       const session = (navigator as { audioSession?: { type: string } }).audioSession;
-      if (session) session.type = 'ambient';
-      const ctx = new AudioContext();
+      if (session) session.type = mode === 'mix' ? 'ambient' : 'playback';
+      if (!sound.current || sound.current.mode !== mode) {
+        await sound.current?.ctx.close().catch(() => {});
+        sound.current = { mode, ctx: new AudioContext() };
+      }
+      const ctx = sound.current.ctx;
+      // iPhones start the sound system paused. It must be woken by the tap itself.
+      if (ctx.state !== 'running') await ctx.resume();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.frequency.value = 880;
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.4, ctx.currentTime + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+      const t = ctx.currentTime;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.5, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
       osc.connect(gain).connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.55);
-      setSoundMsg(session ? 'Played, mixed with other audio.' : 'Played. (This iPhone cannot be asked to mix sounds.)');
+      osc.start(t);
+      osc.stop(t + 0.65);
+      setSoundMsg(
+        `Asked to play (${mode === 'mix' ? 'mix with music' : 'play even on silent'}). Sound system: ${ctx.state}.` +
+          (session ? '' : ' This iPhone cannot be asked to mix sounds.'),
+      );
     } catch (e) {
       setSoundMsg('Could not play: ' + (e as Error).message);
     }
@@ -205,8 +217,14 @@ export function LabChecks({ vapidKey }: { vapidKey: string }) {
 
       <div className="panel">
         <div className="display">Extra: rest sound with music</div>
-        <div className="muted">Start music in another app, come back here and tap Play. The beep should play over the music, and the music should keep going.</div>
-        <div className="row"><button className="btn" onClick={playSound}>Play rest sound</button></div>
+        <div className="muted">
+          Turn the volume up. Try each button twice: once with the iPhone on silent and once with it off silent.
+          Then start music in another app, come back here and try both again. Note for each: did you hear the beep, and did the music keep going?
+        </div>
+        <div className="row">
+          <button className="btn" onClick={() => playSound('mix')}>Play: mix with music</button>
+          <button className="btn" onClick={() => playSound('loud')}>Play: even on silent</button>
+        </div>
         {soundMsg && <div className="muted">{soundMsg}</div>}
       </div>
     </>

@@ -99,12 +99,12 @@ Notifications need a pair of keys. The public one goes in the app; the private o
 ### H. On your iPhone
 
 1. The app now tells the iPhone it is a full home-screen app, which notifications need. Delete the Chalk and Iron icon from your home screen, open https://chalkandiron.vercel.app in Safari, Share > Add to Home Screen, and open it from there. Your passkey and data are unaffected.
-2. Check the safe area: the heading no longer sits behind the camera cut-out or runs into the clock, and nothing sits on the home bar.
+2. Check the safe area: the heading no longer sits behind the camera cut-out or runs into the clock, and nothing sits on the home bar. *(17 Nov: pass.)*
 3. Tap **iPhone checks** on the home screen and work down the page. Tell the coding agent what happened at each step:
-   - [ ] **Notifications.** Allow, then "Send one now". A notification appears.
-   - [ ] **Rest alert, phone locked.** Start a 30-second rest and lock the phone. "Rest over" arrives when the rest ends. Note how late it says it was.
-   - [ ] **Rest alert, another app open.** The same, with another app on screen instead.
-   - [ ] **Screen stays awake.** With Keep awake on, the screen stays on past the Auto-Lock time.
-   - [ ] Extra: **the rest sound with music.** The beep plays over music from another app, and the music keeps going.
+   - [x] **Notifications.** Allow, then "Send one now". A notification appears. *(17 Nov: pass, once Focus mode was off. A Focus mode holds them back.)*
+   - [x] **Rest alert, phone locked.** Start a 30-second rest and lock the phone. "Rest over" arrives when the rest ends. Note how late it says it was. *(17 Nov: pass. With the Apple Watch on, a locked phone sends it to the watch. 0.0 seconds late.)*
+   - [ ] **Rest alert, another app open.** The same, with another app on screen instead. *(17 Nov: a second 30-second rest arrived on the phone and the watch, 0.0 seconds late. To confirm it was run with another app open.)*
+   - [x] **Screen stays awake.** With Keep awake on, the screen stays on past the Auto-Lock time. *(17 Nov: pass.)*
+   - [ ] Extra: **the rest sound with music.** *(17 Nov: no sound at all, so the page was changed.)* Retest: close the app fully (swipe it away), open it again from the home screen, tap **iPhone checks** and scroll to the bottom, to **Extra: rest sound with music**. Turn the volume up. Tap **Play: mix with music**, then **Play: even on silent**, first with the iPhone on silent, then with it off silent. Then start music in another app, come back and tap both again. For each, note whether you heard the beep and whether the music kept going, and the line the page shows under the buttons.
 4. **Reset retest.** With your test account signed in on two devices (the iPhone and a computer), make a reset link for it on the admin page. Both are signed out at once. Open the link on the iPhone and make the new passkey. The computer stays signed out, even after reloading.
 
