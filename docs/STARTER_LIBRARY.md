@@ -19,7 +19,7 @@ Every new account starts with these exercises and the starter vocabulary. This p
 
 ## Logging conventions from the coach
 
-These are in the exercises' notes. Nathan decided on 17 November 2026 how records and totals treat them (spec Section 3, design Section 10E point 9). Bands are bodyweight below. The assisted flag and the load counts were added at the start of Phase 2 (`supabase/migrations/20261117000800_assisted_and_load_count.sql`). **The load counts were proposed by the coding agent and wait for Nathan's review** (see "Load counts" below).
+These are in the exercises' notes. Nathan decided on 17 November 2026 how records and totals treat them (spec Section 3, design Section 10E point 9). Bands are bodyweight below. The assisted flag and the load counts were added at the start of Phase 2 (`supabase/migrations/20261117000800_assisted_and_load_count.sql`). The load counts were proposed by the coding agent and **approved by Nathan on 17 November 2026** (see "Load counts" below).
 
 - **Dumbbells:** log pounds per dumbbell, and reps per side for one-sided lifts. Records use the single-dumbbell weight. Each exercise gets a load count (2 for a pair or for any single-side lift logged per side, 4 for both) so volume is the total weight moved.
 - **Assisted machines** (assisted dip, assisted pull-up): log the machine's assistance. More assistance makes the rep easier, so progress shows as the number going down. Records count less assistance as better, and volume counts reps.
@@ -28,11 +28,11 @@ These are in the exercises' notes. Nathan decided on 17 November 2026 how record
 
 ## Load counts
 
-The load count is how many times the logged weight is moved in one rep. It is used only for volume. 146 exercises have 1, 76 have 2 and 5 have 4. The column "Load" below shows each one, and "Assisted" marks the assisted machines. How the coding agent chose (17 November 2026), for Nathan's review:
+The load count is how many times the logged weight is moved in one rep. It is used only for volume. 146 exercises have 1, 76 have 2 and 5 have 4. The column "Load" below shows each one, and "Assisted" marks the assisted machines. How the coding agent chose them (17 November 2026). Nathan approved every one the same day:
 
 - **2, a pair of dumbbells:** both dumbbells move on every rep, for example the dumbbell bench press. Alternating curls count each arm, so they are 2 as well.
 - **2, one side at a time, logged per side:** one-arm rows, split squats, single-leg work, Pallof presses, woodchops, single-arm cable work, side bends. This includes bodyweight and band ones (the single-leg glute bridge, the clamshell), where volume is reps: 10 per side counts as 20.
-- **2, two cable handles on two weight stacks:** the cable flys, the rear delt fly, and the seated cable chest and shoulder presses, treated like a pair of dumbbells. This one is the coding agent's own suggestion: say if each should count once.
+- **2, two cable handles on two weight stacks:** the cable flys, the rear delt fly, and the seated cable chest and shoulder presses, treated like a pair of dumbbells. This went beyond Nathan's rule; he approved it with the rest.
 - **4, a pair of dumbbells logged per side:** the dumbbell Bulgarian split squat, the forward, reverse and walking lunges, and the step-up.
 - **1, everything else:** barbells, machines, one dumbbell or kettlebell held in both hands (the goblet squat, the swing, the pullover), and bodyweight moves done on both sides at once. The dumbbell lateral lunge and single-leg Romanian deadlift are 2, on the guess that they use one dumbbell; two dumbbells would make them 4.
 

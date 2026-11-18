@@ -71,9 +71,9 @@ Tick each one and tell the coding agent. **All ticked by Nathan on 17 November 2
 
 The opening items of Phase 2 are on pull request #7 (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10). These steps follow once it is merged into `main`, which rebuilds the live app.
 
-### E. Review the load counts first
+### E. The load counts (approved 17 November 2026)
 
-Read "Load counts" in `docs/STARTER_LIBRARY.md`, and the "Load" column in its tables. Tell the coding agent any you would change, before step F runs `…0800`.
+Nathan approved the proposed load count for every starter exercise ("Load counts" in `docs/STARTER_LIBRARY.md`). Nothing to do here.
 
 ### F. Supabase SQL Editor, in this order
 
