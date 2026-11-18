@@ -37,10 +37,18 @@ export async function registerAccount(name = 'Test'): Promise<Person> {
   n += 1;
   const email = `t${Date.now()}${n}@example.test`;
   let code: string;
+  let viaSql = false;
   if (!firstAdmin) {
     const { data, error } = await adminClient().rpc('bootstrap_first_admin_invite', { p_label: name });
-    if (error) throw error;
-    code = data as string;
+    if (error && /already exist/i.test(error.message)) {
+      // Another test file made the first admin already: an invite made straight in the database, as an admin's would be.
+      code = randomBytes(24).toString('hex');
+      await sql(`insert into public.invites (code_hash, purpose, label) values (app.hash_code($1), 'invite', $2)`, [code, name]);
+      viaSql = true;
+    } else {
+      if (error) throw error;
+      code = data as string;
+    }
   } else {
     const { data, error } = await firstAdmin.client.rpc('admin_create_invite', { p_label: name });
     if (error) throw error;
@@ -49,7 +57,7 @@ export async function registerAccount(name = 'Test'): Promise<Person> {
   const { tokenHash } = await registerFromInvite({ code, email, name, timeZone: 'America/Denver' });
   const person = await signInOnNewDevice(tokenHash);
   const made = { ...person, email };
-  if (!firstAdmin) firstAdmin = made;
+  if (!firstAdmin && !viaSql) firstAdmin = made;
   return made;
 }
 
