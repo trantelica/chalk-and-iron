@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { serverClient } from '@/lib/supabase/server';
 import { HomeActions } from './home-actions';
 
-// The phone's home screen. Phase 1 shows the account only; today's workout,
-// proposals and the campaign week arrive in Phase 2.
+// The phone's home screen. Starting and resuming a workout is here; today's
+// planned workout, proposals and the campaign week arrive with the planner
+// (Phase 3) and the coach (Phase 4).
 export default async function PhoneHome() {
   const supabase = await serverClient();
   const { data: auth } = await supabase.auth.getUser();
@@ -44,7 +45,8 @@ export default async function PhoneHome() {
       )}
       <div className="panel">
         <div className="display">Hi, {p.display_name}</div>
-        <div className="muted">Your library holds {count ?? 0} exercises. Today&apos;s workout arrives in the next phase of the build.</div>
+        <div className="muted">Your library holds {count ?? 0} exercises. Today&apos;s planned workout arrives with the planner.</div>
+        <Link className="btn primary" href="/app/workout" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>Start or resume a workout</Link>
       </div>
       <HomeActions passkeyCheck />
       <div className="row">

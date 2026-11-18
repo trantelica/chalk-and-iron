@@ -77,3 +77,97 @@ th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line
 th { color: var(--muted-text); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
 .tag { display: inline-block; padding: 2px 6px; border-radius: var(--radius-small); border: 1px solid var(--border); font-size: 11px; font-weight: 700; letter-spacing: 1px; }
 .tag.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+
+/* ---------------------------------------------------------------------
+   The phone's workout screens (spec Section 5). One fixed layout for every
+   skin: text sits in boxes of fixed height, so a skin with a larger heading
+   size moves and resizes nothing (spec rule 6). */
+.phone {
+  max-width: 440px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; gap: 10px;
+  padding:
+    calc(8px + env(safe-area-inset-top, 0px))
+    calc(14px + env(safe-area-inset-right, 0px))
+    calc(16px + env(safe-area-inset-bottom, 0px))
+    calc(14px + env(safe-area-inset-left, 0px));
+}
+.phone h2 { margin: 10px 0 0; }
+.lab { font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted-text); }
+.accent-text { color: var(--accent); }
+.row.tight { gap: 4px; flex-wrap: nowrap; }
+.row.spread { justify-content: space-between; flex-wrap: nowrap; }
+.row.full { width: 100%; }
+.grow { flex: 1; }
+.btn.icon { min-width: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.btn.small { min-height: 36px; min-width: 44px; padding: 0 10px; font-size: 13px; }
+.btn.step { min-width: 44px; padding: 0 6px; }
+.btn.opt { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; text-align: left; min-height: 52px; padding: 8px 12px; text-decoration: none; width: 100%; }
+.btn.opt .muted { font-weight: 400; }
+.phone-top { height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.phone-top .coach { text-decoration: none; display: inline-flex; align-items: center; }
+.pull { min-width: 120px; min-height: 44px; background: transparent; border: 0; color: var(--muted-text); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; cursor: pointer; }
+.phone-head { height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.phone-head > .row { min-width: 0; }
+.phone-head .lab { width: 104px; height: 18px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: center; }
+.clock-text { font-size: 20px; line-height: 24px; height: 24px; overflow: hidden; white-space: nowrap; }
+.display.big { font-size: 24px; line-height: 30px; height: 30px; overflow: hidden; white-space: nowrap; }
+.ex-title { height: 132px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.ex-title .lab { height: 16px; overflow: hidden; white-space: nowrap; }
+.ex-name { height: 44px; line-height: 44px; font-size: var(--heading-size); }
+.fixed-line { height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ex-title .btn { align-self: flex-start; }
+.note { height: 44px; padding: 0 10px; background: transparent; color: var(--text); border: 0; border-bottom: 1px solid var(--line); border-radius: 0; font-size: 14px; }
+.dial-row { display: flex; gap: 12px; align-items: center; height: 124px; }
+.dial { flex: none; }
+.dial-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.dial-back { fill: var(--sheet); }
+.dial-fill { fill: var(--dial-fill); }
+.dial-red { fill: var(--overage-red); }
+.dial-track { fill: none; stroke: var(--line); stroke-width: 6; }
+.dial-rest { fill: none; stroke: var(--text); stroke-width: 6; }
+.sets { display: flex; flex-direction: column; min-height: 130px; }
+.set { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 36px; padding: 4px 8px; background: transparent; border: 0; border-bottom: 1px solid var(--line); text-align: left; cursor: pointer; font-size: 15px; }
+.set.now { border-left: 3px solid var(--accent); font-weight: 700; }
+.set.done { color: var(--muted-text); }
+.badge { margin-left: 8px; padding: 1px 6px; font-size: 11px; font-weight: 700; letter-spacing: 1px; background: var(--accent); color: var(--on-accent); border-radius: var(--radius-small); }
+.last-time { min-height: 20px; }
+.entry { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
+.entry-col { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.entry .main { grid-column: 1 / -1; }
+.entry .small { grid-column: 1 / -1; }
+.num {
+  flex: 1; min-width: 0; height: 54px; text-align: center; font-family: var(--display-font); font-size: min(var(--numeral-size), 32px); padding: 0 2px;
+  background: var(--sheet); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-small);
+}
+.num[aria-label='Reps'] { color: var(--secondary-accent); }
+.actions .btn { min-height: 54px; }
+.banner { position: fixed; left: 14px; right: 14px; top: calc(8px + env(safe-area-inset-top, 0px)); z-index: 30; padding: 12px 14px; background: var(--accent); color: var(--on-accent); border-radius: var(--radius); font-weight: 700; }
+.tray, .sheet { position: fixed; inset: 0; z-index: 20; background: var(--background); overflow-y: auto; }
+.tray {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: calc(14px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px));
+}
+.sheet-card {
+  max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px));
+}
+.bar { height: 8px; background: var(--line); margin-top: 6px; }
+.bar-fill { height: 100%; background: var(--accent); }
+.tray-list { display: flex; flex-direction: column; gap: 10px; }
+.tray-block { display: flex; flex-direction: column; gap: 6px; padding: 6px; border: 1px solid var(--line); border-radius: var(--radius); }
+.tray-block.current { border-color: var(--accent); }
+.box { width: 14px; height: 14px; border: 1px solid var(--border); display: inline-block; }
+.box.on { background: var(--accent); border-color: var(--accent); }
+.box.warm { border-style: dashed; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.grid3 > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.grid3 b { font-family: var(--display-font); font-weight: var(--display-weight); font-size: 20px; line-height: 24px; }
+.topline { border-top: 1px solid var(--line); padding-top: 10px; }
+.small-text { font-size: 14px; }
+.pick-list { display: flex; flex-direction: column; gap: 6px; max-height: 50dvh; overflow-y: auto; }
+.graph { width: 100%; height: auto; }
+.g-bar { fill: var(--text); }
+.g-num, .g-label { fill: var(--muted-text); font-size: 9px; }
+.g-axis { stroke: var(--border); }
+.g-line { fill: none; stroke: var(--accent); stroke-width: 2; }
+.g-line-text { fill: var(--accent); font-size: 9px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
