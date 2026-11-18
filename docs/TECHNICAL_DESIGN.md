@@ -676,7 +676,7 @@ Auto-finish: when 30 minutes pass with nothing logged, the phone finishes the se
 
 ### Rest end with the app on screen
 
-A banner and a short sound, made by the app. The sound is set up so it mixes with music from other apps and does not interrupt it. The sound is unlocked by the user's own tap on Log set, which iPhones require.
+A banner and a short sound, made by the app. The sound is set up so it mixes with music from other apps and does not interrupt it. The sound is unlocked by the user's own tap on Log set, which iPhones require. Confirmed on Nathan's iPhone on 17 Nov, where a beep 20 seconds after a tap played over music. **The sound follows silent mode** (Nathan, 17 Nov): an iPhone mutes a mixing sound on silent, and a web app's only way to play on silent stops the music, so on silent there is no sound and the banner carries the alert.
 
 ### Rest alert with the app in the background
 
@@ -862,7 +862,7 @@ All automated tests run on every pull request. One of the code checks compares `
 These are not in the spec's list but cannot be trusted from a desktop test:
 
 - The passkey signs in inside the home-screen app (or the emailed code, if the fallback is used).
-- The rest sound plays without stopping music from another app.
+- The rest sound plays without stopping music from another app. With the iPhone on silent it does not play.
 - The notification permission prompt appears only after the app is on the home screen.
 - The connector sign-in completes from the ChatGPT iPhone app and the Claude iPhone app.
 - A session survives the phone being locked for ten minutes mid-rest.
@@ -996,8 +996,8 @@ Points that differ from or add to this design. Each is recorded here for Nathan,
         - **Rest alert sent by the server: pass.** With the phone locked, the alert went to Nathan's Apple Watch and not to the iPhone's screen, which is how an iPhone treats every notification while a paired watch is being worn. A second 30-second rest, with the phone locked, arrived on the watch and said it was 0.0 seconds late. With another app on screen, the alert showed as a banner on the phone and not on the watch, which again is how an iPhone treats every notification.
         - **Screen stays awake: pass.** The silent-video fallback in 10C is not needed.
         - **Rest sound: first try, no sound at all.** The test page then woke the phone's sound system on the tap and offered two ways of playing. **Retest, 17 Nov:** "mix with music" plays over music with the iPhone off silent, and is muted on silent. "Even on silent" always plays, but stops the music. So the fact in 10C holds, except in silent mode, where an iPhone web app cannot both play a sound and leave music playing. A native app can (it asks the iPhone to mix in a way the web cannot).
-        - **Still to try (test page updated):** a "short alert" way of playing; playing on silent and then letting go at once, in case the music carries on; and a beep that plays 20 seconds after the tap with no new tap, which is how the real rest sound works.
-        - **Open for Nathan once those are in:** what the rest sound does in silent mode. Assumed until he decides: it follows silent mode (no sound on silent, the banner still shows), and it never stops music.
+        - **Last tries, 17 Nov:** the "short alert" way is muted on silent too. Playing on silent and then letting go does not bring the music back. A beep 20 seconds after the tap, with no new tap and the app on screen, plays over music off silent, so the tap on Log set is enough to unlock the real rest sound.
+        - **Decided by Nathan on 17 Nov:** the rest sound uses "mix with music" only. It follows silent mode: on silent there is no sound and the banner carries the alert. It never stops music. The native app can do better later.
     - **Nathan accepted Phase 1 on 17 Nov**, after ticking all ten iPhone checks in `docs/SETUP.md`, and the pull request was merged into `main`.
 
 Choices the build made within the design:
