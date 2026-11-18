@@ -6,7 +6,7 @@ A weight-lifting tracker with three parts:
 - a browser planner for building exercises, workouts and campaigns,
 - a connector that lets each user's own ChatGPT or Claude project act as their coach.
 
-Phase 1, the foundation, was accepted by Nathan and merged on 17 November 2026: the database with per-user isolation, passkey sign-in, invites and the admin page, theme tokens and the starter library. It runs at https://chalkandiron.vercel.app, built from `main`. Phase 2 (logging) is next. See `docs/SETUP.md`.
+Phase 1, the foundation, was accepted by Nathan and merged on 17 November 2026: the database with per-user isolation, passkey sign-in, invites and the admin page, theme tokens and the starter library. It runs at https://chalkandiron.vercel.app, built from `main`. Phase 2 (logging) is under way: the workout screens are built, and workouts are saved to the account, with sets logged offline sent later (`docs/SPEC.md` Section 7). See `docs/SETUP.md`.
 
 ## What is here
 
@@ -36,10 +36,10 @@ In the phone view, the settings button has a demo clock speed. Set it to 60× to
 
 ## For the coding agent
 
-Start with `AGENTS.md`. It is the kickoff brief: what to read, what is settled, and the first deliverable, a technical design for review before any app code. That design is in `docs/TECHNICAL_DESIGN.md` and was approved by Nathan on 17 November 2026. Phase 1 is built and was reviewed on 17 November 2026 (design Section 10E, point 10). It awaits Nathan's acceptance.
+Start with `AGENTS.md`. It is the kickoff brief: what to read, what is settled, and the first deliverable, a technical design for review before any app code. That design is in `docs/TECHNICAL_DESIGN.md` and was approved by Nathan on 17 November 2026. Phase 1 was reviewed and accepted by Nathan on 17 November 2026 (design Section 10E, point 10).
 
 ## Running the tests
 
 `npm install`, then `npm test`. These quick tests need no accounts: the database tests run on a local in-memory Postgres.
 
-Two more sets run in GitHub's test runs on every pull request, against Supabase's own local version (they need Docker, which GitHub's machines have): `npm run test:supabase` for the account tests, and `npm run test:browser` for the passkey steps in a test browser. See `.github/workflows/test.yml` for the order: `npx supabase start`, then `node scripts/supabase-test-env.mjs`, then the tests.
+Two more sets run in GitHub's test runs on every pull request, against Supabase's own local version (they need Docker, which GitHub's machines have): `npm run test:supabase` for the account and saving tests, and `npm run test:browser` for the passkey steps and the offline and reopen checks in a test browser. See `.github/workflows/test.yml` for the order: `npx supabase start`, then `node scripts/supabase-test-env.mjs`, then the tests.

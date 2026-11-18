@@ -1,6 +1,6 @@
 # Setting up the real app
 
-17 November 2026 · Phase 1, and the start of Phase 2 · For Nathan
+17 November 2026, updated 18 November 2026 · Phase 1 and Phase 2 · For Nathan
 
 The Phase 1 foundation was accepted by Nathan and merged on 17 November 2026. It runs at https://chalkandiron.vercel.app on the real Supabase project `chalk-and-iron`, built from `main`. Your account and a test account are set up. This page records how it was set up, in order, and the checks still to tick.
 
@@ -115,3 +115,35 @@ Notifications need a pair of keys. The public one goes in the app; the private o
    - [x] On the iPhone, open the reset link in Safari and make the new passkey. You see the reset notice and the home screen.
    - [x] Reload window 2 on the Mac. It stays on the sign-in page. (Do not sign in again there: the new passkey may have copied itself to the Mac through iCloud, and would rightly work.)
 
+
+## 4. Phase 2: saving workouts and sending them later (18 November 2026)
+
+Built on the `phase-2-saving-and-offline` branch (`docs/TECHNICAL_DESIGN.md` Sections 6 and 7). These steps follow once its pull request is merged into `main`, which rebuilds the live app.
+
+### I. Supabase SQL Editor, in this order
+
+**Run these as soon as the pull request is merged.** Until the first one is run, the phone keeps every workout on the phone and its line reads "No connection"; nothing is lost, and everything is sent once the file is run.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. For each file below: open its link (they work once the pull request is merged), click the **Copy raw file** button (two overlapping squares, top right of the file), paste into the empty query, and click **Run**.
+
+1. [`20261117001100_saving_and_offline.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261117001100_saving_and_offline.sql). Saving workouts and sets to the account, the one door phones send changes through, records worked out by the database, history for the phone, and the 30-minute auto-finish. It adds a few columns and rules; it removes no table and deletes no data. It should end with "Success. No rows returned".
+2. [`20261117001200_rest_alert_and_auto_finish_schedules.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261117001200_rest_alert_and_auto_finish_schedules.sql). Two scheduled jobs: the real rest alert (every 5 seconds) and the auto-finish (every minute). It ends with a small table showing the scheduler's job numbers. The iPhone test page's own job keeps running until that page is removed.
+
+### J. On your iPhone
+
+Open Chalk and Iron from its home-screen icon, and tap **Start or resume a workout**. Tell the coding agent what happened at each step.
+
+1. [ ] **Turn on rest alerts.** Tap **Turn on rest alerts**, then **Allow**. (The iPhone checks page's permission does not carry over: each phone turns on rest alerts once, here.) The line under it says "Rest alerts are on for this phone."
+2. [ ] **Start and save.** Under **Quick workout**, type `Barbell Curl` in the search box, tap **Barbell Curl**, then **Start workout**. Tap **Start exercise**, type a weight, and tap **Log set**. The line under the workout clock reads **Saved to your account**.
+3. [ ] **Rest alert, phone locked.** Log a second set, then lock the phone at once. When the 90-second rest ends, "Rest over / Time for your next set." arrives (on the Apple Watch if you wear it). Tap it: the app opens on Barbell Curl, with set 3 marked Now.
+4. [ ] **Rest end with the app open.** Log a set and keep the app on screen. When rest ends you see the "Rest over" banner and no notification.
+5. [ ] **+0:15 and Skip.** Log a set, tap **+0:15**, and lock the phone: the notification comes 15 seconds later than the rest would have ended. Log another, tap **Skip rest**, and lock the phone: no notification comes.
+6. [ ] **Offline.** Swipe down from the top-right corner and turn on **Airplane Mode**. Log two sets. The line reads "No connection. … saved on this phone, sent when you are back online." Turn Airplane Mode off. Within a few seconds the line reads **Saved to your account**.
+7. [ ] **Close and reopen.** Swipe up from the bottom of the screen and hold, then swipe Chalk and Iron away. Wait a minute and open it again. You are back on the same exercise, with the same sets done, and the workout clock kept counting while it was closed.
+8. [ ] **lb/kg and the note.** On the workout screen tap **kg**, and type something in the note line under the exercise name. Close and reopen the app as in step 7: kg and the note are still there.
+9. [ ] **Edit and delete a set.** Press and hold a done set. Change its reps and tap **Save**. Press and hold it again, tap **Delete this set**, then **Yes, delete set …**. It disappears, and the set after it moves up.
+10. [ ] **Finish and reopen.** Open the tray (**Workout** at the top), tap **Finish workout**, then **Finish workout** again. The finished screen says **Saved to your account.** Tap **Reopen workout**: the workout carries on, and the time it was closed is not counted. Finish it again and tap **Done**.
+11. [ ] **Last time.** Start another quick workout with Barbell Curl. "Last time" shows the sets you just logged, and the weight box is filled with them. Finish or leave it.
+12. [ ] Optional, **a second device.** On the Mac, sign in at https://chalkandiron.vercel.app/signin, tap **Start or resume a workout**, and start a quick workout while one is running on the iPhone. It says "A workout is already running", with **Carry on with it here** and **Finish it, and start this one**.
+
+Once step 3 passes, the throwaway iPhone checks page and its two tables can be removed. The coding agent does that with a new migration, and tells you first, since it deletes the test page's tables.
