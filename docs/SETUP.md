@@ -94,6 +94,8 @@ Nathan approved the proposed load count for every starter exercise ("Load counts
 
 Notifications need a pair of keys. The public one goes in the app; the private one stays in Vercel. **Where:** https://vercel.com, the project `chalkandiron`, then **Settings**, then **Environment Variables**. Two environment variables, values from the coding agent (never pasted anywhere else): `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY`. Then redeploy: **Deployments** tab, the top deployment's **⋯** menu, **Redeploy**.
 
+**Done 17 November 2026** by the coding agent, at Nathan's request: a new key pair was made, both were added for Production and Preview (the private one marked Sensitive, so Vercel never shows it again), no copy was kept anywhere else, and the live app was rebuilt.
+
 ### H. On your iPhone
 
 1. The app now tells the iPhone it is a full home-screen app, which notifications need. Delete the Chalk and Iron icon from your home screen, open https://chalkandiron.vercel.app in Safari, Share > Add to Home Screen, and open it from there. Your passkey and data are unaffected.
