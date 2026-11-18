@@ -236,7 +236,8 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
         <div className="dial-text">
           <div className="lab">Exercise clock</div>
           <div className="display clock-text">{!block.started ? 'Not started' : d.remaining >= 0 ? `${mmss(d.remaining)} left` : `+${mmss(-d.remaining)} over`}</div>
-          <div className="muted">Budget {mmss(budget)}{resting ? ` · Rest ${mmss(restLeft)}` : ''}</div>
+          <div className="muted">Budget {mmss(budget)}</div>
+          <div className={`rest-line ${resting ? 'on' : ''}`} aria-live="off">{resting ? `Resting ${mmss(restLeft)}` : 'Not resting'}</div>
           <div className="row tight">
             <button className="btn" disabled={!resting} onClick={() => setSess(addRest(s, 15))}>+0:15</button>
             <button className="btn" disabled={!resting} onClick={() => setSess(skipRest(s))}>Skip rest</button>
@@ -349,6 +350,13 @@ function DialView({ fill, red, rest }: { fill: number; red: boolean; rest: numbe
 }
 
 // ------------------------------------------------------------------ set list
+/** The plan's target for a set not yet logged: reps, and the planned weight if the plan sets one. */
+function targetText(e: Session['exercises'][string], unit: WeightUnit | 'bw'): string {
+  const w = e.plannedWeightLb;
+  if (unit === 'bw' || w === null) return `Target ${e.plannedReps} reps`;
+  return `Target ${displayNum(fromPounds(w, unit))} ${unit} × ${e.plannedReps}`;
+}
+
 function SetList({ s, e, unit, round, onToggle, onDetail }: { s: Session; e: Session['exercises'][string]; unit: WeightUnit | 'bw'; round: number; onToggle: (r: number) => void; onDetail: (r: number) => void }) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const long = useRef(false);
@@ -368,7 +376,7 @@ function SetList({ s, e, unit, round, onToggle, onDetail }: { s: Session; e: Ses
             onClick={() => { if (!long.current) onToggle(n); }}
           >
             <span>{n + 1} · {label}{lg?.records.length ? <span className="badge">{RECORD_LABEL[celebrationName(lg.records) as RecordType]}</span> : null}{lg?.rpe ? <span className="muted"> · RPE {lg.rpe}</span> : null}</span>
-            <span>{lg ? `${lg.enteredUnit === 'bw' ? '1 BW' : `${displayNum(unit === 'bw' ? 0 : displayWeight({ lb: lg.lb ?? 0, enteredValue: lg.enteredValue, enteredUnit: lg.enteredUnit as WeightUnit }, unit))} ${unit}`} × ${lg.reps}` : ''}</span>
+            <span>{!lg ? targetText(e, unit) : `${lg.enteredUnit === 'bw' ? '1 BW' : `${displayNum(unit === 'bw' ? 0 : displayWeight({ lb: lg.lb ?? 0, enteredValue: lg.enteredValue, enteredUnit: lg.enteredUnit as WeightUnit }, unit))} ${unit}`} × ${lg.reps}`}</span>
           </button>
         );
       })}
