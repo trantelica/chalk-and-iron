@@ -1,7 +1,9 @@
 // A running workout as plain data, and the moves that change it (spec Sections
 // 2, 5 and 10). No screen, no storage and no clock of its own: every move takes
 // the current time, so a test can run a whole workout in a blink. The phone
-// keeps one of these in its own storage; later phases send it to the server.
+// keeps one of these in its own storage and sends each change to the account
+// (src/rules/sync.ts). Every id is a random uuid made on the phone, so the
+// same ids name the same rows on the server (design Sections 2 and 6).
 
 import {
   budgetSingle,
@@ -54,6 +56,8 @@ export interface SessionExercise {
   logs: LoggedSet[];
   skipped: boolean;
   alternates: { tier: 'bodyweight' | 'basic_gym' | 'full_gym'; name: string }[];
+  origin?: 'plan' | 'added' | 'swap';
+  swappedFrom?: string | null; // the library exercise a swap replaced
 }
 
 export interface Block {
@@ -69,6 +73,9 @@ export interface Block {
   closedDone: number;
   closedPlanned: number;
   brokenFrom: string | null;
+  startedAt?: number | null; // when Start exercise was first tapped
+  stoppedAt?: number | null; // when its last set was logged, or it was skipped
+  brokenAt?: number | null; // when this superset was broken apart
 }
 
 export interface Session {
@@ -86,12 +93,23 @@ export interface Session {
   restTotal: number;
   breakUndo: Block[] | null; // restored by Undo until a set is logged after the break
   lastActivityAt: number;
+  workoutId?: string | null; // the library workout it started from, if any
+  finishReason?: 'user' | 'auto' | 'replaced' | null;
 }
+
+/** A session with nothing logged for 30 minutes finishes itself (spec Section 10). */
+export const AUTO_FINISH_MS = 30 * 60 * 1000;
+/** A finished workout can be reopened for 48 hours (spec Section 10). */
+export const REOPEN_MS = 48 * 60 * 60 * 1000;
 
 /** What the phone knows about an exercise's past sessions, newest last. */
 export interface PastSession {
   day: string;
   sets: { lb: number | null; reps: number; type: SetType }[];
+  sessionId?: string;
+  startedAt?: number;
+  /** Only record-holding sets from an older session: counted for records, not shown as a session. */
+  extra?: boolean;
 }
 export type History = Record<string, PastSession[]>;
 
@@ -112,14 +130,17 @@ export interface PlanItem {
   alternates: SessionExercise['alternates'];
 }
 
-let counter = 0;
-export const uid = (p: string) => `${p}${Date.now().toString(36)}${(counter++).toString(36)}`;
+/** A new random id, made on the phone. The prefix is only a reminder of what it names. */
+export const uid = (p: string): string => { void p; return crypto.randomUUID(); };
+
+/** Past sessions of an exercise, oldest first, without the extra record-only entries. */
+export const realSessions = (h: History, exerciseId: string) => (h[exerciseId] ?? []).filter((p) => !p.extra);
 
 export const kindOf = (e: SessionExercise): ExerciseKind => ({ unit: e.unit, assisted: e.assisted, loadCount: e.loadCount });
 
 // ---------------------------------------------------------------- starting
 
-export function startSession(name: string, day: string, plan: PlanItem[], history: History, now: number, seedOf: (id: string, sets: number, assisted: boolean) => (number | null)[]): Session {
+export function startSession(name: string, day: string, plan: PlanItem[], history: History, now: number, seedOf: (id: string, sets: number, assisted: boolean) => (number | null)[], workoutId: string | null = null): Session {
   const exercises: Record<string, SessionExercise> = {};
   const blocks: Block[] = [];
   const letterBlock = new Map<string, Block>();
@@ -131,6 +152,7 @@ export function startSession(name: string, day: string, plan: PlanItem[], histor
       plannedWeightLb: it.unit === 'bw' ? null : it.weightLb ?? null,
       seeds: it.unit === 'bw' ? Array.from({ length: it.sets }, () => null) : seedOf(it.exerciseId, it.sets, it.assisted),
       types: Array.from({ length: it.sets }, () => 'working' as SetType), logs: [], skipped: false, alternates: it.alternates,
+      origin: 'plan', swappedFrom: null,
     };
     const existing = it.superset ? letterBlock.get(it.superset) : undefined;
     if (existing) {
@@ -138,7 +160,7 @@ export function startSession(name: string, day: string, plan: PlanItem[], histor
     } else {
       const b: Block = {
         id: uid('b'), letter: it.superset ?? null, members: [key], clock: newClock(), started: false, stopped: false,
-        baseLogged: 0, closed: false, fixedBudget: null, closedDone: 0, closedPlanned: 0, brokenFrom: null,
+        baseLogged: 0, closed: false, fixedBudget: null, closedDone: 0, closedPlanned: 0, brokenFrom: null, startedAt: null, stoppedAt: null, brokenAt: null,
       };
       blocks.push(b);
       if (it.superset) letterBlock.set(it.superset, b);
@@ -148,6 +170,7 @@ export function startSession(name: string, day: string, plan: PlanItem[], histor
   return {
     id: uid('s'), name, day, startedAt: now, endedAt: null, clock: startClock(newClock(), now), exercises, blocks,
     curBlock: blocks[0].id, curMember: blocks[0].members[0], restEndsAt: null, restTotal: 0, breakUndo: null, lastActivityAt: now,
+    workoutId, finishReason: null,
   };
 }
 
@@ -155,7 +178,9 @@ export function startSession(name: string, day: string, plan: PlanItem[], histor
 
 const clone = <T,>(v: T): T => structuredClone(v);
 export const blockOf = (s: Session, id: string) => s.blocks.find((b) => b.id === id)!;
-export const blockOfKey = (s: Session, key: string) => s.blocks.find((b) => b.members.includes(key))!;
+/** The block an exercise is done in now: a broken superset still lists its members, so it is passed over. */
+export const blockOfKey = (s: Session, key: string) =>
+  s.blocks.find((b) => !b.closed && b.members.includes(key)) ?? s.blocks.find((b) => b.members.includes(key))!;
 /** Blocks shown in the workout: not closed, and not an empty skipped husk. */
 export const liveBlocks = (s: Session) => s.blocks.filter((b) => !b.closed);
 
@@ -242,6 +267,7 @@ export function startExercise(s0: Session, now: number): Session {
   const s = clone(s0);
   const b = blockOf(s, s.curBlock);
   b.started = true;
+  b.startedAt ??= now;
   b.clock = startClock(b.clock, now);
   s.lastActivityAt = now;
   return s;
@@ -267,6 +293,7 @@ export function logSet(s0: Session, input: LogInput, history: History, now: numb
   if (partner) { s.curMember = partner; return { session: s, earned }; }
   if (blockDone(s, b)) {
     b.stopped = true;
+    b.stoppedAt = now;
     b.clock = pauseClock(b.clock, now);
     s.restEndsAt = null;
     return { session: s, earned };
@@ -278,15 +305,68 @@ export function logSet(s0: Session, input: LogInput, history: History, now: numb
   return { session: s, earned };
 }
 
-export function lastLoggedSetUndo(s0: Session, key: string): Session {
-  const s = clone(s0);
-  const e = s.exercises[key];
-  e.logs.pop();
+/** Undo for a few seconds after Log set: removes the last set logged on that exercise. */
+export function lastLoggedSetUndo(s0: Session, key: string, history: History = {}, now = Date.now()): Session {
+  const e = s0.exercises[key];
+  if (!e.logs.length) return s0;
+  const s = deleteSet(s0, key, e.logs.length - 1, history, now);
   const b = blockOfKey(s, key);
-  b.stopped = false;
-  s.curBlock = b.id;
+  if (s.curBlock !== b.id) {
+    blockOf(s, s.curBlock).clock = pauseClock(blockOf(s, s.curBlock).clock, now);
+    s.curBlock = b.id;
+    if (b.started && !b.stopped) b.clock = startClock(b.clock, now);
+  }
   s.curMember = key;
   s.restEndsAt = null;
+  return s;
+}
+
+/** Works today's records out again for one exercise, after an edit or a delete. The server's answer still wins. */
+function recheckToday(s: Session, key: string, history: History) {
+  const e = s.exercises[key];
+  const past = pastFacts(history, e.exerciseId);
+  const today: SetFacts[] = [];
+  e.logs.forEach((l, i) => {
+    const f: SetFacts = { id: l.id, lb: l.lb, reps: l.reps, type: l.type, day: s.day, order: i };
+    l.records = recordsEarned([...past, ...today], f, kindOf(e));
+    today.push(f);
+  });
+}
+
+/**
+ * Deletes a logged set (spec Section 10). The sets after it move up one, and a
+ * set to do takes its place at the end, so the plan keeps its number of sets.
+ * Records are worked out again.
+ */
+export function deleteSet(s0: Session, key: string, index: number, history: History = {}, now = Date.now()): Session {
+  const s = clone(s0);
+  const e = s.exercises[key];
+  if (index < 0 || index >= e.logs.length) return s;
+  e.logs.splice(index, 1);
+  e.types.splice(index, 1);
+  e.types.push('working');
+  // The others in the set list keep their own types after the move.
+  e.logs.forEach((l, i) => { e.types[i] = l.type; });
+  const b = blockOfKey(s, key);
+  if (b.stopped && !blockDone(s, b) && !blockSkipped(s, b)) {
+    b.stopped = false;
+    b.stoppedAt = null;
+    if (s.curBlock === b.id && s.endedAt === null) b.clock = startClock(b.clock, now);
+  }
+  recheckToday(s, key, history);
+  s.lastActivityAt = now;
+  return s;
+}
+
+/** Edits a logged set's weight and reps. Records are worked out again. */
+export function editSet(s0: Session, key: string, index: number, input: LogInput, history: History = {}, now = Date.now()): Session {
+  const s = clone(s0);
+  const e = s.exercises[key];
+  const l = e.logs[index];
+  if (!l) return s;
+  l.lb = input.lb; l.enteredValue = input.enteredValue; l.enteredUnit = input.enteredUnit; l.reps = input.reps;
+  recheckToday(s, key, history);
+  s.lastActivityAt = now;
   return s;
 }
 
@@ -315,11 +395,11 @@ export function toggleSet(s0: Session, round: number): Session {
   return s;
 }
 
-export function setDetails(s0: Session, key: string, round: number, type: SetType, rpe: number | null): Session {
+export function setDetails(s0: Session, key: string, round: number, type: SetType, rpe: number | null, history: History = {}): Session {
   const s = clone(s0);
   const e = s.exercises[key];
   e.types[round] = type;
-  if (e.logs[round]) { e.logs[round].type = type; e.logs[round].rpe = rpe; }
+  if (e.logs[round]) { e.logs[round].type = type; e.logs[round].rpe = rpe; recheckToday(s, key, history); }
   return s;
 }
 
@@ -329,6 +409,7 @@ export function skipBlock(s0: Session, blockId: string, now: number): Session {
   b.members.forEach((k) => { s.exercises[k].skipped = true; });
   b.clock = pauseClock(b.clock, now);
   b.stopped = true;
+  b.stoppedAt ??= now;
   if (s.curBlock === blockId) {
     const next = liveBlocks(s).find((x) => !blockSkipped(s, x) && !blockDone(s, x));
     if (next) { s.curBlock = next.id; s.curMember = firstOpenMember(s, next); if (next.started && !next.stopped) next.clock = startClock(next.clock, now); }
@@ -353,8 +434,9 @@ export function addExercise(s0: Session, it: PlanItem, seedOf: (id: string, sets
     loadCount: it.loadCount, work: it.work, rest: it.rest, plannedReps: it.reps, plannedWeightLb: null,
     seeds: it.unit === 'bw' ? Array.from({ length: it.sets }, () => null) : seedOf(it.exerciseId, it.sets, it.assisted),
     types: Array.from({ length: it.sets }, () => 'working' as SetType), logs: [], skipped: false, alternates: it.alternates,
+    origin: 'added', swappedFrom: null,
   };
-  s.blocks.push({ id: uid('b'), letter: null, members: [key], clock: newClock(), started: false, stopped: false, baseLogged: 0, closed: false, fixedBudget: null, closedDone: 0, closedPlanned: 0, brokenFrom: null });
+  s.blocks.push({ id: uid('b'), letter: null, members: [key], clock: newClock(), started: false, stopped: false, baseLogged: 0, closed: false, fixedBudget: null, closedDone: 0, closedPlanned: 0, brokenFrom: null, startedAt: null, stoppedAt: null, brokenAt: null });
   return s;
 }
 
@@ -366,6 +448,7 @@ export function swapExercise(s0: Session, key: string, it: PlanItem, seedOf: (id
   s.exercises[key] = {
     ...e, exerciseId: it.exerciseId, name: it.name, muscle: it.muscle, equipment: it.equipment, unit: it.unit, assisted: it.assisted,
     loadCount: it.loadCount, work: it.work, rest: it.rest, plannedWeightLb: null, alternates: it.alternates,
+    origin: 'swap', swappedFrom: e.swappedFrom ?? e.exerciseId,
     seeds: it.unit === 'bw' ? Array.from({ length: sets }, () => null) : seedOf(it.exerciseId, sets, it.assisted),
   };
   return s;
@@ -398,12 +481,15 @@ export function breakSuperset(s0: Session, blockId: string, now: number): Sessio
   old.clock = pauseClock(old.clock, now);
   old.closed = true;
   old.stopped = true;
+  old.brokenAt = now;
+  old.stoppedAt ??= now;
   old.fixedBudget = budgetBefore;
   old.closedDone = doneBefore;
   old.closedPlanned = plannedBefore;
   const made: Block[] = members.map((m, i) => ({
     id: uid('b'), letter: null, members: [m.key], clock: newClock(), started: false, stopped: m.logs.length >= m.types.length,
     baseLogged: m.logs.length, closed: false, fixedBudget: budgets[i], closedDone: 0, closedPlanned: 0, brokenFrom: old.id,
+    startedAt: null, stoppedAt: m.logs.length >= m.types.length ? now : null, brokenAt: null,
   }));
   const at = s.blocks.findIndex((b) => b.id === blockId);
   s.blocks.splice(at + 1, 0, ...made);
@@ -431,12 +517,41 @@ export function undoBreak(s0: Session, now: number): Session {
 
 // ---------------------------------------------------------------- finishing
 
-export function finishSession(s0: Session, now: number): Session {
+export function finishSession(s0: Session, now: number, reason: 'user' | 'auto' | 'replaced' = 'user'): Session {
   const s = clone(s0);
   for (const b of s.blocks) b.clock = pauseClock(b.clock, now);
   s.clock = pauseClock(s.clock, now);
   s.endedAt = now;
+  s.finishReason = reason;
   s.restEndsAt = null;
+  return s;
+}
+
+/**
+ * The 30-minute auto-finish (spec Section 10, design Section 7): with nothing
+ * logged for 30 minutes, the session ends at its last logged step, and every
+ * clock is cut back to that moment. The server's job does the same.
+ */
+export function autoFinishIfIdle(s: Session, now: number): Session {
+  if (s.endedAt !== null || now - s.lastActivityAt < AUTO_FINISH_MS) return s;
+  return finishSession(s, Math.max(s.startedAt, s.lastActivityAt), 'auto');
+}
+
+export const canReopen = (s: Session, now: number) => s.endedAt !== null && now - s.endedAt < REOPEN_MS;
+
+/**
+ * Reopens a finished workout within 48 hours: its clocks resume, and the time
+ * it was closed is not counted (spec Section 10, design Section 5).
+ */
+export function reopenSession(s0: Session, now: number): Session {
+  if (!canReopen(s0, now)) return s0;
+  const s = clone(s0);
+  s.endedAt = null;
+  s.finishReason = null;
+  s.clock = startClock(s.clock, now);
+  const b = blockOf(s, s.curBlock);
+  if (b.started && !b.stopped) b.clock = startClock(b.clock, now);
+  s.lastActivityAt = now;
   return s;
 }
 
@@ -445,8 +560,9 @@ export function toHistory(s: Session, into: History): History {
   const out: History = clone(into);
   for (const e of Object.values(s.exercises)) {
     if (!e.logs.length) continue;
-    (out[e.exerciseId] ??= []).push({ day: s.day, sets: e.logs.map((l) => ({ lb: l.lb, reps: l.reps, type: l.type })) });
-    out[e.exerciseId] = out[e.exerciseId].slice(-12);
+    const list = (out[e.exerciseId] ??= []).filter((p) => p.sessionId !== s.id);
+    list.push({ day: s.day, sessionId: s.id, startedAt: s.startedAt, sets: e.logs.map((l) => ({ lb: l.lb, reps: l.reps, type: l.type })) });
+    out[e.exerciseId] = list;
   }
   return out;
 }

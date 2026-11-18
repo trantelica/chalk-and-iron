@@ -48,7 +48,7 @@ These are the choices in this design that cost money, add an account, or change 
 | Scheduled work | Supabase's built-in scheduler (pg_cron) | Rest alerts, session auto-finish, proposal expiry, account deletion. Keeps everything inside the two accounts |
 | Email | Only if sign-in by emailed code is kept: Resend (suggested), connected to Supabase Auth | Supabase's own email sender is rate-limited and meant for testing only. Needs a domain name to send from. The app sends no other email: the weekly summary goes through the coach, and invites are pasted into the admin's own email |
 | Notifications | Standard Web Push, sent from the server | The only route to a home-screen web app on iPhone |
-| Storage on the phone | The browser's built-in database (IndexedDB), through the small Dexie library | Holds the active session and a queue of unsent changes. Section 6 |
+| Storage on the phone | The browser's built-in database (IndexedDB), through the small Dexie library. **As built in Phase 2 (18 Nov), this design's own choice:** the browser's simpler built-in storage (localStorage), with no extra library | Holds the active session and a queue of unsent changes. Section 6. localStorage writes the session and the outbox in the same instant as the tap, which is exactly "one step", and the amounts are small (one session, one queue). IndexedDB stays the fallback if the phone ever needs to hold more |
 | Connector | The official MCP software kit for TypeScript, running at `/mcp` | Same protocol Phase 0 proved. Reuses the ideas of `phase0/`, not its code |
 | Shared rules | One module of pure functions: units, time budget, efficiency, records, day rollover | The same code runs on the phone (instant, offline) and on the server (authoritative). The acceptance tests in Section 8 of the spec test this module directly |
 | Styling | Plain CSS driven by CSS variables generated from theme token files | Makes "no hard-coded colors or fonts" checkable by a machine. Section 8 |
@@ -273,6 +273,9 @@ What a day actually plans is worked out when needed, never stored: the workout's
 | current_session_exercise_id | link | Where the user is |
 | last_activity_at | timestamp | Drives the 30-minute auto-finish |
 | split_from_session_id | link or empty | Set when a mid-session proposal splits a session |
+| break_undo | structured data or empty | Added in Phase 2 (18 Nov): what "Undo break" restores, while it is still allowed (question 41) |
+
+`clock_banked_seconds` is kept to the thousandth of a second, as the phone keeps it (changed in Phase 2, 18 Nov). The same holds for `session_blocks`.
 
 **session_blocks**. A block is one standalone exercise or one whole superset. It exists because a superset shares one exercise clock and one time budget.
 
@@ -287,6 +290,7 @@ What a day actually plans is worked out when needed, never stored: the workout's
 | clock_stopped_at | timestamp or empty | Set when the last set is logged, or when the superset is broken apart |
 | broken_at | timestamp or empty | Set when the user breaks this superset into individual exercises (question 41) |
 | broken_from_block_id | link or empty | On a block made by a break: the superset block it came from |
+| members_at_break, sets_done_at_break, sets_planned_at_break | list of links, numbers, or empty | Added in Phase 2 (18 Nov), on a broken superset only: who was in it, and how many of its sets were done and planned at the break, which efficiency counts |
 
 **Breaking a superset** (decided 17 Nov, question 41). During a workout the user can break a superset into individual exercises, and each keeps its sets, reps and weight as defined. Every member is split apart, including in a superset of three. How the data handles it (the points marked "own choice" are this design's, accepted with the design's approval on 17 Nov):
 - Each member moves to a new single block of its own. Own choice: the new blocks take the superset's place in the order, one after another, in member order. The new blocks have empty superset letters and point back through `broken_from_block_id`.
@@ -363,8 +367,8 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 ### Housekeeping
 
 - **admin_actions**: who did what to which account, and when. Written for every admin action. Holds no training data.
-- **rest_alerts**: `session_id`, `fire_at`, `status`. See Section 7.
-- **received_changes**: the ids of changes already received from phones, so a repeat is ignored. See Section 6.
+- **rest_alerts**: `session_id`, `fire_at`, `status`, and from Phase 2 `handed_at`, `sent_at` and `result`. A person may schedule and cancel their own alerts; only the server marks one sent. See Section 7.
+- **received_changes**: the ids of changes already received from phones, so a repeat is ignored, with the kind of change and whether it was applied or refused (and why). From Phase 2 an id is unique per person, not across everyone, and a person can read and add only their own. See Section 6.
 - **starter library**: the starter exercises with their three alternates and starter work and rest seconds, and the starter vocabulary, live as a data file in the repository (`data/starter-library.json`) and are copied into each new account at registration. Drafting the list is a Phase 1 build task, and Nathan reviews it (decided 17 Nov, question 28). **Version 2, approved 17 Nov:** 227 exercises from an outside coach's review. Accounts made with version 1 are brought up to version 2 by a migration (Section 10E, point 9).
 
 ---
@@ -568,6 +572,12 @@ Also:
 - Only a proposal that replaces today's workout with a different one, such as a day sent from the planner, splits a running session (decided 17 Nov). If one is accepted mid-session, the session finishes with reason "replaced" and becomes an ad hoc session holding the work done. Its unreached sets are marked Replaced and left out of efficiency. A new session starts from the proposed workout.
 - Every other today change accepted mid-session (swap, sets, reps, weight, rest, add, remove, reorder, break a superset) is applied inside the running session, to sets not yet logged. The session carries on.
 - Editing a workout or exercise never changes any session, active or finished.
+- **Built in Phase 2 (18 Nov). This design's own choices, for Nathan to confirm:**
+  - *Activity, for the 30-minute auto-finish,* is any step the person takes in the workout: starting, Start exercise, a logged, edited or deleted set, moving between exercises, a skip, +0:15 and the like. Rest running out by itself is not activity. The end time is the moment of that last step, and every clock is cut back to it.
+  - *A second workout on another device.* When Start is tapped with a connection, the phone first asks the account whether a workout is already running. If one is, it offers **Carry on with it here** (the running workout is rebuilt on this phone from the account) or **Finish it, and start this one**. With no connection the new workout starts at once; when the phone is back online the account refuses it while the other is running, and the phone offers **Finish that one, keep this one** or **Finish this one, carry on with that one here**. Every set on both devices is kept whichever is chosen. "Finish it" ends the other workout at its last logged step, as the auto-finish does.
+  - *Swap after sets are logged.* The phone's swap replaces the exercise in place, so sets already logged would be counted for the new exercise. Until Nathan decides how a swap part-way through an exercise should work, Swap is offered only for an exercise with no sets logged; the sheet says to skip it in the tray and add the other instead.
+  - *Deleting a set* moves the sets after it up one and adds a set to do at the end, so the plan keeps its number of sets. Records are worked out again on the phone and by the server, and the server's answer wins.
+  - *Reopening.* The phone offers Reopen on the finished screen, and on the start screen while the last workout is within 48 hours. The account refuses to reopen one finished more than 48 hours ago. Editing sets from History after 48 hours is built on the server side; the History screen itself comes with the planner (Phase 3).
 
 ### Proposal
 
@@ -647,6 +657,19 @@ Conflicts are rare here, since one person owns the data and usually uses one dev
 
 Not available offline: sign-in, Accept and Decline, the planner, and anything the coach does.
 
+### How it is built (Phase 2, 18 November 2026)
+
+Built by an Opus 5.5 high-effort helper, as `docs/MODEL_AND_EFFORT.md` asks for this hard spot. Migration `supabase/migrations/20261117001100_saving_and_offline.sql`; the phone's side in `src/rules/sync.ts`, `src/lib/outbox.ts` and `src/lib/phone-store.ts`.
+
+- **One door.** The phone sends its changes through one database function, `apply_changes`, with the person's own sign-in, so row-level security applies to every row it writes. A coach pass cannot use it. Each change is one of: the session with its blocks and plan snapshot (`session.put`, the whole thing each time, so it is safe to apply twice), one logged set (`set.put`), a deleted set (`set.delete`), finishing a workout left running elsewhere (`session.finish_other`), when rest ends (`rest.set`), the lb/kg switch (`display_unit.put`) and the note (`note.put`).
+- **Exactly once.** Each change carries an id made on the phone. The function records it in `received_changes` in the same step as the change; a repeat answers "done" and does nothing. A change the database refuses (a number out of range, say) is answered "refused" with the reason, remembered, and taken out of the outbox; the phone shows "1 change could not be saved". Every id, block, exercise and set is a random id made on the phone, so the phone and the account name the same rows.
+- **The phone works out the changes itself.** Every move in the workout produces the next state of the session; the phone compares it with the last one and queues what changed: deleted sets first, then the session, then new or edited sets lowest number first (so a set that moved up after a delete never meets the one it replaces), then the rest alert. A later copy of something not being sent right now replaces the earlier copy in its place, so a burst of taps sends one copy of the session.
+- **When it is sent:** on app open, after each change, on reconnect, when the app returns to the screen, and every 20 seconds while something waits. The screen shows one quiet line: "Saved to your account", "Saving…", or "No connection. 2 changes saved on this phone, sent when you are back online."
+- **Conflicts**, as the table above says: the last change to reach the server wins for a set; a deleted set stays deleted (the delete is kept as a marker, and a later edit of it is ignored); the server's records win (it works them out from the sets after every batch, with the same rules as the phone, and sends them back so the badges are corrected); the lb/kg switch and the note are sent like any other change, and the switch never raises the exercise's version.
+- **History from the account.** `exercise_memory` gives the phone, for each exercise, the last 6 sessions in full and every record-holding set however old, leaving out the session running on that phone. "Last time", the seeded weights, the graph and record checks use it. A workout finished on the phone counts at once, before the account has it.
+- **On the phone**, everything is kept per person (a second person signing in on the same phone sees nothing of the first), and sign-out sends anything unsent first, then clears it; with no connection it asks before losing anything. The service worker keeps a copy of the phone app so it opens with no connection.
+- **Before this**, Phase 2's first screens kept the workout on the phone only. That phone-only copy is not carried over: it is left behind on first open (nothing of it was ever in the account).
+
 ---
 
 ## 7. Timers and notifications
@@ -672,7 +695,7 @@ Each clock is stored as two numbers: seconds already banked, and the moment it l
 
 These values are saved on the phone with the session and synced. After a crash, a closed tab or a restart, the app reads them and shows the correct times at once. The dial is drawn from the same numbers by the shared rules, so the acceptance tests for half, empty, half red and full red test plain arithmetic.
 
-Auto-finish: when 30 minutes pass with nothing logged, the phone finishes the session on next open, and a server job does the same for sessions it knows about. Either way the end time is the last logged entry and the clocks are cut back to it.
+Auto-finish: when 30 minutes pass with nothing logged, the phone finishes the session on next open, and a server job does the same for sessions it knows about. Either way the end time is the last logged entry and the clocks are cut back to it. **Built in Phase 2 (18 Nov):** on the phone at open and every 30 seconds while the app is open, and by the scheduler every minute (`app.auto_finish_idle_sessions()`, migration `…1200`). If the phone was offline and the server finished a workout the person was still doing, the phone's next change makes it active again, because the phone is the working copy.
 
 ### Rest end with the app on screen
 
@@ -686,6 +709,8 @@ An iPhone suspends a web app shortly after it leaves the screen, so the app cann
 2. A scheduler inside Supabase looks every few seconds for alerts about to come due and hands them to the app's server, which waits out the last moments and sends a push notification on the second.
 3. The phone shows "Rest over. Time for your next set." Tapping it opens the app at the current exercise.
 4. If the app is on screen when rest ends, the app cancels the alert just before, so the user gets the banner and sound and not a notification as well.
+
+**Built in Phase 2 (18 Nov)**, on the method the iPhone test page proved (0.0 seconds late). The rest timer itself tells the account when rest ends, through the outbox (`rest.set`), so +0:15 and Skip follow by themselves. The scheduler hands each alert due within 6 seconds to `/api/rest-due` every 5 seconds (migration `…1200`), which waits to the second, checks the alert is still wanted, marks it sent and sends "Rest over / Time for your next set." to every phone the person turned rest alerts on for (`push_subscriptions`). Tapping it opens `/app/workout`, which returns to the current exercise from the phone's storage. With the app on screen the phone cancels the alert 2.5 seconds before the end, and asks for it again if the app leaves the screen in those seconds. This design's own choice: if the app comes back more than 5 seconds after rest ended, it shows no banner and plays no sound, because the notification already said so. Finishing a workout cancels its alert. Each phone turns rest alerts on once, with **Turn on rest alerts** on the workout screens; the iPhone test page's permission does not carry over, because it kept its own throwaway address book.
 
 Limits, stated plainly:
 
@@ -827,7 +852,7 @@ All automated tests run on every pull request. One of the code checks compares `
 | | Second member starts rest and returns to first | Rules, App |
 | | +0:15 adds 15 seconds, Skip ends rest | Rules, App |
 | | Banner and sound at zero | App, with a controlled clock. The sound is checked as "asked to play" |
-| | Background notification at rest end | **Device**. The server side (alert scheduled, sent, cancelled on Skip) is automated |
+| | Background notification at rest end | **Device**. The server side (alert scheduled, moved by +0:15, cancelled on Skip and on finish) is automated (`tests/db/sync.test.ts`) |
 | Time budget, dial, efficiency | Superset budget 11:40. Single budget 7:30 | Rules |
 | | Clock does not run before Start exercise | Rules, App |
 | | Moving away pauses the clock, coming back resumes it, moving within a superset does not pause it | Rules, App |
@@ -852,8 +877,8 @@ All automated tests run on every pull request. One of the code checks compares `
 | Theming | Switching skins moves and resizes nothing | App: record every element's position and size under each skin and compare |
 | | No color or font outside the token files | Code check |
 | | Reduced motion: no dust or shake | App, with reduced motion switched on |
-| Resilience | Close mid-session and reopen, same exercise, sets and clocks correct | App: close the page, move the clock forward, reopen |
-| | Offline set appears exactly once | App with the network off, then on. Also Database: the same change sent twice |
+| Resilience | Close mid-session and reopen, same exercise, sets and clocks correct | App: close the page, move the clock forward, reopen (`tests/browser/offline.spec.ts`). Also Rules (`tests/rules/sync.test.ts`) |
+| | Offline set appears exactly once | App with the network off, then on (`tests/browser/offline.spec.ts`). Also Database: the same change sent twice, an answer lost, offline then online in order, delete wins, auto-finish, and each person's changes kept to their own rows (`tests/db/sync.test.ts`, and on Supabase's own local version `tests/supabase/sync.test.ts`) |
 | | Screen stays awake for a full session | **Device** |
 | Friends | A new user registers, installs and connects a coach unaided | **Device**, with a friend |
 
@@ -1000,6 +1025,7 @@ Points that differ from or add to this design. Each is recorded here for Nathan,
         - **Decided by Nathan on 17 Nov:** the rest sound uses "mix with music" only. It follows silent mode: on silent there is no sound and the banner carries the alert. It never stops music. The native app can do better later.
     - **Reset retest on the live app, 17 Nov (Nathan): pass.** The test account was signed in on the Mac (a private Safari window) and on the iPhone (Safari). Making the reset link signed both out. Opening the link on the iPhone made a new passkey, signed in and showed the "reconnect your coach" notice. The Mac stayed signed out after reloading. With this, every item carried from the Phase 1 review is done.
     - **Nathan accepted Phase 1 on 17 Nov**, after ticking all ten iPhone checks in `docs/SETUP.md`, and the pull request was merged into `main`.
+    - **Built in Phase 2: saving, offline sending and crash-safe sessions (18 Nov, an Opus 5.5 high-effort helper, branch `phase-2-saving-and-offline`).** Workouts and every set are saved to the account through an outbox that survives closing the app and losing the connection, and a set sent twice is saved once (Section 6, "How it is built"). Records are worked out by the database from the sets and again on every edit or delete. "Last time", seeded weights, the graph and record checks come from the account's history. The lb/kg switch and the note are saved to the account, offline too. The real rest alert follows the rest timer (Section 7). A workout finishes itself after 30 minutes with nothing done, on the phone and on the server, and a finished one reopens within 48 hours. Two migrations: `…1100_saving_and_offline.sql` and `…1200_rest_alert_and_auto_finish_schedules.sql`. The design's own choices made on the way are listed in Section 5 ("Built in Phase 2"), Section 1 (storage) and Section 7 (late banner). **Not built yet:** a swap part-way through an exercise (Swap is offered only before a set is logged), a swap to an alternate not yet in the library, the History screen (Phase 3), and removing the throwaway iPhone test page, which waits until Nathan has seen the real rest alert on his iPhone.
 
 Choices the build made within the design:
 

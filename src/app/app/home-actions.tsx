@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { browserClient } from '@/lib/supabase/browser';
+import { clearPhoneCopy, sendBeforeSignOut } from '@/lib/phone-store';
 
 export function HomeActions({ notice, passkeyCheck }: { notice?: React.ReactNode; passkeyCheck?: boolean }) {
   const sb = browserClient();
@@ -34,7 +35,14 @@ export function HomeActions({ notice, passkeyCheck }: { notice?: React.ReactNode
         </div>
       )}
       {msg && <div className="muted">{msg}</div>}
-      <button className="btn" onClick={async () => { await sb.auth.signOut(); window.location.assign('/signin'); }}>Sign out</button>
+      <button className="btn" onClick={async () => {
+        // Anything not yet sent goes first; then what the app keeps on this phone is cleared.
+        const left = await sendBeforeSignOut();
+        if (left && !window.confirm(`${left} change${left === 1 ? ' has' : 's have'} not reached your account yet, because there is no connection. Signing out now loses ${left === 1 ? 'it' : 'them'}. Sign out anyway?`)) return;
+        await clearPhoneCopy();
+        await sb.auth.signOut();
+        window.location.assign('/signin');
+      }}>Sign out</button>
     </>
   );
 }

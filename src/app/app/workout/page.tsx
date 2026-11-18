@@ -4,20 +4,23 @@ import { trainingDay } from '@/rules/days';
 import { WorkoutApp, type LibExercise, type LibWorkout } from './workout-app';
 
 // The phone's workout screens: start a workout, then the active workout with
-// its tray, stats and swap. The library is read here, on the server, with the
-// signed-in person's own access; the running session lives on the phone.
+// its tray, stats and swap. The library and the saved lb/kg choices are read
+// here, on the server, with the signed-in person's own access. The running
+// session lives on the phone and is sent to the account as it changes
+// (design Section 6); its history comes from the account too.
 export default async function WorkoutPage() {
   const supabase = await serverClient();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect('/signin');
 
-  const [ex, vocab, alts, wk, items, prof] = await Promise.all([
+  const [ex, vocab, alts, wk, items, prof, units] = await Promise.all([
     supabase.from('exercises').select('id, name, muscle_group_id, equipment_id, default_unit, work_seconds, rest_seconds, note, assisted, load_count').is('archived_at', null).order('name'),
     supabase.from('vocabulary_terms').select('id, name'),
     supabase.from('exercise_alternates').select('exercise_id, tier, name'),
     supabase.from('workouts').select('id, name').is('archived_at', null).order('name'),
     supabase.from('workout_items').select('workout_id, position, exercise_id, sets, reps, rest_seconds, superset_letter').order('position'),
     supabase.from('profiles').select('time_zone').maybeSingle(),
+    supabase.from('exercise_display_units').select('exercise_id, unit'),
   ]);
 
   const term = new Map((vocab.data ?? []).map((v) => [v.id as string, v.name as string]));
@@ -54,5 +57,11 @@ export default async function WorkoutPage() {
       })),
   }));
   const timeZone = (prof.data as { time_zone?: string } | null)?.time_zone ?? 'America/Denver';
-  return <WorkoutApp exercises={exercises} workouts={workouts} today={trainingDay(new Date(), timeZone)} timeZone={timeZone} />;
+  const serverUnits = Object.fromEntries((units.data ?? []).map((u) => [u.exercise_id as string, u.unit as 'lb' | 'kg']));
+  return (
+    <WorkoutApp
+      userId={auth.user.id} exercises={exercises} workouts={workouts} serverUnits={serverUnits}
+      today={trainingDay(new Date(), timeZone)} timeZone={timeZone}
+    />
+  );
 }

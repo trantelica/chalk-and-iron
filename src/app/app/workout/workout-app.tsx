@@ -4,12 +4,21 @@ import Link from 'next/link';
 import { trainingDay } from '@/rules/days';
 import { displayWeight, fromPounds, stepReps, stepWeight, weightToStore, type StoredWeight, type WeightUnit } from '@/rules/units';
 import {
-  addExercise, addRest, allDone, blockBudget, blockDone, blockOf, blockSkipped, breakSuperset, canBreak, efficiencyOf,
-  factsFor, finishSession, goTo, kindOf, liveBlocks, logSet, moveBlock, pastFacts, recordsToday, setDetails, setsDone, setsPlanned,
-  skipBlock, skipRest, startExercise, startSession, swapExercise, toggleSet, toHistory, undoBreak, volumeOf,
-  lastLoggedSetUndo,
-  type History, type PlanItem, type Session,
+  addExercise, addRest, allDone, autoFinishIfIdle, blockBudget, blockDone, blockOf, blockSkipped, breakSuperset, canBreak, canReopen,
+  deleteSet, editSet, efficiencyOf, factsFor, finishSession, goTo, kindOf, liveBlocks, logSet, moveBlock, pastFacts, realSessions,
+  recordsToday, reopenSession, setDetails, setsDone, setsPlanned, skipBlock, skipRest, startExercise, startSession, swapExercise,
+  toggleSet, toHistory, undoBreak, volumeOf, lastLoggedSetUndo,
+  type History, type LogInput, type PlanItem, type Session,
 } from '@/rules/session';
+import {
+  applyServerRecords, finishOtherChange, mergeHistory, noteChange, pendingChoices, restChange, sessionChanges, unitChange,
+  type LibraryFacts,
+} from '@/rules/sync';
+import type { OutboxStatus } from '@/lib/outbox';
+import {
+  activeOnServer, fetchHistory, forgetOldPhoneOnlyData, keyFor, loadServerSession, outboxFor, pushSupported, readStore,
+  registerServiceWorker, turnOnRestAlerts, writeStore, type ActiveElsewhere,
+} from '@/lib/phone-store';
 import {
   RECORD_LABEL, celebrationName, currentRecords, dial, estimatedOneRepMax, mmss, readClock, seedWeights, setVolume,
   type RecordType, type SetType,
@@ -23,11 +32,6 @@ export interface LibWorkout {
   id: string; name: string; items: { exerciseId: string; sets: number; reps: number; rest: number | null; superset: string | null }[];
 }
 
-const KEY = { session: 'ci-session-v1', history: 'ci-history-v1', units: 'ci-units-v1', notes: 'ci-notes-v1' };
-const read = <T,>(k: string, fallback: T): T => {
-  try { const v = localStorage.getItem(k); return v ? (JSON.parse(v) as T) : fallback; } catch { return fallback; }
-};
-const write = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage may be blocked */ } };
 const TIER: Record<string, string> = { bodyweight: 'Bodyweight', basic_gym: 'Basic gym', full_gym: 'Full gym' };
 
 function toPlan(e: LibExercise, sets: number, reps: number, rest: number | null, superset: string | null): PlanItem {
@@ -37,12 +41,32 @@ function toPlan(e: LibExercise, sets: number, reps: number, rest: number | null,
   };
 }
 
-export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibExercise[]; workouts: LibWorkout[]; today: string; timeZone: string }) {
+/** "Rest over" on screen within this many seconds of the end; later than that, the app was away and stays quiet. */
+const LATE_REST_SECONDS = 5;
+/** With the app on screen, the server's alert is cancelled this long before the end (design Section 7). */
+const CANCEL_ALERT_MS = 2500;
+const LAST = 'last' as const;
+
+export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits }: {
+  userId: string; exercises: LibExercise[]; workouts: LibWorkout[]; today: string; timeZone: string; serverUnits: Record<string, WeightUnit>;
+}) {
   const [ready, setReady] = useState(false);
-  const [sess, setSess] = useState<Session | null>(null);
-  const [history, setHistory] = useState<History>({});
+  const [sess, setSessState] = useState<Session | null>(null);
+  const sessRef = useRef<Session | null>(null);
+  const [lastDone, setLastDone] = useState<Session | null>(null);
+  const [serverHistory, setServerHistory] = useState<History>({});
+  const [localHistory, setLocalHistory] = useState<History>({});
   const [units, setUnits] = useState<Record<string, WeightUnit>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [sync, setSync] = useState<OutboxStatus>({ state: 'saved' });
+  const [rejectedCount, setRejectedCount] = useState(0);
+  const [other, setOther] = useState<null | { found: ActiveElsewhere; start: () => void }>(null);
+  const [alertsMsg, setAlertsMsg] = useState('');
+  const [alertsOn, setAlertsOn] = useState(true);
+  const box = useMemo(() => outboxFor(userId), [userId]);
+  const K = useCallback((w: Parameters<typeof keyFor>[1]) => keyFor(userId, w), [userId]);
+  const alertCancelledFor = useRef<number | null>(null);
+  const noteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [tray, setTray] = useState(false);
   const [sheet, setSheet] = useState<null | 'stats' | 'swap' | 'detail' | 'add' | 'finish' | 'summary'>(null);
   const [detailRound, setDetailRound] = useState(0);
@@ -52,20 +76,107 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
   const audio = useRef<AudioContext | null>(null);
   const lock = useRef<WakeLockSentinel | null>(null);
   const libById = useMemo(() => new Map(exercises.map((e) => [e.id, e])), [exercises]);
+  const libFacts = useCallback((id: string): LibraryFacts | undefined => {
+    const x = libById.get(id);
+    return x && { name: x.name, muscle: x.muscle, equipment: x.equipment, unit: x.unit, assisted: x.assisted, loadCount: x.loadCount, alternates: x.alternates };
+  }, [libById]);
+
+  /**
+   * Every change to the running workout goes through here. It is written to
+   * the phone's storage and to the outbox in one step, shown at once, and sent
+   * when there is a connection. The screen never waits for the network.
+   */
+  const commit = useCallback((next0: Session | null, opts: { activity?: boolean; send?: boolean } = {}) => {
+    const prev = sessRef.current;
+    let next = next0;
+    if (next && next.endedAt === null && opts.activity !== false) next = { ...next, lastActivityAt: Date.now() };
+    if (next && opts.send !== false) box.add(sessionChanges(prev && prev.id === next.id ? prev : null, next));
+    sessRef.current = next;
+    writeStore(keyFor(userId, 'session'), next);
+    setSessState(next);
+    void box.flush();
+  }, [box, userId]);
+
+  const refreshHistory = useCallback((activeId: string | null) => {
+    fetchHistory(activeId).then((h) => {
+      setServerHistory(h);
+      writeStore(keyFor(userId, 'memory'), h);
+      // Sessions finished here that the account now has are dropped from the phone's own list.
+      setLocalHistory((lh) => {
+        const out: History = {};
+        for (const [ex, list] of Object.entries(lh)) {
+          const known = new Set((h[ex] ?? []).map((p) => p.sessionId));
+          const keep = list.filter((p) => !known.has(p.sessionId)).slice(-10);
+          if (keep.length) out[ex] = keep;
+        }
+        writeStore(keyFor(userId, 'history'), out);
+        return out;
+      });
+    }).catch(() => { /* offline: the phone's copy stands */ });
+  }, [userId]);
 
   useEffect(() => {
-    setSess(read<Session | null>(KEY.session, null));
-    setHistory(read<History>(KEY.history, {}));
-    setUnits(read(KEY.units, {}));
-    setNotes(read(KEY.notes, {}));
+    forgetOldPhoneOnlyData();
+    registerServiceWorker();
+    let s = readStore<Session | null>(K('session'), null);
+    // The 30-minute auto-finish, on the next open (design Section 7).
+    if (s) {
+      const f = autoFinishIfIdle(s, Date.now());
+      if (f !== s) { box.add(sessionChanges(s, f)); s = f; writeStore(K('session'), s); }
+    }
+    sessRef.current = s;
+    setSessState(s);
+    setLastDone(readStore<Session | null>(K(LAST), null));
+    setServerHistory(readStore<History>(K('memory'), {}));
+    setLocalHistory(readStore<History>(K('history'), {}));
+    const pending = pendingChoices(box.entries);
+    const u = { ...readStore<Record<string, WeightUnit>>(K('units'), {}), ...serverUnits, ...pending.units };
+    writeStore(K('units'), u);
+    setUnits(u);
+    setNotes(pending.notes);
+    setSync({ ...box.status });
+    setRejectedCount(box.rejected.length);
     setReady(true);
+    void box.flush();
+    refreshHistory(s && s.endedAt === null ? s.id : null);
+    setAlertsOn(!pushSupported() || (Notification.permission === 'granted' && !!readStore(K('push'), '')));
+    turnOnRestAlerts(userId, true).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => { if (ready) write(KEY.session, sess); }, [sess, ready]);
-  useEffect(() => { if (ready) write(KEY.units, units); }, [units, ready]);
-  useEffect(() => { if (ready) write(KEY.notes, notes); }, [notes, ready]);
+
+  // Sending: on app open (above), after each change (commit), on reconnect, on
+  // return to the screen, and every 20 seconds while something waits.
+  useEffect(() => {
+    const offStatus = box.onChange((o) => { setSync({ ...o.status }); setRejectedCount(o.rejected.length); });
+    const offAnswer = box.onAnswer((a) => {
+      const cur = sessRef.current;
+      if (!cur) return;
+      const t = applyServerRecords(cur, a.records); // the server's records win
+      if (t !== cur) { sessRef.current = t; writeStore(keyFor(userId, 'session'), t); setSessState(t); }
+    });
+    const kick = () => { if (document.visibilityState === 'visible') void box.flush(); };
+    window.addEventListener('online', kick);
+    document.addEventListener('visibilitychange', kick);
+    const iv = setInterval(() => { if (box.count && box.status.state !== 'conflict') void box.flush(); }, 20000);
+    return () => { offStatus(); offAnswer(); window.removeEventListener('online', kick); document.removeEventListener('visibilitychange', kick); clearInterval(iv); };
+  }, [box, userId]);
+
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(t); }, []);
 
   const active = sess && sess.endedAt === null ? sess : null;
+  const activeId = active?.id ?? null;
+  const history = useMemo(() => mergeHistory(serverHistory, localHistory, activeId), [serverHistory, localHistory, activeId]);
+
+  // The 30-minute auto-finish while the app stays open.
+  useEffect(() => {
+    const t = setInterval(() => {
+      const cur = sessRef.current;
+      if (!cur || cur.endedAt !== null) return;
+      const f = autoFinishIfIdle(cur, Date.now());
+      if (f !== cur) commit(f, { activity: false });
+    }, 30000);
+    return () => clearInterval(t);
+  }, [commit]);
 
   // The screen stays awake during a session, and asks again whenever the app returns to the screen.
   useEffect(() => {
@@ -79,7 +190,7 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
 
   const seedOf = useCallback(
     (id: string, sets: number, assisted: boolean) => {
-      const last = (history[id] ?? []).at(-1);
+      const last = realSessions(history, id).at(-1);
       return seedWeights(last ? last.sets.map((x) => x.lb) : [], sets, assisted);
     },
     [history],
@@ -87,10 +198,38 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
 
   const flash = (text: string) => { setBanner(text); setTimeout(() => setBanner((b) => (b === text ? '' : b)), 4000); };
 
+  // With the app on screen, the server's alert is cancelled just before the
+  // end, so the banner and sound arrive and not a notification as well. If the
+  // app then leaves the screen before the end, the alert is asked for again.
+  useEffect(() => {
+    if (!active || active.restEndsAt === null) return;
+    const left = active.restEndsAt - now;
+    if (left > 0 && left <= CANCEL_ALERT_MS && document.visibilityState === 'visible' && alertCancelledFor.current !== active.restEndsAt) {
+      alertCancelledFor.current = active.restEndsAt;
+      box.add([restChange(active.id, null)]);
+      void box.flush();
+    }
+  }, [now, active, box]);
+  useEffect(() => {
+    const away = () => {
+      const cur = sessRef.current;
+      if (document.visibilityState !== 'hidden' || !cur || cur.endedAt !== null || cur.restEndsAt === null) return;
+      if (alertCancelledFor.current === cur.restEndsAt && cur.restEndsAt > Date.now()) {
+        alertCancelledFor.current = null;
+        box.add([restChange(cur.id, cur.restEndsAt)]);
+        void box.flush();
+      }
+    };
+    document.addEventListener('visibilitychange', away);
+    return () => document.removeEventListener('visibilitychange', away);
+  }, [box]);
+
   // Rest end with the app on screen: a banner and a short sound that mixes with music and follows silent mode.
   useEffect(() => {
     if (!active || active.restEndsAt === null || now < active.restEndsAt) return;
-    setSess(skipRest(active));
+    const late = (now - active.restEndsAt) / 1000 > LATE_REST_SECONDS;
+    commit(skipRest(active), { activity: false });
+    if (late) return; // the app was away; the notification already said so
     flash('Rest over. Time for your next set.');
     try {
       const ctx = audio.current;
@@ -99,7 +238,7 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
         o.frequency.value = 880; g.gain.value = 0.2; o.connect(g).connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.4);
       }
     } catch { /* no sound */ }
-  }, [now, active]);
+  }, [now, active, commit]);
 
   function unlockSound() {
     try {
@@ -111,26 +250,102 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
   }
 
   // ---------------------------------------------------------------- starting
-  function begin(name: string, plan: PlanItem[]) {
+  async function begin(name: string, plan: PlanItem[], workoutId: string | null = null) {
     if (!plan.length) return;
-    const t = Date.now();
-    setSess(startSession(name, trainingDay(new Date(t), timeZone), plan, history, t, seedOf));
-    setSheet(null); setTray(false);
+    const start = () => {
+      const t = Date.now();
+      commit(startSession(name, trainingDay(new Date(t), timeZone), plan, history, t, seedOf, workoutId));
+      setSheet(null); setTray(false); setOther(null);
+    };
+    // Only one workout can run at a time, on any device (decided 17 Nov, question 30).
+    try {
+      const found = navigator.onLine ? await activeOnServer() : null;
+      // This phone's own last workout, whose finish has not reached the account yet, does not count.
+      const ours = found && (found.id === sessRef.current?.id || found.id === lastDone?.id || box.entries.some((c) => c.key === `session:${found.id}`));
+      if (found && !ours) { setOther({ found, start }); return; }
+    } catch { /* no connection: start now; the account is asked when the phone is back online */ }
+    start();
   }
+
+  async function carryOnHere(id: string) {
+    try {
+      const s = await loadServerSession(id, libFacts);
+      sessRef.current = s; // the account's own copy: nothing to send
+      writeStore(K('session'), s);
+      setSessState(s);
+      setOther(null);
+      refreshHistory(s.id);
+      flash(`Carrying on with ${s.name}.`);
+    } catch {
+      flash('Could not open that workout. Check the connection and try again.');
+    }
+  }
+
+  function dismissSummary() {
+    const cur = sessRef.current;
+    if (cur && cur.endedAt !== null) { writeStore(K(LAST), cur); setLastDone(cur); }
+    commit(null, { send: false });
+    setSheet(null);
+  }
+
+  function reopen(s0: Session) {
+    commit(reopenSession(s0, Date.now()));
+    setSheet(null);
+    refreshHistory(s0.id);
+  }
+
+  async function allowAlerts() {
+    setAlertsMsg('Asking…');
+    try {
+      const msg = await turnOnRestAlerts(userId);
+      setAlertsMsg(msg);
+      setAlertsOn(msg === 'Rest alerts are on for this phone.');
+    } catch (err) {
+      setAlertsMsg((err as Error).message);
+    }
+  }
+
+  const conflictSheet = sync.state === 'conflict' ? (
+    <Sheet title="Another workout is running" onClose={() => { box.clearConflict(); }}>
+      <div>{sync.conflict.workout_name}, started {when(sync.conflict.started_at)}, is still running in your account, perhaps on another device. Only one workout can run at a time.</div>
+      <div className="muted">Every set on this phone is kept, whichever you choose.</div>
+      <button className="btn primary" onClick={() => { box.addFirst(finishOtherChange(sync.conflict.session_id)); box.clearConflict(); void box.flush(); }}>Finish that one, keep this one</button>
+      {sessRef.current && sessRef.current.endedAt === null && (
+        <button className="btn" onClick={() => {
+          const id = sync.conflict.session_id;
+          commit(finishSession(sessRef.current!, Date.now()));
+          box.clearConflict();
+          void box.flush().then(() => carryOnHere(id));
+        }}>Finish this one, carry on with that one here</button>
+      )}
+    </Sheet>
+  ) : null;
+
+  const syncLine = <SyncLine sync={sync} rejected={rejectedCount} />;
 
   if (!ready) return <main className="phone"><div className="muted">Opening…</div></main>;
 
   if (!active) {
-    if (sess && sess.endedAt !== null && sheet !== 'summary') {
-      // A finished workout waits here until it is dismissed.
-    }
     return (
-      <StartScreen
-        exercises={exercises} workouts={workouts} libById={libById}
-        summary={sess && sess.endedAt !== null ? sess : null} history={history} now={now}
-        onDismiss={() => setSess(null)}
-        onStart={begin}
-      />
+      <>
+        <StartScreen
+          exercises={exercises} workouts={workouts} libById={libById}
+          summary={sess && sess.endedAt !== null ? sess : null} lastDone={lastDone} now={now} syncLine={syncLine}
+          saved={sync.state === 'saved'}
+          onDismiss={dismissSummary}
+          onReopen={reopen}
+          onStart={begin}
+          alerts={alertsOn ? null : { msg: alertsMsg, onAllow: allowAlerts }}
+        />
+        {other && (
+          <Sheet title="A workout is already running" onClose={() => setOther(null)}>
+            <div>{other.found.workout_name}, started {when(other.found.started_at)}, is still running in your account, perhaps on another device. Only one workout can run at a time.</div>
+            <button className="btn primary" onClick={() => void carryOnHere(other.found.id)}>Carry on with it here</button>
+            <button className="btn" onClick={() => { box.add([finishOtherChange(other.found.id)]); other.start(); }}>Finish it, and start this one</button>
+          </Sheet>
+        )}
+        {conflictSheet}
+      </>
     );
   }
 
@@ -148,8 +363,7 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
   const done = blockDone(s, block);
   const everything = allDone(s);
   const unit: WeightUnit | 'bw' = e.unit === 'bw' ? 'bw' : units[e.exerciseId] ?? (e.unit as WeightUnit);
-  const prior = history[e.exerciseId] ?? [];
-  const lastSession = prior.at(-1);
+  const lastSession = realSessions(history, e.exerciseId).at(-1);
   const kind = kindOf(e);
   const allFacts = [...pastFacts(history, e.exerciseId), ...factsFor(e, s.day)];
   const records = currentRecords(allFacts, kind);
@@ -166,16 +380,16 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
   function onMain(entry: { lb: number | null; enteredValue: number; enteredUnit: 'lb' | 'kg' | 'bw'; reps: number } | null) {
     const t = Date.now();
     unlockSound();
-    if (!block.started) { setSess(startExercise(s, t)); return; }
+    if (!block.started) { commit(startExercise(s, t)); return; }
     if (done) {
       if (everything) { setSheet('finish'); return; }
       const nx = nextOpen(s);
-      if (nx) setSess(goTo(s, nx, t));
+      if (nx) commit(goTo(s, nx, t));
       return;
     }
     if (!entry) return;
     const out = logSet(s, entry, history, t);
-    setSess(out.session);
+    commit(out.session);
     setUndo(e.key);
     setTimeout(() => setUndo((u) => (u === e.key ? null : u)), 6000);
     const name = celebrationName(out.earned);
@@ -185,8 +399,24 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
   function finish() {
     const t = Date.now();
     const fin = finishSession(s, t);
-    setHistory((h) => { const nh = toHistory(fin, h); write(KEY.history, nh); return nh; });
-    setSess(fin); setSheet('summary'); setTray(false);
+    setLocalHistory((h) => { const nh = toHistory(fin, h); writeStore(K('history'), nh); return nh; });
+    commit(fin); setSheet(null); setTray(false);
+    // Once the account has it, its history includes this workout.
+    void box.flush().then(() => refreshHistory(null));
+  }
+
+  function saveNote(exerciseId: string, text: string, at = false) {
+    if (noteTimer.current) clearTimeout(noteTimer.current);
+    const send = () => { box.add([noteChange(exerciseId, text)]); void box.flush(); };
+    if (at) send(); else noteTimer.current = setTimeout(send, 1200);
+  }
+
+  function chooseUnit(exerciseId: string, u: WeightUnit) {
+    const next = { ...units, [exerciseId]: u };
+    setUnits(next);
+    writeStore(K('units'), next);
+    box.add([unitChange(exerciseId, u)]);
+    void box.flush();
   }
 
   const phase = block.letter ? `Superset ${block.letter}${block.members.indexOf(e.key) + 1} of ${block.members.length}` : `Exercise ${pos + 1} of ${live.length}`;
@@ -206,29 +436,31 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
 
       <div className="phone-head">
         <div className="row tight">
-          <button className="btn icon" disabled={pos <= 0} onClick={() => setSess(goTo(s, live[pos - 1].id, Date.now()))} aria-label="Previous exercise">‹</button>
+          <button className="btn icon" disabled={pos <= 0} onClick={() => commit(goTo(s, live[pos - 1].id, Date.now()))} aria-label="Previous exercise">‹</button>
           <span className="lab">{s.name} · {pos + 1}/{live.length}</span>
-          <button className="btn icon" disabled={pos >= live.length - 1} onClick={() => setSess(goTo(s, live[pos + 1].id, Date.now()))} aria-label="Next exercise">›</button>
+          <button className="btn icon" disabled={pos >= live.length - 1} onClick={() => commit(goTo(s, live[pos + 1].id, Date.now()))} aria-label="Next exercise">›</button>
         </div>
         <div className="row tight"><span className="lab">Workout</span><span className="display clock-text">{mmss(readClock(s.clock, now))}</span></div>
       </div>
+      {syncLine}
 
       <div className="ex-title">
         <div className="lab accent-text">{phase}</div>
         <h1 className="ex-name">{e.name}</h1>
         <div className="muted fixed-line">{subline}</div>
         {block.members.length > 1 && canBreak(s, block) && (
-          <button className="btn small" onClick={() => setSess(breakSuperset(s, block.id, Date.now()))}>Break superset</button>
+          <button className="btn small" onClick={() => commit(breakSuperset(s, block.id, Date.now()))}>Break superset</button>
         )}
         {block.brokenFrom && s.breakUndo && (
-          <button className="btn small" onClick={() => setSess(undoBreak(s, Date.now()))}>Undo break</button>
+          <button className="btn small" onClick={() => commit(undoBreak(s, Date.now()))}>Undo break</button>
         )}
       </div>
 
       <input
         className="note" aria-label="Note for this exercise" placeholder="Add a note that stays with this exercise"
         value={notes[e.exerciseId] ?? libById.get(e.exerciseId)?.note ?? ''}
-        onChange={(ev) => setNotes({ ...notes, [e.exerciseId]: ev.target.value })}
+        onChange={(ev) => { setNotes({ ...notes, [e.exerciseId]: ev.target.value }); saveNote(e.exerciseId, ev.target.value); }}
+        onBlur={(ev) => { if (notes[e.exerciseId] !== undefined) saveNote(e.exerciseId, ev.target.value, true); }}
       />
 
       <div className="dial-row">
@@ -239,15 +471,15 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
           <div className="muted">Budget {mmss(budget)}</div>
           <div className={`rest-line ${resting ? 'on' : ''}`} aria-live="off">{resting ? `Resting ${mmss(restLeft)}` : 'Not resting'}</div>
           <div className="row tight">
-            <button className="btn" disabled={!resting} onClick={() => setSess(addRest(s, 15))}>+0:15</button>
-            <button className="btn" disabled={!resting} onClick={() => setSess(skipRest(s))}>Skip rest</button>
+            <button className="btn" disabled={!resting} onClick={() => commit(addRest(s, 15))}>+0:15</button>
+            <button className="btn" disabled={!resting} onClick={() => commit(skipRest(s))}>Skip rest</button>
           </div>
         </div>
       </div>
 
       <SetList
         s={s} e={e} unit={unit} round={round}
-        onToggle={(r) => setSess(toggleSet(s, r))}
+        onToggle={(r) => commit(toggleSet(s, r))}
         onDetail={(r) => { setDetailRound(r); setSheet('detail'); }}
       />
 
@@ -260,9 +492,9 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
         e={e} round={round} unit={unit}
         disabled={!block.started || done}
         mainLabel={mainLabel}
-        onUnit={(u) => setUnits({ ...units, [e.exerciseId]: u })}
+        onUnit={(u) => chooseUnit(e.exerciseId, u)}
         onMain={onMain}
-        undo={undo === e.key ? () => { setSess(lastLoggedSetUndo(s, e.key)); setUndo(null); } : null}
+        undo={undo === e.key ? () => { commit(lastLoggedSetUndo(s, e.key, history, Date.now())); setUndo(null); } : null}
       />
 
       <div className="row actions">
@@ -271,16 +503,20 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
       </div>
 
       {banner && <div className="banner" role="status">{banner}</div>}
+      {!alertsOn && pushSupported() && (
+        <div className="row tight small-text"><button className="btn small" onClick={allowAlerts}>Turn on rest alerts</button><span className="muted">{alertsMsg || 'So "Rest over" reaches you with the app in the background.'}</span></div>
+      )}
+      {conflictSheet}
 
       {tray && (
         <Tray
           s={s} now={now} libById={libById}
           onClose={() => setTray(false)}
-          onGo={(id, key) => { setSess(goTo(s, id, Date.now(), key)); setTray(false); }}
-          onSkip={(id) => setSess(skipBlock(s, id, Date.now()))}
-          onMove={(id, dlt) => setSess(moveBlock(s, id, dlt))}
-          onBreak={(id) => setSess(breakSuperset(s, id, Date.now()))}
-          onUndoBreak={() => setSess(undoBreak(s, Date.now()))}
+          onGo={(id, key) => { commit(goTo(s, id, Date.now(), key)); setTray(false); }}
+          onSkip={(id) => commit(skipBlock(s, id, Date.now()))}
+          onMove={(id, dlt) => commit(moveBlock(s, id, dlt))}
+          onBreak={(id) => commit(breakSuperset(s, id, Date.now()))}
+          onUndoBreak={() => commit(undoBreak(s, Date.now()))}
           onAdd={() => setSheet('add')}
           onFinish={() => setSheet('finish')}
         />
@@ -294,15 +530,16 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
       {sheet === 'swap' && (
         <Sheet title={`Swap ${e.name}`} onClose={() => setSheet(null)}>
           <div className="muted">Replaces this exercise for today only. Your library workout is not changed.</div>
+          {e.logs.length > 0 && <div className="muted">This exercise already has sets logged, and they stay with it. To change to another exercise now, skip this one in the tray and add the other.</div>}
           {e.alternates.length === 0 && <div className="muted">This exercise has no stored alternates yet.</div>}
           {(['bodyweight', 'basic_gym', 'full_gym'] as const).map((tier) => {
             const a = e.alternates.find((x) => x.tier === tier);
             if (!a) return null;
             const target = exercises.find((x) => x.name.toLowerCase() === a.name.toLowerCase());
             return (
-              <button key={tier} className="btn opt" disabled={!target} onClick={() => {
-                if (!target) return;
-                setSess(swapExercise(s, e.key, toPlan(target, e.types.length, e.plannedReps, null, null), seedOf));
+              <button key={tier} className="btn opt" disabled={!target || e.logs.length > 0} onClick={() => {
+                if (!target || e.logs.length > 0) return;
+                commit(swapExercise(s, e.key, toPlan(target, e.types.length, e.plannedReps, null, null), seedOf));
                 setSheet(null);
               }}>
                 <span className="lab">{TIER[tier]}</span>
@@ -314,12 +551,17 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
         </Sheet>
       )}
       {sheet === 'detail' && (
-        <DetailSheet s={s} e={e} round={detailRound} onClose={() => setSheet(null)}
-          onSave={(type, rpe) => { setSess(setDetails(s, e.key, detailRound, type, rpe)); setSheet(null); }} />
+        <DetailSheet s={s} e={e} round={detailRound} unit={unit} onClose={() => setSheet(null)}
+          onSave={(type, rpe, edit) => {
+            let next = setDetails(s, e.key, detailRound, type, rpe, history);
+            if (edit) next = editSet(next, e.key, detailRound, edit, history, Date.now());
+            commit(next); setSheet(null);
+          }}
+          onDelete={() => { commit(deleteSet(s, e.key, detailRound, history, Date.now())); setSheet(null); }} />
       )}
       {sheet === 'add' && (
         <AddSheet exercises={exercises} onClose={() => setSheet(null)}
-          onPick={(x) => { setSess(addExercise(s, toPlan(x, 3, 10, null, null), seedOf)); setSheet(null); }} />
+          onPick={(x) => { commit(addExercise(s, toPlan(x, 3, 10, null, null), seedOf)); setSheet(null); }} />
       )}
       {sheet === 'finish' && (
         <Sheet title="Finish workout" onClose={() => setSheet(null)}>
@@ -333,6 +575,24 @@ export function WorkoutApp({ exercises, workouts, timeZone }: { exercises: LibEx
 }
 
 const displayNum = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1).replace(/\.0$/, ''));
+const when = (iso: string) => new Date(iso).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+
+// ------------------------------------------------------------------ saving
+/** One quiet line saying whether everything has reached the account. */
+function SyncLine({ sync, rejected }: { sync: OutboxStatus; rejected: number }) {
+  const n = 'count' in sync ? sync.count : 0;
+  const changes = `${n} change${n === 1 ? '' : 's'}`;
+  const text = sync.state === 'saved' ? 'Saved to your account'
+    : sync.state === 'offline' ? `No connection. ${changes} saved on this phone, sent when you are back online.`
+      : sync.state === 'signed_out' ? `${changes} saved on this phone. Sign in again to send them.`
+        : sync.state === 'conflict' ? 'Waiting for your choice: another workout is running.'
+          : 'Saving…';
+  return (
+    <div className="muted fixed-line small-text" role="status" aria-live="polite">
+      {text}{rejected ? ` · ${rejected} change${rejected === 1 ? '' : 's'} could not be saved` : ''}
+    </div>
+  );
+}
 
 // ------------------------------------------------------------------ the dial
 function DialView({ fill, red, rest }: { fill: number; red: boolean; rest: number }) {
@@ -526,12 +786,43 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
   );
 }
 
-function DetailSheet({ s, e, round, onClose, onSave }: { s: Session; e: Session['exercises'][string]; round: number; onClose: () => void; onSave: (t: SetType, rpe: number | null) => void }) {
+function DetailSheet({ s, e, round, unit, onClose, onSave, onDelete }: {
+  s: Session; e: Session['exercises'][string]; round: number; unit: WeightUnit | 'bw'; onClose: () => void;
+  onSave: (t: SetType, rpe: number | null, edit: LogInput | null) => void; onDelete: () => void;
+}) {
   void s;
   const [type, setType] = useState<SetType>(e.types[round] ?? 'working');
   const [rpe, setRpe] = useState<number | null>(e.logs[round]?.rpe ?? null);
+  const lg = e.logs[round];
+  const shown = lg && unit !== 'bw' && lg.enteredUnit !== 'bw' ? displayNum(displayWeight({ lb: lg.lb ?? 0, enteredValue: lg.enteredValue, enteredUnit: lg.enteredUnit }, unit)) : '';
+  const [w, setW] = useState(shown);
+  const [reps, setReps] = useState(lg ? String(lg.reps) : '');
+  const [sure, setSure] = useState(false);
+  function edit(): LogInput | null {
+    if (!lg) return null;
+    const r = Math.round(Number(reps));
+    const repsOk = Number.isFinite(r) && r >= 1 ? r : lg.reps;
+    if (unit === 'bw' || lg.enteredUnit === 'bw') return repsOk === lg.reps ? null : { lb: null, enteredValue: 1, enteredUnit: 'bw', reps: repsOk };
+    const n = Number(w);
+    const keep = w === shown || w.trim() === '' || !Number.isFinite(n) || n < 0;
+    const stored = keep ? { lb: lg.lb ?? 0, enteredValue: lg.enteredValue, enteredUnit: lg.enteredUnit } : weightToStore(n, unit, null);
+    if (keep && repsOk === lg.reps) return null;
+    return { lb: stored.lb, enteredValue: stored.enteredValue, enteredUnit: stored.enteredUnit, reps: repsOk };
+  }
   return (
     <Sheet title={`Set ${round + 1} details`} onClose={onClose}>
+      {lg && (
+        <>
+          <div className="lab">Logged</div>
+          <div className="row tight">
+            {unit !== 'bw' && lg.enteredUnit !== 'bw' && (
+              <input className="num" inputMode="decimal" aria-label={`Logged weight in ${unit}`} value={w} onChange={(ev) => setW(ev.target.value.replace(/[^0-9.]/g, ''))} />
+            )}
+            <span className="muted">{unit === 'bw' || lg.enteredUnit === 'bw' ? '1 BW' : unit} ×</span>
+            <input className="num" inputMode="numeric" aria-label="Logged reps" value={reps} onChange={(ev) => setReps(ev.target.value.replace(/[^0-9]/g, ''))} />
+          </div>
+        </>
+      )}
       <div className="lab">Type</div>
       <div className="row">
         {(['warm_up', 'working', 'drop'] as SetType[]).map((t) => (
@@ -544,7 +835,10 @@ function DetailSheet({ s, e, round, onClose, onSave }: { s: Session; e: Session[
           <button key={n} className={`btn step ${rpe === n ? 'selected' : ''}`} onClick={() => setRpe(rpe === n ? null : n)}>{n}</button>
         ))}
       </div>
-      <button className="btn primary" onClick={() => onSave(type, rpe)}>Save</button>
+      <button className="btn primary" onClick={() => onSave(type, rpe, edit())}>Save</button>
+      {lg && (sure
+        ? <button className="btn" onClick={onDelete}>Yes, delete set {round + 1}</button>
+        : <button className="btn" onClick={() => setSure(true)}>Delete this set</button>)}
     </Sheet>
   );
 }
@@ -593,7 +887,7 @@ function StatsBody({ s, e, unit, history, now, records }: { s: Session; e: Sessi
 
 function Graph({ e, unit, history, s }: { e: Session['exercises'][string]; unit: WeightUnit | 'bw'; history: History; s: Session }) {
   const kind = kindOf(e);
-  const sessions = [...(history[e.exerciseId] ?? []).slice(-5).map((p) => ({ label: p.day.slice(5), sets: p.sets })),
+  const sessions = [...realSessions(history, e.exerciseId).slice(-5).map((p) => ({ label: p.day.slice(5), sets: p.sets })),
     ...(e.logs.length ? [{ label: 'Today', sets: e.logs.map((l) => ({ lb: l.lb, reps: l.reps, type: l.type })) }] : [])];
   void s;
   if (!sessions.length) return <div className="muted">No history yet. Log a set to start the graph.</div>;
@@ -640,14 +934,15 @@ function Graph({ e, unit, history, s }: { e: Session['exercises'][string]; unit:
 }
 
 // ------------------------------------------------------------------ start and finish
-function StartScreen({ exercises, workouts, libById, summary, history, now, onDismiss, onStart }: {
+function StartScreen({ exercises, workouts, libById, summary, lastDone, now, syncLine, saved, onDismiss, onReopen, onStart, alerts }: {
   exercises: LibExercise[]; workouts: LibWorkout[]; libById: Map<string, LibExercise>;
-  summary: Session | null; history: History; now: number; onDismiss: () => void; onStart: (name: string, plan: PlanItem[]) => void;
+  summary: Session | null; lastDone: Session | null; now: number; syncLine: React.ReactNode; saved: boolean;
+  onDismiss: () => void; onReopen: (s: Session) => void; onStart: (name: string, plan: PlanItem[], workoutId?: string | null) => void;
+  alerts: null | { msg: string; onAllow: () => void };
 }) {
   const [picked, setPicked] = useState<LibExercise[]>([]);
   const [q, setQ] = useState('');
   const list = q.trim() ? exercises.filter((x) => x.name.toLowerCase().includes(q.toLowerCase())).slice(0, 30) : [];
-  void history;
 
   if (summary) {
     const eff = efficiencyOf(summary, now);
@@ -665,8 +960,11 @@ function StartScreen({ exercises, workouts, libById, summary, history, now, onDi
         </div>
         <div className="lab">Records</div>
         {recs.length ? recs.map((r) => <div key={r}>{r}</div>) : <div className="muted">None today</div>}
-        <div className="muted">Saved on this phone. Saving to your account comes with the next step of the build.</div>
+        {summary.finishReason === 'auto' && <div className="muted">This workout finished by itself after 30 minutes with nothing logged. It ends at your last logged step.</div>}
+        <div className="muted">{saved ? 'Saved to your account.' : 'Saved on this phone. It reaches your account as soon as there is a connection.'}</div>
+        {syncLine}
         <button className="btn primary" onClick={onDismiss}>Done</button>
+        {canReopen(summary, now) && <button className="btn" onClick={() => onReopen(summary)}>Reopen workout</button>}
       </main>
     );
   }
@@ -675,11 +973,26 @@ function StartScreen({ exercises, workouts, libById, summary, history, now, onDi
     <main className="phone">
       <div className="phone-top"><Link className="btn icon" href="/app" aria-label="Back to the home screen">‹</Link></div>
       <h1>Start a workout</h1>
+      {syncLine}
+      {alerts && (
+        <div className="panel">
+          <div>Turn on rest alerts, so &quot;Rest over&quot; reaches you when the app is in the background or the phone is locked.</div>
+          <button className="btn" onClick={alerts.onAllow}>Turn on rest alerts</button>
+          {alerts.msg && <div className="muted">{alerts.msg}</div>}
+        </div>
+      )}
+      {lastDone && canReopen(lastDone, now) && (
+        <div className="panel">
+          <div>Last workout: {lastDone.name}, finished {when(new Date(lastDone.endedAt!).toISOString())}.</div>
+          <div className="muted">It can be reopened for 48 hours. Its clocks carry on, and the time it was closed is not counted.</div>
+          <button className="btn" onClick={() => onReopen(lastDone)}>Reopen {lastDone.name}</button>
+        </div>
+      )}
       {workouts.length > 0 && (
         <>
           <h2>Your workouts</h2>
           {workouts.map((w) => (
-            <button key={w.id} className="btn opt" onClick={() => onStart(w.name, w.items.flatMap((i) => { const x = libById.get(i.exerciseId); return x ? [toPlan(x, i.sets, i.reps, i.rest, i.superset)] : []; }))}>
+            <button key={w.id} className="btn opt" onClick={() => onStart(w.name, w.items.flatMap((i) => { const x = libById.get(i.exerciseId); return x ? [toPlan(x, i.sets, i.reps, i.rest, i.superset)] : []; }), w.id)}>
               {w.name}<span className="muted">{w.items.length} exercises</span>
             </button>
           ))}
