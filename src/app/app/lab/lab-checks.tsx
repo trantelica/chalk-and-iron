@@ -125,12 +125,21 @@ export function LabChecks({ vapidKey }: { vapidKey: string }) {
     setWakeMsg('Stopped.');
   }
 
-  // mix: plays over music, but an iPhone on silent mutes it.
-  // loud: plays even on silent, but the iPhone may pause music.
-  async function playSound(mode: 'mix' | 'loud') {
+  // The ways an iPhone web app can ask to play a sound. What each does with
+  // silent mode and with music from another app is what this check finds out.
+  type SoundMode = 'mix' | 'short' | 'loud' | 'loud-letgo';
+  const SESSION: Record<SoundMode, string> = { mix: 'ambient', short: 'transient', loud: 'playback', 'loud-letgo': 'playback' };
+  const LABEL: Record<SoundMode, string> = {
+    mix: 'mix with music',
+    short: 'short alert',
+    loud: 'even on silent',
+    'loud-letgo': 'even on silent, then let go',
+  };
+
+  async function playSound(mode: SoundMode, delaySeconds = 0) {
     try {
       const session = (navigator as { audioSession?: { type: string } }).audioSession;
-      if (session) session.type = mode === 'mix' ? 'ambient' : 'playback';
+      if (session) session.type = SESSION[mode];
       if (!sound.current || sound.current.mode !== mode) {
         await sound.current?.ctx.close().catch(() => {});
         sound.current = { mode, ctx: new AudioContext() };
@@ -141,15 +150,24 @@ export function LabChecks({ vapidKey }: { vapidKey: string }) {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.frequency.value = 880;
-      const t = ctx.currentTime;
+      const t = ctx.currentTime + delaySeconds;
       gain.gain.setValueAtTime(0.0001, t);
       gain.gain.exponentialRampToValueAtTime(0.5, t + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
       osc.connect(gain).connect(ctx.destination);
       osc.start(t);
       osc.stop(t + 0.65);
+      if (mode === 'loud-letgo') {
+        // Close the sound system straight after the beep, in case the iPhone then lets the music carry on.
+        const mine = sound.current;
+        setTimeout(() => {
+          mine.ctx.close().catch(() => {});
+          if (sound.current === mine) sound.current = null;
+          if (session) session.type = 'auto';
+        }, (delaySeconds + 0.8) * 1000);
+      }
       setSoundMsg(
-        `Asked to play (${mode === 'mix' ? 'mix with music' : 'play even on silent'}). Sound system: ${ctx.state}.` +
+        `Asked to play (${LABEL[mode]})${delaySeconds ? ` in ${delaySeconds} seconds, without another tap` : ''}. Sound system: ${ctx.state}.` +
           (session ? '' : ' This iPhone cannot be asked to mix sounds.'),
       );
     } catch (e) {
@@ -218,12 +236,20 @@ export function LabChecks({ vapidKey }: { vapidKey: string }) {
       <div className="panel">
         <div className="display">Extra: rest sound with music</div>
         <div className="muted">
-          Turn the volume up. Try each button twice: once with the iPhone on silent and once with it off silent.
-          Then start music in another app, come back here and try both again. Note for each: did you hear the beep, and did the music keep going?
+          Volume up, music playing in another app, iPhone on silent. Tap each button and note: did you hear the beep, and did the music keep going (or come back by itself)?
+          Then the same with the iPhone off silent.
         </div>
         <div className="row">
           <button className="btn" onClick={() => playSound('mix')}>Play: mix with music</button>
+          <button className="btn" onClick={() => playSound('short')}>Play: short alert</button>
           <button className="btn" onClick={() => playSound('loud')}>Play: even on silent</button>
+          <button className="btn" onClick={() => playSound('loud-letgo')}>Play: even on silent, then let go</button>
+        </div>
+        <div className="muted">
+          The real rest sound plays when rest ends, long after your last tap. With the app left open on screen, tap this and wait without touching the phone.
+        </div>
+        <div className="row">
+          <button className="btn" onClick={() => playSound('mix', 20)}>Mix with music, in 20 seconds</button>
         </div>
         {soundMsg && <div className="muted">{soundMsg}</div>}
       </div>
