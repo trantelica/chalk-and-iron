@@ -358,6 +358,25 @@ describe('sets and rest changed in the tray stay in today\'s workout (Nathan, 19
   });
 });
 
+describe('deleting a superset round (Nathan, 19 Nov)', () => {
+  it('removes that round from every member in the account too', async () => {
+    const p = phone(a);
+    const t0 = Date.now() - 60000;
+    const pl = plan(['Barbell Curl', 'Barbell Bent-Over Row'], { superset: 'A' });
+    let s = startExercise(startSession('SS', '2026-11-19', pl, {}, t0, noSeed), t0);
+    p.commit(s);
+    for (let i = 0; i < 4; i++) { s = logSet(s, lbSet(40 + i * 5), {}, t0 + (i + 1) * 1000).session; p.commit(s); }
+    const [k1] = Object.keys(s.exercises);
+    s = deleteSet(s, k1, 0, {}, t0 + 6000); p.commit(s); // round 1, for both
+    await p.box.flush();
+    expect(p.box.rejected).toEqual([]);
+    const rows = await db.as<{ planned_set_types: unknown; n: number }>(a,
+      `select se.planned_set_types, (select count(*)::int from set_logs l where l.session_exercise_id = se.id and l.deleted_at is null) as n
+       from session_exercises se where se.session_id = $1`, [s.id]);
+    expect(rows.map((r) => [parse(r.planned_set_types).length, r.n])).toEqual([[2, 1], [2, 1]]);
+  });
+});
+
 describe('records are worked out by the database', () => {
   async function session(day: string, at: number, sets: Array<[number, number, ('warm_up' | 'working')?]>, name = 'Barbell Curl', h: History = {}) {
     const p = phone(a);

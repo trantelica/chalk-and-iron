@@ -607,7 +607,7 @@ These rules settle what happens outside the normal path. Nathan decided them in 
 
 ### Logged sets
 
-- A logged set can be edited or deleted during the session and later from History. Deleting a set removes it; no fresh set is added in its place (Nathan, 19 Nov). In a superset the deleted set becomes a set to do again, so the members stay equal.
+- A logged set can be edited or deleted during the session and later from History. Deleting a set removes it; no fresh set is added in its place. A set still to do can be deleted too, so it never has to be done. In a superset, deleting a set deletes that whole round for every exercise in it (Nathan, 19 Nov). To keep a round where one exercise is already done, skip the unfinished set instead.
 - Records are recalculated whenever a set changes. A record that no longer holds is removed.
 - Log set offers Undo for a few seconds after each set.
 

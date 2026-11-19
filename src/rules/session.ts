@@ -338,33 +338,38 @@ function recheckToday(s: Session, key: string, history: History) {
 }
 
 /**
- * Deletes a logged set (spec Section 10). The sets after it move up one.
- * Records are worked out again.
+ * Deletes a set, logged or still to do (spec Section 10; Nathan, 19 Nov). The
+ * point of Delete is not having to do that work, so the set is removed and no
+ * fresh set takes its place; the sets after it move up one.
  *
- * The set is removed, and no fresh set is added to make up the number
- * (Nathan, 19 Nov). Two cases keep its place as a set to do instead: Undo
- * (`refill`), which takes back a set just logged; and a superset, whose
- * members always have the same number of sets (this design's own choice,
- * so a superset stays paired and equal). An exercise is never left with no
- * sets at all.
+ * In a superset, Delete removes that whole round from every member, including
+ * any of its sets already logged, so the members stay equal (Nathan, 19 Nov).
+ *
+ * Undo after Log set (`refill`) is different: it takes back the log only, and
+ * the set goes back to being one to do. An exercise is never left with no sets.
+ * Records are worked out again.
  */
 export function deleteSet(s0: Session, key: string, index: number, history: History = {}, now = Date.now(), refill = false): Session {
   const s = clone(s0);
   const e = s.exercises[key];
-  if (index < 0 || index >= e.logs.length) return s;
+  if (index < 0 || index >= e.types.length) return s;
+  if (refill && index >= e.logs.length) return s;
   const b = blockOfKey(s, key);
-  const paired = !b.closed && b.members.length > 1;
-  e.logs.splice(index, 1);
-  e.types.splice(index, 1);
-  e.seeds.splice(index, 1);
-  if (refill || paired || e.types.length === 0) {
-    e.types.push('working');
-    e.seeds.push(e.seeds.at(-1) ?? null);
-  } else if (!b.closed) {
-    b.fixedBudget = null; // the budget follows the sets left
+  const paired = !b.closed && b.members.length > 1 && !refill;
+  const members = paired ? b.members.map((k) => s.exercises[k]) : [e];
+  for (const m of members) {
+    if (index >= m.types.length) continue;
+    if (index < m.logs.length) m.logs.splice(index, 1);
+    m.types.splice(index, 1);
+    m.seeds.splice(index, 1);
+    if (refill || m.types.length === 0) {
+      m.types.push('working');
+      m.seeds.push(m.seeds.at(-1) ?? null);
+    }
+    // The others in the set list keep their own types after the move.
+    m.logs.forEach((l, i) => { m.types[i] = l.type; });
   }
-  // The others in the set list keep their own types after the move.
-  e.logs.forEach((l, i) => { e.types[i] = l.type; });
+  if (!b.closed) b.fixedBudget = null; // the budget follows the sets left
   if (b.stopped && !blockDone(s, b) && !blockSkipped(s, b)) {
     b.stopped = false;
     b.stoppedAt = null;
@@ -375,9 +380,18 @@ export function deleteSet(s0: Session, key: string, index: number, history: Hist
     b.stoppedAt = now;
     b.clock = pauseClock(b.clock, now);
   }
-  recheckToday(s, key, history);
+  if (s.curBlock === b.id && !b.members.includes(s.curMember)) s.curMember = firstOpenMember(s, b);
+  else if (s.curBlock === b.id && paired) s.curMember = firstOpenMember(s, b);
+  for (const m of members) recheckToday(s, m.key, history);
   s.lastActivityAt = now;
   return s;
+}
+
+/** Whether Delete can remove this set: it never leaves an exercise with no sets. */
+export function canDeleteSet(s: Session, key: string, index: number): boolean {
+  const e = s.exercises[key];
+  if (index < 0 || index >= e.types.length) return false;
+  return e.types.length > 1 || index < e.logs.length;
 }
 
 /** Edits a logged set's weight and reps. Records are worked out again. */
