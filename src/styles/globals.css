@@ -115,7 +115,7 @@ th { color: var(--muted-text); font-size: 12px; letter-spacing: 1px; text-transf
 .ex-name { height: 44px; line-height: 44px; font-size: var(--heading-size); }
 .fixed-line { height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .ex-title .btn { align-self: flex-start; }
-.note { height: 44px; padding: 0 10px; background: transparent; color: var(--text); border: 0; border-bottom: 1px solid var(--line); border-radius: 0; font-size: 14px; }
+.note { height: 44px; padding: 0 10px; background: transparent; color: var(--text); border: 0; border-bottom: 1px solid var(--line); border-radius: 0; font-size: 16px; }
 .dial-row { display: flex; gap: 12px; align-items: center; height: 152px; }
 .dial { flex: none; }
 .dial-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
@@ -125,9 +125,11 @@ th { color: var(--muted-text); font-size: 12px; letter-spacing: 1px; text-transf
 .dial-track { fill: none; stroke: var(--line); stroke-width: 6; }
 .dial-rest { fill: none; stroke: var(--text); stroke-width: 6; }
 .sets { display: flex; flex-direction: column; min-height: 130px; }
-.set { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 36px; padding: 4px 8px; background: transparent; border: 0; border-bottom: 1px solid var(--line); text-align: left; cursor: pointer; font-size: 15px; }
+.set { display: flex; align-items: stretch; min-height: 40px; border-bottom: 1px solid var(--line); font-size: 15px; }
+.set-main { flex: 1; min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 8px; background: transparent; border: 0; text-align: left; cursor: pointer; -webkit-touch-callout: none; user-select: none; }
+.set-more { flex: none; width: 44px; background: transparent; border: 0; border-left: 1px solid var(--line); color: var(--muted-text); font-size: 20px; line-height: 1; cursor: pointer; }
 .set.now { border-left: 3px solid var(--accent); font-weight: 700; }
-.set.done { color: var(--muted-text); }
+.set.done .set-main { color: var(--muted-text); }
 .badge { margin-left: 8px; padding: 1px 6px; font-size: 11px; font-weight: 700; letter-spacing: 1px; background: var(--accent); color: var(--on-accent); border-radius: var(--radius-small); }
 .last-time { min-height: 20px; }
 .entry { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
@@ -175,3 +177,11 @@ th { color: var(--muted-text); font-size: 12px; letter-spacing: 1px; text-transf
 /* Rest indicator: unmistakable while a rest is running (accent color, bold, underlined). */
 .rest-line { height: 22px; line-height: 22px; overflow: hidden; white-space: nowrap; font-size: 15px; color: var(--muted-text); }
 .rest-line.on { color: var(--accent); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
+
+/* Nathan's first look on his iPhone (19 Nov). */
+.sync-line { min-height: 20px; font-size: 14px; line-height: 20px; }
+.entry-col > .row.spread { height: 36px; }
+.g-title { fill: var(--muted-text); font-size: 11px; font-weight: 700; }
+.g-line-title { fill: var(--accent); font-size: 11px; font-weight: 700; }
+.g-num, .g-label, .g-line-text { font-size: 11px; }
+.g-axis-line { stroke: var(--accent); opacity: 0.5; }

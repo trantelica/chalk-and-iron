@@ -488,7 +488,7 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
       </div>
 
       <Entry
-        key={`${e.key}-${round}-${block.started}`}
+        key={`${e.key}-${round}`}
         e={e} round={round} unit={unit}
         disabled={!block.started || done}
         mainLabel={mainLabel}
@@ -583,12 +583,12 @@ function SyncLine({ sync, rejected }: { sync: OutboxStatus; rejected: number }) 
   const n = 'count' in sync ? sync.count : 0;
   const changes = `${n} change${n === 1 ? '' : 's'}`;
   const text = sync.state === 'saved' ? 'Saved to your account'
-    : sync.state === 'offline' ? `No connection. ${changes} saved on this phone, sent when you are back online.`
+    : sync.state === 'offline' ? `Offline. ${changes} saved on this phone, sent when you're back online.`
       : sync.state === 'signed_out' ? `${changes} saved on this phone. Sign in again to send them.`
         : sync.state === 'conflict' ? 'Waiting for your choice: another workout is running.'
           : 'Saving…';
   return (
-    <div className="muted fixed-line small-text" role="status" aria-live="polite">
+    <div className="muted sync-line" role="status" aria-live="polite">
       {text}{rejected ? ` · ${rejected} change${rejected === 1 ? '' : 's'} could not be saved` : ''}
     </div>
   );
@@ -628,8 +628,9 @@ function SetList({ s, e, unit, round, onToggle, onDetail }: { s: Session; e: Ses
         const state = lg ? 'Done' : n === round ? 'Now' : 'Planned';
         const label = type === 'warm_up' ? 'Warm-up' : type === 'drop' ? 'Drop set' : state;
         return (
+          <div key={n} role="listitem" className={`set ${lg ? 'done' : n === round ? 'now' : ''}`}>
           <button
-            key={n} role="listitem" className={`set ${lg ? 'done' : n === round ? 'now' : ''}`}
+            className="set-main" aria-label={`Set ${n + 1}. Tap to switch warm-up. Hold or tap the dots for details.`}
             onPointerDown={() => { long.current = false; timer.current = setTimeout(() => { long.current = true; onDetail(n); }, 500); }}
             onPointerUp={() => { if (timer.current) clearTimeout(timer.current); }}
             onPointerLeave={() => { if (timer.current) clearTimeout(timer.current); }}
@@ -638,6 +639,8 @@ function SetList({ s, e, unit, round, onToggle, onDetail }: { s: Session; e: Ses
             <span>{n + 1} · {label}{lg?.records.length ? <span className="badge">{RECORD_LABEL[celebrationName(lg.records) as RecordType]}</span> : null}{lg?.rpe ? <span className="muted"> · RPE {lg.rpe}</span> : null}</span>
             <span>{!lg ? targetText(e, unit) : `${lg.enteredUnit === 'bw' ? '1 BW' : `${displayNum(unit === 'bw' ? 0 : displayWeight({ lb: lg.lb ?? 0, enteredValue: lg.enteredValue, enteredUnit: lg.enteredUnit as WeightUnit }, unit))} ${unit}`} × ${lg.reps}`}</span>
           </button>
+          <button className="set-more" aria-label={`Set ${n + 1} details`} onClick={() => onDetail(n)}>⋯</button>
+          </div>
         );
       })}
     </div>
@@ -894,9 +897,14 @@ function Graph({ e, unit, history, s }: { e: Session['exercises'][string]; unit:
   const bw = unit === 'bw';
   const h = (lb: number | null) => (unit === 'bw' || lb === null ? 1 : fromPounds(lb, unit));
   const maxBar = Math.max(...sessions.flatMap((x) => x.sets.map((y) => h(y.lb))), 1);
-  const vols = sessions.map((x) => x.sets.reduce((a, y) => a + setVolume({ id: '', lb: y.lb, reps: y.reps, type: y.type, day: '', order: 0 }, kind), 0));
+  // Volume is shown in the exercise's own unit, like the bars. Bodyweight and assisted volume is reps.
+  const repsOnly = bw || kind.assisted;
+  const vols = sessions.map((x) => {
+    const v = x.sets.reduce((a, y) => a + setVolume({ id: '', lb: y.lb, reps: y.reps, type: y.type, day: '', order: 0 }, kind), 0);
+    return unit === 'bw' || repsOnly ? v : fromPounds(v, unit);
+  });
   const maxVol = Math.max(...vols, 1);
-  const W = 340, H = 150, x0 = 28, x1 = W - 34, y0 = 12, y1 = H - 6, cw = (x1 - x0) / sessions.length;
+  const W = 340, H = 160, x0 = 34, x1 = W - 40, y0 = 26, y1 = H - 6, cw = (x1 - x0) / sessions.length;
   const pts: string[] = [];
   const bars = sessions.map((x, i) => {
     const n = x.sets.length;
@@ -924,9 +932,15 @@ function Graph({ e, unit, history, s }: { e: Session['exercises'][string]; unit:
       <svg viewBox={`0 0 ${W} ${H + 14}`} role="img" aria-label="One bar per set by session. The line is session volume." className="graph">
         <line x1={x0} y1={y1} x2={x1} y2={y1} className="g-axis" />
         {bars}
+        <line x1={x0} y1={y0} x2={x0} y2={y1} className="g-axis" />
+        <line x1={x1} y1={y0} x2={x1} y2={y1} className="g-axis-line" />
         <polyline points={pts.join(' ')} className="g-line" />
+        <text x={x0 - 4} y={10} textAnchor="start" className="g-title">{bw ? 'Reps on bars' : `Weight (${unit})`}</text>
+        <text x={x1 + 4} y={10} textAnchor="end" className="g-line-title">{repsOnly ? 'Total reps' : `Volume (${unit})`}</text>
+        <text x={x0 - 4} y={y0 + 14 + 4} textAnchor="end" className="g-label">{bw ? '1 BW' : fmt(maxBar)}</text>
+        <text x={x0 - 4} y={y1} textAnchor="end" className="g-label">0</text>
         <text x={x1 + 4} y={y0 + 4} className="g-line-text">{fmt(maxVol)}</text>
-        <text x={x0 - 4} y={y0 + 4} textAnchor="end" className="g-label">{bw ? '1 BW' : fmt(maxBar)}</text>
+        <text x={x1 + 4} y={y1} className="g-line-text">0</text>
       </svg>
       <div className="muted">Each bar is one set: height is {bw ? 'the same for every set (1 BW)' : `weight in ${unit}`}, the number above is reps. The line is session {bw ? 'total reps' : 'volume'}.</div>
     </>
@@ -961,7 +975,6 @@ function StartScreen({ exercises, workouts, libById, summary, lastDone, now, syn
         <div className="lab">Records</div>
         {recs.length ? recs.map((r) => <div key={r}>{r}</div>) : <div className="muted">None today</div>}
         {summary.finishReason === 'auto' && <div className="muted">This workout finished by itself after 30 minutes with nothing logged. It ends at your last logged step.</div>}
-        <div className="muted">{saved ? 'Saved to your account.' : 'Saved on this phone. It reaches your account as soon as there is a connection.'}</div>
         {syncLine}
         <button className="btn primary" onClick={onDismiss}>Done</button>
         {canReopen(summary, now) && <button className="btn" onClick={() => onReopen(summary)}>Reopen workout</button>}
