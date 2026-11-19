@@ -24,6 +24,8 @@ export default async function PhoneHome() {
     );
   }
   const { count } = await supabase.from('exercises').select('id', { count: 'exact', head: true });
+  // The button follows the state: Resume when a workout is running, Start otherwise (Nathan, 19 Nov).
+  const { data: running } = await supabase.from('sessions').select('workout_name').eq('status', 'active').maybeSingle();
   return (
     <main className="page">
       <h1>Chalk and Iron</h1>
@@ -46,7 +48,9 @@ export default async function PhoneHome() {
       <div className="panel">
         <div className="display">Hi, {p.display_name}</div>
         <div className="muted">Your library holds {count ?? 0} exercises. Today&apos;s planned workout arrives with the planner.</div>
-        <Link className="btn primary" href="/app/workout" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>Start or resume a workout</Link>
+        <Link className="btn primary" href="/app/workout" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+          {running ? `Resume ${running.workout_name}` : 'Start a workout'}
+        </Link>
       </div>
       <HomeActions passkeyCheck />
       <div className="row">

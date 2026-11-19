@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: 'Chalk and Iron', statusBarStyle: 'black-translucent' },
 };
 
-export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover' };
+// maximumScale 1 stops the iPhone zooming in when a box is tapped, so the screen keeps its full width (Nathan, 19 Nov).
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, maximumScale: 1, viewportFit: 'cover' };
 
 async function look() {
   try {
