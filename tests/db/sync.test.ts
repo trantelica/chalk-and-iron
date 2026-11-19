@@ -7,6 +7,7 @@ import { Outbox } from '@/lib/outbox';
 import {
   autoFinishIfIdle, deleteSet, editSet, finishSession, logSet, reopenSession, startExercise, startSession,
   AUTO_FINISH_MS, type History, type PlanItem, type Session,
+  pauseSession, resumeSession, PAUSED_FINISH_MS,
 } from '@/rules/session';
 import {
   enqueue, finishOtherChange, historyFromMemory, noteChange, restChange, sessionChanges, sessionFromRows, unitChange,
@@ -286,6 +287,41 @@ describe('the 30-minute auto-finish', () => {
     p.commit(startSession('Busy', '2026-11-17', plan(['Barbell Curl']), {}, Date.now() - 60000, noSeed));
     await p.box.flush();
     expect((await db.server<{ n: number }>(`select app.auto_finish_idle_sessions() as n`))[0].n).toBe(0);
+  });
+});
+
+describe('a paused workout (Nathan, 19 Nov)', () => {
+  it('waits 2 hours, not 30 minutes, before finishing itself, and comes back paused', async () => {
+    const p = phone(a);
+    const start = Date.now() - 4 * 3600000;
+    let s = startExercise(startSession('Paused', '2026-11-19', plan(['Barbell Curl']), {}, start, noSeed), start + 60000);
+    s = logSet(s, lbSet(50), {}, start + 120000).session;
+    const pausedAt = Date.now() - 60 * 60000; // paused an hour ago
+    s = pauseSession(s, pausedAt);
+    p.commit(s);
+    await p.box.flush();
+    expect(p.box.rejected).toEqual([]);
+    expect((await db.server<{ n: number }>(`select app.auto_finish_idle_sessions() as n`))[0].n).toBe(0);
+    const [row] = await db.as<Record<string, unknown>>(a, `select * from sessions where id = $1`, [s.id]);
+    expect(row.status).toBe('active');
+    expect(row.clock_running_since).toBeNull();
+
+    // Paused 3 hours ago: it finishes, ending at the pause.
+    await db.server(`update sessions set last_activity_at = now() - interval '3 hours' where id = $1`, [s.id]);
+    expect((await db.server<{ n: number }>(`select app.auto_finish_idle_sessions() as n`))[0].n).toBe(1);
+    const [done] = await db.as<{ status: string; finish_reason: string }>(a, `select status, finish_reason from sessions where id = $1`, [s.id]);
+    expect([done.status, done.finish_reason]).toEqual(['finished', 'auto']);
+  });
+
+  it('resume starts the clocks again, and the phone keeps the same 2-hour rule', () => {
+    const t0 = 1_000_000_000;
+    let s = startExercise(startSession('P', '2026-11-19', plan(['Barbell Curl']), {}, t0, noSeed), t0);
+    s = pauseSession(s, t0 + 60000);
+    expect(autoFinishIfIdle(s, t0 + 60000 + AUTO_FINISH_MS + 1).endedAt).toBeNull();
+    expect(autoFinishIfIdle(s, t0 + 60000 + PAUSED_FINISH_MS + 1).finishReason).toBe('auto');
+    s = resumeSession(s, t0 + 600000);
+    expect(s.pausedAt).toBeNull();
+    expect(s.clock.since).toBe(t0 + 600000);
   });
 });
 

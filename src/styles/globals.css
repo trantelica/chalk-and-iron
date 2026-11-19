@@ -185,3 +185,25 @@ th { color: var(--muted-text); font-size: 12px; letter-spacing: 1px; text-transf
 .g-line-title { fill: var(--accent); font-size: 11px; font-weight: 700; }
 .g-num, .g-label, .g-line-text { font-size: 11px; }
 .g-axis-line { stroke: var(--accent); opacity: 0.5; }
+
+/* Add set, the keyboard layout, Pause and the tray's sets and rest (Nathan, 19 Nov). */
+.dial-text .row.tight .btn { flex: 1; min-width: 0; padding: 0 4px; font-size: 13px; white-space: nowrap; }
+.add-set { color: var(--accent); border-color: var(--accent); }
+.typing-strip { display: none; }
+.phone.typing .hide-typing, .phone.typing .set:not(.now) { display: none; }
+.phone.typing .typing-strip {
+  display: flex; justify-content: space-between; align-items: center; height: 40px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: var(--radius-small); font-weight: 700;
+}
+.phone.typing .ex-title { height: auto; }
+.phone.typing .sets { min-height: 0; }
+.paused-panel { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 2px solid var(--accent); border-radius: var(--radius); }
+.dial-row.is-paused { opacity: 0.4; pointer-events: none; }
+.tray-edit { padding: 2px 0; }
+.tray-num { min-width: 44px; text-align: center; font-weight: 700; }
+/* While typing, the boxes and Log set sit right under the current set, so the keyboard never covers them. */
+.phone.typing { min-height: 0; }
+.phone.typing .entry { margin-top: 0; }
+.row.spread.tray-edit { flex-wrap: wrap; gap: 6px; }
+.tray-edit .btn.small { min-width: 40px; padding: 0; }
+.tray-edit .tray-num { min-width: 40px; }

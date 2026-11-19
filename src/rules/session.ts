@@ -95,12 +95,16 @@ export interface Session {
   lastActivityAt: number;
   workoutId?: string | null; // the library workout it started from, if any
   finishReason?: 'user' | 'auto' | 'replaced' | null;
+  /** Set while the workout is paused (Nathan, 19 Nov). In the account a paused workout is an active one whose workout clock is stopped. */
+  pausedAt?: number | null;
 }
 
 /** A session with nothing logged for 30 minutes finishes itself (spec Section 10). */
 export const AUTO_FINISH_MS = 30 * 60 * 1000;
 /** A finished workout can be reopened for 48 hours (spec Section 10). */
 export const REOPEN_MS = 48 * 60 * 60 * 1000;
+/** A paused workout finishes itself only after 2 hours paused (Nathan, 19 Nov). */
+export const PAUSED_FINISH_MS = 2 * 60 * 60 * 1000;
 
 /** What the phone knows about an exercise's past sessions, newest last. */
 export interface PastSession {
@@ -169,7 +173,7 @@ export function startSession(name: string, day: string, plan: PlanItem[], histor
   void history;
   return {
     id: uid('s'), name, day, startedAt: now, endedAt: null, clock: startClock(newClock(), now), exercises, blocks,
-    curBlock: blocks[0].id, curMember: blocks[0].members[0], restEndsAt: null, restTotal: 0, breakUndo: null, lastActivityAt: now,
+    curBlock: blocks[0].id, curMember: blocks[0].members[0], restEndsAt: null, restTotal: 0, breakUndo: null, pausedAt: null, lastActivityAt: now,
     workoutId, finishReason: null,
   };
 }
@@ -250,7 +254,7 @@ export function goTo(s0: Session, blockId: string, now: number, member?: string)
   if (from.id !== blockId) {
     from.clock = pauseClock(from.clock, now);
     const to = blockOf(s, blockId);
-    if (to.started && !to.stopped) to.clock = startClock(to.clock, now);
+    if (to.started && !to.stopped && !isPaused(s)) to.clock = startClock(to.clock, now);
     s.curBlock = blockId;
   }
   const to = blockOf(s, blockId);
@@ -375,6 +379,97 @@ export function addRest(s0: Session, seconds: number): Session {
   if (s.restEndsAt !== null) { s.restEndsAt += seconds * 1000; s.restTotal += seconds; }
   return s;
 }
+// ---------------------------------------------------------------- pause (Nathan, 19 Nov)
+
+export const isPaused = (s: Session) => s.endedAt === null && s.pausedAt != null;
+
+/**
+ * Pause stops the workout clock and the open exercise's clock, and ends any
+ * rest (and so its alert). Paused time is never counted. A paused workout does
+ * not finish itself after 30 minutes; it does after 2 hours paused.
+ */
+export function pauseSession(s0: Session, now: number): Session {
+  if (s0.endedAt !== null || isPaused(s0)) return s0;
+  const s = clone(s0);
+  s.clock = pauseClock(s.clock, now);
+  const b = blockOf(s, s.curBlock);
+  b.clock = pauseClock(b.clock, now);
+  s.restEndsAt = null;
+  s.pausedAt = now;
+  s.lastActivityAt = now;
+  return s;
+}
+
+/** Resume carries on where the pause left off. */
+export function resumeSession(s0: Session, now: number): Session {
+  if (!isPaused(s0)) return s0;
+  const s = clone(s0);
+  s.clock = startClock(s.clock, now);
+  const b = blockOf(s, s.curBlock);
+  if (b.started && !b.stopped) b.clock = startClock(b.clock, now);
+  s.pausedAt = null;
+  s.lastActivityAt = now;
+  return s;
+}
+
+// ---------------------------------------------------------------- sets and rest for today (Nathan, 19 Nov)
+// These change today's session only, never the library, the campaign or any
+// other day. In a superset they change every member, so it stays paired and equal.
+
+/** Adds one working set to an exercise; in a superset, one round to every member. */
+export function addSetToBlock(s0: Session, blockId: string, now: number): Session {
+  const s = clone(s0);
+  const b = blockOf(s, blockId);
+  if (b.closed || blockSkipped(s, b)) return s0;
+  for (const k of b.members) {
+    const e = s.exercises[k];
+    e.types.push('working');
+    e.seeds.push(e.seeds.at(-1) ?? null);
+  }
+  b.fixedBudget = null; // worked out again from the sets (the same formula a break uses)
+  if (b.stopped) {
+    b.stopped = false;
+    b.stoppedAt = null;
+    if (s.curBlock === b.id && b.started && !isPaused(s) && s.endedAt === null) b.clock = startClock(b.clock, now);
+  }
+  s.lastActivityAt = now;
+  return s;
+}
+
+/** Removes the last set not yet logged (every member's, in a superset). Never below one set or below what is logged. */
+export function removeSetFromBlock(s0: Session, blockId: string, now: number): Session {
+  const s = clone(s0);
+  const b = blockOf(s, blockId);
+  if (b.closed) return s0;
+  const ms = b.members.map((k) => s.exercises[k]);
+  if (!ms.every((e) => e.types.length > Math.max(1, e.logs.length, b.baseLogged + 1))) return s0;
+  for (const e of ms) { e.types.pop(); e.seeds.splice(e.types.length); }
+  b.fixedBudget = null;
+  if (blockDone(s, b) && b.started && !b.stopped) {
+    b.stopped = true;
+    b.stoppedAt = now;
+    b.clock = pauseClock(b.clock, now);
+  }
+  s.lastActivityAt = now;
+  return s;
+}
+
+/** Sets the rest after each set (after each round, in a superset), 0 to 10 minutes. */
+export function setBlockRest(s0: Session, blockId: string, seconds: number, now: number): Session {
+  const s = clone(s0);
+  const b = blockOf(s, blockId);
+  if (b.closed) return s0;
+  const r = Math.max(0, Math.min(600, Math.round(seconds)));
+  for (const k of b.members) s.exercises[k].rest = r;
+  b.fixedBudget = null;
+  s.lastActivityAt = now;
+  return s;
+}
+
+export const blockRest = (s: Session, b: Block) => s.exercises[b.members[0]].rest;
+export const canRemoveSet = (s: Session, b: Block) =>
+  !b.closed && b.members.every((k) => s.exercises[k].types.length > Math.max(1, s.exercises[k].logs.length, b.baseLogged + 1));
+
 export function skipRest(s0: Session): Session {
   const s = clone(s0);
   s.restEndsAt = null;
@@ -533,7 +628,8 @@ export function finishSession(s0: Session, now: number, reason: 'user' | 'auto' 
  * clock is cut back to that moment. The server's job does the same.
  */
 export function autoFinishIfIdle(s: Session, now: number): Session {
-  if (s.endedAt !== null || now - s.lastActivityAt < AUTO_FINISH_MS) return s;
+  const limit = isPaused(s) ? PAUSED_FINISH_MS : AUTO_FINISH_MS;
+  if (s.endedAt !== null || now - s.lastActivityAt < limit) return s;
   return finishSession(s, Math.max(s.startedAt, s.lastActivityAt), 'auto');
 }
 

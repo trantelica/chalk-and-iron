@@ -149,3 +149,26 @@ Open Chalk and Iron from its home-screen icon, and tap **Start a workout** (it r
 **Nathan's results, 19 November 2026:** all twelve passed. Notes: step 6 passed, but the offline line was cut off (fixed: it now wraps and is shorter). Step 9 passed, and deleting a set added a set to do at the end; that is the helper's rule so the plan keeps its number of sets, and it is waiting on Nathan's decision (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10). Step 10 passed, but the finished screen said "Saved to your account" twice (fixed).
 
 Once step 3 passes, the throwaway iPhone checks page and its two tables can be removed. The coding agent does that with a new migration, and tells you first, since it deletes the test page's tables.
+
+## 5. Phase 2: Add set, Pause, and sets and rest in the tray (19 November 2026)
+
+Built on the `phase-2-add-set-pause-tray` branch (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
+
+### K. Supabase SQL Editor
+
+**Run this as soon as the pull request is merged.** Until it is run, everything works except that a workout left paused finishes itself after 30 minutes instead of 2 hours.
+
+Open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
+
+1. [`20261119000100_paused_workouts.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261119000100_paused_workouts.sql). It should end with "Success. No rows returned". Safe to run more than once.
+
+### L. On your iPhone
+
+Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it away and open it again.
+
+1. [ ] **+ Set.** Start a workout and tap **Start exercise**. Tap **+ Set** (beside Skip rest). A new set appears at the end of the list and the Budget grows. In a superset, both exercises gain a set.
+2. [ ] **Typing.** Tap the weight box. The screen shrinks to the exercise name, a clock line, the current set, the two boxes and **Log set**, all above the keyboard. Type a weight and tap **Log set** once: the set is logged and the full screen comes back.
+3. [ ] **Pause.** Open the tray (**Workout** at the top) and tap **Pause workout**. The workout clock reads **Paused** and stops. Close the tray: a **Workout paused** panel shows. Wait a minute and tap **Resume workout**: the clocks carry on from where they stopped.
+4. [ ] **Pause during rest.** Log a set so rest starts, then pause. Rest ends at once and no "Rest over" notification comes.
+5. [ ] **Sets and rest in the tray.** In the tray, tap **+** and **−** beside **Sets** (or **Rounds** for a superset), and beside **Rest**. The boxes for that exercise change, and the next rest uses the new time. Your library workout is not changed.
+
