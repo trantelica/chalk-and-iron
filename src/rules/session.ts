@@ -313,7 +313,7 @@ export function logSet(s0: Session, input: LogInput, history: History, now: numb
 export function lastLoggedSetUndo(s0: Session, key: string, history: History = {}, now = Date.now()): Session {
   const e = s0.exercises[key];
   if (!e.logs.length) return s0;
-  const s = deleteSet(s0, key, e.logs.length - 1, history, now);
+  const s = deleteSet(s0, key, e.logs.length - 1, history, now, true); // Undo: the set goes back to being a set to do
   const b = blockOfKey(s, key);
   if (s.curBlock !== b.id) {
     blockOf(s, s.curBlock).clock = pauseClock(blockOf(s, s.curBlock).clock, now);
@@ -338,24 +338,42 @@ function recheckToday(s: Session, key: string, history: History) {
 }
 
 /**
- * Deletes a logged set (spec Section 10). The sets after it move up one, and a
- * set to do takes its place at the end, so the plan keeps its number of sets.
+ * Deletes a logged set (spec Section 10). The sets after it move up one.
  * Records are worked out again.
+ *
+ * The set is removed, and no fresh set is added to make up the number
+ * (Nathan, 19 Nov). Two cases keep its place as a set to do instead: Undo
+ * (`refill`), which takes back a set just logged; and a superset, whose
+ * members always have the same number of sets (this design's own choice,
+ * so a superset stays paired and equal). An exercise is never left with no
+ * sets at all.
  */
-export function deleteSet(s0: Session, key: string, index: number, history: History = {}, now = Date.now()): Session {
+export function deleteSet(s0: Session, key: string, index: number, history: History = {}, now = Date.now(), refill = false): Session {
   const s = clone(s0);
   const e = s.exercises[key];
   if (index < 0 || index >= e.logs.length) return s;
+  const b = blockOfKey(s, key);
+  const paired = !b.closed && b.members.length > 1;
   e.logs.splice(index, 1);
   e.types.splice(index, 1);
-  e.types.push('working');
+  e.seeds.splice(index, 1);
+  if (refill || paired || e.types.length === 0) {
+    e.types.push('working');
+    e.seeds.push(e.seeds.at(-1) ?? null);
+  } else if (!b.closed) {
+    b.fixedBudget = null; // the budget follows the sets left
+  }
   // The others in the set list keep their own types after the move.
   e.logs.forEach((l, i) => { e.types[i] = l.type; });
-  const b = blockOfKey(s, key);
   if (b.stopped && !blockDone(s, b) && !blockSkipped(s, b)) {
     b.stopped = false;
     b.stoppedAt = null;
-    if (s.curBlock === b.id && s.endedAt === null) b.clock = startClock(b.clock, now);
+    if (s.curBlock === b.id && s.endedAt === null && !isPaused(s)) b.clock = startClock(b.clock, now);
+  }
+  if (!b.stopped && b.started && blockDone(s, b)) {
+    b.stopped = true;
+    b.stoppedAt = now;
+    b.clock = pauseClock(b.clock, now);
   }
   recheckToday(s, key, history);
   s.lastActivityAt = now;

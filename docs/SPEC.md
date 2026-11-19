@@ -607,7 +607,7 @@ These rules settle what happens outside the normal path. Nathan decided them in 
 
 ### Logged sets
 
-- A logged set can be edited or deleted during the session and later from History.
+- A logged set can be edited or deleted during the session and later from History. Deleting a set removes it; no fresh set is added in its place (Nathan, 19 Nov). In a superset the deleted set becomes a set to do again, so the members stay equal.
 - Records are recalculated whenever a set changes. A record that no longer holds is removed.
 - Log set offers Undo for a few seconds after each set.
 

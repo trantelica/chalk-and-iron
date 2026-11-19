@@ -146,7 +146,7 @@ Open Chalk and Iron from its home-screen icon, and tap **Start a workout** (it r
 11. [x] **Last time.** Start another quick workout with Barbell Curl. "Last time" shows the sets you just logged, and the weight box is filled with them. Finish or leave it.
 12. [x] Optional, **a second device.** On the Mac, sign in at https://chalkandiron.vercel.app/signin, tap **Start a workout**, and start a quick workout while one is running on the iPhone. It says "A workout is already running", with **Carry on with it here** and **Finish it, and start this one**.
 
-**Nathan's results, 19 November 2026:** all twelve passed. Notes: step 6 passed, but the offline line was cut off (fixed: it now wraps and is shorter). Step 9 passed, and deleting a set added a set to do at the end; that is the helper's rule so the plan keeps its number of sets, and it is waiting on Nathan's decision (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10). Step 10 passed, but the finished screen said "Saved to your account" twice (fixed).
+**Nathan's results, 19 November 2026:** all twelve passed. Notes: step 6 passed, but the offline line was cut off (fixed: it now wraps and is shorter). Step 9 passed, and deleting a set added a set to do at the end. Nathan decided it should not: from the next merge, deleting a set removes it with no fresh set added (in a superset the set becomes one to do again, so the pair stays equal). Step 10 passed, but the finished screen said "Saved to your account" twice (fixed).
 
 Once step 3 passes, the throwaway iPhone checks page and its two tables can be removed. The coding agent does that with a new migration, and tells you first, since it deletes the test page's tables.
 
