@@ -75,7 +75,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - During a workout the user can skip, reorder or add exercises from the workout tray, and break a superset into individual exercises (see Supersets).
 - **Changes for today only** (Nathan, 19 Nov). During a workout the user can add a set (the **+ Set** button beside Skip rest, or the tray), remove a set not yet logged, and change an exercise's rest (the tray, in steps of 15 seconds, 0 to 10 minutes). In a superset these apply to every member, so it stays paired and equal: + Set adds a round. They change that session only. They never reach the library, the campaign, other days or other scheduled instances of the workout.
 - **Pause** (Nathan, 19 Nov). The tray offers Pause workout. Pause stops the workout clock and the open exercise's clock, and ends any rest and its alert. Resume carries on from there, and paused time is never counted. A paused workout does not finish itself after 30 minutes of no activity; it finishes itself after 2 hours paused, ending at the pause.
-- **While typing a weight or reps** (Nathan, 19 Nov), the screen keeps only the exercise name, a slim line with the exercise clock and any rest, the current set, the two boxes and Log set, so the keyboard covers nothing needed. Log set works in one tap without closing the keyboard first.
+- **While typing a weight or reps** (Nathan, 19 Nov), the screen keeps only the exercise name, a slim line with the exercise clock and any rest, the current set, the two boxes and Log set, so the keyboard covers nothing needed. Log set works in one tap without closing the keyboard first. The page stays at the top while the keyboard is up, with no empty space to scroll past. If that cannot be made to work on the iPhone, this layout is dropped and the screen stays as it is while typing (Nathan, 19 Nov).
 - A session survives a closed tab, a crash or a lost connection. Sets logged offline sync when the connection returns.
 - The screen stays awake during a session.
 
@@ -340,6 +340,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 - Each exercise row shows one box per set that fills as sets are logged, the weights and reps logged or planned, and Done or Now.
 - Superset members show their letter. Tapping a row jumps to that exercise.
 - New, not prototyped: each row can be skipped or dragged to reorder, and an Add exercise control picks from the library. A superset's rows offer Break superset, with Undo until a set is logged after the break.
+- The tray, Swap and Stats close with **Return to workout** (Nathan, 19 Nov).
 - New (Nathan, 19 Nov): each exercise has a sets control (minus and plus) and a rest control (minus and plus, 15 seconds a step), for today only, and the tray has Pause workout and Resume workout.
 
 ### Phone: stats (prototyped)

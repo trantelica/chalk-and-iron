@@ -74,6 +74,24 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
   const [now, setNow] = useState(() => Date.now());
   const [banner, setBanner] = useState('');
   const [typing, setTyping] = useState(false); // a weight or reps box has the keyboard (Nathan, 19 Nov)
+  // While typing, the screen is short. An iPhone has already scrolled down to
+  // show the box, which would leave empty space above it (Nathan, 19 Nov), so
+  // the page is held at the top while the keyboard is up.
+  useEffect(() => {
+    if (!typing) return;
+    const top = () => { if (window.scrollY !== 0) window.scrollTo(0, 0); };
+    const timers = [0, 60, 200, 400, 700].map((ms) => setTimeout(top, ms));
+    const vv = window.visualViewport;
+    vv?.addEventListener('resize', top);
+    vv?.addEventListener('scroll', top);
+    window.addEventListener('scroll', top);
+    return () => {
+      timers.forEach(clearTimeout);
+      vv?.removeEventListener('resize', top);
+      vv?.removeEventListener('scroll', top);
+      window.removeEventListener('scroll', top);
+    };
+  }, [typing]);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [undo, setUndo] = useState<string | null>(null);
   const audio = useRef<AudioContext | null>(null);
@@ -555,12 +573,12 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
       )}
 
       {sheet === 'stats' && (
-        <Sheet title="Stats" onClose={() => setSheet(null)}>
+        <Sheet title="Stats" onClose={() => setSheet(null)} closeLabel="Return to workout">
           <StatsBody s={s} e={e} unit={unit} history={history} now={now} records={records} />
         </Sheet>
       )}
       {sheet === 'swap' && (
-        <Sheet title={`Swap ${e.name}`} onClose={() => setSheet(null)}>
+        <Sheet title={`Swap ${e.name}`} onClose={() => setSheet(null)} closeLabel="Return to workout">
           <div className="muted">Replaces this exercise for today only. Your library workout is not changed.</div>
           {e.logs.length > 0 && <div className="muted">This exercise already has sets logged, and they stay with it. To change to another exercise now, skip this one in the tray and add the other.</div>}
           {e.alternates.length === 0 && <div className="muted">This exercise has no stored alternates yet.</div>}
@@ -822,19 +840,19 @@ function Tray({ s, now, libById, onClose, onGo, onSkip, onMove, onBreak, onUndoB
       {s.breakUndo && <button className="btn" onClick={onUndoBreak}>Undo break</button>}
       <div className="muted">Tap an exercise to jump to it. Rows sharing a letter are a superset. Sets and rest changed here apply to today only: your library workout and plan are not changed.</div>
       <div className="row"><button className="btn grow" onClick={onAdd}>Add exercise</button><button className="btn grow" onClick={onFinish}>Finish workout</button></div>
-      <button className="btn" onClick={onClose}>Close</button>
+      <button className="btn" onClick={onClose}>Return to workout</button>
     </div>
   );
 }
 
 // ------------------------------------------------------------------ sheets
-function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+function Sheet({ title, onClose, children, closeLabel = 'Close' }: { title: string; onClose: () => void; children: React.ReactNode; closeLabel?: string }) {
   return (
     <div className="sheet" role="dialog" aria-label={title}>
       <div className="sheet-card">
         <div className="display big">{title}</div>
         {children}
-        <button className="btn" onClick={onClose}>Close</button>
+        <button className="btn" onClick={onClose}>{closeLabel}</button>
       </div>
     </div>
   );

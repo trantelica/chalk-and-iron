@@ -166,9 +166,15 @@ Open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **
 
 Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it away and open it again.
 
-1. [ ] **+ Set.** Start a workout and tap **Start exercise**. Tap **+ Set** (beside Skip rest). A new set appears at the end of the list and the Budget grows. In a superset, both exercises gain a set.
-2. [ ] **Typing.** Tap the weight box. The screen shrinks to the exercise name, a clock line, the current set, the two boxes and **Log set**, all above the keyboard. Type a weight and tap **Log set** once: the set is logged and the full screen comes back.
-3. [ ] **Pause.** Open the tray (**Workout** at the top) and tap **Pause workout**. The workout clock reads **Paused** and stops. Close the tray: a **Workout paused** panel shows. Wait a minute and tap **Resume workout**: the clocks carry on from where they stopped.
-4. [ ] **Pause during rest.** Log a set so rest starts, then pause. Rest ends at once and no "Rest over" notification comes.
-5. [ ] **Sets and rest in the tray.** In the tray, tap **+** and **−** beside **Sets** (or **Rounds** for a superset), and beside **Rest**. The boxes for that exercise change, and the next rest uses the new time. Your library workout is not changed.
+1. [x] **+ Set.** Start a workout and tap **Start exercise**. Tap **+ Set** (beside Skip rest). A new set appears at the end of the list and the Budget grows. In a superset, both exercises gain a set.
+2. [x] **Typing.** Tap the weight box. The screen shrinks to the exercise name, a clock line, the current set, the two boxes and **Log set**, all above the keyboard. Type a weight and tap **Log set** once: the set is logged and the full screen comes back.
+3. [x] **Pause.** Open the tray (**Workout** at the top) and tap **Pause workout**. The workout clock reads **Paused** and stops. Close the tray: a **Workout paused** panel shows. Wait a minute and tap **Resume workout**: the clocks carry on from where they stopped.
+4. [x] **Pause during rest.** Log a set so rest starts, then pause. Rest ends at once and no "Rest over" notification comes.
+5. [x] **Sets and rest in the tray.** In the tray, tap **+** and **−** beside **Sets** (or **Rounds** for a superset), and beside **Rest**. The boxes for that exercise change, and the next rest uses the new time. Your library workout is not changed.
 
+**Nathan's results, 19 November 2026:** all five passed. Step 2: the screen shrank, but the empty space above stayed and he had to scroll up. Fixed the same day: while the keyboard is up the page is held at the top, so the boxes and Log set sit just under the exercise name. If it still leaves a gap on the iPhone, the typing layout is turned off and the screen goes back to how it was before (Nathan, 19 Nov). Step 5: the library cannot be seen on the phone yet, so a database test now checks that adding and removing sets and changing rest leave the library workout and the exercise exactly as they were. Also changed: the tray, Swap and Stats close with **Return to workout**.
+
+### M. On your iPhone, after the next merge
+
+1. [ ] **Typing, again.** Start a workout and scroll down so the weight box is near the bottom of the screen. Tap it. The screen shrinks with no empty space above: the exercise name is at the top and **Log set** is just above the keyboard, with no scrolling needed.
+2. [ ] **Return to workout.** Open the tray, Swap and Stats in turn. Each closes with **Return to workout**.

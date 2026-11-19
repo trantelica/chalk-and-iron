@@ -7,6 +7,7 @@ import { Outbox } from '@/lib/outbox';
 import {
   autoFinishIfIdle, deleteSet, editSet, finishSession, logSet, reopenSession, startExercise, startSession,
   AUTO_FINISH_MS, type History, type PlanItem, type Session,
+  addSetToBlock, removeSetFromBlock, setBlockRest,
   pauseSession, resumeSession, PAUSED_FINISH_MS,
 } from '@/rules/session';
 import {
@@ -322,6 +323,38 @@ describe('a paused workout (Nathan, 19 Nov)', () => {
     s = resumeSession(s, t0 + 600000);
     expect(s.pausedAt).toBeNull();
     expect(s.clock.since).toBe(t0 + 600000);
+  });
+});
+
+describe('sets and rest changed in the tray stay in today\'s workout (Nathan, 19 Nov)', () => {
+  it('the library workout, its rows and the exercise keep their sets and rest', async () => {
+    const [w] = await db.as<{ id: string }>(a, `insert into workouts (user_id, name) values ($1, 'Tray Test') returning id`, [a]);
+    await db.as(a, `insert into workout_items (user_id, workout_id, position, exercise_id, sets, reps) values ($1, $2, 0, $3, 3, 8)`, [a, w.id, ex['Barbell Curl']]);
+    const before = await db.as<Record<string, unknown>>(a,
+      `select i.sets, i.reps, i.rest_seconds, e.rest_seconds as ex_rest, e.version, w.version as w_version
+       from workout_items i join exercises e on e.id = i.exercise_id join workouts w on w.id = i.workout_id where i.workout_id = $1`, [w.id]);
+
+    const p = phone(a);
+    const t0 = Date.now() - 60000;
+    let s = startExercise(startSession('Tray Test', '2026-11-19', plan(['Barbell Curl']), {}, t0, noSeed, w.id), t0);
+    p.commit(s);
+    s = addSetToBlock(s, s.curBlock, t0 + 1000); p.commit(s);
+    s = addSetToBlock(s, s.curBlock, t0 + 2000); p.commit(s);
+    s = removeSetFromBlock(s, s.curBlock, t0 + 3000); p.commit(s);
+    s = setBlockRest(s, s.curBlock, 45, t0 + 4000); p.commit(s);
+    await p.box.flush();
+    expect(p.box.rejected).toEqual([]);
+
+    // Today's workout has 4 sets and 45 seconds of rest...
+    const [se] = await db.as<{ planned_set_types: string[]; planned_rest_seconds: number }>(a,
+      `select planned_set_types, planned_rest_seconds from session_exercises where session_id = $1`, [s.id]);
+    expect(parse(se.planned_set_types)).toHaveLength(4);
+    expect(se.planned_rest_seconds).toBe(45);
+    // ...and the library is exactly as it was.
+    const after = await db.as<Record<string, unknown>>(a,
+      `select i.sets, i.reps, i.rest_seconds, e.rest_seconds as ex_rest, e.version, w.version as w_version
+       from workout_items i join exercises e on e.id = i.exercise_id join workouts w on w.id = i.workout_id where i.workout_id = $1`, [w.id]);
+    expect(after).toEqual(before);
   });
 });
 
