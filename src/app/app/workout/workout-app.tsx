@@ -8,6 +8,7 @@ import {
   deleteSet, editSet, efficiencyOf, factsFor, finishSession, goTo, kindOf, liveBlocks, logSet, moveBlock, pastFacts, realSessions,
   recordsToday, reopenSession, setDetails, setsDone, setsPlanned, skipBlock, skipRest, startExercise, startSession, swapExercise,
   toggleSet, toHistory, undoBreak, volumeOf, lastLoggedSetUndo,
+  addSetToBlock, removeSetFromBlock, setBlockRest, blockRest, canRemoveSet, isPaused, pauseSession, resumeSession,
   type History, type LogInput, type PlanItem, type Session,
 } from '@/rules/session';
 import {
@@ -72,6 +73,8 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
   const [detailRound, setDetailRound] = useState(0);
   const [now, setNow] = useState(() => Date.now());
   const [banner, setBanner] = useState('');
+  const [typing, setTyping] = useState(false); // a weight or reps box has the keyboard (Nathan, 19 Nov)
+  const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [undo, setUndo] = useState<string | null>(null);
   const audio = useRef<AudioContext | null>(null);
   const lock = useRef<WakeLockSentinel | null>(null);
@@ -424,9 +427,20 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
     ? `${block.members.indexOf(e.key) === 0 ? 'Then' : 'With'} ${block.members.filter((k) => k !== e.key).map((k) => s.exercises[k].name).join(', ')}`
     : [e.muscle, e.equipment].filter(Boolean).join(' · ');
 
+  const paused = isPaused(s);
+  const typingOn = typing && !paused;
   return (
-    <main className="phone">
-      <div className="phone-top">
+    <main
+      className={`phone ${typingOn ? 'typing' : ''}`}
+      onFocus={(ev) => { if ((ev.target as HTMLElement).classList?.contains('num')) { if (typingTimer.current) clearTimeout(typingTimer.current); setTyping(true); } }}
+      onBlur={(ev) => {
+        if (!(ev.target as HTMLElement).classList?.contains('num')) return;
+        // Wait a moment, so a tap on Log set lands before the screen grows back.
+        if (typingTimer.current) clearTimeout(typingTimer.current);
+        typingTimer.current = setTimeout(() => setTyping(false), 300);
+      }}
+    >
+      <div className="phone-top hide-typing">
         <Link className="btn icon" href="/app" aria-label="Back to the home screen">‹</Link>
         <button className="pull" onClick={() => setTray(true)} aria-label="Pull down the full workout">
           <span>Workout</span><span aria-hidden="true">⌄</span>
@@ -434,36 +448,49 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
         <Link className="btn coach" href="/app" aria-label="Coach">Coach</Link>
       </div>
 
-      <div className="phone-head">
+      <div className="phone-head hide-typing">
         <div className="row tight">
           <button className="btn icon" disabled={pos <= 0} onClick={() => commit(goTo(s, live[pos - 1].id, Date.now()))} aria-label="Previous exercise">‹</button>
           <span className="lab">{s.name} · {pos + 1}/{live.length}</span>
           <button className="btn icon" disabled={pos >= live.length - 1} onClick={() => commit(goTo(s, live[pos + 1].id, Date.now()))} aria-label="Next exercise">›</button>
         </div>
-        <div className="row tight"><span className="lab">Workout</span><span className="display clock-text">{mmss(readClock(s.clock, now))}</span></div>
+        <div className="row tight"><span className="lab">{paused ? 'Paused' : 'Workout'}</span><span className="display clock-text">{mmss(readClock(s.clock, now))}</span></div>
       </div>
-      {syncLine}
+      <div className="hide-typing">{syncLine}</div>
 
       <div className="ex-title">
         <div className="lab accent-text">{phase}</div>
         <h1 className="ex-name">{e.name}</h1>
-        <div className="muted fixed-line">{subline}</div>
+ <div className="muted fixed-line hide-typing">{subline}</div>
         {block.members.length > 1 && canBreak(s, block) && (
-          <button className="btn small" onClick={() => commit(breakSuperset(s, block.id, Date.now()))}>Break superset</button>
+          <button className="btn small hide-typing" onClick={() => commit(breakSuperset(s, block.id, Date.now()))}>Break superset</button>
         )}
         {block.brokenFrom && s.breakUndo && (
-          <button className="btn small" onClick={() => commit(undoBreak(s, Date.now()))}>Undo break</button>
+          <button className="btn small hide-typing" onClick={() => commit(undoBreak(s, Date.now()))}>Undo break</button>
         )}
       </div>
 
       <input
-        className="note" aria-label="Note for this exercise" placeholder="Add a note that stays with this exercise"
+        className="note hide-typing" aria-label="Note for this exercise" placeholder="Add a note that stays with this exercise"
         value={notes[e.exerciseId] ?? libById.get(e.exerciseId)?.note ?? ''}
         onChange={(ev) => { setNotes({ ...notes, [e.exerciseId]: ev.target.value }); saveNote(e.exerciseId, ev.target.value); }}
         onBlur={(ev) => { if (notes[e.exerciseId] !== undefined) saveNote(e.exerciseId, ev.target.value, true); }}
       />
 
-      <div className="dial-row">
+      <div className="typing-strip" aria-hidden={!typingOn}>
+        <span>{!block.started ? 'Not started' : d.remaining >= 0 ? `${mmss(d.remaining)} left` : `+${mmss(-d.remaining)} over`}</span>
+        {resting && <span className="rest-line on">Rest {mmss(restLeft)}</span>}
+      </div>
+
+      {paused && (
+        <div className="paused-panel" role="status">
+          <div className="display big">Workout paused</div>
+          <div className="muted">The clocks are stopped. Paused time is not counted. A paused workout finishes itself after 2 hours.</div>
+          <button className="btn primary" onClick={() => commit(resumeSession(s, Date.now()))}>Resume workout</button>
+        </div>
+      )}
+
+      <div className={`dial-row hide-typing ${paused ? 'is-paused' : ''}`}>
         <DialView fill={d.fill} red={d.red} rest={resting ? restLeft / s.restTotal : 0} />
         <div className="dial-text">
           <div className="lab">Exercise clock</div>
@@ -473,6 +500,7 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
           <div className="row tight">
             <button className="btn" disabled={!resting} onClick={() => commit(addRest(s, 15))}>+0:15</button>
             <button className="btn" disabled={!resting} onClick={() => commit(skipRest(s))}>Skip rest</button>
+            <button className="btn add-set" disabled={paused || blockSkipped(s, block)} onClick={() => commit(addSetToBlock(s, block.id, Date.now()))} aria-label={block.members.length > 1 ? 'Add a round to this superset' : 'Add a set'}>+ Set</button>
           </div>
         </div>
       </div>
@@ -483,11 +511,11 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
         onDetail={(r) => { setDetailRound(r); setSheet('detail'); }}
       />
 
-      <div className="last-time muted">
+      <div className="last-time muted hide-typing">
         {lastSession ? `Last time: ${lastSession.sets.map((x) => `${unit === 'bw' || x.lb === null ? '1 BW' : displayNum(fromPounds(x.lb, unit))}${unit === 'bw' ? '' : ' ' + unit} × ${x.reps}`).join(' · ')}` : 'No history yet for this exercise'}
       </div>
 
-      <Entry
+      {!paused && <Entry
         key={`${e.key}-${round}`}
         e={e} round={round} unit={unit}
         disabled={!block.started || done}
@@ -495,16 +523,16 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
         onUnit={(u) => chooseUnit(e.exerciseId, u)}
         onMain={onMain}
         undo={undo === e.key ? () => { commit(lastLoggedSetUndo(s, e.key, history, Date.now())); setUndo(null); } : null}
-      />
+      />}
 
-      <div className="row actions">
+      <div className="row actions hide-typing">
         <button className="btn grow" onClick={() => setSheet('swap')}>Swap</button>
         <button className="btn grow" onClick={() => setSheet('stats')}>Stats</button>
       </div>
 
       {banner && <div className="banner" role="status">{banner}</div>}
       {!alertsOn && pushSupported() && (
-        <div className="row tight small-text"><button className="btn small" onClick={allowAlerts}>Turn on rest alerts</button><span className="muted">{alertsMsg || 'So "Rest over" reaches you with the app in the background.'}</span></div>
+        <div className="row tight small-text hide-typing"><button className="btn small" onClick={allowAlerts}>Turn on rest alerts</button><span className="muted">{alertsMsg || 'So "Rest over" reaches you with the app in the background.'}</span></div>
       )}
       {conflictSheet}
 
@@ -519,6 +547,10 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
           onUndoBreak={() => commit(undoBreak(s, Date.now()))}
           onAdd={() => setSheet('add')}
           onFinish={() => setSheet('finish')}
+          onAddSet={(id) => commit(addSetToBlock(s, id, Date.now()))}
+          onRemoveSet={(id) => commit(removeSetFromBlock(s, id, Date.now()))}
+          onRest={(id, secs) => commit(setBlockRest(s, id, secs, Date.now()))}
+          onPause={() => commit(paused ? resumeSession(s, Date.now()) : pauseSession(s, Date.now()))}
         />
       )}
 
@@ -723,11 +755,13 @@ function Entry({ e, round, unit, disabled, mainLabel, onUnit, onMain, undo }: {
 }
 
 // ------------------------------------------------------------------ tray
-function Tray({ s, now, libById, onClose, onGo, onSkip, onMove, onBreak, onUndoBreak, onAdd, onFinish }: {
+function Tray({ s, now, libById, onClose, onGo, onSkip, onMove, onBreak, onUndoBreak, onAdd, onFinish, onAddSet, onRemoveSet, onRest, onPause }: {
   s: Session; now: number; libById: Map<string, LibExercise>; onClose: () => void;
   onGo: (blockId: string, key: string) => void; onSkip: (blockId: string) => void; onMove: (blockId: string, d: -1 | 1) => void;
   onBreak: (blockId: string) => void; onUndoBreak: () => void; onAdd: () => void; onFinish: () => void;
+  onAddSet: (blockId: string) => void; onRemoveSet: (blockId: string) => void; onRest: (blockId: string, seconds: number) => void; onPause: () => void;
 }) {
+  const paused = isPaused(s);
   void libById;
   const live = liveBlocks(s);
   const sd = setsDone(s);
@@ -735,7 +769,8 @@ function Tray({ s, now, libById, onClose, onGo, onSkip, onMove, onBreak, onUndoB
   const exDone = live.filter((b) => blockSkipped(s, b) || blockDone(s, b)).length;
   return (
     <div className="tray" role="dialog" aria-label="Full workout">
-      <div className="row spread"><span className="display big">{s.name}</span><span className="display clock-text">{mmss(readClock(s.clock, now))}</span></div>
+      <div className="row spread"><span className="display big">{s.name}</span><span className="display clock-text">{paused ? 'Paused ' : ''}{mmss(readClock(s.clock, now))}</span></div>
+      <button className={`btn ${paused ? 'primary' : ''}`} onClick={onPause}>{paused ? 'Resume workout' : 'Pause workout'}</button>
       <div>
         <div className="row spread lab"><span>{sd} of {sp} sets done</span><span>{exDone} of {live.length} exercises</span></div>
         <div className="bar"><div className="bar-fill" style={{ width: `${sp ? Math.round((sd / sp) * 100) : 0}%` }} /></div>
@@ -765,11 +800,27 @@ function Tray({ s, now, libById, onClose, onGo, onSkip, onMove, onBreak, onUndoB
               {!blockDone(s, b) && !blockSkipped(s, b) && <button className="btn small" onClick={() => onSkip(b.id)}>Skip</button>}
               {b.members.length > 1 && canBreak(s, b) && <button className="btn small" onClick={() => onBreak(b.id)}>Break superset</button>}
             </div>
+            {!blockSkipped(s, b) && (
+              <div className="row spread tray-edit">
+                <span className="row tight">
+                  <span className="lab">{b.members.length > 1 ? 'Rounds' : 'Sets'}</span>
+                  <button className="btn small" disabled={!canRemoveSet(s, b)} onClick={() => onRemoveSet(b.id)} aria-label="Remove a set">−</button>
+                  <span className="tray-num">{s.exercises[b.members[0]].types.length}</span>
+                  <button className="btn small" onClick={() => onAddSet(b.id)} aria-label="Add a set">+</button>
+                </span>
+                <span className="row tight">
+                  <span className="lab">Rest</span>
+                  <button className="btn small" disabled={blockRest(s, b) <= 0} onClick={() => onRest(b.id, blockRest(s, b) - 15)} aria-label="15 seconds less rest">−</button>
+                  <span className="tray-num">{mmss(blockRest(s, b))}</span>
+                  <button className="btn small" disabled={blockRest(s, b) >= 600} onClick={() => onRest(b.id, blockRest(s, b) + 15)} aria-label="15 seconds more rest">+</button>
+                </span>
+              </div>
+            )}
           </div>
         ))}
       </div>
       {s.breakUndo && <button className="btn" onClick={onUndoBreak}>Undo break</button>}
-      <div className="muted">Tap an exercise to jump to it. Rows sharing a letter are a superset.</div>
+      <div className="muted">Tap an exercise to jump to it. Rows sharing a letter are a superset. Sets and rest changed here apply to today only: your library workout and plan are not changed.</div>
       <div className="row"><button className="btn grow" onClick={onAdd}>Add exercise</button><button className="btn grow" onClick={onFinish}>Finish workout</button></div>
       <button className="btn" onClick={onClose}>Close</button>
     </div>

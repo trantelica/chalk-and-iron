@@ -344,6 +344,8 @@ export function sessionFromRows(
     lastActivityAt: ms(session.last_activity_at) ?? ms(session.started_at) ?? 0,
     workoutId: (session.workout_id as string | null) ?? null,
     finishReason: (session.finish_reason as Session['finishReason']) ?? null,
+    // An active workout whose workout clock is stopped is paused (Nathan, 19 Nov).
+    pausedAt: session.status === 'active' && !session.clock_running_since ? ms(session.last_activity_at) : null,
   };
 }
 
