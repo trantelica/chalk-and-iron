@@ -578,8 +578,29 @@ export function toggleSet(s0: Session, round: number): Session {
   return s;
 }
 
+/**
+ * The set details sheet. Moving a set into or out of Warm-up is the same
+ * change as tapping it in the list, so it goes through `toggleSet` (a set is
+ * added or taken away, in a superset for every member). Drop set and RPE only
+ * change the label.
+ */
 export function setDetails(s0: Session, key: string, round: number, type: SetType, rpe: number | null, history: History = {}): Session {
-  const s = clone(s0);
+  let base = s0;
+  const old = s0.exercises[key].types[round];
+  if ((old === 'warm_up') !== (type === 'warm_up')) {
+    const block = s0.blocks.find((b) => !b.closed && b.members.includes(key));
+    if (block) {
+      const aimed = clone(s0);
+      aimed.curBlock = block.id;
+      aimed.curMember = key;
+      base = toggleSet(aimed, round);
+      base.curBlock = s0.curBlock;
+      base.curMember = s0.curMember;
+    }
+    // Refused (for example at 24 sets): the set keeps its type.
+    if (base.exercises[key].types[round] === old) type = old;
+  }
+  const s = clone(base);
   const e = s.exercises[key];
   e.types[round] = type;
   if (e.logs[round]) { e.logs[round].type = type; e.logs[round].rpe = rpe; recheckToday(s, key, history); }
