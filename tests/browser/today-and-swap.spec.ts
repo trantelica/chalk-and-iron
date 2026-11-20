@@ -34,7 +34,9 @@ test("the Today panel starts today's workout, and a part-way swap adds a new alt
   await expect(page.getByText('No workout planned for today.')).toBeVisible();
 
   // A campaign with today's day holding "Test Push" (bench press, 3 × 8).
-  const today = trainingDay(new Date(), 'America/Denver');
+  // The account's own time zone decides what "today" is.
+  const tz = (await sql<{ time_zone: string }>(`select time_zone from public.profiles where id = $1`, [me]))[0].time_zone;
+  const today = trainingDay(new Date(), tz);
   const bench = (await sql<{ id: string }>(`select id from public.exercises where user_id = $1 and name = 'Barbell Bench Press'`, [me]))[0].id;
   const w = (await sql<{ id: string }>(`insert into public.workouts (user_id, name) values ($1, 'Test Push') returning id`, [me]))[0].id;
   await sql(`insert into public.workout_items (user_id, workout_id, position, exercise_id, sets, reps) values ($1, $2, 0, $3, 3, 8)`, [me, w, bench]);
@@ -45,7 +47,7 @@ test("the Today panel starts today's workout, and a part-way swap adds a new alt
 
   await page.reload();
   await expect(page.getByText('Test Block · Week 1 of 2')).toBeVisible();
-  await expect(page.locator('.wk-day.today')).toContainText('Test Push');
+  await expect(page.locator('.wk-day.is-today')).toContainText('Test Push');
   await page.getByRole('link', { name: 'Start Test Push' }).click();
 
   // The workout starts by itself from the Home screen's button.

@@ -220,7 +220,7 @@ th { color: var(--muted-text); font-size: 12px; letter-spacing: 1px; text-transf
 .week-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
 .wk-day { border: 1px solid var(--line); border-radius: var(--radius-small); padding: 6px 4px; min-height: 64px; display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted-text); overflow: hidden; }
 .wk-day .wk-name { overflow-wrap: anywhere; line-height: 1.2; }
-.wk-day.today { border-color: var(--accent); color: var(--text); }
+.wk-day.is-today { border-color: var(--accent); color: var(--text); }
 .wk-day.done { color: var(--text); }
 .wk-day.done .lab { color: var(--accent); }
 .wk-day.missed .lab { color: var(--overage-red); }

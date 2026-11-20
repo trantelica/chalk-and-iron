@@ -93,6 +93,11 @@ describe('the campaign week at a glance', () => {
     ]);
   });
 
+  it("today's box is marked even on a rest day", () => {
+    const v = todayView(base({ date: '2026-11-20' }));
+    expect(v.campaign!.days.filter((d) => d.isToday).map((d) => [d.label, d.state])).toEqual([['Fri', 'rest']]);
+  });
+
   it('a day done on a later day counts as done', () => {
     const v = todayView(base({ sessions: [{ id: 's1', local_date: '2026-11-18', status: 'finished', campaign_day_id: 'd-tue', workout_name: 'Pull' }] }));
     expect(v.campaign!.days[1].state).toBe('done');

@@ -94,7 +94,7 @@ export default async function PhoneHome() {
           <div className="lab">{c.name}{c.week ? ` · Week ${c.week} of ${c.weekCount}` : ''}</div>
           <div className="week-row">
             {c.days.map((d) => (
-              <div key={d.date} className={`wk-day ${d.state}`}>
+              <div key={d.date} className={`wk-day ${d.state} ${d.isToday ? 'is-today' : ''}`}>
                 <b>{d.label}</b>
                 <span className="wk-name">{d.state === 'off' ? '' : d.workout ?? 'Rest'}</span>
                 <span className="lab">{STATE[d.state]}</span>

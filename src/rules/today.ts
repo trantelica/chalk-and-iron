@@ -52,7 +52,7 @@ export interface TodayInput {
 
 export type DayState = 'done' | 'missed' | 'today' | 'upcoming' | 'rest' | 'off';
 
-export interface WeekDay { date: string; weekday: number; label: string; workout: string | null; state: DayState }
+export interface WeekDay { date: string; weekday: number; label: string; workout: string | null; state: DayState; isToday: boolean }
 
 export interface TodayView {
   workout: TodayWorkout | null;
@@ -150,7 +150,7 @@ export function todayView(input: TodayInput): TodayView {
       else if (input.sessions.some((s) => s.campaign_day_id === cd.id && s.status === 'finished')) state = 'done';
       else if (dt === date) state = 'today';
       else state = dt < date ? 'missed' : 'upcoming';
-      return { date: dt, weekday: i + 1, label, workout: name, state };
+      return { date: dt, weekday: i + 1, label, workout: name, state, isToday: dt === date };
     });
     const pos = campaignPosition(date, active.start_date.slice(0, 10), active.week_count, blank);
     campaign = { name: active.name, week: pos?.week ?? null, weekCount: active.week_count, days };
