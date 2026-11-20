@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { serverClient } from '@/lib/supabase/server';
 import { HomeActions } from './home-actions';
+import { ProposalCards } from '@/components/proposal-cards';
 import { trainingDay } from '@/rules/days';
 import { loadToday } from '@/server/today';
 import type { DayState } from '@/rules/today';
@@ -106,7 +107,8 @@ export default async function PhoneHome() {
       <section className="panel" aria-label="Coach proposals">
         <div className="lab">Coach proposals</div>
         <div>{today.pendingProposals ? `${today.pendingProposals} waiting for your decision.` : 'None waiting.'}</div>
-        <div className="muted">The inbox, with Accept and Decline, arrives with the coach.</div>
+        <ProposalCards compact />
+        <div className="muted">The coach&apos;s cards join this inbox with the coach.</div>
       </section>
       <div className="muted">Your library holds {count ?? 0} exercises.</div>
       <HomeActions passkeyCheck />

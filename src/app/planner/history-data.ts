@@ -58,3 +58,60 @@ export function sessionsOf(sets: LoggedSet[]): { key: string; day: string; sets:
   return [...by.values()].sort((a, b) => (a.startedAt < b.startedAt ? -1 : 1))
     .map((g) => ({ key: g.key, day: g.day, sets: g.sets.sort((a, b) => a.setNumber - b.setNumber).map((x) => ({ lb: x.lb, reps: x.reps, type: x.type })) }));
 }
+
+// ---------------------------------------------------------------- sessions
+
+export interface SessionRowH {
+  id: string; local_date: string; workout_name: string; started_at: string; ended_at: string | null; status: string;
+  finish_reason: string | null; clock_banked_seconds: number; source_kind: string;
+}
+export interface BlockRowH {
+  id: string; session_id: string; position: number; superset_letter: string | null; time_budget_seconds: number; clock_started_at: string | null;
+  clock_banked_seconds: number; broken_at: string | null; broken_from_block_id: string | null; sets_done_at_break: number | null; sets_planned_at_break: number | null;
+}
+export interface SeRowH {
+  id: string; session_id: string; block_id: string; exercise_id: string; exercise_name_then: string; position_in_block: number;
+  planned: number; state: string; sets_before_break: number | null;
+}
+export interface SessionData { session: SessionRowH; blocks: BlockRowH[]; exercises: SeRowH[]; sets: LoggedSet[] }
+
+/** The latest finished (and any running) sessions, with their blocks, exercises and live sets. */
+export async function loadSessions(sb: SupabaseClient, limit = 60): Promise<SessionData[]> {
+  const ss = await sb.from('sessions')
+    .select('id, local_date, workout_name, started_at, ended_at, status, finish_reason, clock_banked_seconds, source_kind')
+    .order('started_at', { ascending: false }).limit(limit);
+  const sessions = ((ss.data ?? []) as Record<string, unknown>[]).map((r) => ({ ...r, local_date: String(r.local_date).slice(0, 10), clock_banked_seconds: Number(r.clock_banked_seconds) })) as SessionRowH[];
+  if (!sessions.length) return [];
+  const ids = sessions.map((x) => x.id);
+  const [bl, se] = await Promise.all([
+    Promise.all(chunks(ids).map((c) => sb.from('session_blocks').select('id, session_id, position, superset_letter, time_budget_seconds, clock_started_at, clock_banked_seconds, broken_at, broken_from_block_id, sets_done_at_break, sets_planned_at_break').in('session_id', c))),
+    Promise.all(chunks(ids).map((c) => sb.from('session_exercises').select('id, session_id, block_id, exercise_id, exercise_name_then, position_in_block, planned_set_types, state, sets_before_break').in('session_id', c))),
+  ]);
+  const blocks = bl.flatMap((r) => (r.data ?? []) as Record<string, unknown>[]).map((b) => ({ ...b, clock_banked_seconds: Number(b.clock_banked_seconds) })) as unknown as BlockRowH[];
+  const exercises = se.flatMap((r) => (r.data ?? []) as Record<string, unknown>[]).map((e) => ({
+    id: e.id, session_id: e.session_id, block_id: e.block_id, exercise_id: e.exercise_id, exercise_name_then: e.exercise_name_then,
+    position_in_block: e.position_in_block, planned: ((e.planned_set_types as string[]) ?? []).length, state: e.state, sets_before_break: e.sets_before_break,
+  })) as unknown as SeRowH[];
+  const seIds = exercises.map((e) => e.id);
+  const sl = await Promise.all(chunks(seIds).map((c) => sb.from('set_logs')
+    .select('id, session_exercise_id, set_number, weight_lb, entered_value, entered_unit, reps, set_type, rpe, logged_at, record_types').in('session_exercise_id', c).is('deleted_at', null)));
+  const bySession = new Map(sessions.map((x) => [x.id, x]));
+  const seInfo = new Map(exercises.map((e) => [e.id, e]));
+  const sets: LoggedSet[] = [];
+  for (const r of sl) for (const l of (r.data ?? []) as Record<string, unknown>[]) {
+    const e = seInfo.get(l.session_exercise_id as string)!;
+    const s = bySession.get(e.session_id)!;
+    sets.push({
+      id: l.id as string, sessionExerciseId: e.id, sessionId: s.id, exerciseId: e.exercise_id, setNumber: l.set_number as number,
+      lb: l.weight_lb === null ? null : Number(l.weight_lb), enteredValue: Number(l.entered_value), enteredUnit: l.entered_unit as LoggedSet['enteredUnit'],
+      reps: l.reps as number, type: l.set_type as LoggedSet['type'], rpe: l.rpe === null ? null : Number(l.rpe), loggedAt: l.logged_at as string,
+      records: (l.record_types as string[]) ?? [], day: s.local_date, startedAt: s.started_at,
+    });
+  }
+  return sessions.map((s) => ({
+    session: s,
+    blocks: blocks.filter((b) => b.session_id === s.id).sort((a, b) => a.position - b.position),
+    exercises: exercises.filter((e) => e.session_id === s.id),
+    sets: sets.filter((x) => x.sessionId === s.id),
+  }));
+}
