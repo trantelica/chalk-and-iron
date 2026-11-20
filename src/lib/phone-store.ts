@@ -80,6 +80,21 @@ export async function activeOnServer(): Promise<ActiveElsewhere | null> {
   return (data?.[0] as ActiveElsewhere | undefined) ?? null;
 }
 
+/**
+ * Which of these workouts the account ended as 'replaced': a day sent from
+ * the planner was accepted while it ran (spec Section 10, "Proposals"). Asked
+ * on open and on return to the screen, so an idle phone learns it too.
+ */
+export async function replacedOnServer(ids: string[]): Promise<string[]> {
+  if (!ids.length) return [];
+  const { data, error } = await withTimeout(
+    browserClient().from('sessions').select('id').in('id', ids).eq('finish_reason', 'replaced'),
+    5000,
+  );
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r) => r.id as string);
+}
+
 /** Rebuilds a workout from the account, to carry on with it on this phone. */
 export async function loadServerSession(id: string, lib: (id: string) => LibraryFacts | undefined): Promise<Session> {
   const sb = browserClient();

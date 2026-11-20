@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { trainingDay } from '@/rules/days';
 import { displayWeight, fromPounds, stepReps, stepWeight, weightToStore, type StoredWeight, type WeightUnit } from '@/rules/units';
 import {
@@ -14,12 +15,12 @@ import {
 } from '@/rules/session';
 import {
   applyServerRecords, exerciseConfirmChange, exerciseCreateChange, finishOtherChange, mergeHistory, noteChange, pendingChoices, restChange,
-  sessionChanges, unitChange, type LibraryFacts, type SwapMadeExercise,
+  sessionChanges, unitChange, wasReplaced, type LibraryFacts, type SwapMadeExercise,
 } from '@/rules/sync';
 import type { OutboxStatus } from '@/lib/outbox';
 import {
   activeOnServer, fetchHistory, forgetOldPhoneOnlyData, keyFor, loadServerSession, outboxFor, pushSupported, readStore,
-  registerServiceWorker, turnOnRestAlerts, writeStore, type ActiveElsewhere,
+  registerServiceWorker, replacedOnServer, turnOnRestAlerts, writeStore, type ActiveElsewhere,
 } from '@/lib/phone-store';
 import {
   RECORD_LABEL, celebrationName, currentRecords, dial, estimatedOneRepMax, mmss, readClock, seedWeights, setVolume,
@@ -84,6 +85,9 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
   const [other, setOther] = useState<null | { found: ActiveElsewhere; start: () => void }>(null);
   const [alertsMsg, setAlertsMsg] = useState('');
   const [alertsOn, setAlertsOn] = useState(true);
+  // The account replaced this phone's workout with a day sent from the planner (spec Section 10, "Proposals").
+  const [replacedNotice, setReplacedNotice] = useState(false);
+  const router = useRouter();
   const box = useMemo(() => outboxFor(userId), [userId]);
   const K = useCallback((w: Parameters<typeof keyFor>[1]) => keyFor(userId, w), [userId]);
   const alertCancelledFor = useRef<number | null>(null);
@@ -156,6 +160,43 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
     }).catch(() => { /* offline: the phone's copy stands */ });
   }, [userId]);
 
+  /**
+   * The account ended this phone's workout as 'replaced': a day sent from the
+   * planner was accepted while it ran. What was logged is saved in the
+   * account as its own workout, so the copy here is dropped (it must not be
+   * reopened), and the person is told. Sets still waiting in the outbox are
+   * sent as usual and kept with that workout, so none is lost.
+   */
+  const dropReplaced = useCallback((ids: string[]) => {
+    let hit = false;
+    const cur = sessRef.current;
+    if (cur && wasReplaced({ replaced: ids }, cur.id)) {
+      sessRef.current = null;
+      writeStore(keyFor(userId, 'session'), null);
+      setSessState(null);
+      hit = true;
+    }
+    const last = readStore<Session | null>(keyFor(userId, LAST), null);
+    if (last && wasReplaced({ replaced: ids }, last.id)) {
+      writeStore(keyFor(userId, LAST), null);
+      setLastDone(null);
+      hit = true;
+    }
+    if (!hit) return;
+    setSheet(null);
+    setTray(false);
+    setReplacedNotice(true);
+    refreshHistory(null);
+    router.refresh(); // so the start screen's Today panel shows the day that was sent
+  }, [userId, refreshHistory, router]);
+
+  /** Asks the account whether this phone's workout was replaced; used on open and on return to the screen. */
+  const checkReplaced = useCallback(() => {
+    const ids = [sessRef.current?.id, readStore<Session | null>(keyFor(userId, LAST), null)?.id].filter((x): x is string => !!x);
+    if (!ids.length || (typeof navigator !== 'undefined' && !navigator.onLine)) return;
+    replacedOnServer(ids).then((r) => { if (r.length) dropReplaced(r); }).catch(() => { /* offline: asked again later */ });
+  }, [userId, dropReplaced]);
+
   useEffect(() => {
     forgetOldPhoneOnlyData();
     registerServiceWorker();
@@ -183,6 +224,7 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
     setReady(true);
     void box.flush();
     refreshHistory(s && s.endedAt === null ? s.id : null);
+    checkReplaced();
     setAlertsOn(!pushSupported() || (Notification.permission === 'granted' && !!readStore(K('push'), '')));
     turnOnRestAlerts(userId, true).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -193,17 +235,18 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
   useEffect(() => {
     const offStatus = box.onChange((o) => { setSync({ ...o.status }); setRejectedCount(o.rejected.length); });
     const offAnswer = box.onAnswer((a) => {
+      if (a.replaced?.length) dropReplaced(a.replaced);
       const cur = sessRef.current;
       if (!cur) return;
       const t = applyServerRecords(cur, a.records); // the server's records win
       if (t !== cur) { sessRef.current = t; writeStore(keyFor(userId, 'session'), t); setSessState(t); }
     });
-    const kick = () => { if (document.visibilityState === 'visible') void box.flush(); };
+    const kick = () => { if (document.visibilityState === 'visible') { void box.flush(); checkReplaced(); } };
     window.addEventListener('online', kick);
     document.addEventListener('visibilitychange', kick);
     const iv = setInterval(() => { if (box.count && box.status.state !== 'conflict') void box.flush(); }, 20000);
     return () => { offStatus(); offAnswer(); window.removeEventListener('online', kick); document.removeEventListener('visibilitychange', kick); clearInterval(iv); };
-  }, [box, userId]);
+  }, [box, userId, dropReplaced, checkReplaced]);
 
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(t); }, []);
 
@@ -399,6 +442,7 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
           onStart={begin}
           today={todayWorkout && todayPlan.length ? { name: todayWorkout.name, count: todayPlan.length, onStart: startTodayNow } : null}
           alerts={alertsOn ? null : { msg: alertsMsg, onAllow: allowAlerts }}
+          replaced={replacedNotice ? () => setReplacedNotice(false) : null}
         />
         {other && (
           <Sheet title="A workout is already running" onClose={() => setOther(null)}>
@@ -1186,12 +1230,14 @@ function Graph({ e, unit, history, s }: { e: Session['exercises'][string]; unit:
 }
 
 // ------------------------------------------------------------------ start and finish
-function StartScreen({ exercises, workouts, libById, summary, lastDone, now, syncLine, saved, onDismiss, onReopen, onStart, alerts, today }: {
+function StartScreen({ exercises, workouts, libById, summary, lastDone, now, syncLine, saved, onDismiss, onReopen, onStart, alerts, today, replaced }: {
   exercises: LibExercise[]; workouts: LibWorkout[]; libById: Map<string, LibExercise>;
   summary: Session | null; lastDone: Session | null; now: number; syncLine: React.ReactNode; saved: boolean;
   onDismiss: () => void; onReopen: (s: Session) => void; onStart: (name: string, plan: PlanItem[], workoutId?: string | null) => void;
   alerts: null | { msg: string; onAllow: () => void };
   today: null | { name: string; count: number; onStart: () => void };
+  /** Set when the account replaced this phone's workout; closes the notice. */
+  replaced: null | (() => void);
 }) {
   const [picked, setPicked] = useState<LibExercise[]>([]);
   const [q, setQ] = useState('');
@@ -1226,6 +1272,14 @@ function StartScreen({ exercises, workouts, libById, summary, lastDone, now, syn
       <div className="phone-top"><Link className="btn icon" href="/app" aria-label="Back to the home screen">‹</Link></div>
       <h1>Start a workout</h1>
       {syncLine}
+      {replaced && (
+        <div className="panel" role="status">
+          <div>Your workout was saved and replaced by the day sent from the planner.</div>
+          <div className="muted">The new day is ready to start from Home. What you logged is kept as its own workout.</div>
+          <Link className="btn primary link-btn" href="/app">Go to Home</Link>
+          <button className="btn small" onClick={replaced}>OK</button>
+        </div>
+      )}
       {alerts && (
         <div className="panel">
           <div>Turn on rest alerts, so &quot;Rest over&quot; reaches you when the app is in the background or the phone is locked.</div>

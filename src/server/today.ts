@@ -28,8 +28,8 @@ export async function loadToday(supabase: SupabaseClient, date: string): Promise
     dayIds.length ? supabase.from('campaign_day_overrides').select('campaign_day_id, workout_item_id, exercise_id, sets, reps, weight_lb, rest_seconds').in('campaign_day_id', dayIds) : { data: [] },
     workoutIds.length ? supabase.from('workouts').select('id, name, archived_at').in('id', workoutIds) : { data: [] },
     workoutIds.length ? supabase.from('workout_items').select('id, workout_id, position, exercise_id, sets, reps, rest_seconds, superset_letter').in('workout_id', workoutIds) : { data: [] },
-    supabase.from('sessions').select('id, local_date, status, campaign_day_id, workout_name').gte('local_date', monday).lte('local_date', addDays(monday, 6)),
-    dayIds.length ? supabase.from('sessions').select('id, local_date, status, campaign_day_id, workout_name').in('campaign_day_id', dayIds) : { data: [] },
+    supabase.from('sessions').select('id, local_date, status, campaign_day_id, workout_name, finish_reason').gte('local_date', monday).lte('local_date', addDays(monday, 6)),
+    dayIds.length ? supabase.from('sessions').select('id, local_date, status, campaign_day_id, workout_name, finish_reason').in('campaign_day_id', dayIds) : { data: [] },
   ]);
   const sessions = new Map<string, TodayInput['sessions'][number]>();
   for (const s of [...(weekSessions.data ?? []), ...(daySessions.data ?? [])] as TodayInput['sessions']) sessions.set(s.id, s);
