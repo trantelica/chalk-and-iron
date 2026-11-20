@@ -244,5 +244,7 @@ Nathan decided that choosing Warm-up in the set details sheet must do exactly wh
 
 Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it away and open it again. Finish the test workout at the end.
 
-1. [ ] **Warm-up from the sheet.** Start **Superset test** and tap **Start exercise**. Note **Budget** under the exercise clock. On set 1, tap **⋯** and choose **Warm-up**, then save. A 4th set appears on both exercises, and the budget grows by one round of work and rest (from 7:30 to 10:30 with the usual numbers).
-2. [ ] **Back to Working.** Tap **⋯** on set 1 again and choose **Working**, then save. The 4th set goes away on both exercises, and the budget returns to what it was.
+1. [x] **Warm-up from the sheet.** Start **Superset test** and tap **Start exercise**. Note **Budget** under the exercise clock. On set 1, tap **⋯** and choose **Warm-up**, then save. A 4th set appears on both exercises, and the budget grows by one round of work and rest (from 7:30 to 10:30 with the usual numbers).
+2. [x] **Back to Working.** Tap **⋯** on set 1 again and choose **Working**, then save. The 4th set goes away on both exercises, and the budget returns to what it was.
+
+**Result: both passed on Nathan's iPhone on 20 November 2026.**
