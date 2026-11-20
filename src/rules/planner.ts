@@ -4,7 +4,7 @@
 import { addDays, mondayOf } from './days';
 import { findNearDuplicate, nameKey } from './names';
 import { supersetProblems } from './supersets';
-import { budgetSingle, budgetSuperset } from './workout';
+import { budgetSingle, budgetSuperset, efficiency, setVolume, type ExerciseKind } from './workout';
 import { fromPounds, KG_PER_LB } from './units';
 
 // ---------------------------------------------------------------- exercise names
@@ -337,4 +337,58 @@ export function setsToDelete(
     if (twin) ids.push(twin.id);
   }
   return ids;
+}
+
+// ---------------------------------------------------------------- session summaries
+
+export interface HBlock {
+  id: string; broken_at: string | null; time_budget_seconds: number; clock_started_at: string | null; clock_banked_seconds: number;
+  sets_done_at_break: number | null; sets_planned_at_break: number | null;
+}
+export interface HExercise { id: string; block_id: string; exercise_id: string; state: string; planned: number; sets_before_break: number | null }
+export interface HSet { id: string; session_exercise_id: string; lb: number | null; reps: number; type: 'warm_up' | 'working' | 'drop'; records: string[] }
+
+export interface SessionSummary { elapsed: number; volumeLb: number; volumeBw: number; sets: number; records: number; efficiency: number | null }
+
+/**
+ * What History shows for a finished session, worked out from its rows. A
+ * session is a frozen record (spec Section 10): this reads only what was
+ * stored then. Efficiency counts every started block, with a skipped exercise
+ * keeping only the sets it did and a broken superset keeping the sets logged
+ * before the break (spec Sections 3 and 10).
+ */
+export function summarizeSession(input: {
+  clockBanked: number; blocks: HBlock[]; exercises: HExercise[]; sets: HSet[]; kind: (exerciseId: string) => ExerciseKind;
+}): SessionSummary {
+  const exOf = new Map(input.exercises.map((e) => [e.id, e]));
+  let volumeLb = 0;
+  let volumeBw = 0;
+  let records = 0;
+  for (const st of input.sets) {
+    const e = exOf.get(st.session_exercise_id);
+    if (!e) continue;
+    const kind = input.kind(e.exercise_id);
+    const v = setVolume({ id: st.id, lb: st.lb, reps: st.reps, type: st.type, day: '', order: 0 }, kind);
+    if (kind.unit === 'bw' || kind.assisted) volumeBw += v; else volumeLb += v;
+    if (st.records.length) records += 1;
+  }
+  const done = (id: string) => input.sets.filter((x) => x.session_exercise_id === id).length;
+  const parts = input.blocks.filter((b) => b.clock_started_at).flatMap((b) => {
+    const members = input.exercises.filter((e) => e.block_id === b.id);
+    if (b.broken_at) return [{ budget: b.time_budget_seconds, planned: b.sets_planned_at_break ?? 0, done: b.sets_done_at_break ?? 0, actual: b.clock_banked_seconds }];
+    const loggedAll = members.reduce((n, e) => n + done(e.id) - (e.sets_before_break ?? 0), 0);
+    if (members.length && members.every((e) => e.state === 'skipped' || e.state === 'replaced') && loggedAll <= 0) return [];
+    const planned = members.reduce((n, e) => n + (e.state === 'skipped' || e.state === 'replaced' ? Math.max(0, done(e.id) - (e.sets_before_break ?? 0)) : e.planned - (e.sets_before_break ?? 0)), 0);
+    return [{ budget: b.time_budget_seconds, planned, done: loggedAll, actual: b.clock_banked_seconds }];
+  });
+  return { elapsed: input.clockBanked, volumeLb, volumeBw, sets: input.sets.length, records, efficiency: efficiency(parts) };
+}
+
+/** Text for a session's volume: pounds, or kilograms in the view, plus bodyweight volume kept apart. */
+export function volumeText(lb: number, bw: number, view: ViewUnit): string {
+  const main = view === 'lb' ? Math.round(lb) : Math.round(lb * KG_PER_LB);
+  const parts: string[] = [];
+  if (lb > 0 || bw === 0) parts.push(`${main.toLocaleString('en-US')} ${view}`);
+  if (bw > 0) parts.push(`${bw.toLocaleString('en-US')} BW`);
+  return parts.join(' · ');
 }

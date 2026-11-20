@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PlannerProvider, usePlannerMaybe } from '../planner-data';
 
-const TABS: [string, string][] = [['/planner/library', 'Library'], ['/planner/vocabulary', 'Vocabulary']];
+const TABS: [string, string][] = [['/planner/plan', 'Plan'], ['/planner/library', 'Library'], ['/planner/history', 'History'], ['/planner/vocabulary', 'Vocabulary']];
 
 export function Tabs({ tabs, label }: { tabs: [string, string][]; label: string }) {
   const path = usePathname();
