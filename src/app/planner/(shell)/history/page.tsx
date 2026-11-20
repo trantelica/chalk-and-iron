@@ -63,7 +63,7 @@ export default function History() {
           </select>
           <span className="muted">{list === null ? 'Loading…' : `${rows.length} session${rows.length === 1 ? '' : 's'} (latest 60)`}</span>
         </div>
-        <div className="box scroll">
+        <div className="pbox scroll">
           <table>
             <thead><tr><th>Date</th><th>Workout</th><th>Time</th><th>Volume</th><th>Efficiency</th><th>Records</th><th></th></tr></thead>
             <tbody>
@@ -111,7 +111,7 @@ function SessionDetail({ s, view, onDetails, apply }: {
     await apply(ids.map((id) => ({ kind: 'set.delete', data: { id } })));
   }
   return (
-    <div className="box" aria-label="Session detail">
+    <div className="pbox" aria-label="Session detail">
       <div className="row spread"><b>{s.session.workout_name}</b><span className="muted">{s.session.local_date}</span></div>
       {running && <div className="muted">This workout is still running on the phone, so its sets cannot be changed here.</div>}
       {ordered.map((e) => {

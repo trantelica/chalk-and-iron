@@ -64,7 +64,7 @@ export default function Vocabulary() {
       <div className="muted">The allowed muscle groups, focus values and equipment. Renaming one changes it in every exercise that uses it. A value in use is archived, not deleted: exercises keep it, but it drops out of the pickers.</div>
       {msg && <div className="error" role="alert">{msg}</div>}
       <h2>Muscle groups and focus values</h2>
-      <div className="box">
+      <div className="pbox">
         {muscles.map((m) => (
           <div key={m.id} className="vocab-group">
             <TermRow t={m} />
@@ -77,7 +77,7 @@ export default function Vocabulary() {
         <button className="btn" onClick={() => add('muscle_group', null)}>Add muscle group</button>
       </div>
       <h2>Equipment</h2>
-      <div className="box">
+      <div className="pbox">
         {equipment.map((t) => <TermRow key={t.id} t={t} />)}
         <button className="btn" onClick={() => add('equipment', null)}>Add equipment value</button>
       </div>
