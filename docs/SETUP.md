@@ -217,3 +217,19 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 5. [x] **Swap to any exercise in your library** (after the next merge). Tap **Swap**, type part of a name under **Or any exercise in your library**, and tap one. The workout changes to it, with the same rules as an alternate.
 
 **Nathan's results, 19 November 2026:** steps 1, 2, 3 and 5 passed. Step 3: the bench press was replaced and the other exercise stayed in the superset. He then asked to swap to any exercise in the library, not only the three alternates; that was built as step 5 (pull request 25) and passed. Step 4 cannot be done on the phone until Phase 3; GitHub's browser test covers it.
+
+## 7. Phase 2 review fixes (20 November 2026)
+
+A fresh review of Phase 2 found seven problems, and Nathan chose to fix all seven (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10, "Phase 2 review"). They are on the `claude/serene-ritchie-ch1e1x` branch. **No SQL to run:** every fix is in the app itself.
+
+### Q. On your iPhone, after the merge
+
+Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it away and open it again. Finish any test workout at the end.
+
+1. [ ] **Skip part-way.** Start a quick workout with two exercises. Tap **Start exercise** and log 2 sets on the first. Open the tray (**Workout** at the top) and tap **Skip** on that exercise. The top line still counts the 2 sets as done, the exercise shows **Skipped** with its 2 boxes filled, and **Stats** shows an efficiency, not "n/a".
+2. [ ] **Undo break.** Start **Superset test** and tap **Start exercise**. Wait about 30 seconds, tap **Break superset**, wait about 20 seconds, then tap **Undo break**. The exercise clock shows about 50 seconds used, not more, and keeps counting.
+3. [ ] **Move after a break.** In a workout with a superset and another exercise, tap **Break superset**, then open the tray. Tap **↑** on the first of the exercises the break made (or **↓** on the exercise just above it). It moves on the first tap.
+4. [ ] **Warm-up after a break.** After **Break superset**, note **Budget** under the exercise clock. Tap set 1 to make it a warm-up. A fifth set appears, and the budget grows by one set's work and rest.
+5. [ ] **Delete after a superset swap.** Start **Superset test**, log one full round, and swap the first exercise. On the other exercise, tap **⋯** on set 1, then **Delete this set**. The message reads "Set 1 is removed", not "removed from all 2 exercises".
+
+Two more fixes have no quick iPhone check, and GitHub's tests cover them: a workout that finished itself while paused now reopens running, not "paused"; and **+ Set** stops at 24 sets, the most the account keeps for one exercise.
