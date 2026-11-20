@@ -115,6 +115,7 @@ th { color: var(--muted-text); font-size: 12px; letter-spacing: 1px; text-transf
 .ex-name { height: 44px; line-height: 44px; font-size: var(--heading-size); }
 .fixed-line { height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .ex-title .btn { align-self: flex-start; }
+.ex-title.superset-box { border: 2px solid var(--accent); border-radius: var(--radius); padding: 5px 10px; }
 .note { height: 44px; padding: 0 10px; background: transparent; color: var(--text); border: 0; border-bottom: 1px solid var(--line); border-radius: 0; font-size: 16px; }
 .dial-row { display: flex; gap: 12px; align-items: center; height: 152px; }
 .dial { flex: none; }
