@@ -1,12 +1,12 @@
 # Chalk and Iron: build specification package
 
-16 November 2026, updated 17 November 2026 · Owner: Nathan
+16 November 2026, updated 20 November 2026 · Owner: Nate
 
 This file is the master copy of this document, and the copy the coding agent builds from. An earlier copy, a Claude Doc at https://claude.ai/artifact/2PQjcQy6EkoHzrdhJ1QDrK, was retired on 16 November 2026 and is no longer kept up to date.
 
 ## 1. How to use this package
 
-Chalk and Iron is a personal weight-lifting tracker with three parts: a phone web app for logging workouts, a browser planner for building them, and a connector that lets each user's own LLM project act as their coach. An AI coding agent builds it under Nathan's oversight.
+Chalk and Iron is a personal weight-lifting tracker with three parts: a phone web app for logging workouts, a browser planner for building them, and a connector that lets each user's own LLM project act as their coach. An AI coding agent builds it under Nate's oversight.
 
 The tappable prototype is the reference for look, layout and interaction: `prototype/index.html` in this repository. Where the prototype and this document disagree, this document wins. Section 5 lists what the prototype does not cover.
 
@@ -36,7 +36,7 @@ The tappable prototype is the reference for look, layout and interaction: `proto
 
 ## 2. Product requirements
 
-The app tracks weight lifting first and cardio second, for Nathan and a small group of friends who each have their own account and data on one shared instance. The phone app runs as an iPhone home-screen web app. The planner runs in a desktop browser.
+The app tracks weight lifting first and cardio second, for Nate and a small group of friends who each have their own account and data on one shared instance. The phone app runs as an iPhone home-screen web app. The planner runs in a desktop browser.
 
 Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI running inside the app.
 
@@ -73,9 +73,9 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - Reps are pre-filled from the planned reps.
 - Sets have a type: warm-up, working or drop set. An effort rating (RPE, a 1 to 10 score for how hard a set felt) is optional. A long press on a set row opens set details, where the type and RPE are set. Tapping a set in the set list switches it between warm-up and working, whether or not the workout planned a warm-up. Choosing Warm-up or Working in the set details sheet does exactly the same as the tap (decided 20 Nov): the same added or removed set, the same superset pairing, the same 24-set limit and budget. Drop set and RPE only change the label, and add nothing. When a set becomes a warm-up, a working set is added after it, so the number of working sets stays as planned, and the time budget grows by one set's work and rest. Tapping it back removes the added set if it has not been logged.
 - During a workout the user can skip, reorder or add exercises from the workout tray, and break a superset into individual exercises (see Supersets).
-- **Changes for today only** (Nathan, 19 Nov). During a workout the user can add a set (the **+ Set** button beside Skip rest, or the tray), remove a set not yet logged, and change an exercise's rest (the tray, in steps of 15 seconds, 0 to 10 minutes). In a superset these apply to every member, so it stays paired and equal: + Set adds a round. They change that session only. They never reach the library, the campaign, other days or other scheduled instances of the workout.
-- **Pause** (Nathan, 19 Nov). The tray offers Pause workout. Pause stops the workout clock and the open exercise's clock, and ends any rest and its alert. Resume carries on from there, and paused time is never counted. A paused workout does not finish itself after 30 minutes of no activity; it finishes itself after 2 hours paused, ending at the pause.
-- **While typing a weight or reps** (Nathan, 19 Nov), the screen keeps only the exercise name, a slim line with the exercise clock and any rest, the current set, the two boxes and Log set, so the keyboard covers nothing needed. Log set works in one tap without closing the keyboard first. The page stays at the top while the keyboard is up, with no empty space to scroll past. If that cannot be made to work on the iPhone, this layout is dropped and the screen stays as it is while typing (Nathan, 19 Nov).
+- **Changes for today only** (Nate, 19 Nov). During a workout the user can add a set (the **+ Set** button beside Skip rest, or the tray), remove a set not yet logged, and change an exercise's rest (the tray, in steps of 15 seconds, 0 to 10 minutes). In a superset these apply to every member, so it stays paired and equal: + Set adds a round. They change that session only. They never reach the library, the campaign, other days or other scheduled instances of the workout.
+- **Pause** (Nate, 19 Nov). The tray offers Pause workout. Pause stops the workout clock and the open exercise's clock, and ends any rest and its alert. Resume carries on from there, and paused time is never counted. A paused workout does not finish itself after 30 minutes of no activity; it finishes itself after 2 hours paused, ending at the pause.
+- **While typing a weight or reps** (Nate, 19 Nov), the screen keeps only the exercise name, a slim line with the exercise clock and any rest, the current set, the two boxes and Log set, so the keyboard covers nothing needed. Log set works in one tap without closing the keyboard first. The page stays at the top while the keyboard is up, with no empty space to scroll past. If that cannot be made to work on the iPhone, this layout is dropped and the screen stays as it is while typing (Nate, 19 Nov).
 - A session survives a closed tab, a crash or a lost connection. Sets logged offline sync when the connection returns.
 - The screen stays awake during a session.
 
@@ -91,7 +91,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 ### Timers
 
 - **Workout clock:** total elapsed time for the session.
-- **Rest timer:** counts down after a set or superset round. It offers +0:15 and Skip. When it ends the app shows a banner and plays a sound, and sends a notification if the app is not in focus. The sound mixes with music and never stops it. It follows the iPhone's silent mode: on silent there is no sound, only the banner (Nathan, 17 Nov, after the iPhone checks).
+- **Rest timer:** counts down after a set or superset round. It offers +0:15 and Skip. When it ends the app shows a banner and plays a sound, and sends a notification if the app is not in focus. The sound mixes with music and never stops it. It follows the iPhone's silent mode: on silent there is no sound, only the banner (Nate, 17 Nov, after the iPhone checks).
 - **Exercise clock:** counts down the exercise's time budget from Start exercise. Section 3 defines the budget and Section 5 the dial.
 
 ### Records, stats and graph
@@ -108,7 +108,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - A swap replaces the exercise in today's session only. The alternate becomes a library exercise with its own history.
 - If the alternate is not yet in the library, it is created at once. The phone offers a one-tap confirm of suggested details copied from the original: muscle group, focus, work and rest seconds, the unit (bodyweight for the bodyweight alternate, otherwise the original's unit) and equipment where it can be suggested. If the user does not confirm, the exercise still joins the library with what is known, and missing fields stay empty. The planner flags it as incomplete and never blocks its use.
 - **A swap part-way through an exercise** (built 19 Nov, following the rule that a change to a running workout applies to sets not yet logged): the sets already logged stay with the exercise they were done on, which ends with them. Only the sets left are done as the new exercise, right after it, with its own Start exercise, clock and budget. In a superset the new exercise takes that member's place for the rounds left, so the superset stays paired and equal; the swap waits for the end of a round. The exercise swapped out stays in the workout as done, and its sets stay in its own history.
-- **Any exercise in the library** can also be picked in the swap (Nathan, 19 Nov), by searching the library under the three alternates. The same rules apply. For an exercise not in the library beyond the stored three, the user asks their coach.
+- **Any exercise in the library** can also be picked in the swap (Nate, 19 Nov), by searching the library under the three alternates. The same rules apply. For an exercise not in the library beyond the stored three, the user asks their coach.
 
 ### Coach
 
@@ -119,8 +119,8 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 
 ### Other
 
-- **Cardio:** logged separately from weights with type, duration, distance and notes. Entry is manual in the web version. **Cardio can also be a row inside a workout** (Nathan, 19 Nov, option A): it is logged with time and distance instead of weight and reps, and cardio exercises carry a heart symbol so they stand out. Built with cardio in Phase 5. Today the app has no list of cardio exercises (the starter library holds none, and a cardio entry's type is free text); Phase 5 adds one.
-- **Daily workout reminder** (Nathan, 19 Nov): a notification on days with a planned workout, at a time the user picks, with an on and off switch in Settings. Built in Phase 5 with the other notifications, since it needs the planner's campaigns (Phase 3).
+- **Cardio:** logged separately from weights with type, duration, distance and notes. Entry is manual in the web version. **Cardio can also be a row inside a workout** (Nate, 19 Nov, option A): it is logged with time and distance instead of weight and reps, and cardio exercises carry a heart symbol so they stand out. Built with cardio in Phase 5. Today the app has no list of cardio exercises (the starter library holds none, and a cardio entry's type is free text); Phase 5 adds one.
+- **Daily workout reminder** (Nate, 19 Nov): a notification on days with a planned workout, at a time the user picks, with an on and off switch in Settings. Built in Phase 5 with the other notifications, since it needs the planner's campaigns (Phase 3).
 - **Weekly summary:** the coach reads the week's summary through the connector and writes it up in the user's own LLM project. The user can pass it on to an accountability partner themselves. An emailed summary and an in-app accountability partner are deferred to a later version.
 - **Music:** the app never interrupts audio from another app. In-app music controls wait for the native version.
 - **Look:** selectable skins, accent colors and backgrounds, with celebrations on a logged set, a record and a finished workout. Section 6 has the detail.
@@ -183,14 +183,14 @@ A session stores a snapshot of what was planned. Later edits to the library or c
 - The celebration fires once per set and names the highest rep threshold beaten.
 - No record is awarded in an exercise's first-ever session, because there is nothing to beat.
 - Warm-up sets never count toward records.
-- **Assisted machines** (decided by Nathan, 17 Nov), such as the assisted dip and assisted pull-up: the number logged is the machine's assistance, so less is better. The exercise carries an assisted flag. Each record is the least assistance logged for that many reps or more, and a new record must use strictly less. There is no estimated one-rep max. Volume counts total reps, as for a bodyweight exercise.
+- **Assisted machines** (decided by Nate, 17 Nov), such as the assisted dip and assisted pull-up: the number logged is the machine's assistance, so less is better. The exercise carries an assisted flag. Each record is the least assistance logged for that many reps or more, and a new record must use strictly less. There is no estimated one-rep max. Volume counts total reps, as for a bodyweight exercise.
 
 ### Derived values
 
 - Volume = weight × reps × the exercise's load count, summed over working and drop sets. Volume is the total weight moved.
-- **Load count** (decided by Nathan, 17 Nov): how many times the logged weight is moved in one rep. It is 1 for most exercises, 2 for a pair of dumbbells or a single-side lift logged per side, and 4 for a pair of dumbbells logged per side. The per-side rule applies to every single-side exercise, whatever its equipment (Nathan, 17 Nov). Two cable handles on two weight stacks count 2, like a pair of dumbbells (approved by Nathan with the starter load counts, 17 Nov). Dumbbell weight is always logged and recorded per single dumbbell: records, the seeded weight, last time, and the graph's bars use that logged number. Only volume uses the load count.
-- **Bands are bodyweight exercises** (decided by Nathan, 17 Nov), because band resistance is not standardized or labeled. A band set is 1 BW and a rep count, like a push-up.
-- **Sleds** need no special rule (decided by Nathan, 17 Nov): a sled is a lift over a longer distance. The weight is the added plates and one fixed-distance trip is one rep.
+- **Load count** (decided by Nate, 17 Nov): how many times the logged weight is moved in one rep. It is 1 for most exercises, 2 for a pair of dumbbells or a single-side lift logged per side, and 4 for a pair of dumbbells logged per side. The per-side rule applies to every single-side exercise, whatever its equipment (Nate, 17 Nov). Two cable handles on two weight stacks count 2, like a pair of dumbbells (approved by Nate with the starter load counts, 17 Nov). Dumbbell weight is always logged and recorded per single dumbbell: records, the seeded weight, last time, and the graph's bars use that logged number. Only volume uses the load count.
+- **Bands are bodyweight exercises** (decided by Nate, 17 Nov), because band resistance is not standardized or labeled. A band set is 1 BW and a rep count, like a push-up.
+- **Sleds** need no special rule (decided by Nate, 17 Nov): a sled is a lift over a longer distance. The weight is the added plates and one fixed-distance trip is one rep.
 - A bodyweight set counts as a weight of 1 BW, so its volume is 1 × reps, counted in BW units and kept apart from pounds totals. For example, 20 push-ups is a weight of 1 BW and a count of 20. For a bodyweight exercise, total reps is treated the same way total weight is for a weighted one, everywhere volume is used.
 - Estimated one-rep max = weight × (1 + reps ÷ 30), taken from the set with the highest estimate over all history, working and drop sets only.
 - The graph's trend line is session volume for that exercise, which for a bodyweight exercise is its total reps.
@@ -300,15 +300,15 @@ Equipment values: barbell, dumbbell, kettlebell, cable, selectorized machine, pl
 ### Unconfirmed, and the fallback
 
 - The Phase 0 test on 16 November 2026 confirmed that a ChatGPT Pro plan can read and propose through the connector: on the web, inside an existing project, in the iPhone app and from a Dot agent. Before the test this was unconfirmed. Search results on 16 November 2026 disagree, and the pages were not opened: [OpenAI's help article](https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-connectors) describes full support on Business, Enterprise and Edu; [a Boomi setup guide](https://help.boomi.com/docs/Atomsphere/Platform/Connect_chatgpt_setup) says Plus and Pro are read-only; [an Obot article](https://obot.ai/?p=3333) says any paid user can write.
-- Phase 0 in Section 7 settles it with a test on Nathan's account.
-- **Fallback, the import link:** the coach writes its proposal as a link to the app. Opening the link creates the same pending proposal. It costs one extra tap and needs no write access. A third route, raised by Nathan and not yet designed: a separate agent service acts as the coach. If the agent can use MCP, it attaches to the same connector with nothing new to build. If it can only drive a browser, it needs its own delegate login to the planner, and everything it saves through that login must still arrive as a proposal, never as a direct edit.
-- Still open after Phase 0: whether the Coach button can open ChatGPT straight into a chosen project. Nathan wants the coach chat to land inside a specific project, so that the project's instructions apply. Connector sign-in and Claude as a coach were confirmed by the Phase 1 sign-in proof on 17 November 2026: ChatGPT and Claude both signed in through the connector, on the web, in a project and in their iPhone apps (see `docs/TECHNICAL_DESIGN.md` Section 10E).
+- Phase 0 in Section 7 settles it with a test on Nate's account.
+- **Fallback, the import link:** the coach writes its proposal as a link to the app. Opening the link creates the same pending proposal. It costs one extra tap and needs no write access. A third route, raised by Nate and not yet designed: a separate agent service acts as the coach. If the agent can use MCP, it attaches to the same connector with nothing new to build. If it can only drive a browser, it needs its own delegate login to the planner, and everything it saves through that login must still arrive as a proposal, never as a direct edit.
+- Still open after Phase 0: whether the Coach button can open ChatGPT straight into a chosen project. Nate wants the coach chat to land inside a specific project, so that the project's instructions apply. Connector sign-in and Claude as a coach were confirmed by the Phase 1 sign-in proof on 17 November 2026: ChatGPT and Claude both signed in through the connector, on the web, in a project and in their iPhone apps (see `docs/TECHNICAL_DESIGN.md` Section 10E).
 
 ## 5. Screens and behavior
 
 The prototype shows every screen marked "prototyped" below, and the build should match it. Screens marked "new" have no prototype and are specified here only.
 
-**Every phone screen stays inside the iPhone's safe area** (Nathan, 17 Nov, from using the Phase 1 app). Nothing is drawn behind the clock and status icons, the camera cut-out (the Dynamic Island) or the home bar. In Phase 1 the header sat partly behind the camera cut-out and ran into the clock, because the app draws to the screen's edges without leaving that space. Phase 2 fixes this for every screen, in every skin.
+**Every phone screen stays inside the iPhone's safe area** (Nate, 17 Nov, from using the Phase 1 app). Nothing is drawn behind the clock and status icons, the camera cut-out (the Dynamic Island) or the home bar. In Phase 1 the header sat partly behind the camera cut-out and ran into the clock, because the app draws to the screen's edges without leaving that space. Phase 2 fixes this for every screen, in every skin.
 
 ### Phone: active workout (prototyped)
 
@@ -316,7 +316,7 @@ Top to bottom, in a fixed order across all skins:
 
 1. **Top row:** settings, a pull tab labeled Workout that opens the tray, and the Coach button with its pending count.
 2. **Header:** previous and next exercise, workout name with position, and the workout clock labeled Workout.
-3. **Exercise:** superset label when bound, the exercise name, and its muscle group and equipment. New, not prototyped: the superset label offers Break superset. While a superset is in play, this whole panel sits in a box drawn in the accent color, so it is clear at a glance that a superset is active (Nathan, 19 Nov). Inside the box, a bracket in the accent color on the left joins the exercise's name to the line naming its partner exercises (Nathan, 19 Nov). A single exercise, or the exercises of a broken superset, have no box.
+3. **Exercise:** superset label when bound, the exercise name, and its muscle group and equipment. New, not prototyped: the superset label offers Break superset. While a superset is in play, this whole panel sits in a box drawn in the accent color, so it is clear at a glance that a superset is active (Nate, 19 Nov). Inside the box, a bracket in the accent color on the left joins the exercise's name to the line naming its partner exercises (Nate, 19 Nov). A single exercise, or the exercises of a broken superset, have no box.
 4. **Note:** one editable line that stays with the exercise across workouts.
 5. **Dial row:** the dial, the exercise clock in text, the rest countdown, and +0:15, Skip rest and + Set.
 6. **Set list:** one row per set showing done, now or planned, with a badge on any record. Tapping a row switches that set between warm-up and working. A long press, or the **⋯** button on the row, opens set details: type (warm-up, working or drop set) and RPE. Choosing Warm-up or Working there does the same as tapping the row.
@@ -341,8 +341,8 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 - Each exercise row shows one box per set that fills as sets are logged, the weights and reps logged or planned, and Done or Now.
 - Superset members show their letter. Tapping a row jumps to that exercise.
 - New, not prototyped: each row can be skipped or dragged to reorder, and an Add exercise control picks from the library. A superset's rows offer Break superset, with Undo until a set is logged after the break.
-- The tray, Swap and Stats close with **Return to workout** (Nathan, 19 Nov).
-- New (Nathan, 19 Nov): each exercise has a sets control (minus and plus) and a rest control (minus and plus, 15 seconds a step), for today only, and the tray has Pause workout and Resume workout.
+- The tray, Swap and Stats close with **Return to workout** (Nate, 19 Nov).
+- New (Nate, 19 Nov): each exercise has a sets control (minus and plus) and a rest control (minus and plus, 15 seconds a step), for today only, and the tray has Pause workout and Resume workout.
 
 ### Phone: stats (prototyped)
 
@@ -352,7 +352,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 
 ### Phone: swap (prototyped)
 
-- Lists the three stored alternates with their tier, then a search of the library to pick any other exercise (Nathan, 19 Nov).
+- Lists the three stored alternates with their tier, then a search of the library to pick any other exercise (Nate, 19 Nov).
 - Choosing one replaces the exercise for today and adds it to the library if it is not there, with a one-tap confirm of its suggested details (Section 2, Quick-swap).
 - A fourth row, "Ask my coach for another", opens the coach.
 
@@ -463,15 +463,17 @@ The accent overrides the skin's own default. Text on any accent is near-black.
 
 The build runs in seven phases. Phase 0 is a gate: its result decides how the coach connection works for everyone.
 
-1. **Phase 0, connector write test.** Stand up a minimal connector with one read tool and one propose tool. Connect it to Nathan's ChatGPT Pro project and to a Claude project. Record whether each can read, whether each can propose, and whether the Coach button can open the project on an iPhone.
+This section is the plan, not the status. What is being worked on now is in `docs/NEXT.md`; what was done and decided, by date, is in `docs/LOG.md`.
+
+1. **Phase 0, connector write test.** Stand up a minimal connector with one read tool and one propose tool. Connect it to Nate's ChatGPT Pro project and to a Claude project. Record whether each can read, whether each can propose, and whether the Coach button can open the project on an iPhone.
     - If ChatGPT Pro can propose: the connector is the default path.
     - If it can only read: the import link becomes the default for ChatGPT users, and the connector stays for reading.
-2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary. It also includes a project task: draft the starter library of about 40 exercises, each with its three alternates and starter work and rest seconds, for Nathan to review. **Done 17 Nov:** after an outside coach's review, Nathan approved version 2, 227 exercises, for every account (`docs/STARTER_LIBRARY.md`). The Phase 1 review on 17 Nov left a few items for the start of Phase 2, listed there and in `docs/TECHNICAL_DESIGN.md` Section 10E, point 10. **Accepted by Nathan and merged on 17 Nov.**
-3. **Phase 2, logging.** It opens with the items carried from the Phase 1 review: the two account fixes, tests against Supabase's own local version, the three iPhone checks below, the counting rules for assisted machines and load counts (Section 3; bands were made bodyweight in Phase 1), and the safe area (Section 5). Then the active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, breaking a superset into individual exercises, and crash-safe sessions. This phase must match the prototype, except for what the prototype lacks, such as breaking a superset. **Opening items built 17 Nov** (pull request #7, `docs/TECHNICAL_DESIGN.md` Section 10E, point 10): the two account fixes, the tests against Supabase's own local version and in a test browser, the assisted flag and load counts (the starter load counts approved by Nathan), the iPhone test page and the safe area. The live project allows the clean-up (Nathan's check, 17 Nov). Nathan's iPhone checks on 17 Nov: safe area, notifications, background rest alerts and screen wake pass. The rest sound mixes with music and follows silent mode (Nathan's decision). Nathan's reset retest on the live app on 17 Nov passed. **The opening items are done.** **First screens built 17 Nov** (branch `phase-2-workout-screen`): the workout rules (`src/rules/workout.ts` and `src/rules/session.ts`), tested against the Section 8 numbers for budgets, the dial, efficiency, records, volume, the seeded weight, the warm-up switch and breaking a superset; and the phone's Start a workout, active workout, tray, stats, swap, set details and finish screens at `/app/workout`. **Saving and offline built 18 Nov** (branch `phase-2-saving-and-offline`, by an Opus 5.5 high-effort helper, `docs/TECHNICAL_DESIGN.md` Sections 5 to 7): workouts and every set are saved to the account, sets logged with no connection are sent once when it returns, closing the app mid-session loses nothing, a workout finishes itself after 30 minutes with nothing done and reopens within 48 hours, records are worked out from the account's sets and again when a set is edited or deleted, "Last time" and seeded weights come from the account, the lb/kg choice and the note are saved to the account, and the server-sent rest alert follows the real rest timer. Two new migrations for Nathan to run. **Nathan's iPhone checks of the saving and offline work passed on 19 Nov**, and the small problems he found were fixed the same day (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10, which also lists his new requests awaiting decisions). **Built 19 Nov from Nathan's requests** (branch `phase-2-add-set-pause-tray`): + Set, the typing layout, Pause, and sets and rest in the tray. **Built and merged 19 Nov** (pull request 22): the throwaway iPhone test page removed now the real rest alert works, a swap part-way through an exercise, a swap to an alternate not yet in the library, and the Home screen's Today panel (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10). **Built and merged 19 Nov** (pull request 25, Nathan's request): a swap to any exercise in the library. **Reviewed 20 Nov** by a fresh Opus 5.5 high-effort session: seven problems found, all fixed at Nathan's choice (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10). **Nathan's iPhone check of the review fixes passed on 20 Nov** (`docs/SETUP.md` step Q). **Fixed 20 Nov** (Nathan's decision, branch `phase-2-warmup-sheet`): Warm-up chosen in the set details sheet now does the same as tapping the set. Nathan's iPhone check of that fix (`docs/SETUP.md` step R) passed on 20 Nov. **Nathan accepted Phase 2 on 20 Nov 2026.** Phase 3 is next.
+2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary. It also includes a project task: draft the starter library of about 40 exercises, each with its three alternates and starter work and rest seconds, for Nate to review (it became version 2, 227 exercises, `docs/STARTER_LIBRARY.md`).
+3. **Phase 2, logging.** It opens with the items carried from the Phase 1 review: the two account fixes, tests against Supabase's own local version, the three iPhone checks below, the counting rules for assisted machines and load counts (Section 3; bands were made bodyweight in Phase 1), and the safe area (Section 5). Then the active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, breaking a superset into individual exercises, and crash-safe sessions. This phase must match the prototype, except for what the prototype lacks, such as breaking a superset.
 4. **Phase 3, planner.** Library for exercises, workouts and campaigns, the Plan view with per-day overrides, History, and sending a day to the phone.
 5. **Phase 4, coach.** The full connector tool set, all nineteen tools, including the weekly summary, cardio and the proposal list, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens.
 6. **Phase 5, reach.** Notifications for rest and proposals, the daily workout reminder, cardio (including cardio rows inside a workout), export, the Arcade and Liquid Color skins, backgrounds and celebrations.
-7. **Phase 6, friends.** Onboarding polish for non-technical users, tested by one friend completing setup without help. Before the first friend is invited: choose the app's permanent web address (chosen 17 November 2026: `https://chalkandiron.vercel.app`), and either move Supabase to its paid plan or add a scheduled backup, and make sure the two account fixes from the Phase 1 review are in and tested (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
+7. **Phase 6, friends.** Onboarding polish for non-technical users, tested by one friend completing setup without help. Before the first friend is invited: either move Supabase to its paid plan or add a scheduled backup. (The permanent web address, `https://chalkandiron.vercel.app`, and the two account fixes from the Phase 1 review are already done.)
 
 A native iPhone app follows the web version and is not part of this package. It adds what a home-screen web app cannot do well: a lock-screen rest timer, Apple Music controls, Apple Health for cardio, and alerts that never depend on a connection.
 
@@ -481,65 +483,65 @@ A native iPhone app follows the web version and is not part of this package. It 
 - A rest alert while the app is in the background is sent from the server, so it needs a connection.
 - Keeping the screen awake uses Screen Wake Lock, available to home-screen web apps from iOS 18.4.
 
-These come from search results on 16 November 2026 ([CoderCops](https://blog.codercops.com/blog/progressive-web-apps-2026), [MobiLoud](https://www.mobiloud.com/blog/progressive-web-apps-ios)), and the pages were not opened. Confirm each on a real iPhone. Phase 1 did not, because each needs screens that later phases build. Approved by Nathan on 17 November 2026: confirm all three with a small throwaway test page at the start of Phase 2, before the timers and alerts are built on them. The page was built (`/app/lab`, the "iPhone checks" button) and removed on 19 November once the real rest alerts worked. **Nathan ran it on 17 November 2026:** notifications, the background rest alert (0.0 seconds late) and screen wake all work. A Focus mode holds notifications back, and with an Apple Watch worn a locked phone sends them to the watch. The rest sound mixes with music when the iPhone is off silent and is muted on silent. Playing it on silent stops the music. No web app can play on silent without stopping music, so Nathan decided the sound follows silent mode and the banner carries the alert (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
+These came from search results on 16 November 2026 ([CoderCops](https://blog.codercops.com/blog/progressive-web-apps-2026), [MobiLoud](https://www.mobiloud.com/blog/progressive-web-apps-ios)) and were confirmed on Nate's iPhone on 17 November 2026. Two limits found then: a Focus mode holds notifications back, and with an Apple Watch worn a locked phone sends them to the watch. No web app can play a sound on silent without stopping music, so Nate decided the rest sound follows silent mode and the banner carries the alert (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
 
 ## 8. Acceptance tests
 
-The build is accepted when every test below passes as an automated test, except those marked "on a device", which Nathan checks by hand.
+The build is accepted when every test below passes as an automated test, except those marked "on a device", which Nate checks by hand. A ticked box is covered by an automated test or by Nate's device check from Phases 1 and 2 (`docs/TECHNICAL_DESIGN.md` Section 9 maps each test to where it runs). Unticked boxes belong to later phases.
 
 ### Units and entry
 
-- [ ] Typing 27.5 with kg selected and logging stores 60.627 lb and shows 27.5 kg afterward.
-- [ ] Switching an exercise from lb to kg turns an entry of 60 lb into 27.2 kg, and its history then displays in kg. The library exercise's default unit is unchanged.
-- [ ] Weight steps are plus and minus 5 in the selected unit. Reps step by 1.
-- [ ] Weight cannot go below 0 and reps cannot go below 1.
-- [ ] With last session at 80 lb then 90 lb, and no weight planned, today's set 1 is pre-filled with 80, set 2 with 90 and set 3 with 90. Tapping into the box clears it. Logging set 1 untouched stores 80 lb.
+- [x] Typing 27.5 with kg selected and logging stores 60.627 lb and shows 27.5 kg afterward.
+- [x] Switching an exercise from lb to kg turns an entry of 60 lb into 27.2 kg, and its history then displays in kg. The library exercise's default unit is unchanged.
+- [x] Weight steps are plus and minus 5 in the selected unit. Reps step by 1.
+- [x] Weight cannot go below 0 and reps cannot go below 1.
+- [x] With last session at 80 lb then 90 lb, and no weight planned, today's set 1 is pre-filled with 80, set 2 with 90 and set 3 with 90. Tapping into the box clears it. Logging set 1 untouched stores 80 lb.
 
 ### Supersets and rest
 
-- [ ] In a two-exercise superset, logging the first member moves to the second with no rest.
-- [ ] In a two-exercise superset of 3 rounds, switching round 1 to a warm-up makes round 1 a warm-up for both members and leaves 3 working rounds for both, 4 rounds in all. Switching it back returns both to 3.
-- [ ] Logging the second member starts rest and returns to the first.
-- [ ] +0:15 adds 15 seconds to a running rest. Skip ends it.
-- [ ] When rest reaches zero the app shows a banner and plays a sound. On a device: the sound plays over music without stopping it, and is silent when the iPhone is on silent.
-- [ ] On a device: with the app in the background, a notification arrives when rest ends.
+- [x] In a two-exercise superset, logging the first member moves to the second with no rest.
+- [x] In a two-exercise superset of 3 rounds, switching round 1 to a warm-up makes round 1 a warm-up for both members and leaves 3 working rounds for both, 4 rounds in all. Switching it back returns both to 3.
+- [x] Logging the second member starts rest and returns to the first.
+- [x] +0:15 adds 15 seconds to a running rest. Skip ends it.
+- [x] When rest reaches zero the app shows a banner and plays a sound. On a device: the sound plays over music without stopping it, and is silent when the iPhone is on silent.
+- [x] On a device: with the app in the background, a notification arrives when rest ends.
 
 ### Time budget, dial and efficiency
 
-- [ ] A superset of 4 rounds with 45 and 40 work seconds and 120 rest seconds has a budget of 11:40.
-- [ ] Breaking that superset before it starts, where the second member's own rest is 90 seconds, gives two exercises of 4 sets each with their planned reps and weights unchanged, budgets of 9:00 and 7:10, and rest after every set. The library workout still shows the superset.
-- [ ] Breaking that superset after 2 rounds keeps the 4 logged sets as logged, leaves each exercise 2 sets to do, and counts the superset's time so far toward efficiency for those 4 sets.
-- [ ] A single exercise of 3 sets with 50 work seconds and 150 rest seconds has a budget of 7:30.
-- [ ] The exercise clock does not run before Start exercise.
-- [ ] Moving to another exercise pauses the first exercise's clock, and coming back resumes it from the same reading. Moving between members of a superset does not pause it.
-- [ ] At half the budget the fill is half. At the full budget it is empty.
-- [ ] At one and a half times the budget the fill is half red. At double it is full red.
-- [ ] At 3.2 times the budget the fill is still full red and the counter reads 2.2 times the budget over.
-- [ ] With a 7:30 budget and 3 planned sets, 2 sets done at 6:00 on the clock gives 83% efficiency.
+- [x] A superset of 4 rounds with 45 and 40 work seconds and 120 rest seconds has a budget of 11:40.
+- [x] Breaking that superset before it starts, where the second member's own rest is 90 seconds, gives two exercises of 4 sets each with their planned reps and weights unchanged, budgets of 9:00 and 7:10, and rest after every set. The library workout still shows the superset.
+- [x] Breaking that superset after 2 rounds keeps the 4 logged sets as logged, leaves each exercise 2 sets to do, and counts the superset's time so far toward efficiency for those 4 sets.
+- [x] A single exercise of 3 sets with 50 work seconds and 150 rest seconds has a budget of 7:30.
+- [x] The exercise clock does not run before Start exercise.
+- [x] Moving to another exercise pauses the first exercise's clock, and coming back resumes it from the same reading. Moving between members of a superset does not pause it.
+- [x] At half the budget the fill is half. At the full budget it is empty.
+- [x] At one and a half times the budget the fill is half red. At double it is full red.
+- [x] At 3.2 times the budget the fill is still full red and the counter reads 2.2 times the budget over.
+- [x] With a 7:30 budget and 3 planned sets, 2 sets done at 6:00 on the clock gives 83% efficiency.
 
 ### Records
 
-- [ ] With a prior best of 60 lb for 6 or more reps, logging 60 lb for 8 is not a record and gets no badge. The 6+ record's date moves to that day.
-- [ ] Logging 65 lb for 8 is a 6+ record, and the celebration names 6+.
-- [ ] With a prior heaviest set of 60 lb, logging 65 lb for 5 is a heaviest-set record and not a 6+ record.
-- [ ] No record is awarded in an exercise's first-ever session.
-- [ ] On an assisted machine with a prior best of 50 lb of assistance for 8 reps, logging 40 lb for 8 is a 6+ record and logging 60 lb for 8 is not.
-- [ ] A Dumbbell Bench Press set of 50 lb for 10, with a load count of 2, shows and records 50 lb and adds 1,000 lb to volume.
-- [ ] A band set is logged as 1 BW and a rep count, and adds its reps to BW volume.
-- [ ] A warm-up set never produces a record. Marking the first of 3 planned sets as a warm-up leaves 3 working sets to do, 4 sets in all.
+- [x] With a prior best of 60 lb for 6 or more reps, logging 60 lb for 8 is not a record and gets no badge. The 6+ record's date moves to that day.
+- [x] Logging 65 lb for 8 is a 6+ record, and the celebration names 6+.
+- [x] With a prior heaviest set of 60 lb, logging 65 lb for 5 is a heaviest-set record and not a 6+ record.
+- [x] No record is awarded in an exercise's first-ever session.
+- [x] On an assisted machine with a prior best of 50 lb of assistance for 8 reps, logging 40 lb for 8 is a 6+ record and logging 60 lb for 8 is not.
+- [x] A Dumbbell Bench Press set of 50 lb for 10, with a load count of 2, shows and records 50 lb and adds 1,000 lb to volume.
+- [x] A band set is logged as 1 BW and a rep count, and adds its reps to BW volume.
+- [x] A warm-up set never produces a record. Marking the first of 3 planned sets as a warm-up leaves 3 working sets to do, 4 sets in all.
 
 ### Graph
 
-- [ ] A session of 60 lb for 8, 8 and 7 reps draws three bars of equal height labeled 8, 8 and 7.
-- [ ] That session's point on the volume line reads 1,380 lb on the right-hand scale.
-- [ ] A bodyweight session of 20, 18 and 15 reps draws three bars of equal height labeled 20, 18 and 15, and its volume point reads 53 BW.
+- [x] A session of 60 lb for 8, 8 and 7 reps draws three bars of equal height labeled 8, 8 and 7.
+- [x] That session's point on the volume line reads 1,380 lb on the right-hand scale.
+- [x] A bodyweight session of 20, 18 and 15 reps draws three bars of equal height labeled 20, 18 and 15, and its volume point reads 53 BW.
 
 ### The library is never changed by use
 
-- [ ] Overriding reps to 10 on Monday of week 3 leaves the library workout at 8, week 1 at 8, and Thursday of week 3 at 8.
-- [ ] A swap during a session leaves the library workout unchanged.
-- [ ] Renaming an exercise keeps all of its history and records.
-- [ ] Editing a workout after a session does not change that session in History.
+- [x] Overriding reps to 10 on Monday of week 3 leaves the library workout at 8, week 1 at 8, and Thursday of week 3 at 8.
+- [x] A swap during a session leaves the library workout unchanged.
+- [x] Renaming an exercise keeps all of its history and records.
+- [x] Editing a workout after a session does not change that session in History.
 
 ### Coach
 
@@ -556,14 +558,14 @@ The build is accepted when every test below passes as an automated test, except 
 ### Theming
 
 - [ ] Switching skins changes no element's position or size on the active workout screen.
-- [ ] No color or font value appears outside the theme token files.
+- [x] No color or font value appears outside the theme token files.
 - [ ] With reduced motion on, no dust or shake plays.
 
 ### Resilience
 
-- [ ] Closing the app mid-session and reopening returns to the same exercise with all sets and clocks correct.
-- [ ] A set logged with no connection appears exactly once after reconnecting.
-- [ ] On a device: the screen stays awake for a full session.
+- [x] Closing the app mid-session and reopening returns to the same exercise with all sets and clocks correct.
+- [x] A set logged with no connection appears exactly once after reconnecting.
+- [x] On a device: the screen stays awake for a full session.
 
 ### Friends
 
@@ -571,7 +573,7 @@ The build is accepted when every test below passes as an automated test, except 
 
 ## 9. Open decisions
 
-Row 1 is answered. Row 4 was changed on 16 November. Row 5, hosting and stack, was approved by Nathan on 16 November as Vercel with Supabase (see `docs/TECHNICAL_DESIGN.md`). Rows 6 to 8 are confirmed. Rows 9 and 10 were changed on 16 November and are deferred. Rows 2, 3, 11, 12, 13 and 14 are still open, and the coding agent builds the default shown unless Nathan says otherwise.
+Row 1 is answered. Row 4 was changed on 16 November. Row 5, hosting and stack, was approved by Nate on 16 November as Vercel with Supabase (see `docs/TECHNICAL_DESIGN.md`). Rows 6 to 8 are confirmed. Rows 9 and 10 were changed on 16 November and are deferred. Rows 2, 3, 11, 12, 13 and 14 are still open, and the coding agent builds the default shown unless Nate says otherwise.
 
 | # | Decision | Default to build |
 | --- | --- | --- |
@@ -604,11 +606,11 @@ Row 1 is answered. Row 4 was changed on 16 November. Row 5, hosting and stack, w
 
 ## 10. Edge-case rules
 
-These rules settle what happens outside the normal path. Nathan decided them in review on 16 November 2026, with additions from his answers to the technical design's open questions on 17 November 2026.
+These rules settle what happens outside the normal path. Nate decided them in review on 16 November 2026, with additions from his answers to the technical design's open questions on 17 November 2026.
 
 ### Logged sets
 
-- A logged set can be edited or deleted during the session and later from History. Deleting a set removes it; no fresh set is added in its place. A set still to do can be deleted too, so it never has to be done. In a superset, deleting a set deletes that whole round for every exercise in it (Nathan, 19 Nov). To keep a round where one exercise is already done, move on instead: going to another exercise in the tray without logging leaves the rest of that exercise or superset undone, and at Finish those sets are marked Skipped and left out of efficiency. No separate per-set Skip is needed (Nathan, 19 Nov).
+- A logged set can be edited or deleted during the session and later from History. Deleting a set removes it; no fresh set is added in its place. A set still to do can be deleted too, so it never has to be done. In a superset, deleting a set deletes that whole round for every exercise in it (Nate, 19 Nov). To keep a round where one exercise is already done, move on instead: going to another exercise in the tray without logging leaves the rest of that exercise or superset undone, and at Finish those sets are marked Skipped and left out of efficiency. No separate per-set Skip is needed (Nate, 19 Nov).
 - Records are recalculated whenever a set changes. A record that no longer holds is removed.
 - Log set offers Undo for a few seconds after each set.
 
@@ -676,9 +678,9 @@ These rules settle what happens outside the normal path. Nathan decided them in 
 
 ### Accounts
 
-- Each account has its own library, seeded with the starter library: 227 common exercises with alternates (version 2, approved by Nathan on 17 November 2026). Every alternate is itself a starter exercise.
+- Each account has its own library, seeded with the starter library: 227 common exercises with alternates (version 2, approved by Nate on 17 November 2026). Every alternate is itself a starter exercise.
 - No data is shared between accounts in the first version.
-- Accounts are created only from a single-use invite link made by an admin. Nathan's account is the first admin.
+- Accounts are created only from a single-use invite link made by an admin. Nate's account is the first admin.
 - Deleting an account offers an export first. Everything is removed permanently after a 14-day grace period. The same applies when an admin deletes an account, and an admin can undo it during the grace period.
 
 ### Later enhancements

@@ -1,6 +1,6 @@
 # Model and effort guide
 
-Which AI model and how much thinking effort to use at each stage of Chalk and Iron. This is a standing instruction: switch according to this table and tell Nathan what you switched to and why, in plain language. Pause and ask only when the work leaves its row (see "When work leaves its row").
+Which AI model and how much thinking effort to use at each stage of Chalk and Iron. This is a standing instruction: switch according to this table and tell Nate what you switched to and why, in plain language. Pause and ask only when the work leaves its row (see "When work leaves its row").
 
 ## The table
 
@@ -10,11 +10,11 @@ Which AI model and how much thinking effort to use at each stage of Chalk and Ir
 | Phase 1, foundation | Opus 5.5 | High | The data model and per-user isolation get built here |
 | Phases 2 to 5, most features | Sonnet 5.5 | Medium | Screens and features against a settled design and a prototype |
 | Hard spots in any phase | Opus 5.5 | High | Offline sync, timers that survive a closed app, connector sign-in |
-| Reviewing each phase | Opus 5.5 | High | A fresh, stronger pass before Nathan accepts the work |
+| Reviewing each phase | Opus 5.5 | High | A fresh, stronger pass before Nate accepts the work |
 
 ## Phase 2: how the work divides (17 Nov 2026)
 
-Phase 2 holds more Opus work than any other phase. The rules above already decide it; this writes the split down. Nathan agreed it on 17 November 2026.
+Phase 2 holds more Opus work than any other phase. The rules above already decide it; this writes the split down. Nate agreed it on 17 November 2026.
 
 1. **Opening session: Opus 5.5, high.** The items carried from the Phase 1 review (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10):
    - the two account fixes (a reset that stays shut after its link is opened, and the 14-day clean-up on real Supabase), because they are sign-in and access work;
@@ -37,12 +37,15 @@ If the technical design is still in progress at midnight on 16 November:
 ## How to run it
 
 - **One session per stage.** Choose the model and effort when the session starts.
-- **Hard spots go to a helper.** Offline sync, timers that survive a closed app, and connector sign-in are handed to an Opus 5.5 high-effort helper with a short brief. It reports back, then the phase carries on. Tell Nathan when this happens.
-- **Reviews are fresh.** Each phase ends with a new Opus 5.5 high-effort session that did not do the building. It checks the pull request against the spec and acceptance tests and reports to Nathan in plain language before he accepts the phase.
+- **Check your own model at the start.** Every session confirms its own model and effort against the table at the start, and says so if it is wrong.
+- **Choose a helper's model on purpose.** Any agent that starts another session, helper or subagent chooses its model and effort from the table explicitly (never by default inheritance) and tells Nate in one line what it chose and why.
+- **Hard spots go to a helper.** Offline sync, timers that survive a closed app, and connector sign-in are handed to an Opus 5.5 high-effort helper with a short brief. It reports back, then the phase carries on. Tell Nate when this happens.
+- **Reviews are fresh.** Each phase ends with a new Opus 5.5 high-effort session that did not do the building. It checks the pull request against the spec and acceptance tests and reports to Nate in plain language before he accepts the phase.
+- **Review fixes are checked fresh too.** Fixes made after a phase's review are checked by a fresh Opus 5.5 high-effort session before Nate accepts the phase, unless Nate waives it.
 
 ## When work leaves its row
 
-Stop and tell Nathan, in plain terms, when:
+Stop and tell Nate, in plain terms, when:
 - A Sonnet phase fails the same test twice in a row, or hits a design question the spec does not answer. Propose moving that piece to Opus 5.5.
 - A Phase 2 to 5 task touches the data model or per-user isolation. That is Phase 1 kind of work and moves up to Opus 5.5.
 

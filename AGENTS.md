@@ -1,80 +1,51 @@
 # AGENTS.md: Chalk and Iron
 
-This is the single briefing for any agent working on Chalk and Iron. The same file lives in the GitHub repository (`trantelica/chalk-and-iron`) and in the local project folder. Keep the two identical.
+Briefing for every agent. One copy in the GitHub repository, one in Nate's project folder; keep them identical. Change this file only when a rule or a pointer changes. Never record progress here: that goes in `docs/NEXT.md` and `docs/LOG.md`.
 
-## Guiding rules
+## Working with Nate
 
-1. **Speak plainly.** Nathan is not a developer. Use everyday language and avoid engineer jargon. If a technical term is unavoidable, explain it in a few words.
-2. **Follow the folder schema strictly** whenever you create folders or file anything on Nathan's MacBook. Read it first: `Project Context -N/Folder Schema -S/Folder Schema.md`. In short: find it in -N, trust it in -S, support it in -sub, sort uncertainty in -gov. The schema applies only to folders on Nathan's MacBook. It does not apply to the GitHub repository, which keeps its own code layout (`docs/`, `phase0/`, `prototype/`).
-3. **When unsure where something goes on the MacBook, do not guess.** Put it in `00 FOLDER GOVERNANCE -gov` and tell Nathan.
-4. **Ask before outward-facing or hard-to-undo actions** (deleting, publishing, sending, merging).
-5. **Keep documents current.** Documents must be maintained and must not grow stale. When you change something, update every document that describes it in the same sitting, including both copies of this file (MacBook and GitHub). If you notice an out-of-date document, fix it or tell Nathan.
-6. **No development before approval.** Nathan approves the technical design first (see below). Until then, write documents only, not app code. Nathan approved the technical design on 17 November 2026.
+- Nate is the product owner, not a developer. Speak plainly; explain any unavoidable technical term in a few words.
+- Any step Nate must do gives the exact link, menu path and button.
+- Merging: when a pull request is ready, say so plainly ("This is ready to merge" or "Not ready yet", and why), above all before asking Nate to test anything on his iPhone (the live app builds only from `main`). Nate says yes or no. On yes, the agent merges it on GitHub itself. Never merge without his yes; never ask him to click Merge.
+- Ask before anything else hard to undo: deleting, publishing, sending.
+- Product decisions are Nate's. Don't guess at behaviour: ask, with a recommendation.
+
+## Before you start
+
+1. Read `docs/NEXT.md` for what to work on.
+2. Check `docs/MODEL_AND_EFFORT.md` for the right model and effort level for the stage. If you are the wrong one, say so before starting.
+3. When you start another session, helper or subagent, choose its model and effort from that table on purpose (never by default inheritance), and tell Nate in one line what you chose and why.
+4. Fixes made after a phase's review are checked by a fresh Opus 5.5 high-effort session before Nate accepts the phase, unless Nate waives it.
 
 ## Where to find things
 
 | Need | Read |
 |---|---|
-| Folder and naming rules for local files | `Project Context -N/Folder Schema -S/Folder Schema.md` (local) |
-| Project status and GitHub details | `Project Context -N/Project Overview -S/Project Overview.md` (local) |
-| What to build, rules, edge cases | `docs/SPEC.md` (GitHub) |
-| Look and feel reference | `prototype/index.html` (GitHub) |
-| Connector test already run | `phase0/README.md`, `phase0/api/mcp.js` (GitHub) |
-| Which model and effort level to use at each stage (standing instruction) | `docs/MODEL_AND_EFFORT.md` (GitHub) |
-| How it will be built (approved 17 November 2026) | `docs/TECHNICAL_DESIGN.md` (GitHub) |
-| Coach wording (parked draft) | `docs/COACH_INSTRUCTIONS.md` (GitHub) |
-| Setting up the real app, and the sign-in proof | `docs/SETUP.md`, `proofs/connector-signin/README.md` (GitHub) |
-| Starter library (version 2, 227 exercises, approved 17 November 2026) | `docs/STARTER_LIBRARY.md`, made from `data/starter-library.json` (GitHub) |
+| What to work on now, what waits on Nate, open items | `docs/NEXT.md` |
+| What was done and decided, by date (only when history is needed) | `docs/LOG.md` |
+| Which model and effort level for each stage (standing instruction) | `docs/MODEL_AND_EFFORT.md` |
+| What to build: rules, phases, acceptance tests, edge cases | `docs/SPEC.md` (Section 1 has eight rules the build must never break) |
+| How it is built (approved by Nate on 17 November 2026) | `docs/TECHNICAL_DESIGN.md` |
+| Look and feel reference (where it disagrees with the spec, the spec wins) | `prototype/index.html` |
+| Setting up the live app, and Nate's iPhone checks | `docs/SETUP.md` |
+| Starter library (227 exercises) | `docs/STARTER_LIBRARY.md`, made from `data/starter-library.json` |
+| Coach wording (parked draft) | `docs/COACH_INSTRUCTIONS.md` |
+| Folder and naming rules (MacBook only) | `Project Context -N/Folder Schema -S/Folder Schema.md` |
+| What the project is, GitHub and local-only details (MacBook only) | `Project Context -N/Project Overview -S/Project Overview.md` |
 
----
+## Folder schema (MacBook only)
 
-# Kickoff brief for the coding agent
+Follow the folder schema strictly for anything filed on Nate's MacBook; when unsure, put it in `00 FOLDER GOVERNANCE -gov` and tell Nate. It does not apply to the repository.
 
-You are building Chalk and Iron under Nathan's oversight. Nathan is the product owner and is not a developer. Explain choices in plain language and ask him when a product decision is missing. Do not guess at product behavior.
+## Building rules
 
-## Read first
+- One branch and pull request per piece of work; never push to `main`.
+- Build from the spec and the design together; where they disagree, ask Nate.
+- No call to any AI service from the app. No hard-coded colors or fonts. No secrets in the repository.
+- A phase ends with its acceptance tests passing and a plain summary for Nate.
 
-1. `docs/SPEC.md`, all of it. Section 1 has eight rules the build must never break. Section 10 has the edge-case rules.
-2. `prototype/index.html`. Open it in a browser. It is the reference for look, layout and interaction on the phone app and the planner. Where it disagrees with the spec, the spec wins.
-3. `phase0/README.md` and `phase0/api/mcp.js`, the connector test that has already been run.
+## Keeping documents lean
 
-## What is already settled
-
-- Phase 0 is done. On 16 November 2026 a ChatGPT Pro account read from and proposed to the test connector from the web, from an existing project, from the iPhone app and from a Dot agent. The connector over MCP is the coach path.
-- The test connector had no sign-in. The real one needs it.
-- Weights are stored in pounds.
-- The technical design, `docs/TECHNICAL_DESIGN.md`, was approved by Nathan on 17 November 2026. Build from it and the spec together. Where they disagree, stop and ask Nathan.
-- Phase 1 (foundation) was accepted by Nathan and merged on 17 November 2026. Phase 2 opens with the items carried from the Phase 1 review (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10). Those were finished, and checked by Nathan on his iPhone, on 17 November 2026. The first Phase 2 screens (start a workout, the active workout, tray, stats, swap and finish) were built on 17 November 2026 and merged. Saving to the account, offline sending, crash-safe sessions and the real rest alerts were built on 18 November 2026 by an Opus 5.5 high-effort helper and merged (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10); Nathan's iPhone checks of them passed on 19 November 2026. From his requests that day, + Set, the typing layout, Pause, and sets and rest in the tray were built on the `phase-2-add-set-pause-tray` branch and merged. The last Phase 2 items (removing the throwaway iPhone checks page, a swap part-way through an exercise, a swap to an alternate not yet in the library, and the Home screen's Today panel) were built on 19 November 2026 on the `phase-2-swap-today-cleanup` branch; the swap to any exercise in the library followed as pull request 25 and passed Nathan's check. The fresh Opus review of Phase 2 ran on 20 November 2026 and found seven problems; Nathan chose to fix all seven (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10). Nathan's iPhone check of those fixes (`docs/SETUP.md` step Q) passed on 20 November 2026. He then decided that Warm-up chosen in the set details sheet must do the same as tapping the set; that was built on the `phase-2-warmup-sheet` branch. His iPhone check of it (`docs/SETUP.md` step R) passed on 20 November 2026. **Nathan accepted Phase 2 on 20 November 2026.** Next: Phase 3, the planner (`docs/SPEC.md` Section 7).
-- Section 9 of the spec lists the product decisions still open, each with a default to build.
-
-## Your first deliverable: a technical design, before any app code (done, approved 17 November 2026)
-
-Write `docs/TECHNICAL_DESIGN.md` and stop for Nathan's review. It must cover:
-
-1. **Stack and hosting.** Nathan has Vercel and Supabase accounts. Recommend a stack, say why, and name what you considered and dismissed.
-2. **Database schema.** Every table, field, type, relationship and constraint for the entities in Section 3, including how a session snapshots its plan and how per-day overrides attach to a workout item.
-3. **Connector contracts.** For each tool in Section 4: inputs, outputs, errors, and the read-only or write annotation. Keep the tool names from the spec unless you give a reason to change one.
-4. **Sign-in.** How app sign-in works, how the connector's sign-in works for ChatGPT and for Claude, and how one user's data is kept from another's.
-5. **Lifecycles.** The states of a session, a proposal and a campaign, and what is allowed in each, following Section 10.
-6. **Offline and sync.** What is stored on the phone, how sets logged offline are sent later, and what wins in a conflict.
-7. **Timers and notifications.** How the clocks survive a closed app, and how a rest alert reaches a backgrounded iPhone web app.
-8. **Theme tokens.** The token file format, with the three skins and seven accents from Section 6.
-9. **Testing.** How each acceptance test in Section 8 will be automated, and which need a real device.
-10. **Open questions.** Anything in the spec that is ambiguous or contradictory. List these, do not resolve them yourself.
-
-## Working rules
-
-- Work in phases as Section 7 sets out. Do not start a phase before the previous one is accepted.
-- Every phase ends with its acceptance tests passing and a short plain-language summary for Nathan of what was built and what was not.
-- Work on a branch and open a pull request for each phase. Do not push to `main` directly.
-- No call to any LLM service from the app, ever. The coach is each user's own LLM, calling in through the connector.
-- No hard-coded colors or fonts. Everything visual comes from theme tokens.
-- No secrets in the repository.
-- The `phase0/` folder is a throwaway. Reuse its ideas, not its code. Delete it once the real connector exists.
-
-## Known open items to carry
-
-- Whether the Coach button can open ChatGPT inside a specific project. Nathan wants this, so that project instructions apply to the coach chat.
-- Whether Claude works as a coach through the same connector. Answered 17 November 2026 by the Phase 1 sign-in proof: yes, on the web, in a Project and in the iPhone app.
-- Default work and rest seconds have no researched source yet.
-- The coach instructions in `docs/COACH_INSTRUCTIONS.md` are a parked draft. Nathan will revise them after using the coach for real.
+- In the same pull request as any change, update the documents that describe it.
+- At each merge: update `docs/NEXT.md` and add one short entry to `docs/LOG.md`.
+- Status lives only in `docs/NEXT.md`. The spec, the design and the README point to it and don't repeat it.
