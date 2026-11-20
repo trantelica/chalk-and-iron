@@ -82,6 +82,12 @@ test("the Today panel starts today's workout, and a part-way swap adds a new alt
   expect(rows.find((r) => r.exercise_id === made[0].id)).toMatchObject({ n: 0 });
   expect(rows.find((r) => r.exercise_id === made[0].id)!.sets).toHaveLength(2);
 
+  // Swap can also pick any exercise in the library, beyond the three alternates (Nathan, 19 Nov).
+  await page.getByRole('button', { name: 'Swap', exact: true }).click();
+  await page.getByLabel('Search your library to swap').fill('Dumbbell Bench');
+  await page.getByRole('button', { name: /^Dumbbell Bench Press/ }).first().click();
+  await expect(page.getByRole('heading', { name: 'Dumbbell Bench Press' })).toBeVisible();
+
   // Home now offers to resume it.
   await page.goto('/app');
   await expect(page.getByRole('link', { name: 'Resume Test Push' })).toBeVisible();

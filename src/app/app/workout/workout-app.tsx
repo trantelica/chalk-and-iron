@@ -688,6 +688,7 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
               </button>
             );
           })}
+          <SwapSearch exercises={exercises} current={e.exerciseId} disabled={!!swapWhy} onPick={swapTo} />
           <Link className="btn opt" href="/app">Ask my coach for another</Link>
         </Sheet>
       )}
@@ -1053,6 +1054,30 @@ function ConfirmSheet({ x, from, vocabulary, onClose, onConfirm }: {
           : 'These details are complete. Not now keeps them as they are.'}
       </div>
     </Sheet>
+  );
+}
+
+/** Any exercise in the library, beyond the three stored alternates (Nathan, 19 Nov). */
+function SwapSearch({ exercises, current, disabled, onPick }: {
+  exercises: LibExercise[]; current: string; disabled: boolean; onPick: (x: LibExercise) => void;
+}) {
+  const [q, setQ] = useState('');
+  const list = q.trim() ? exercises.filter((x) => x.id !== current && x.name.toLowerCase().includes(q.trim().toLowerCase())).slice(0, 20) : [];
+  return (
+    <>
+      <div className="lab">Or any exercise in your library</div>
+      <input type="text" placeholder="Search your library" aria-label="Search your library to swap" value={q} disabled={disabled} onChange={(ev) => setQ(ev.target.value)} />
+      {list.length > 0 && (
+        <div className="pick-list">
+          {list.map((x) => (
+            <button key={x.id} className="btn opt" disabled={disabled} onClick={() => onPick(x)}>
+              {x.name}<span className="muted">{[x.muscle, x.equipment].filter(Boolean).join(' · ')}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {q.trim() && !list.length && <div className="muted">No exercise in your library matches.</div>}
+    </>
   );
 }
 
