@@ -226,10 +226,23 @@ A fresh review of Phase 2 found seven problems, and Nathan chose to fix all seve
 
 Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it away and open it again. Finish any test workout at the end.
 
-1. [ ] **Skip part-way.** Start a quick workout with two exercises. Tap **Start exercise** and log 2 sets on the first. Open the tray (**Workout** at the top) and tap **Skip** on that exercise. The top line still counts the 2 sets as done, the exercise shows **Skipped** with its 2 boxes filled, and **Stats** shows an efficiency, not "n/a".
-2. [ ] **Undo break.** Start **Superset test** and tap **Start exercise**. Wait about 30 seconds, tap **Break superset**, wait about 20 seconds, then tap **Undo break**. The exercise clock shows about 50 seconds used, not more, and keeps counting.
-3. [ ] **Move after a break.** In a workout with a superset and another exercise, tap **Break superset**, then open the tray. Tap **↑** on the first of the exercises the break made (or **↓** on the exercise just above it). It moves on the first tap.
-4. [ ] **Warm-up after a break.** After **Break superset**, note **Budget** under the exercise clock. Tap set 1 to make it a warm-up. A fifth set appears, and the budget grows by one set's work and rest.
-5. [ ] **Delete after a superset swap.** Start **Superset test**, log one full round, and swap the first exercise. On the other exercise, tap **⋯** on set 1, then **Delete this set**. The message reads "Set 1 is removed", not "removed from all 2 exercises".
+1. [x] **Skip part-way.** Start a quick workout with two exercises. Tap **Start exercise** and log 2 sets on the first. Open the tray (**Workout** at the top) and tap **Skip** on that exercise. The top line still counts the 2 sets as done, the exercise shows **Skipped** with its 2 boxes filled, and **Stats** shows an efficiency, not "n/a".
+2. [x] **Undo break.** Start **Superset test** and tap **Start exercise**. Wait about 30 seconds, tap **Break superset**, wait about 20 seconds, then tap **Undo break**. The exercise clock shows about 50 seconds used, not more, and keeps counting.
+3. [x] **Move after a break.** In a workout with a superset and another exercise, tap **Break superset**, then open the tray. Tap **↑** on the first of the exercises the break made (or **↓** on the exercise just above it). It moves on the first tap.
+4. [x] **Warm-up after a break.** After **Break superset**, note **Budget** under the exercise clock. Tap the words of the set 1 row, to the left of the vertical bar (not the **⋯**), to make it a warm-up. A **fourth** set appears (Superset test has 3 rounds), and the budget grows by one set's work and rest.
+5. [x] **Delete after a superset swap.** Start **Superset test**, log one full round, and swap the first exercise. On the other exercise, tap **⋯** on set 1, then **Delete this set**. The message reads "Set 1 is removed", not "removed from all 2 exercises".
 
 Two more fixes have no quick iPhone check, and GitHub's tests cover them: a workout that finished itself while paused now reopens running, not "paused"; and **+ Set** stops at 24 sets, the most the account keeps for one exercise.
+
+**Result: all five passed on Nathan's iPhone on 20 November 2026.** Check 4 failed the first time because Warm-up was chosen in the **⋯** sheet, which did not add a set the way the tap does. Nathan decided the two must behave the same, which led to step R.
+
+## 8. Phase 2: Warm-up in the set details sheet (20 November 2026)
+
+Nathan decided that choosing Warm-up in the set details sheet must do exactly what tapping the set does. It is on the `phase-2-warmup-sheet` branch. **No SQL to run:** the fix is in the app itself.
+
+### R. On your iPhone, after the merge
+
+Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it away and open it again. Finish the test workout at the end.
+
+1. [ ] **Warm-up from the sheet.** Start **Superset test** and tap **Start exercise**. Note **Budget** under the exercise clock. On set 1, tap **⋯** and choose **Warm-up**, then save. A 4th set appears on both exercises, and the budget grows by one round of work and rest (from 7:30 to 10:30 with the usual numbers).
+2. [ ] **Back to Working.** Tap **⋯** on set 1 again and choose **Working**, then save. The 4th set goes away on both exercises, and the budget returns to what it was.
