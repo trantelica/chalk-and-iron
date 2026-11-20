@@ -316,7 +316,7 @@ Top to bottom, in a fixed order across all skins:
 
 1. **Top row:** settings, a pull tab labeled Workout that opens the tray, and the Coach button with its pending count.
 2. **Header:** previous and next exercise, workout name with position, and the workout clock labeled Workout.
-3. **Exercise:** superset label when bound, the exercise name, and its muscle group and equipment. New, not prototyped: the superset label offers Break superset. While a superset is in play, this whole panel sits in a box drawn in the accent color, so it is clear at a glance that a superset is active (Nathan, 19 Nov). A single exercise, or the exercises of a broken superset, have no box.
+3. **Exercise:** superset label when bound, the exercise name, and its muscle group and equipment. New, not prototyped: the superset label offers Break superset. While a superset is in play, this whole panel sits in a box drawn in the accent color, so it is clear at a glance that a superset is active (Nathan, 19 Nov). Inside the box, a bracket in the accent color on the left joins the exercise's name to the line naming its partner exercises (Nathan, 19 Nov). A single exercise, or the exercises of a broken superset, have no box.
 4. **Note:** one editable line that stays with the exercise across workouts.
 5. **Dial row:** the dial, the exercise clock in text, the rest countdown, and +0:15, Skip rest and + Set.
 6. **Set list:** one row per set showing done, now or planned, with a badge on any record. Tapping a row switches that set between warm-up and working. A long press opens set details: type (warm-up, working or drop set) and RPE.
