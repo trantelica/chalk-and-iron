@@ -479,8 +479,11 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
       {/* A box in the accent color marks a superset in play (Nathan, 19 Nov). */}
       <div className={`ex-title${block.letter ? ' superset-box' : ''}`}>
         <div className="lab accent-text">{phase}</div>
-        <h1 className="ex-name">{e.name}</h1>
- <div className="muted fixed-line hide-typing">{subline}</div>
+        {/* In a superset, a bracket joins this exercise to its partners (Nathan, 19 Nov). */}
+        <div className={block.letter ? 'ss-pair' : undefined}>
+          <h1 className="ex-name">{e.name}</h1>
+          <div className="muted fixed-line hide-typing">{subline}</div>
+        </div>
         {block.members.length > 1 && canBreak(s, block) && (
           <button className="btn small hide-typing" onClick={() => commit(breakSuperset(s, block.id, Date.now()))}>Break superset</button>
         )}
