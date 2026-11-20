@@ -257,10 +257,12 @@ The fresh check after the Phase 2 review found three older problems, which Nate 
 
 Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it away and open it again. Finish each test workout at the end.
 
-1. [ ] **Undo break comes back even.** Start **Superset test** and tap **Start exercise**. Note **Budget** under the exercise clock. Tap **Break superset**. Tap the words of the set 1 row, to the left of the vertical bar (not the **⋯**), to make it a warm-up: a 4th set appears. Tap **Undo break**. Both exercises show 3 sets again, with no warm-up, and **Budget** is what you noted.
-2. [ ] **A finished exercise opens again.** Start a quick workout with one exercise. Tap **Start exercise** and log every set, tapping **Skip** on each rest, until the exercise shows as done and its clock stops. Tap the words of the set 1 row to make it a warm-up. A set to do appears and the exercise clock counts again. Log it: the clock stops again.
+1. [x] **Undo break comes back even.** Start **Superset test** and tap **Start exercise**. Note **Budget** under the exercise clock. Tap **Break superset**. Tap the words of the set 1 row, to the left of the vertical bar (not the **⋯**), to make it a warm-up: a 4th set appears. Tap **Undo break**. Both exercises show 3 sets again, with no warm-up, and **Budget** is what you noted.
+2. [x] **A finished exercise opens again.** Start a quick workout with one exercise. Tap **Start exercise** and log every set, tapping **Skip** on each rest, until the exercise shows as done and its clock stops. Tap the words of the set 1 row to make it a warm-up. A set to do appears and the exercise clock counts again. Log it: the clock stops again.
 
 The third fix (a record badge left on a warm-up while offline) needs a record set to show, so it has no quick iPhone check; GitHub's tests cover it.
+
+**Result: both passed on Nate's iPhone on 20 November 2026.**
 
 ## 10. Phase 3: the planner's Library and Vocabulary (20 November 2026)
 
