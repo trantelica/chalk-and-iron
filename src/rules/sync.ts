@@ -8,11 +8,12 @@
 //     copy of the same thing folded into an unsent earlier one;
 //   * "what the phone knows about past sessions", built from the server's answer.
 
-import { blockBudget, uid, type Block, type History, type PastSession, type Session, type SessionExercise } from './session';
+import { baseOf, blockBudget, uid, type Block, type History, type PastSession, type Session, type SessionExercise } from './session';
 import type { ExerciseUnit } from './units';
 import type { SetType } from './workout';
 
-export type ChangeKind = 'session.put' | 'set.put' | 'set.delete' | 'session.finish_other' | 'rest.set' | 'display_unit.put' | 'note.put';
+export type ChangeKind = 'session.put' | 'set.put' | 'set.delete' | 'session.finish_other' | 'rest.set' | 'display_unit.put' | 'note.put'
+  | 'exercise.create' | 'exercise.confirm';
 
 export interface Change {
   id: string; // made on the phone; the server remembers it, so a resend does nothing
@@ -50,7 +51,8 @@ export function sessionRows(s: Session) {
   const session = {
     id: s.id,
     local_date: s.day,
-    source_kind: 'ad_hoc',
+    source_kind: s.campaignDayId ? 'campaign_day' : 'ad_hoc',
+    campaign_day_id: s.campaignDayId ?? null,
     workout_id: s.workoutId ?? null,
     workout_name: s.name,
     started_at: iso(s.startedAt),
@@ -97,10 +99,10 @@ export function sessionRows(s: Session) {
       state: exerciseState(s, e),
       origin: e.origin ?? 'plan',
       swapped_from_exercise_id: e.swappedFrom ?? null,
-      sets_before_break: b.brokenFrom ? b.baseLogged : null,
+      sets_before_break: b.brokenFrom ? baseOf(b, e.key) : null,
     };
   });
-  return { session, blocks, exercises };
+  return { session, blocks, exercises, today_plan_id: s.todayPlanId ?? null };
 }
 
 /** One logged set as a set_logs row. Records are left to the server. */
@@ -170,11 +172,27 @@ export const noteChange = (exerciseId: string, note: string): NewChange => ({
   kind: 'note.put', data: { exercise_id: exerciseId, note: note.slice(0, 500) }, key: `note:${exerciseId}`,
 });
 
+/** The library fields of an exercise made by a swap, as the account stores them. */
+export interface SwapMadeExercise {
+  id: string; name: string; muscle_group_id: string | null; focus_id: string | null; equipment_id: string | null;
+  default_unit: ExerciseUnit; work_seconds: number; rest_seconds: number;
+}
+
+/**
+ * A swap to an alternate not yet in the library adds it at once (spec Section
+ * 2, Quick-swap). It goes to the front of the queue, so the account has it
+ * before any workout change that names it.
+ */
+export const exerciseCreateChange = (x: SwapMadeExercise): NewChange => ({ kind: 'exercise.create', data: { ...x }, key: `exercise-new:${x.id}` });
+
+/** The one-tap confirm of a swap-made exercise's suggested details: an ordinary edit. */
+export const exerciseConfirmChange = (x: Omit<SwapMadeExercise, 'name'>): NewChange => ({ kind: 'exercise.confirm', data: { ...x }, key: `exercise:${x.id}` });
+
 export const finishOtherChange = (sessionId: string): NewChange => ({ kind: 'session.finish_other', data: { session_id: sessionId } });
 
 // ---------------------------------------------------------------- the outbox queue
 
-const FOLDS: ChangeKind[] = ['session.put', 'set.put', 'rest.set', 'display_unit.put', 'note.put'];
+const FOLDS: ChangeKind[] = ['session.put', 'set.put', 'rest.set', 'display_unit.put', 'note.put', 'exercise.confirm'];
 
 /**
  * Adds changes to the end of the queue. A change about the same thing as an
@@ -307,6 +325,11 @@ export function sessionFromRows(
       : exercises.filter((x) => String(x.block_id) === id).sort((p, q) => Number(p.position_in_block) - Number(q.position_in_block)).map((x) => String(x.id));
     const brokenFrom = (b.broken_from_block_id as string | null) ?? null;
     const first = exercises.find((x) => String(x.id) === members[0]);
+    // Each member's sets from before this block (a break, or a part-way swap in a superset).
+    const before = brokenFrom && !closed
+      ? Object.fromEntries(members.map((k) => [k, Number(exercises.find((x) => String(x.id) === k)?.sets_before_break ?? 0)]))
+      : null;
+    const uneven = before && new Set(Object.values(before)).size > 1;
     return {
       id,
       letter: (b.superset_letter as string | null) ?? null,
@@ -315,6 +338,7 @@ export function sessionFromRows(
       started: b.clock_started_at !== null && b.clock_started_at !== undefined,
       stopped: b.clock_stopped_at !== null && b.clock_stopped_at !== undefined,
       baseLogged: brokenFrom && first ? Number(first.sets_before_break ?? 0) : 0,
+      ...(uneven ? { bases: before! } : {}),
       closed,
       fixedBudget: closed || brokenFrom ? Number(b.time_budget_seconds) : null,
       closedDone: closed ? Number(b.sets_done_at_break ?? 0) : 0,
@@ -343,6 +367,7 @@ export function sessionFromRows(
     breakUndo: (session.break_undo as Block[] | null) ?? null,
     lastActivityAt: ms(session.last_activity_at) ?? ms(session.started_at) ?? 0,
     workoutId: (session.workout_id as string | null) ?? null,
+    ...(session.campaign_day_id ? { campaignDayId: String(session.campaign_day_id) } : {}),
     finishReason: (session.finish_reason as Session['finishReason']) ?? null,
     // An active workout whose workout clock is stopped is paused (Nathan, 19 Nov).
     pausedAt: session.status === 'active' && !session.clock_running_since ? ms(session.last_activity_at) : null,

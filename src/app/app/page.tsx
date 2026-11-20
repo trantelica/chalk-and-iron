@@ -2,17 +2,24 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { serverClient } from '@/lib/supabase/server';
 import { HomeActions } from './home-actions';
+import { trainingDay } from '@/rules/days';
+import { loadToday } from '@/server/today';
+import type { DayState } from '@/rules/today';
 
-// The phone's home screen. Starting and resuming a workout is here; today's
-// planned workout, proposals and the campaign week arrive with the planner
-// (Phase 3) and the coach (Phase 4).
+const STATE: Record<DayState, string> = { done: 'Done', missed: 'Missed', today: 'Today', upcoming: '', rest: 'Rest', off: '' };
+
+// The phone's home screen (spec Section 5): the Today panel with today's
+// workout and its Start button, pending coach proposals, the campaign week at
+// a glance, and Start another workout. Today's workout comes from a day sent
+// to the phone or the active campaign (src/rules/today.ts); both are made in
+// the planner (Phase 3) or by the coach (Phase 4).
 export default async function PhoneHome() {
   const supabase = await serverClient();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect('/signin');
   const { data: p } = await supabase
     .from('profiles')
-    .select('display_name, is_admin, reset_notice_at, delete_requested_at')
+    .select('display_name, is_admin, reset_notice_at, delete_requested_at, time_zone')
     .maybeSingle();
   if (!p) {
     return (
@@ -24,8 +31,19 @@ export default async function PhoneHome() {
     );
   }
   const { count } = await supabase.from('exercises').select('id', { count: 'exact', head: true });
+  const timeZone = (p as { time_zone?: string }).time_zone ?? 'America/Denver';
+  const date = trainingDay(new Date(), timeZone);
   // The button follows the state: Resume when a workout is running, Start otherwise (Nathan, 19 Nov).
-  const { data: running } = await supabase.from('sessions').select('workout_name').eq('status', 'active').maybeSingle();
+  const [{ data: running }, today] = await Promise.all([
+    supabase.from('sessions').select('workout_name').eq('status', 'active').maybeSingle(),
+    loadToday(supabase, date),
+  ]);
+  const ids = today.workout?.items.map((i) => i.exerciseId) ?? [];
+  const { data: named } = ids.length ? await supabase.from('exercises').select('id, name').in('id', ids) : { data: [] };
+  const names = ids.map((id) => (named ?? []).find((x) => x.id === id)?.name as string | undefined).filter(Boolean) as string[];
+  const dayText = new Date(`${date}T12:00:00Z`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+  const w = today.workout;
+  const c = today.campaign;
   return (
     <main className="page">
       <h1>Chalk and Iron</h1>
@@ -45,19 +63,56 @@ export default async function PhoneHome() {
       {p.delete_requested_at && (
         <div className="notice">Your account is set to be deleted. <Link href="/planner/account">Cancel deletion</Link></div>
       )}
-      <div className="panel">
-        <div className="display">Hi, {p.display_name}</div>
-        <div className="muted">Your library holds {count ?? 0} exercises. Today&apos;s planned workout arrives with the planner.</div>
-        <Link className="btn primary" href="/app/workout" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
-          {running ? `Resume ${running.workout_name}` : 'Start a workout'}
-        </Link>
-      </div>
+      <div className="display">Hi, {p.display_name}</div>
+      <section className="panel today" aria-label="Today">
+        <div className="lab">Today · {dayText}</div>
+        {running ? (
+          <>
+            <div className="display big">{running.workout_name}</div>
+            <div className="muted">In progress.</div>
+            <Link className="btn primary link-btn" href="/app/workout">Resume {running.workout_name}</Link>
+          </>
+        ) : w ? (
+          <>
+            <div className="display big">{w.name}</div>
+            <div className="muted">
+              {w.items.length} exercise{w.items.length === 1 ? '' : 's'}{names.length ? `: ${names.slice(0, 4).join(', ')}${names.length > 4 ? ', and more' : ''}` : ''}
+            </div>
+            {today.doneToday
+              ? <div className="accent-text">Done today.</div>
+              : <Link className="btn primary link-btn" href="/app/workout?start=today">Start {w.name}</Link>}
+          </>
+        ) : (
+          <div className="muted">
+            {c ? 'Nothing planned today: a rest day in your campaign.' : 'No workout planned for today. Planned days arrive with the planner and your coach.'}
+          </div>
+        )}
+        {!running && <Link className={`btn link-btn ${!w || today.doneToday ? 'primary' : ''}`} href="/app/workout">Start another workout</Link>}
+      </section>
+      {c && (
+        <section className="panel" aria-label="This week">
+          <div className="lab">{c.name}{c.week ? ` · Week ${c.week} of ${c.weekCount}` : ''}</div>
+          <div className="week-row">
+            {c.days.map((d) => (
+              <div key={d.date} className={`wk-day ${d.state}`}>
+                <b>{d.label}</b>
+                <span className="wk-name">{d.state === 'off' ? '' : d.workout ?? 'Rest'}</span>
+                <span className="lab">{STATE[d.state]}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+      <section className="panel" aria-label="Coach proposals">
+        <div className="lab">Coach proposals</div>
+        <div>{today.pendingProposals ? `${today.pendingProposals} waiting for your decision.` : 'None waiting.'}</div>
+        <div className="muted">The inbox, with Accept and Decline, arrives with the coach.</div>
+      </section>
+      <div className="muted">Your library holds {count ?? 0} exercises.</div>
       <HomeActions passkeyCheck />
       <div className="row">
         <Link className="btn" href="/planner/account">Account</Link>
         {p.is_admin && <Link className="btn" href="/planner/admin">Admin</Link>}
-        {/* THROWAWAY: the iPhone checks page, removed once they are done. */}
-        <Link className="btn" href="/app/lab">iPhone checks</Link>
       </div>
     </main>
   );

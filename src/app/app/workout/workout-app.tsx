@@ -9,11 +9,12 @@ import {
   recordsToday, reopenSession, setDetails, setsDone, setsPlanned, skipBlock, skipRest, startExercise, startSession, swapExercise,
   toggleSet, toHistory, undoBreak, volumeOf, lastLoggedSetUndo,
   addSetToBlock, removeSetFromBlock, canDeleteSet, blockOfKey, setBlockRest, blockRest, canRemoveSet, isPaused, pauseSession, resumeSession,
+  blockSetCount, pairedIndex, swapBlocked,
   type History, type LogInput, type PlanItem, type Session,
 } from '@/rules/session';
 import {
-  applyServerRecords, finishOtherChange, mergeHistory, noteChange, pendingChoices, restChange, sessionChanges, unitChange,
-  type LibraryFacts,
+  applyServerRecords, exerciseConfirmChange, exerciseCreateChange, finishOtherChange, mergeHistory, noteChange, pendingChoices, restChange,
+  sessionChanges, unitChange, type LibraryFacts, type SwapMadeExercise,
 } from '@/rules/sync';
 import type { OutboxStatus } from '@/lib/outbox';
 import {
@@ -24,10 +25,24 @@ import {
   RECORD_LABEL, celebrationName, currentRecords, dial, estimatedOneRepMax, mmss, readClock, seedWeights, setVolume,
   type RecordType, type SetType,
 } from '@/rules/workout';
+import { missingFields, suggestSwapMade, type Tier, type VocabTerm } from '@/rules/swap-made';
+import type { TodayWorkout } from '@/rules/today';
 
 export interface LibExercise {
   id: string; name: string; muscle: string; equipment: string; unit: 'lb' | 'kg' | 'bw'; work: number; rest: number; note: string;
   assisted: boolean; loadCount: number; alternates: { tier: 'bodyweight' | 'basic_gym' | 'full_gym'; name: string }[];
+  muscleId: string | null; focusId: string | null; equipmentId: string | null;
+}
+
+const termName = (vocab: VocabTerm[], id: string | null) => (id ? vocab.find((v) => v.id === id)?.name ?? '' : '');
+
+/** A swap-made exercise as the phone's library holds it, until the account's copy arrives. */
+function libFromMade(x: SwapMadeExercise, vocab: VocabTerm[]): LibExercise {
+  return {
+    id: x.id, name: x.name, muscle: termName(vocab, x.muscle_group_id), equipment: termName(vocab, x.equipment_id), unit: x.default_unit,
+    work: x.work_seconds, rest: x.rest_seconds, note: '', assisted: false, loadCount: 1, alternates: [],
+    muscleId: x.muscle_group_id, focusId: x.focus_id, equipmentId: x.equipment_id,
+  };
 }
 export interface LibWorkout {
   id: string; name: string; items: { exerciseId: string; sets: number; reps: number; rest: number | null; superset: string | null }[];
@@ -48,9 +63,14 @@ const LATE_REST_SECONDS = 5;
 const CANCEL_ALERT_MS = 2500;
 const LAST = 'last' as const;
 
-export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits }: {
+export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZone, serverUnits, vocabulary, todayWorkout, startToday }: {
   userId: string; exercises: LibExercise[]; workouts: LibWorkout[]; today: string; timeZone: string; serverUnits: Record<string, WeightUnit>;
+  vocabulary: VocabTerm[]; todayWorkout: TodayWorkout | null; startToday: boolean;
 }) {
+  // Exercises made by a swap on this phone, kept here until the account's library has them.
+  const [made, setMade] = useState<LibExercise[]>([]);
+  const exercises = useMemo(() => [...serverExercises, ...made.filter((m) => !serverExercises.some((x) => x.id === m.id))], [serverExercises, made]);
+  const [confirmFor, setConfirmFor] = useState<null | { id: string; from: string }>(null);
   const [ready, setReady] = useState(false);
   const [sess, setSessState] = useState<Session | null>(null);
   const sessRef = useRef<Session | null>(null);
@@ -69,7 +89,7 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
   const alertCancelledFor = useRef<number | null>(null);
   const noteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [tray, setTray] = useState(false);
-  const [sheet, setSheet] = useState<null | 'stats' | 'swap' | 'detail' | 'add' | 'finish' | 'summary'>(null);
+  const [sheet, setSheet] = useState<null | 'stats' | 'swap' | 'detail' | 'add' | 'finish' | 'summary' | 'confirm'>(null);
   const [detailRound, setDetailRound] = useState(0);
   const [now, setNow] = useState(() => Date.now());
   const [banner, setBanner] = useState('');
@@ -155,6 +175,9 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
     writeStore(K('units'), u);
     setUnits(u);
     setNotes(pending.notes);
+    const keep = readStore<LibExercise[]>(K('made'), []).filter((m) => !serverExercises.some((x) => x.id === m.id));
+    writeStore(K('made'), keep);
+    setMade(keep);
     setSync({ ...box.status });
     setRejectedCount(box.rejected.length);
     setReady(true);
@@ -271,11 +294,12 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
   }
 
   // ---------------------------------------------------------------- starting
-  async function begin(name: string, plan: PlanItem[], workoutId: string | null = null) {
+  async function begin(name: string, plan: PlanItem[], workoutId: string | null = null, from: Pick<TodayWorkout, 'campaignDayId' | 'todayPlanId'> | null = null) {
     if (!plan.length) return;
     const start = () => {
       const t = Date.now();
-      commit(startSession(name, trainingDay(new Date(t), timeZone), plan, history, t, seedOf, workoutId));
+      const s0 = startSession(name, trainingDay(new Date(t), timeZone), plan, history, t, seedOf, workoutId);
+      commit(from ? { ...s0, campaignDayId: from.campaignDayId, todayPlanId: from.todayPlanId } : s0);
       setSheet(null); setTray(false); setOther(null);
     };
     // Only one workout can run at a time, on any device (decided 17 Nov, question 30).
@@ -287,6 +311,23 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
     } catch { /* no connection: start now; the account is asked when the phone is back online */ }
     start();
   }
+
+  /** Today's planned workout, with that day's overrides, as the session's plan. */
+  const todayPlan = useMemo(() => (todayWorkout?.items ?? []).flatMap((i) => {
+    const x = libById.get(i.exerciseId);
+    return x ? [{ ...toPlan(x, i.sets, i.reps, i.rest, i.superset), weightLb: i.weightLb }] : [];
+  }), [todayWorkout, libById]);
+  const startTodayNow = () => { if (todayWorkout) void begin(todayWorkout.name, todayPlan, todayWorkout.workoutId, todayWorkout); };
+
+  // The Home screen's Start button opens this screen with ?start=today: start it once, then drop the ?start.
+  const startedFromHome = useRef(false);
+  useEffect(() => {
+    if (!ready || !startToday || startedFromHome.current) return;
+    startedFromHome.current = true;
+    window.history.replaceState(null, '', '/app/workout');
+    if (!sessRef.current && todayWorkout && todayPlan.length) startTodayNow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
 
   async function carryOnHere(id: string) {
     try {
@@ -356,6 +397,7 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
           onDismiss={dismissSummary}
           onReopen={reopen}
           onStart={begin}
+          today={todayWorkout && todayPlan.length ? { name: todayWorkout.name, count: todayPlan.length, onStart: startTodayNow } : null}
           alerts={alertsOn ? null : { msg: alertsMsg, onAllow: allowAlerts }}
         />
         {other && (
@@ -438,6 +480,48 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
     writeStore(K('units'), next);
     box.add([unitChange(exerciseId, u)]);
     void box.flush();
+  }
+
+  const swapWhy = swapBlocked(s, e.key);
+  const setsLeft = e.types.length - e.logs.length;
+
+  function swapTo(target: LibExercise) {
+    const sets = e.logs.length ? setsLeft : e.types.length;
+    commit(swapExercise(s, e.key, toPlan(target, sets, e.plannedReps, null, null), seedOf, Date.now()));
+    setSheet(null);
+  }
+
+  /** The alternate is not in the library: it joins it at once, then the swap goes ahead (spec Section 2, Quick-swap). */
+  function makeAndSwap(tier: Tier, name: string) {
+    const orig = libById.get(e.exerciseId);
+    const x = suggestSwapMade(crypto.randomUUID(), name, tier, {
+      muscleId: orig?.muscleId ?? null, focusId: orig?.focusId ?? null, unit: e.unit, work: e.work, rest: orig?.rest ?? e.rest,
+    }, vocabulary);
+    const lib = libFromMade(x, vocabulary);
+    box.addFirst(exerciseCreateChange(x)); // ahead of the workout change that names it
+    setMade((m) => { const next = [...m, lib]; writeStore(K('made'), next); return next; });
+    const from = e.name;
+    swapTo(lib);
+    setConfirmFor({ id: lib.id, from });
+    setSheet('confirm');
+  }
+
+  /** The one-tap confirm: an ordinary edit to the new exercise, sent with the outbox. */
+  function confirmMade(x: LibExercise, equipmentId: string | null) {
+    box.add([exerciseConfirmChange({
+      id: x.id, muscle_group_id: x.muscleId, focus_id: x.focusId, equipment_id: equipmentId, default_unit: x.unit,
+      work_seconds: x.work, rest_seconds: x.rest,
+    })]);
+    void box.flush();
+    const equipment = termName(vocabulary, equipmentId);
+    setMade((m) => { const next = m.map((y) => (y.id === x.id ? { ...y, equipmentId, equipment } : y)); writeStore(K('made'), next); return next; });
+    const cur = sessRef.current;
+    if (cur) {
+      const exs = Object.fromEntries(Object.entries(cur.exercises).map(([k, v]) => [k, v.exerciseId === x.id ? { ...v, equipment } : v]));
+      commit({ ...cur, exercises: exs }, { activity: false });
+    }
+    setSheet(null);
+    setConfirmFor(null);
   }
 
   const phase = block.letter ? `Superset ${block.letter}${block.members.indexOf(e.key) + 1} of ${block.members.length}` : `Exercise ${pos + 1} of ${live.length}`;
@@ -580,26 +664,33 @@ export function WorkoutApp({ userId, exercises, workouts, timeZone, serverUnits 
       {sheet === 'swap' && (
         <Sheet title={`Swap ${e.name}`} onClose={() => setSheet(null)} closeLabel="Return to workout">
           <div className="muted">Replaces this exercise for today only. Your library workout is not changed.</div>
-          {e.logs.length > 0 && <div className="muted">This exercise already has sets logged, and they stay with it. To change to another exercise now, skip this one in the tray and add the other.</div>}
+          {!swapWhy && e.logs.length > 0 && (
+            <div className="muted">
+              The {e.logs.length} set{e.logs.length === 1 ? '' : 's'} you logged stay{e.logs.length === 1 ? 's' : ''} with {e.name}. The {setsLeft} set{setsLeft === 1 ? '' : 's'} left {setsLeft === 1 ? 'is' : 'are'} done as the exercise you pick{block.members.length > 1 ? ', in its place in the superset' : ', right after it'}.
+            </div>
+          )}
+          {swapWhy === 'mid_round' && <div className="muted">Finish this round of the superset first, then swap.</div>}
+          {swapWhy === 'done' && <div className="muted">Every set of {e.name} is logged, so there is nothing left to swap.</div>}
+          {swapWhy === 'skipped' && <div className="muted">{e.name} is skipped, so there is nothing to swap.</div>}
           {e.alternates.length === 0 && <div className="muted">This exercise has no stored alternates yet.</div>}
           {(['bodyweight', 'basic_gym', 'full_gym'] as const).map((tier) => {
             const a = e.alternates.find((x) => x.tier === tier);
             if (!a) return null;
             const target = exercises.find((x) => x.name.toLowerCase() === a.name.toLowerCase());
             return (
-              <button key={tier} className="btn opt" disabled={!target || e.logs.length > 0} onClick={() => {
-                if (!target || e.logs.length > 0) return;
-                commit(swapExercise(s, e.key, toPlan(target, e.types.length, e.plannedReps, null, null), seedOf));
-                setSheet(null);
-              }}>
+              <button key={tier} className="btn opt" disabled={!!swapWhy} onClick={() => (target ? swapTo(target) : makeAndSwap(tier, a.name))}>
                 <span className="lab">{TIER[tier]}</span>
-                <span>{a.name}{target ? '' : ' (not in your library yet)'}</span>
+                <span>{a.name}{target ? '' : <span className="muted"> · new: adds it to your library</span>}</span>
               </button>
             );
           })}
           <Link className="btn opt" href="/app">Ask my coach for another</Link>
         </Sheet>
       )}
+      {sheet === 'confirm' && confirmFor && (() => {
+        const x = exercises.find((m) => m.id === confirmFor.id);
+        return x ? <ConfirmSheet x={x} from={confirmFor.from} vocabulary={vocabulary} onClose={() => { setSheet(null); setConfirmFor(null); }} onConfirm={confirmMade} /> : null;
+      })()}
       {sheet === 'detail' && (
         <DetailSheet s={s} e={e} round={detailRound} unit={unit} onClose={() => setSheet(null)}
           onSave={(type, rpe, edit) => {
@@ -823,7 +914,7 @@ function Tray({ s, now, libById, onClose, onGo, onSkip, onMove, onBreak, onUndoB
                 <span className="row tight">
                   <span className="lab">{b.members.length > 1 ? 'Rounds' : 'Sets'}</span>
                   <button className="btn small" disabled={!canRemoveSet(s, b)} onClick={() => onRemoveSet(b.id)} aria-label="Remove a set">−</button>
-                  <span className="tray-num">{s.exercises[b.members[0]].types.length}</span>
+                  <span className="tray-num">{blockSetCount(s, b)}</span>
                   <button className="btn small" onClick={() => onAddSet(b.id)} aria-label="Add a set">+</button>
                 </span>
                 <span className="row tight">
@@ -864,7 +955,7 @@ function DetailSheet({ s, e, round, unit, onClose, onSave, onDelete }: {
 }) {
   const blk = blockOfKey(s, e.key);
   const pairedWith = !blk.closed && blk.members.length > 1 ? blk.members.map((k) => s.exercises[k]) : null;
-  const loggedInRound = (pairedWith ?? [e]).filter((m) => m.logs[round]).length;
+  const loggedInRound = (pairedWith ?? [e]).filter((m) => m.logs[pairedWith ? pairedIndex(blk, e.key, round, m.key) : round]).length;
   const deletable = canDeleteSet(s, e.key, round);
   const [type, setType] = useState<SetType>(e.types[round] ?? 'working');
   const [rpe, setRpe] = useState<number | null>(e.logs[round]?.rpe ?? null);
@@ -923,6 +1014,40 @@ function DetailSheet({ s, e, round, unit, onClose, onSave, onDelete }: {
           </>
         )
         : <button className="btn" onClick={() => setSure(true)}>{pairedWith ? `Delete round ${round + 1}` : 'Delete this set'}</button>)}
+    </Sheet>
+  );
+}
+
+/** The one-tap confirm of a swap-made exercise's suggested details (spec Section 2, Quick-swap). */
+function ConfirmSheet({ x, from, vocabulary, onClose, onConfirm }: {
+  x: LibExercise; from: string; vocabulary: VocabTerm[]; onClose: () => void; onConfirm: (x: LibExercise, equipmentId: string | null) => void;
+}) {
+  const [equip, setEquip] = useState<string>(x.equipmentId ?? '');
+  const focus = termName(vocabulary, x.focusId);
+  const unitName = x.unit === 'bw' ? 'Bodyweight' : x.unit;
+  const missing = missingFields({ muscle_group_id: x.muscleId, equipment_id: equip || null });
+  return (
+    <Sheet title="Added to your library" onClose={onClose} closeLabel="Not now">
+      <div><strong>{x.name}</strong> is now in your library and in today&apos;s workout.</div>
+      <div className="muted">Suggested details, copied from {from}:</div>
+      <div className="detail-list">
+        <div className="row spread"><span className="lab">Muscle group</span><span>{x.muscle || 'Not known'}{focus ? ` · ${focus}` : ''}</span></div>
+        <div className="row spread"><span className="lab">Unit</span><span>{unitName}</span></div>
+        <div className="row spread"><span className="lab">Work per set</span><span>{mmss(x.work)}</span></div>
+        <div className="row spread"><span className="lab">Rest</span><span>{mmss(x.rest)}</span></div>
+        <label className="row spread"><span className="lab">Equipment</span>
+          <select aria-label="Equipment" value={equip} onChange={(ev) => setEquip(ev.target.value)}>
+            <option value="">Pick equipment</option>
+            {vocabulary.filter((v) => v.kind === 'equipment').map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
+          </select>
+        </label>
+      </div>
+      <button className="btn primary" onClick={() => onConfirm(x, equip || null)}>Confirm details</button>
+      <div className="muted">
+        {missing.length
+          ? `Without ${missing.join(' and ')}, the planner marks it incomplete until you fill ${missing.length === 1 ? 'it' : 'them'} in. That never stops you using it.`
+          : 'These details are complete. Not now keeps them as they are.'}
+      </div>
     </Sheet>
   );
 }
@@ -1029,11 +1154,12 @@ function Graph({ e, unit, history, s }: { e: Session['exercises'][string]; unit:
 }
 
 // ------------------------------------------------------------------ start and finish
-function StartScreen({ exercises, workouts, libById, summary, lastDone, now, syncLine, saved, onDismiss, onReopen, onStart, alerts }: {
+function StartScreen({ exercises, workouts, libById, summary, lastDone, now, syncLine, saved, onDismiss, onReopen, onStart, alerts, today }: {
   exercises: LibExercise[]; workouts: LibWorkout[]; libById: Map<string, LibExercise>;
   summary: Session | null; lastDone: Session | null; now: number; syncLine: React.ReactNode; saved: boolean;
   onDismiss: () => void; onReopen: (s: Session) => void; onStart: (name: string, plan: PlanItem[], workoutId?: string | null) => void;
   alerts: null | { msg: string; onAllow: () => void };
+  today: null | { name: string; count: number; onStart: () => void };
 }) {
   const [picked, setPicked] = useState<LibExercise[]>([]);
   const [q, setQ] = useState('');
@@ -1073,6 +1199,14 @@ function StartScreen({ exercises, workouts, libById, summary, lastDone, now, syn
           <div>Turn on rest alerts, so &quot;Rest over&quot; reaches you when the app is in the background or the phone is locked.</div>
           <button className="btn" onClick={alerts.onAllow}>Turn on rest alerts</button>
           {alerts.msg && <div className="muted">{alerts.msg}</div>}
+        </div>
+      )}
+      {today && (
+        <div className="panel">
+          <div className="lab">Today</div>
+          <div className="display big">{today.name}</div>
+          <div className="muted">{today.count} exercise{today.count === 1 ? '' : 's'}, as planned for today.</div>
+          <button className="btn primary" onClick={today.onStart}>Start {today.name}</button>
         </div>
       )}
       {lastDone && canReopen(lastDone, now) && (

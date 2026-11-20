@@ -20,7 +20,7 @@ Phase 2 holds more Opus work than any other phase. The rules above already decid
    - the two account fixes (a reset that stays shut after its link is opened, and the 14-day clean-up on real Supabase), because they are sign-in and access work;
    - the `assisted` and `load_count` fields, because they change the data model;
    - running the database and account tests against Supabase's own local version;
-   - the throwaway iPhone test page for notifications, server-sent rest alerts and screen wake.
+   - the throwaway iPhone test page for notifications, server-sent rest alerts and screen wake (removed 19 November 2026, once the real rest alert worked).
 2. **Then Sonnet 5.5, medium,** for the screens and features: the active workout screen, the dial, the tray, supersets, typed and stepped entry, unit switching, records, stats, swap, breaking a superset into individual exercises, and the safe area.
 3. **Hard spots to an Opus 5.5 high-effort helper** when the build reaches them: the rest timer and clocks that survive a closed app, and crash-safe sessions with sets logged offline and sent later.
 4. **Review: a fresh Opus 5.5 high-effort session,** as for every phase.

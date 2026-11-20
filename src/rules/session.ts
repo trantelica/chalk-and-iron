@@ -68,6 +68,12 @@ export interface Block {
   started: boolean;
   stopped: boolean;
   baseLogged: number; // sets a broken-out member had logged before the break
+  /**
+   * Sets each member had logged before it joined this block, when they differ:
+   * after a part-way swap in a superset, the new exercise starts at 0 and the
+   * others at what they had done. Missing means every member has `baseLogged`.
+   */
+  bases?: Record<string, number>;
   closed: boolean; // a superset that was broken apart
   fixedBudget: number | null;
   closedDone: number;
@@ -95,6 +101,10 @@ export interface Session {
   lastActivityAt: number;
   workoutId?: string | null; // the library workout it started from, if any
   finishReason?: 'user' | 'auto' | 'replaced' | null;
+  /** The campaign day it was started from, if any (the Home screen's Today panel). */
+  campaignDayId?: string | null;
+  /** The prepared plan for today it was started from, if any; the account marks it used. */
+  todayPlanId?: string | null;
   /** Set while the workout is paused (Nathan, 19 Nov). In the account a paused workout is an active one whose workout clock is stopped. */
   pausedAt?: number | null;
 }
@@ -188,7 +198,18 @@ export const blockOfKey = (s: Session, key: string) =>
 /** Blocks shown in the workout: not closed, and not an empty skipped husk. */
 export const liveBlocks = (s: Session) => s.blocks.filter((b) => !b.closed);
 
-export const setsOf = (e: SessionExercise, b: Block) => Math.max(0, e.types.length - b.baseLogged);
+/** Sets a member had logged before it joined this block (a break or a part-way swap). */
+export const baseOf = (b: Block, key: string) => b.bases?.[key] ?? b.baseLogged;
+/** Rounds a member has done in this block. Members of a superset move together by this count. */
+export const roundIn = (s: Session, b: Block, key: string) => s.exercises[key].logs.length - baseOf(b, key);
+/** The same round of a superset, in another member's own set list. */
+export const pairedIndex = (b: Block, fromKey: string, index: number, toKey: string) => index - baseOf(b, fromKey) + baseOf(b, toKey);
+function ensureBases(b: Block): Record<string, number> {
+  b.bases ??= Object.fromEntries(b.members.map((k) => [k, b.baseLogged]));
+  return b.bases;
+}
+
+export const setsOf = (e: SessionExercise, b: Block) => Math.max(0, e.types.length - baseOf(b, e.key));
 export const memberDone = (e: SessionExercise) => e.logs.length >= e.types.length;
 export const blockDone = (s: Session, b: Block) => b.members.every((k) => memberDone(s.exercises[k]));
 export const blockSkipped = (s: Session, b: Block) => b.members.every((k) => s.exercises[k].skipped);
@@ -198,11 +219,11 @@ export function blockBudget(s: Session, b: Block): number {
   if (b.fixedBudget !== null) return b.fixedBudget;
   const ms = b.members.map((k) => s.exercises[k]);
   if (ms.length === 1) return budgetSingle(setsOf(ms[0], b), ms[0].work, ms[0].rest);
-  return budgetSuperset(ms[0].types.length, ms.map((m) => m.work), ms[0].rest);
+  return budgetSuperset(setsOf(ms[0], b), ms.map((m) => m.work), ms[0].rest);
 }
 
 /** Sets logged in a block this far (every member). */
-export const blockLogged = (s: Session, b: Block) => b.members.reduce((a, k) => a + s.exercises[k].logs.length - b.baseLogged, 0);
+export const blockLogged = (s: Session, b: Block) => b.members.reduce((a, k) => a + roundIn(s, b, k), 0);
 export const blockPlanned = (s: Session, b: Block) => b.members.reduce((a, k) => a + setsOf(s.exercises[k], b), 0);
 
 export function efficiencyOf(s: Session, now: number): number | null {
@@ -293,7 +314,7 @@ export function logSet(s0: Session, input: LogInput, history: History, now: numb
   s.lastActivityAt = now;
 
   // In a superset the next member goes straight away; rest follows the last member of a round.
-  const partner = b.members.find((k) => k !== e.key && s.exercises[k].logs.length < e.logs.length && !memberDone(s.exercises[k]));
+  const partner = b.members.find((k) => k !== e.key && roundIn(s, b, k) < roundIn(s, b, e.key) && !memberDone(s.exercises[k]));
   if (partner) { s.curMember = partner; return { session: s, earned }; }
   if (blockDone(s, b)) {
     b.stopped = true;
@@ -355,13 +376,17 @@ export function deleteSet(s0: Session, key: string, index: number, history: Hist
   if (index < 0 || index >= e.types.length) return s;
   if (refill && index >= e.logs.length) return s;
   const b = blockOfKey(s, key);
-  const paired = !b.closed && b.members.length > 1 && !refill;
+  const round = index - baseOf(b, key);
+  // A set from before this block (before a break or a part-way swap) is this exercise's alone.
+  const paired = !b.closed && b.members.length > 1 && !refill && round >= 0;
   const members = paired ? b.members.map((k) => s.exercises[k]) : [e];
+  if (!paired && round < 0) ensureBases(b)[key] -= 1;
   for (const m of members) {
-    if (index >= m.types.length) continue;
-    if (index < m.logs.length) m.logs.splice(index, 1);
-    m.types.splice(index, 1);
-    m.seeds.splice(index, 1);
+    const at = paired ? pairedIndex(b, key, index, m.key) : index;
+    if (at < 0 || at >= m.types.length) continue;
+    if (at < m.logs.length) m.logs.splice(at, 1);
+    m.types.splice(at, 1);
+    m.seeds.splice(at, 1);
     if (refill || m.types.length === 0) {
       m.types.push('working');
       m.seeds.push(m.seeds.at(-1) ?? null);
@@ -474,7 +499,7 @@ export function removeSetFromBlock(s0: Session, blockId: string, now: number): S
   const b = blockOf(s, blockId);
   if (b.closed) return s0;
   const ms = b.members.map((k) => s.exercises[k]);
-  if (!ms.every((e) => e.types.length > Math.max(1, e.logs.length, b.baseLogged + 1))) return s0;
+  if (!ms.every((e) => e.types.length > Math.max(1, e.logs.length, baseOf(b, e.key) + 1))) return s0;
   for (const e of ms) { e.types.pop(); e.seeds.splice(e.types.length); }
   b.fixedBudget = null;
   if (blockDone(s, b) && b.started && !b.stopped) {
@@ -500,7 +525,9 @@ export function setBlockRest(s0: Session, blockId: string, seconds: number, now:
 
 export const blockRest = (s: Session, b: Block) => s.exercises[b.members[0]].rest;
 export const canRemoveSet = (s: Session, b: Block) =>
-  !b.closed && b.members.every((k) => s.exercises[k].types.length > Math.max(1, s.exercises[k].logs.length, b.baseLogged + 1));
+  !b.closed && b.members.every((k) => s.exercises[k].types.length > Math.max(1, s.exercises[k].logs.length, baseOf(b, k) + 1));
+/** Sets (rounds, in a superset) shown in the tray: the most any member has. */
+export const blockSetCount = (s: Session, b: Block) => Math.max(...b.members.map((k) => s.exercises[k].types.length));
 
 export function skipRest(s0: Session): Session {
   const s = clone(s0);
@@ -512,12 +539,18 @@ export function skipRest(s0: Session): Session {
 export function toggleSet(s0: Session, round: number): Session {
   const s = clone(s0);
   const b = blockOf(s, s.curBlock);
-  const members = b.members.map((k) => s.exercises[k]);
-  const next = toggleWarmup(members.map((m) => m.types), members.map((m) => m.logs.length), round);
+  const cur = s.curMember;
+  const r = round - baseOf(b, cur);
+  // A set from before this block (a break or a part-way swap) switches on its own.
+  const members = r >= 0 ? b.members.map((k) => s.exercises[k]) : [s.exercises[cur]];
+  const off = (k: string) => (r >= 0 ? baseOf(b, k) : 0);
+  const at = r >= 0 ? r : round;
+  const next = toggleWarmup(members.map((m) => m.types.slice(off(m.key))), members.map((m) => m.logs.length - off(m.key)), at);
   if (!next) return s;
   members.forEach((m, i) => {
-    m.types = next[i];
-    if (m.logs[round]) m.logs[round].type = next[i][round];
+    const o = off(m.key);
+    m.types = [...m.types.slice(0, o), ...next[i]];
+    if (m.logs[o + at]) m.logs[o + at].type = next[i][at];
   });
   return s;
 }
@@ -567,17 +600,112 @@ export function addExercise(s0: Session, it: PlanItem, seedOf: (id: string, sets
   return s;
 }
 
-/** A swap replaces the exercise in today's session only. The new one takes the same sets. */
-export function swapExercise(s0: Session, key: string, it: PlanItem, seedOf: (id: string, sets: number, assisted: boolean) => (number | null)[]): Session {
+type SeedOf = (id: string, sets: number, assisted: boolean) => (number | null)[];
+
+/**
+ * Whether Swap can be used on an exercise now, and if not, why. Anything left
+ * to do can be swapped. In a superset a swap waits for the end of a round, so
+ * the members stay paired.
+ */
+export function swapBlocked(s: Session, key: string): null | 'done' | 'skipped' | 'mid_round' {
+  const e = s.exercises[key];
+  if (e.skipped) return 'skipped';
+  if (e.logs.length >= e.types.length) return 'done';
+  const b = blockOfKey(s, key);
+  if (e.logs.length > 0 && !b.closed && b.members.length > 1) {
+    const r = roundIn(s, b, key);
+    if (b.members.some((k) => roundIn(s, b, k) !== r)) return 'mid_round';
+  }
+  return null;
+}
+
+function swappedIn(e: SessionExercise, it: PlanItem, key: string, types: SetType[], seedOf: SeedOf, rest: number): SessionExercise {
+  return {
+    key, exerciseId: it.exerciseId, name: it.name, muscle: it.muscle, equipment: it.equipment, unit: it.unit, assisted: it.assisted,
+    loadCount: it.loadCount, work: it.work, rest, plannedReps: e.plannedReps, plannedWeightLb: null, alternates: it.alternates,
+    types, logs: [], skipped: false, origin: 'swap', swappedFrom: e.swappedFrom ?? e.exerciseId,
+    seeds: it.unit === 'bw' ? types.map(() => null) : seedOf(it.exerciseId, types.length, it.assisted),
+  };
+}
+
+const emptyBlock = (members: string[], letter: string | null = null): Block => ({
+  id: uid('b'), letter, members, clock: newClock(), started: false, stopped: false, baseLogged: 0, closed: false,
+  fixedBudget: null, closedDone: 0, closedPlanned: 0, brokenFrom: null, startedAt: null, stoppedAt: null, brokenAt: null,
+});
+
+/**
+ * A swap replaces the exercise in today's session only (spec Sections 2 and 10).
+ *
+ * Before any set is logged, the new exercise takes its place and takes the
+ * same sets.
+ *
+ * Part-way through (some sets logged), the sets already logged stay with the
+ * exercise they were done on, which now ends with them, and only the sets
+ * left are done as the new exercise, right after it, with its own clock and
+ * budget and Start exercise. This follows the rule for every change to a
+ * running workout: it applies to sets not yet logged.
+ *
+ * In a superset, the new exercise takes the member's place for the rounds
+ * left, so the superset stays paired and equal; this waits for the end of a
+ * round. The rounds done before the swap keep their time and budget, as a
+ * break keeps them. The exercise swapped out stays in the workout as done.
+ * A swap also ends Undo break.
+ */
+export function swapExercise(s0: Session, key: string, it: PlanItem, seedOf: SeedOf, now = Date.now()): Session {
+  if (swapBlocked(s0, key)) return s0;
   const s = clone(s0);
   const e = s.exercises[key];
-  const sets = e.types.length;
-  s.exercises[key] = {
-    ...e, exerciseId: it.exerciseId, name: it.name, muscle: it.muscle, equipment: it.equipment, unit: it.unit, assisted: it.assisted,
-    loadCount: it.loadCount, work: it.work, rest: it.rest, plannedWeightLb: null, alternates: it.alternates,
-    origin: 'swap', swappedFrom: e.swappedFrom ?? e.exerciseId,
-    seeds: it.unit === 'bw' ? Array.from({ length: sets }, () => null) : seedOf(it.exerciseId, sets, it.assisted),
+  if (e.logs.length === 0) {
+    s.exercises[key] = { ...swappedIn(e, it, key, e.types, seedOf, it.rest), logs: e.logs, types: e.types };
+    return s;
+  }
+
+  const done = e.logs.length;
+  const left = e.types.slice(done);
+  const b = blockOfKey(s, key);
+  const nk = uid('x');
+  s.breakUndo = null;
+  s.lastActivityAt = now;
+
+  if (b.closed || b.members.length === 1) {
+    // One exercise: it ends with the sets logged, and the new one follows it.
+    s.exercises[nk] = swappedIn(e, it, nk, left, seedOf, it.rest);
+    e.types = e.types.slice(0, done);
+    e.seeds = e.seeds.slice(0, done);
+    b.fixedBudget = null; // worked out again from the sets it kept
+    b.stopped = true;
+    b.stoppedAt ??= now;
+    b.clock = pauseClock(b.clock, now);
+    const nb = emptyBlock([nk]);
+    s.blocks.splice(s.blocks.findIndex((x) => x.id === b.id) + 1, 0, nb);
+    if (s.curBlock === b.id) { s.curBlock = nb.id; s.curMember = nk; }
+    return s;
+  }
+
+  // A superset, at the end of a round.
+  s.exercises[nk] = swappedIn(e, it, nk, left, seedOf, e.rest);
+  // The rounds done so far are kept as they were, the way a break keeps them.
+  b.fixedBudget = blockBudget(s, b);
+  b.closedDone = blockLogged(s, b);
+  b.closedPlanned = blockPlanned(s, b);
+  b.clock = pauseClock(b.clock, now);
+  b.closed = true;
+  b.stopped = true;
+  b.brokenAt = now;
+  b.stoppedAt ??= now;
+  e.types = e.types.slice(0, done);
+  e.seeds = e.seeds.slice(0, done);
+  // The exercise swapped out stays in the workout, done.
+  const kept: Block = { ...emptyBlock([key]), baseLogged: done, stopped: true, stoppedAt: now, fixedBudget: 0, brokenFrom: b.id };
+  // The superset carries on with the new exercise in its place.
+  const nb: Block = {
+    ...emptyBlock(b.members.map((k) => (k === key ? nk : k)), b.letter),
+    brokenFrom: b.id,
+    bases: Object.fromEntries(b.members.map((k) => (k === key ? [nk, 0] : [k, s.exercises[k].logs.length]))),
   };
+  nb.baseLogged = nb.bases![nb.members[0]];
+  s.blocks.splice(s.blocks.findIndex((x) => x.id === b.id) + 1, 0, kept, nb);
+  if (s.curBlock === b.id) { s.curBlock = nb.id; s.curMember = firstOpenMember(s, nb); }
   return s;
 }
 

@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       body: 'Time for your next set.',
       url: '/app/workout',
       tag: 'rest',
-    }, 'real');
+    });
     const late = ((sentAt.getTime() - due.getTime()) / 1000).toFixed(1);
     await admin.from('rest_alerts').update({
       result: `sent to ${r.sent} phone(s), ${late} s after the end` + (r.failed.length ? `; failed: ${r.failed.join(', ')}` : ''),
