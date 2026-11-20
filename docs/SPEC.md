@@ -108,7 +108,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - A swap replaces the exercise in today's session only. The alternate becomes a library exercise with its own history.
 - If the alternate is not yet in the library, it is created at once. The phone offers a one-tap confirm of suggested details copied from the original: muscle group, focus, work and rest seconds, the unit (bodyweight for the bodyweight alternate, otherwise the original's unit) and equipment where it can be suggested. If the user does not confirm, the exercise still joins the library with what is known, and missing fields stay empty. The planner flags it as incomplete and never blocks its use.
 - **A swap part-way through an exercise** (built 19 Nov, following the rule that a change to a running workout applies to sets not yet logged): the sets already logged stay with the exercise they were done on, which ends with them. Only the sets left are done as the new exercise, right after it, with its own Start exercise, clock and budget. In a superset the new exercise takes that member's place for the rounds left, so the superset stays paired and equal; the swap waits for the end of a round. The exercise swapped out stays in the workout as done, and its sets stay in its own history.
-- For anything beyond the stored three, the user asks their coach.
+- **Any exercise in the library** can also be picked in the swap (Nathan, 19 Nov), by searching the library under the three alternates. The same rules apply. For an exercise not in the library beyond the stored three, the user asks their coach.
 
 ### Coach
 
@@ -352,7 +352,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 
 ### Phone: swap (prototyped)
 
-- Lists the three stored alternates with their tier.
+- Lists the three stored alternates with their tier, then a search of the library to pick any other exercise (Nathan, 19 Nov).
 - Choosing one replaces the exercise for today and adds it to the library if it is not there, with a one-tap confirm of its suggested details (Section 2, Quick-swap).
 - A fourth row, "Ask my coach for another", opens the coach.
 
