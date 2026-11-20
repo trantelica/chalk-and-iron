@@ -39,9 +39,11 @@ Follow the folder schema strictly for anything filed on Nate's MacBook; when uns
 
 ## Building rules
 
+- Work in phases as `docs/SPEC.md` Section 7 sets out. Do not start a phase before the previous one is accepted.
 - One branch and pull request per piece of work; never push to `main`.
 - Build from the spec and the design together; where they disagree, ask Nate.
 - No call to any AI service from the app. No hard-coded colors or fonts. No secrets in the repository.
+- `phase0/` is a throwaway connector test: reuse its ideas, not its code.
 - A phase ends with its acceptance tests passing and a plain summary for Nate.
 
 ## Keeping documents lean

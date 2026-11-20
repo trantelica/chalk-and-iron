@@ -25,6 +25,15 @@ Phase 2 holds more Opus work than any other phase. The rules above already decid
 3. **Hard spots to an Opus 5.5 high-effort helper** when the build reaches them: the rest timer and clocks that survive a closed app, and crash-safe sessions with sets logged offline and sent later.
 4. **Review: a fresh Opus 5.5 high-effort session,** as for every phase.
 
+## Phase 3: how the work divides (20 Nov 2026)
+
+Agreed by Nate on 20 November 2026, on the same pattern as Phase 2.
+
+1. **Opening session: Opus 5.5, high.** The three workout fixes carried from the fresh check after the Phase 2 review (Undo break leaving a superset uneven, a finished exercise's clock after a warm-up switch, a record badge left on a warm-up), because they touch the exercise clock and records worked out offline, which are hard spots. Also the document points carried with them.
+2. **Then Sonnet 5.5, medium,** for the planner: the Library (exercises, workouts, campaigns), the Vocabulary screen, the Plan view with per-day overrides, the exercise panel, History, and sending a day to the phone with its inbox card.
+3. **Hard spots to an Opus 5.5 high-effort helper** if the build reaches them, for example anything that changes the data model or per-user isolation (see "When work leaves its row").
+4. **Review: a fresh Opus 5.5 high-effort session,** as for every phase.
+
 ## The Fable 5.2 date rule
 
 Fable 5.2 is used on **16 November 2026 only**. Any work that carries over into 17 November 2026 or later is done on **Opus 5.5**. Where this guide says Fable 5.2 on any later date, read it as Opus 5.5.

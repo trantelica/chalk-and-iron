@@ -381,7 +381,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 - **Plan** is the future. Pick a campaign, a week and a day. The workout pane lists that day's rows, where exercise, sets, reps, weight and rest can be overridden. An overridden value shows the library value beside it. Clicking an exercise loads it in the exercise panel. A button sends the day to the phone as today's workout. If today already has a workout, the sent day arrives in the inbox as a card saying what would replace what, with Accept and Dismiss. Accept makes it today's workout for today only and changes neither the library nor the campaign. Dismiss changes nothing.
 - Changing the sets of one superset member changes every member, so supersets stay equal. This applies to workouts and to day overrides. An exercise joining a superset takes its set count, and a superset holds two or three exercises.
 - **Library** holds three tabs. Exercises is an editable table. An exercise with missing fields, such as one added by a swap and never confirmed, is flagged as incomplete, with the empty fields shown. The flag never blocks its use. Workouts shows the selected workout's rows beside the exercise panel. Campaigns shows a grid of weeks by days.
-- **History** is the past. It lists sessions by workout and shows any exercise's graph and records. Nothing in it can be edited.
+- **History** is the past. It lists sessions by workout and shows any exercise's graph and records. Logged sets can be edited or deleted there, and records are worked out again (Section 10; confirmed by Nate, 20 Nov). Nothing else in it can be edited.
 - The exercise panel shows an exercise's details, swaps, graph and records wherever it appears.
 
 ### Browser planner: new screens
@@ -470,7 +470,7 @@ This section is the plan, not the status. What is being worked on now is in `doc
     - If it can only read: the import link becomes the default for ChatGPT users, and the connector stays for reading.
 2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary. It also includes a project task: draft the starter library of about 40 exercises, each with its three alternates and starter work and rest seconds, for Nate to review (it became version 2, 227 exercises, `docs/STARTER_LIBRARY.md`).
 3. **Phase 2, logging.** It opens with the items carried from the Phase 1 review: the two account fixes, tests against Supabase's own local version, the three iPhone checks below, the counting rules for assisted machines and load counts (Section 3; bands were made bodyweight in Phase 1), and the safe area (Section 5). Then the active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, breaking a superset into individual exercises, and crash-safe sessions. This phase must match the prototype, except for what the prototype lacks, such as breaking a superset.
-4. **Phase 3, planner.** Library for exercises, workouts and campaigns, the Plan view with per-day overrides, History, and sending a day to the phone.
+4. **Phase 3, planner.** Library for exercises, workouts and campaigns, the Vocabulary screen (in the planner only, never on the phone), the Plan view with per-day overrides, History (with set editing), and sending a day to the phone. When today already has a workout, the sent day's inbox card (Accept or Dismiss) is built in this phase; Phase 4 adds the coach's cards to the same inbox (Nate, 20 Nov).
 5. **Phase 4, coach.** The full connector tool set, all nineteen tools, including the weekly summary, cardio and the proposal list, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens.
 6. **Phase 5, reach.** Notifications for rest and proposals, the daily workout reminder, cardio (including cardio rows inside a workout), export, the Arcade and Liquid Color skins, backgrounds and celebrations.
 7. **Phase 6, friends.** Onboarding polish for non-technical users, tested by one friend completing setup without help. Before the first friend is invited: either move Supabase to its paid plan or add a scheduled backup. (The permanent web address, `https://chalkandiron.vercel.app`, and the two account fixes from the Phase 1 review are already done.)
@@ -487,7 +487,7 @@ These came from search results on 16 November 2026 ([CoderCops](https://blog.cod
 
 ## 8. Acceptance tests
 
-The build is accepted when every test below passes as an automated test, except those marked "on a device", which Nate checks by hand. A ticked box is covered by an automated test or by Nate's device check from Phases 1 and 2 (`docs/TECHNICAL_DESIGN.md` Section 9 maps each test to where it runs). Unticked boxes belong to later phases.
+The build is accepted when every test below passes as an automated test, except those marked "on a device", which Nate checks by hand. A ticked box is covered by an automated test or by Nate's device check from earlier phases (`docs/TECHNICAL_DESIGN.md` Section 9 maps each test to where it runs). Unticked boxes belong to later phases.
 
 ### Units and entry
 
@@ -532,9 +532,10 @@ The build is accepted when every test below passes as an automated test, except 
 
 ### Graph
 
-- [x] A session of 60 lb for 8, 8 and 7 reps draws three bars of equal height labeled 8, 8 and 7.
+- [ ] A session of 60 lb for 8, 8 and 7 reps draws three bars of equal height labeled 8, 8 and 7. (The numbers are tested; the drawing waits for a test or an iPhone check.)
 - [x] That session's point on the volume line reads 1,380 lb on the right-hand scale.
-- [x] A bodyweight session of 20, 18 and 15 reps draws three bars of equal height labeled 20, 18 and 15, and its volume point reads 53 BW.
+- [ ] A bodyweight session of 20, 18 and 15 reps draws three bars of equal height labeled 20, 18 and 15. (The numbers are tested; the drawing waits for a test or an iPhone check.)
+- [x] That bodyweight session's volume point reads 53 BW.
 
 ### The library is never changed by use
 

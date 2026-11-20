@@ -81,6 +81,11 @@ export interface Block {
   startedAt?: number | null; // when Start exercise was first tapped
   stoppedAt?: number | null; // when its last set was logged, or it was skipped
   brokenAt?: number | null; // when this superset was broken apart
+  /**
+   * Only on the superset's copy kept for Undo break: each member's set list as
+   * it was at the break, so Undo gives the superset back equal sets.
+   */
+  setsAtBreak?: Record<string, { types: SetType[]; seeds: (number | null)[] }>;
 }
 
 export interface Session {
@@ -377,6 +382,34 @@ function recheckToday(s: Session, key: string, history: History) {
 }
 
 /**
+ * After a set changes between warm-up and working. With the past sessions to
+ * hand, today's records are worked out again; without them, a warm-up at least
+ * drops any record it held, since a warm-up never counts (spec Section 3).
+ */
+function refreshRecords(s: Session, key: string, history?: History) {
+  if (history) { recheckToday(s, key, history); return; }
+  for (const l of s.exercises[key].logs) if (l.type === 'warm_up') l.records = [];
+}
+
+/**
+ * A block's sets changed: a done exercise that has a set to do again opens
+ * again, and its clock runs if it is the exercise on screen; one with nothing
+ * left to do stops, as it does when its last set is logged.
+ */
+function settleStopped(s: Session, b: Block, now: number) {
+  if (b.closed) return;
+  if (b.stopped && !blockDone(s, b) && !blockSkipped(s, b)) {
+    b.stopped = false;
+    b.stoppedAt = null;
+    if (s.curBlock === b.id && b.started && s.endedAt === null && !isPaused(s)) b.clock = startClock(b.clock, now);
+  } else if (!b.stopped && b.started && blockDone(s, b)) {
+    b.stopped = true;
+    b.stoppedAt = now;
+    b.clock = pauseClock(b.clock, now);
+  }
+}
+
+/**
  * Deletes a set, logged or still to do (spec Section 10; Nathan, 19 Nov). The
  * point of Delete is not having to do that work, so the set is removed and no
  * fresh set takes its place; the sets after it move up one.
@@ -394,6 +427,9 @@ export function deleteSet(s0: Session, key: string, index: number, history: Hist
   if (index < 0 || index >= e.types.length) return s;
   if (refill && index >= e.logs.length) return s;
   const b = blockOfKey(s, key);
+  // Deleting a logged set of an exercise broken out of a superset ends Undo
+  // break, as logging one does: the superset could no longer come back even.
+  if (!refill && index < e.logs.length && s.breakUndo && b.brokenFrom && s.breakUndo.some((x) => x.id === b.brokenFrom)) s.breakUndo = null;
   const round = index - baseOf(b, key);
   // A set from before this block (before a break or a part-way swap) is this exercise's alone.
   const paired = !b.closed && b.members.length > 1 && !refill && round >= 0;
@@ -556,11 +592,19 @@ export function skipRest(s0: Session): Session {
   return s;
 }
 
-/** Tapping a set in the list switches it between warm-up and working (a paired effect in a superset). */
-export function toggleSet(s0: Session, round: number): Session {
+/**
+ * Tapping a set in the list switches it between warm-up and working (a paired
+ * effect in a superset). Records are worked out again for every member whose
+ * logged set changed, and a done exercise given a set to do opens again, with
+ * its clock running (carried from the Phase 2 check, 20 Nov).
+ */
+export function toggleSet(s0: Session, round: number, history?: History, now = Date.now()): Session {
+  return toggleIn(s0, s0.curBlock, s0.curMember, round, history, now);
+}
+
+function toggleIn(s0: Session, blockId: string, cur: string, round: number, history: History | undefined, now: number): Session {
   const s = clone(s0);
-  const b = blockOf(s, s.curBlock);
-  const cur = s.curMember;
+  const b = blockOf(s, blockId);
   const r = round - baseOf(b, cur);
   // A set from before this block (a break or a part-way swap) switches on its own.
   const members = r >= 0 ? b.members.map((k) => s.exercises[k]) : [s.exercises[cur]];
@@ -570,11 +614,14 @@ export function toggleSet(s0: Session, round: number): Session {
   if (!next) return s;
   // A warm-up adds a working set; never past the 24 sets the account accepts.
   if (members.some((m, i) => off(m.key) + next[i].length > MAX_SETS)) return s;
+  const relogged: string[] = [];
   members.forEach((m, i) => {
     const o = off(m.key);
     m.types = [...m.types.slice(0, o), ...next[i]];
-    if (m.logs[o + at]) m.logs[o + at].type = next[i][at];
+    if (m.logs[o + at]) { m.logs[o + at].type = next[i][at]; relogged.push(m.key); }
   });
+  for (const k of relogged) refreshRecords(s, k, history);
+  settleStopped(s, b, now);
   return s;
 }
 
@@ -584,19 +631,12 @@ export function toggleSet(s0: Session, round: number): Session {
  * added or taken away, in a superset for every member). Drop set and RPE only
  * change the label.
  */
-export function setDetails(s0: Session, key: string, round: number, type: SetType, rpe: number | null, history: History = {}): Session {
+export function setDetails(s0: Session, key: string, round: number, type: SetType, rpe: number | null, history: History = {}, now = Date.now()): Session {
   let base = s0;
   const old = s0.exercises[key].types[round];
   if ((old === 'warm_up') !== (type === 'warm_up')) {
     const block = s0.blocks.find((b) => !b.closed && b.members.includes(key));
-    if (block) {
-      const aimed = clone(s0);
-      aimed.curBlock = block.id;
-      aimed.curMember = key;
-      base = toggleSet(aimed, round);
-      base.curBlock = s0.curBlock;
-      base.curMember = s0.curMember;
-    }
+    if (block) base = toggleIn(s0, block.id, key, round, history, now);
     // Refused (for example at 24 sets): the set keeps its type.
     if (base.exercises[key].types[round] === old) type = old;
   }
@@ -798,6 +838,7 @@ export function breakSuperset(s0: Session, blockId: string, now: number): Sessio
   if (!canBreak(s, old)) return s;
   s.breakUndo = clone(s.blocks);
   const members = old.members.map((k) => s.exercises[k]);
+  s.breakUndo.find((b) => b.id === blockId)!.setsAtBreak = Object.fromEntries(members.map((m) => [m.key, { types: [...m.types], seeds: [...m.seeds] }]));
   const budgetBefore = blockBudget(s, old);
   const doneBefore = blockLogged(s, old);
   const plannedBefore = blockPlanned(s, old);
@@ -821,9 +862,26 @@ export function breakSuperset(s0: Session, blockId: string, now: number): Sessio
   return s;
 }
 
-export function undoBreak(s0: Session, now: number): Session {
+/**
+ * Undo break puts the superset back. Each member gets back its set list as it
+ * was at the break, so a warm-up switch, + Set or Delete on one exercise since
+ * the break cannot leave the superset uneven (carried from the Phase 2 check,
+ * 20 Nov). Other changes since, such as rest, stay.
+ */
+export function undoBreak(s0: Session, now: number, history?: History): Session {
   const s = clone(s0);
   if (!s.breakUndo) return s;
+  for (const b of s.breakUndo) {
+    for (const [k, v] of Object.entries(b.setsAtBreak ?? {})) {
+      const e = s.exercises[k];
+      if (!e) continue;
+      const typesBefore = e.logs.map((l) => l.type);
+      e.types = [...v.types];
+      e.seeds = [...v.seeds];
+      e.logs.forEach((l, i) => { l.type = v.types[i] ?? l.type; });
+      if (e.logs.some((l, i) => l.type !== typesBefore[i])) refreshRecords(s, k, history);
+    }
+  }
   const before = s.breakUndo;
   const known = new Set(before.map((b) => b.id));
   // The blocks this break made, and the superset it broke. Only these change
@@ -840,7 +898,9 @@ export function undoBreak(s0: Session, now: number): Session {
     // The superset's clock stopped at the break. It takes back the time run on
     // the new blocks' clocks, and runs again if the person is on it.
     const banked = nowB.clock.banked + made.filter((m) => m.brokenFrom === b.id).reduce((t, m) => t + readClock(m.clock, now), 0);
-    const restored: Block = { ...b, clock: { banked, since: null } };
+    const { setsAtBreak: _kept, ...plain } = b;
+    void _kept;
+    const restored: Block = { ...plain, clock: { banked, since: null } };
     if (onMade && restored.started && !restored.stopped && !isPaused(s) && s.endedAt === null) restored.clock = startClock(restored.clock, now);
     return restored;
   }), ...added];
