@@ -38,7 +38,8 @@ function openBlockOf(s: Session, key: string): Block {
   return s.blocks.find((b) => !b.closed && b.members.includes(key)) ?? s.blocks.find((b) => b.members.includes(key))!;
 }
 
-export function exerciseState(s: Session, e: SessionExercise): 'open' | 'done' | 'skipped' {
+export function exerciseState(s: Session, e: SessionExercise): 'open' | 'done' | 'skipped' | 'replaced' {
+  if (e.replaced && !e.logs.length) return 'replaced';
   if (e.skipped) return 'skipped';
   if (e.logs.length >= e.types.length) return 'done';
   if (s.endedAt !== null) return e.logs.length ? 'done' : 'skipped';
@@ -221,7 +222,17 @@ export interface SyncAnswer {
   rejected: { id: string; reason: string }[];
   conflict: null | { code: 'other_active'; session_id: string; workout_name: string; started_at: string; last_activity_at: string; change_id: string };
   records: Record<string, string[]>;
+  /**
+   * Sessions the account ended as 'replaced' (a day sent from the planner was
+   * accepted mid-workout). The account keeps them as they are; a phone still
+   * holding one drops its copy and says so. Missing from older answers.
+   */
+  replaced?: string[];
 }
+
+/** True when the server's answer says this session was replaced by a day sent from the planner. */
+export const wasReplaced = (answer: Pick<SyncAnswer, 'replaced'>, sessionId: string | null | undefined) =>
+  !!sessionId && (answer.replaced ?? []).includes(sessionId);
 
 /** What is left in the queue once the server has answered. */
 export function settle(queue: Change[], answer: SyncAnswer): Change[] {
@@ -310,7 +321,9 @@ export function sessionFromRows(
       seeds: x.seed_weights_lb ? (x.seed_weights_lb as unknown[]).map(num) : types.map(() => null),
       types,
       logs,
-      skipped: x.state === 'skipped',
+      // A Replaced exercise is left out of efficiency, as a skipped one is.
+      skipped: x.state === 'skipped' || x.state === 'replaced',
+      ...(x.state === 'replaced' ? { replaced: true } : {}),
       alternates: facts?.alternates ?? [],
       origin: (x.origin as SessionExercise['origin']) ?? 'plan',
       swappedFrom: (x.swapped_from_exercise_id as string | null) ?? null,

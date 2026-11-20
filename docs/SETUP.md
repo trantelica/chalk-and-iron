@@ -279,3 +279,19 @@ Open https://chalkandiron.vercel.app and sign in (a passkey, as on the phone). O
 7. [ ] **Pounds or kilograms.** Top right, press **Kilograms**, then press **Details** on `Barbell Bench Press` (if it has history): the records show kilograms to one decimal.
 8. [ ] **Carried: step P item 4 (swap to an exercise not in the library).** In **Exercises**, archive `Dumbbell Bench Press`. On your iPhone, start a quick workout with `Barbell Bench Press`, tap **Swap** and pick the **Basic gym** alternate: it is added to your library at once, and **Added to your library** shows suggested details with an equipment picker. Tap **Confirm details**. Back in the planner, the new `Dumbbell Bench Press` is live; archive or rename it and **Restore** the old one if you want your original back (two live exercises cannot share a name, so restore only after renaming or archiving the new one).
 
+## 11. Phase 3: deciding a day sent from the planner (20 November 2026)
+
+When a day is sent from the planner and today already has a workout, it arrives as a card with **Accept** and **Dismiss** (`docs/TECHNICAL_DESIGN.md` Section 2, "Deciding a sent day"). This adds the database step behind those two buttons. It is on its own branch, beside the planner screens.
+
+### U. Supabase SQL Editor, **before** merging
+
+**Run this before the pull request is merged.** The planner's Accept and Dismiss buttons call it, so it must be there first. Run before merging, nothing changes for the app you have now.
+
+**What it changes:** it adds the Accept and Dismiss step, stops a coach adding a card that claims to come from your planner, and updates the function phones send workout changes through, so a phone still holding a workout that was replaced cannot reopen it. It removes no table and deletes no data.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
+
+1. [ ] [`20261120000100_decide_planner_proposal.sql`](https://github.com/trantelica/chalk-and-iron/blob/decide-planner-proposal/supabase/migrations/20261120000100_decide_planner_proposal.sql) (this link shows the file on its branch, before the merge). It should end with "Success. No rows returned". Safe to run more than once.
+2. [ ] To check: in a new query, paste `select count(*) from pg_proc where proname = 'decide_planner_proposal';` and click **Run**. It shows **1**.
+
+The iPhone checks for Accept and Dismiss come with the planner's inbox card, once both pull requests are merged.
