@@ -184,8 +184,10 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 
 ### N. On your iPhone, after the next merge
 
-1. [ ] **Superset box.** Start **Superset test**. The panel with "Superset A1 of 2", the exercise name and **Break superset** sits inside a box in the accent color. Move to **Cable Lat Pulldown**: no box. Tap **Break superset** on a superset: the box goes away.
-2. [ ] **Superset bracket.** In the same box, a bracket in the accent color on the left joins the exercise name to the "Then …" or "With …" line below it. It goes away with the box.
+1. [x] **Superset box.** Start **Superset test**. The panel with "Superset A1 of 2", the exercise name and **Break superset** sits inside a box in the accent color. Move to **Cable Lat Pulldown**: no box. Tap **Break superset** on a superset: the box goes away.
+2. [x] **Superset bracket.** In the same box, a bracket in the accent color on the left joins the exercise name to the "Then …" or "With …" line below it. It goes away with the box.
+
+**Nathan's results, 19 November 2026:** both passed. He approved the box and bracket ("That looks really good. This is approved.").
 
 ## 6. Phase 2: the last items before the review (19 November 2026)
 
