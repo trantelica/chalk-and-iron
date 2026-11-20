@@ -39,7 +39,7 @@ export function ProposalCards({ onChange, compact }: { onChange?: () => void; co
 
   if (cards === null || (cards.length === 0 && !msg)) return null;
   return (
-    <section className={compact ? 'cards' : 'box cards'} aria-label="Inbox">
+    <section className={compact ? 'cards' : 'pbox cards'} aria-label="Inbox">
       <div className="lab">Inbox</div>
       {cards.map((c) => (
         <div key={c.id} className="panel" role="group" aria-label="Day sent from the planner">

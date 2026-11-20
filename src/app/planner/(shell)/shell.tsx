@@ -32,12 +32,12 @@ function Toggle() {
 function Body({ children }: { children: React.ReactNode }) {
   const p = usePlannerMaybe();
   return (
-    <main className="page wide">
+    <main className="page wide planner">
       <div className="row spread"><h1>Planner</h1><Toggle /></div>
       <Tabs tabs={TABS} label="Planner" />
       {p?.error && <div className="error" role="alert">{p.error}</div>}
       {p?.data ? children : !p?.error && <div className="muted">Loading your library…</div>}
-      <div className="row"><Link className="btn" href="/app">Phone home</Link><Link className="btn" href="/planner/account">Account</Link></div>
+      <div className="row"><Link className="btn link-btn" href="/app">Phone home</Link><Link className="btn link-btn" href="/planner/account">Account</Link></div>
     </main>
   );
 }

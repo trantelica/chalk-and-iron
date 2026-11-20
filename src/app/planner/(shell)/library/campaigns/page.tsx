@@ -133,7 +133,7 @@ export default function Campaigns() {
       </div>
       {msg && <div className="error" role="alert">{msg}</div>}
       {!c ? <div className="muted">No campaigns yet. Press New campaign, then pick a workout for each day.</div> : (
-        <div className="box">
+        <div className="pbox">
           {finished && (
             <div className="notice" role="status">
               <strong>{c.name} {c.status === 'finished' ? 'is finished' : 'has run its last day'}.</strong>

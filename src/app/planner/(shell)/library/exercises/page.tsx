@@ -72,7 +72,7 @@ export default function Exercises() {
       </div>
       {msg && <div className="error" role="alert">{msg}</div>}
       {adding && <AddExercise onDone={async (made) => { setAdding(false); await reload(); if (made) showInPanel(made); }} muscles={muscles} equipment={equipment} terms={data.terms} named={named} userId={data.userId} setMsg={setMsg} />}
-      <div className="box scroll">
+      <div className="pbox scroll">
         <table>
           <thead>
             <tr><th>Name</th><th>Muscle group</th><th>Focus</th><th>Equipment</th><th>Unit</th><th>Work s/set</th><th>Rest s</th><th>Counts</th><th>Note</th>{TIERS.map(([, l]) => <th key={l}>{l}</th>)}<th></th></tr>
