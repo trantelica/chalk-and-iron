@@ -126,7 +126,7 @@ export default function Plan() {
       {msg && <div className="error" role="alert">{msg}</div>}
       {note && <div className="notice-soft" role="status">{note}</div>}
       <div className="cols">
-        <div className="box">
+        <div className="pbox">
           <h2 className="tight-h2">Week {week} · {DAYS[weekday - 1]} · {workout ? workout.name : 'Rest day'}</h2>
           {workout?.archived_at && <span className="tag">Archived</span>}
           {!day || !workout ? <div className="muted">Nothing scheduled. Pick a workout for this day under Library, Campaigns.</div> : (

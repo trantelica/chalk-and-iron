@@ -97,7 +97,7 @@ export default function Workouts() {
         </div>
         {msg && <div className="error" role="alert">{msg}</div>}
         {!w ? <div className="muted">No workouts yet. Press New workout.</div> : (
-          <div className="box">
+          <div className="pbox">
             <div className="row">
               <label>Name<TextCell value={w.name} label="Workout name" width={240} onSave={async (v) => {
                 if (!v.trim()) return;

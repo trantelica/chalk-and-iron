@@ -268,6 +268,8 @@ The first planner screens. They are on the `phase3-library-vocabulary` branch (p
 
 ### T. In your computer's browser, after the merge
 
+**First try, 20 November 2026: the tables were unreadable** (Exercises showed a count but no list; Workouts, Campaigns and Vocabulary were squashed). Cause: the planner reused a style name the phone's workout tray already had, so every planner panel was drawn 14 pixels wide. Fixed in the layout pull request after 38; run step T again after it is merged.
+
 Open https://chalkandiron.vercel.app and sign in (a passkey, as on the phone). On the home page tap **Planner** (next to **Account**), or go straight to https://chalkandiron.vercel.app/planner. You land in **Library**.
 
 1. [ ] **Exercises.** Under **Library**, **Exercises** shows your 227 exercises in a table. Type `dumbbell incline press` in the search box: **Incline Dumbbell Press** shows. Press **Add exercise**, type that same name, pick a muscle group and equipment: a warning says it looks like an existing exercise, and **Add to library** asks you to confirm. Press **Cancel**.
