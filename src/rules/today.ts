@@ -36,7 +36,7 @@ export interface WorkoutItemRow {
   rest_seconds: number | null; superset_letter: string | null;
 }
 export interface TodayPlanRow { id: string; local_date: string; workout_id: string | null; campaign_day_id: string | null; plan: unknown; consumed_at: string | null; created_at: string }
-export interface SessionRow { id: string; local_date: string; status: string; campaign_day_id: string | null; workout_name: string }
+export interface SessionRow { id: string; local_date: string; status: string; campaign_day_id: string | null; workout_name: string; finish_reason?: string | null }
 
 export interface TodayInput {
   date: string;
@@ -99,6 +99,12 @@ export function planItems(plan: unknown): TodayItem[] {
   });
 }
 
+/** A prepared plan's own name, when it carries one ({ items, name }), as a day sent from the planner does. */
+export function planName(plan: unknown): string | null {
+  const n = (plan as { name?: unknown } | null)?.name;
+  return typeof n === 'string' && n.trim() ? n.trim() : null;
+}
+
 /** The active campaign's day for a date, if it has one. */
 function campaignDayOn(date: string, c: CampaignRow, input: TodayInput): CampaignDayRow | null {
   const blank = input.shifts.filter((s) => s.campaign_id === c.id).map((s) => s.blank_week_starts_on.slice(0, 10));
@@ -119,7 +125,7 @@ export function todayView(input: TodayInput): TodayView {
     const viaDay = prepared.campaign_day_id ? input.days.find((d) => d.id === prepared.campaign_day_id) : null;
     const dayW = viaDay ? input.workouts.find((x) => x.id === viaDay.workout_id) : null;
     workout = {
-      name: w?.name ?? dayW?.name ?? "Today's workout",
+      name: w?.name ?? dayW?.name ?? planName(prepared.plan) ?? "Today's workout",
       workoutId: w?.id ?? dayW?.id ?? null,
       campaignDayId: prepared.campaign_day_id,
       todayPlanId: prepared.id,
@@ -131,7 +137,8 @@ export function todayView(input: TodayInput): TodayView {
   }
   if (workout && !workout.items.length) workout = null;
 
-  const finishedToday = input.sessions.filter((s) => s.local_date.slice(0, 10) === date && s.status === 'finished');
+  // A workout replaced by a day sent from the planner does not count as today's being done.
+  const finishedToday = input.sessions.filter((s) => s.local_date.slice(0, 10) === date && s.status === 'finished' && s.finish_reason !== 'replaced');
   const doneToday = !!workout && finishedToday.some((s) =>
     (workout!.campaignDayId && s.campaign_day_id === workout!.campaignDayId) || (!workout!.campaignDayId && s.workout_name === workout!.name));
 

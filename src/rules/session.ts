@@ -54,6 +54,12 @@ export interface SessionExercise {
   types: SetType[]; // one per planned set, including sets already logged
   logs: LoggedSet[];
   skipped: boolean;
+  /**
+   * Not reached before the workout was replaced by a day sent from the
+   * planner (spec Section 10, "Proposals"). Read back from the account only;
+   * such an exercise is also marked skipped, so efficiency leaves it out.
+   */
+  replaced?: boolean;
   alternates: { tier: 'bodyweight' | 'basic_gym' | 'full_gym'; name: string }[];
   origin?: 'plan' | 'added' | 'swap';
   swappedFrom?: string | null; // the library exercise a swap replaced

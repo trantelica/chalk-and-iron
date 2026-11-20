@@ -261,3 +261,20 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 2. [ ] **A finished exercise opens again.** Start a quick workout with one exercise. Tap **Start exercise** and log every set, tapping **Skip** on each rest, until the exercise shows as done and its clock stops. Tap the words of the set 1 row to make it a warm-up. A set to do appears and the exercise clock counts again. Log it: the clock stops again.
 
 The third fix (a record badge left on a warm-up while offline) needs a record set to show, so it has no quick iPhone check; GitHub's tests cover it.
+
+## 10. Phase 3: deciding a day sent from the planner (20 November 2026)
+
+When a day is sent from the planner and today already has a workout, it arrives as a card with **Accept** and **Dismiss** (`docs/TECHNICAL_DESIGN.md` Section 2, "Deciding a sent day"). This adds the database step behind those two buttons. It is on its own branch, beside the planner screens.
+
+### T. Supabase SQL Editor, **before** merging
+
+**Run this before the pull request is merged.** The planner's Accept and Dismiss buttons call it, so it must be there first. Run before merging, nothing changes for the app you have now.
+
+**What it changes:** it adds the Accept and Dismiss step, stops a coach adding a card that claims to come from your planner, and updates the function phones send workout changes through, so a phone still holding a workout that was replaced cannot reopen it. It removes no table and deletes no data.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
+
+1. [ ] [`20261120000100_decide_planner_proposal.sql`](https://github.com/trantelica/chalk-and-iron/blob/decide-planner-proposal/supabase/migrations/20261120000100_decide_planner_proposal.sql) (this link shows the file on its branch, before the merge). It should end with "Success. No rows returned". Safe to run more than once.
+2. [ ] To check: in a new query, paste `select count(*) from pg_proc where proname = 'decide_planner_proposal';` and click **Run**. It shows **1**.
+
+The iPhone checks for Accept and Dismiss come with the planner's inbox card, once both pull requests are merged.
