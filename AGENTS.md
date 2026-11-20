@@ -14,6 +14,8 @@ Briefing for every agent. One copy in the GitHub repository, one in Nate's proje
 
 1. Read `docs/NEXT.md` for what to work on.
 2. Check `docs/MODEL_AND_EFFORT.md` for the right model and effort level for the stage. If you are the wrong one, say so before starting.
+3. When you start another session, helper or subagent, choose its model and effort from that table on purpose (never by default inheritance), and tell Nate in one line what you chose and why.
+4. Fixes made after a phase's review are checked by a fresh Opus 5.5 high-effort session before Nate accepts the phase, unless Nate waives it.
 
 ## Where to find things
 

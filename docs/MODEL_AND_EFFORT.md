@@ -37,8 +37,11 @@ If the technical design is still in progress at midnight on 16 November:
 ## How to run it
 
 - **One session per stage.** Choose the model and effort when the session starts.
+- **Check your own model at the start.** Every session confirms its own model and effort against the table at the start, and says so if it is wrong.
+- **Choose a helper's model on purpose.** Any agent that starts another session, helper or subagent chooses its model and effort from the table explicitly (never by default inheritance) and tells Nate in one line what it chose and why.
 - **Hard spots go to a helper.** Offline sync, timers that survive a closed app, and connector sign-in are handed to an Opus 5.5 high-effort helper with a short brief. It reports back, then the phase carries on. Tell Nate when this happens.
 - **Reviews are fresh.** Each phase ends with a new Opus 5.5 high-effort session that did not do the building. It checks the pull request against the spec and acceptance tests and reports to Nate in plain language before he accepts the phase.
+- **Review fixes are checked fresh too.** Fixes made after a phase's review are checked by a fresh Opus 5.5 high-effort session before Nate accepts the phase, unless Nate waives it.
 
 ## When work leaves its row
 
