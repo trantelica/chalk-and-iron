@@ -970,14 +970,14 @@ I did not check these against current documentation in this sitting. Each is con
 | A web app's sound can mix with music without interrupting it | The rest sound becomes optional and off by default. **Confirmed on Nate's iPhone, 17 Nov 2026, with the iPhone off silent.** On silent it is muted; playing on silent stops the music (10E, point 10) |
 | The home-screen app keeps its stored data indefinitely | The app warns when unsent sets exist and syncs more eagerly |
 | The Vercel and Supabase free tiers fit this use | Paid tiers |
-| A coach app's scheduled tasks can call a custom connector, so the weekly summary can arrive without being asked for | The user asks their coach for the week's summary by hand. Nate plans a scheduled task on the LLM side, or his Dot agent, which he has shown can call the connector |
+| A coach app's scheduled tasks can call a custom connector, so the weekly summary can arrive without being asked for | The user asks their coach for the week's summary by hand. Nate plans a scheduled task on the LLM side, or his Dot agent, which he has shown can call the connector. A ChatGPT scheduled task is not tested yet; Nate expects it to work (20 Nov) |
 | A passkey can be the only sign-in method with Supabase, and works in the iPhone home-screen app and on the coach-connection page | Sign in by emailed code, which needs an email service and a domain |
 
 ### E. Phase 1 findings (17 November 2026)
 
 Added during Phase 1 on Opus 5.5 at high effort. The sign-in proof's research was done by an Opus 5.5 high-effort helper, as `docs/MODEL_AND_EFFORT.md` asks for hard spots. Sources are listed in `proofs/connector-signin/README.md`.
 
-**Proof result, 17 November 2026.** Nate ran the proof. Passkey-only sign-in worked on the iPhone, in Safari and in the home-screen app, with no email sent. ChatGPT (web, a project, the iPhone app, the Codex and Dot agents) and Claude (web, a Project, the iPhone app) both connected through Supabase's OAuth server and read as coach passes. Disconnect stopped both at once. Still to check: that a coach pass renews itself the next day. The design's first choices stand: Supabase for app sign-in and coach sign-in, and passkeys with no email. The fallbacks in 10C are not needed. Details are in `proofs/connector-signin/README.md`.
+**Proof result, 17 November 2026.** Nate ran the proof. Passkey-only sign-in worked on the iPhone, in Safari and in the home-screen app, with no email sent. ChatGPT (web, a project, the iPhone app, the Codex and Dot agents) and Claude (web, a Project, the iPhone app) both connected through Supabase's OAuth server and read as coach passes. Disconnect stopped both at once. On 20 Nov a ChatGPT coach pass had renewed itself, days after connecting, with no new sign-in (proof check 16). The design's first choices stand: Supabase for app sign-in and coach sign-in, and passkeys with no email. The fallbacks in 10C are not needed. Details are in `proofs/connector-signin/README.md`.
 
 What the research found, against the facts in 10C:
 

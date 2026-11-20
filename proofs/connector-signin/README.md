@@ -115,24 +115,24 @@ Fill in the checklist below and paste it, with the copied logs, into your next s
 | 4 | iPhone home-screen app: sign in with passkey | Yes |
 | 5 | Mac: sign in with passkey (own passkey or phone code) | Not recorded on its own. The coach approval sign-ins worked |
 | 6 | ChatGPT web: connector added, approval page shown and allowed | Yes |
-| 7 | ChatGPT web: get_profile returns your email and is_coach_pass true | Yes. Confirmed in the connector log: coach pass, ChatGPT client id, Nathan's test account |
+| 7 | ChatGPT web: get_profile returns your email and is_coach_pass true | Yes. Confirmed in the connector log: coach pass, ChatGPT client id, Nate's test account |
 | 8 | ChatGPT inside your coach project | Yes |
-| 9 | ChatGPT iPhone app: works; was a new sign-in needed; did the passkey work there | Yes. Also worked from OpenAI's Codex agent and Nathan's Dot agent |
+| 9 | ChatGPT iPhone app: works; was a new sign-in needed; did the passkey work there | Yes. Also worked from OpenAI's Codex agent and Nate's Dot agent |
 | 10 | Claude web: connector added with "Register automatically", approval allowed | Yes |
 | 11 | Claude web: get_profile returns is_coach_pass true | Yes. Confirmed in the connector log: coach pass, its own Claude client id, same account |
 | 12 | Claude inside a Project | Yes |
 | 13 | Claude iPhone app: works; was a new sign-in needed; did the passkey work there | Yes |
 | 14 | Disconnect stops ChatGPT at once | Yes, for both ChatGPT and Claude: each asked to reconnect |
 | 15 | App sign-in call shows is_coach_pass false | Not tried |
-| 16 | Next day: still connected without signing in again | Waiting: reconnect Claude and ask again on 18 Nov |
+| 16 | Next day: still connected without signing in again | Yes, on 20 Nov with ChatGPT: `get_profile` answered with a fresh coach pass (issued 20 Nov, lasting an hour) and no new sign-in. Whether a ChatGPT scheduled task can use the connector is not tested; Nate expects it to work |
 | 17 | Anything confusing on the approval page | Nothing reported |
 
 ## Run on 17 November 2026
 
-Nathan ran the proof on 17 November 2026, with the coding agent checking the connector's log and fixing settings in Vercel as he went.
+Nate ran the proof on 17 November 2026, with the coding agent checking the connector's log and fixing settings in Vercel as he went.
 
 - **Passed:** passkey-only sign-up and sign-in on the iPhone in Safari and in the home-screen app, with no email sent. ChatGPT (web, a project, the iPhone app, and the Codex and Dot agents) and Claude (web, a Project, the iPhone app) each connected through Supabase's OAuth server, signed in with the passkey, and read through `get_profile` as a coach pass. Each coach app registered itself and got its own client id. Disconnect stopped both ChatGPT and Claude at once.
-- **Still to check:** that a coach pass renews itself the next day without a new sign-in (check 16).
+- **Passed on 20 November 2026:** a coach pass renews itself days later without a new sign-in (check 16, ChatGPT). Not tested: a ChatGPT scheduled task using the connector.
 - **Setup slips worth avoiding next time.** These were fixed on the day, and the real setup in `docs/SETUP.md` warns about them:
   - Vercel's folder picker shows only `main`, so it cannot select a folder that exists only on a branch. The fix was to leave the root directory alone, set it under Settings afterward, and build the branch.
   - The project ended up served at its own permanent address, `https://chalk-iron-signin-proof-trantelica.vercel.app`, built from the `phase-1-foundation` branch, and not at the branch address these steps describe.

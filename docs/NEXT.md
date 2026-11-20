@@ -10,8 +10,7 @@ Carried into Phase 3: `docs/SETUP.md` step P item 4 (a swap to an exercise not i
 
 ## Waiting on Nate
 
-1. **Did the coach pass renew itself the next day?** The 18 November check (a ChatGPT scheduled task asking the reconnected ChatGPT to call `get_profile` without signing in again) has no recorded result. It also shows whether scheduled tasks can use the connector. Record the result in `proofs/connector-signin/README.md` (check 16).
-2. **Then delete the throwaway sign-in proof projects,** if not already done: Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot.
+1. **Delete the throwaway sign-in proof projects,** now that their last check has passed: Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot. Supabase: https://supabase.com/dashboard, open `chalk-iron-signin-proof`, then **Project Settings** > **General**, and **Delete project** at the bottom. Vercel: https://vercel.com, open `chalk-iron-signin-proof`, then **Settings**, and **Delete Project** at the bottom. Delete only these two, never `chalk-and-iron` or `chalkandiron`.
 
 ## Open items
 
@@ -19,6 +18,7 @@ Carried into Phase 3: `docs/SETUP.md` step P item 4 (a swap to an exercise not i
 - Default work and rest seconds have no researched source (`docs/SPEC.md` Section 9, rows 3 and 14).
 - The coach instructions in `docs/COACH_INSTRUCTIONS.md` are a parked draft. Nate will revise them after using the coach for real.
 - Delete `phase0/` (the throwaway connector test) once the real connector exists (Phase 4). The sign-in proof, `proofs/connector-signin/`, is throwaway too.
+- Whether a ChatGPT scheduled task can use the connector (for the weekly summary on a schedule). Not tested; Nate expects it to work.
 - Open product decisions with a default to build: `docs/SPEC.md` Section 9.
 
 ## Decided, not yet built
