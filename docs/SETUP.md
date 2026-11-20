@@ -1,14 +1,14 @@
 # Setting up the real app
 
-17 November 2026, updated 19 November 2026 · Phase 1 and Phase 2 · For Nathan
+17 November 2026, updated 19 November 2026 · Phase 1 and Phase 2 · For Nate
 
-The Phase 1 foundation was accepted by Nathan and merged on 17 November 2026. It runs at https://chalkandiron.vercel.app on the real Supabase project `chalk-and-iron`, built from `main`. Your account and a test account are set up. This page records how it was set up, in order, and the checks still to tick.
+The Phase 1 foundation was accepted by Nate and merged on 17 November 2026. It runs at https://chalkandiron.vercel.app on the real Supabase project `chalk-and-iron`, built from `main`. Your account and a test account are set up. This page records how it was set up, in order, and the checks still to tick.
 
 ## 1. Run the sign-in proof first (done 17 November 2026)
 
 Follow `proofs/connector-signin/README.md`. It uses **throwaway** Supabase and Vercel projects, separate from the real ones. It settles whether ChatGPT and Claude can sign in to the connector, and whether a passkey alone works on your iPhone, in Safari and as a home-screen app. Record the results in its checklist and tell the coding agent.
 
-**Result:** it passed on 17 November 2026 (design Section 10E). The only check left is that a coach pass renews itself the next day. Once that is recorded, delete the throwaway Supabase and Vercel projects. Deleting them also frees the Supabase free-plan slot for the real project.
+**Result:** it passed on 17 November 2026 (design Section 10E). The last check, that a coach pass renews itself without a new sign-in, passed on 20 November 2026. Delete the throwaway Supabase and Vercel projects. Deleting them also frees the Supabase free-plan slot for the real project.
 
 ## 2. Then set up the real app
 
@@ -16,9 +16,9 @@ The proof has passed, and the permanent address is chosen (below). The Vercel pr
 
 ### The permanent address (decided 17 November 2026)
 
-The app's permanent address is **https://chalkandiron.vercel.app**, chosen by Nathan on 17 November 2026. A passkey is tied to one web address. If the address changes later, every passkey made before the change stops working, and every coach connection has to be redone. So this address stays.
+The app's permanent address is **https://chalkandiron.vercel.app**, chosen by Nate on 17 November 2026. A passkey is tied to one web address. If the address changes later, every passkey made before the change stops working, and every coach connection has to be redone. So this address stays.
 
-It was chosen in two steps on the same day. Nathan first picked `https://chalkandiron-trantelica.vercel.app`, because the short address looked taken: it showed "not found", and Vercel refused to add it a second time. In fact it already belonged to his own project and had simply not been built yet. Nathan then switched to the short address. Both accounts made new passkeys through reset links, and the long address now forwards to the short one (`REDIRECT_FROM_HOSTS`). Invite and reset links always use `NEXT_PUBLIC_APP_ORIGIN`.
+It was chosen in two steps on the same day. Nate first picked `https://chalkandiron-trantelica.vercel.app`, because the short address looked taken: it showed "not found", and Vercel refused to add it a second time. In fact it already belonged to his own project and had simply not been built yet. Nate then switched to the short address. Both accounts made new passkeys through reset links, and the long address now forwards to the short one (`REDIRECT_FROM_HOSTS`). Invite and reset links always use `NEXT_PUBLIC_APP_ORIGIN`.
 
 ### A. Supabase (about 15 minutes)
 
@@ -54,7 +54,7 @@ The OAuth server for the coach connection is switched on in Phase 4, when the re
 
 ### D. Checks on your iPhone
 
-Tick each one and tell the coding agent. **All ticked by Nathan on 17 November 2026**, after running `…0700_bands_are_bodyweight.sql`. Phase 1 has no screen that lists exercises, only the count on the home screen ("Your library holds 227 exercises"). So the two library checks below rest on that count and on the reports the two updates print in the SQL Editor, not on seeing the exercises themselves. Browsing the library, with each exercise's details, arrives with the planner in Phase 3 (`docs/SPEC.md` Section 7). The Phase 1 review added two account checks that come with the Phase 2 fixes (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
+Tick each one and tell the coding agent. **All ticked by Nate on 17 November 2026**, after running `…0700_bands_are_bodyweight.sql`. Phase 1 has no screen that lists exercises, only the count on the home screen ("Your library holds 227 exercises"). So the two library checks below rest on that count and on the reports the two updates print in the SQL Editor, not on seeing the exercises themselves. Browsing the library, with each exercise's details, arrives with the planner in Phase 3 (`docs/SPEC.md` Section 7). The Phase 1 review added two account checks that come with the Phase 2 fixes (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10).
 
 - [x] The invite link registers you, and the passkey is created.
 - [x] Signing out and back in with Face ID works in Safari.
@@ -73,7 +73,7 @@ The opening items of Phase 2 are on pull request #7 (`docs/TECHNICAL_DESIGN.md` 
 
 ### E. The load counts (approved 17 November 2026)
 
-Nathan approved the proposed load count for every starter exercise ("Load counts" in `docs/STARTER_LIBRARY.md`). Nothing to do here.
+Nate approved the proposed load count for every starter exercise ("Load counts" in `docs/STARTER_LIBRARY.md`). Nothing to do here.
 
 ### F. Supabase SQL Editor, in this order
 
@@ -94,7 +94,7 @@ Nathan approved the proposed load count for every starter exercise ("Load counts
 
 Notifications need a pair of keys. The public one goes in the app; the private one stays in Vercel. **Where:** https://vercel.com, the project `chalkandiron`, then **Settings**, then **Environment Variables**. Two environment variables, values from the coding agent (never pasted anywhere else): `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY`. Then redeploy: **Deployments** tab, the top deployment's **⋯** menu, **Redeploy**.
 
-**Done 17 November 2026** by the coding agent, at Nathan's request: a new key pair was made, both were added for Production and Preview (the private one marked Sensitive, so Vercel never shows it again), no copy was kept anywhere else, and the live app was rebuilt.
+**Done 17 November 2026** by the coding agent, at Nate's request: a new key pair was made, both were added for Production and Preview (the private one marked Sensitive, so Vercel never shows it again), no copy was kept anywhere else, and the live app was rebuilt.
 
 ### H. On your iPhone
 
@@ -105,7 +105,7 @@ Notifications need a pair of keys. The public one goes in the app; the private o
    - [x] **Rest alert, phone locked.** Start a 30-second rest and lock the phone. "Rest over" arrives when the rest ends. Note how late it says it was. *(17 Nov: pass. With the Apple Watch on, a locked phone sends it to the watch. 0.0 seconds late.)*
    - [x] **Rest alert, another app open.** The same, with another app on screen instead. *(17 Nov: pass. A banner on the phone, not on the watch, as an unlocked iPhone does.)*
    - [x] **Screen stays awake.** With Keep awake on, the screen stays on past the Auto-Lock time. *(17 Nov: pass.)*
-   - [x] Extra: **the rest sound with music.** *(17 Nov: "mix with music" plays over music off silent, including 20 seconds after the tap, and is muted on silent. Every way of playing on silent stops the music. Nathan decided the sound follows silent mode and the banner carries the alert.)*
+   - [x] Extra: **the rest sound with music.** *(17 Nov: "mix with music" plays over music off silent, including 20 seconds after the tap, and is muted on silent. Every way of playing on silent stops the music. Nate decided the sound follows silent mode and the banner carries the alert.)*
 4. **Reset retest.** **All passed, 17 November 2026.** Your own account makes the link; your test account (the second email) is the one reset. Three windows:
    - **Mac, window 1, your own account:** in Chrome (or any browser where you are signed in as yourself), open https://chalkandiron.vercel.app/planner/admin.
    - **Mac, window 2, the test account:** in Safari, choose **File > New Private Window**, open https://chalkandiron.vercel.app/signin, tap **Sign in** and pick the test account's passkey. You land on the home screen.
@@ -146,7 +146,7 @@ Open Chalk and Iron from its home-screen icon, and tap **Start a workout** (it r
 11. [x] **Last time.** Start another quick workout with Barbell Curl. "Last time" shows the sets you just logged, and the weight box is filled with them. Finish or leave it.
 12. [x] Optional, **a second device.** On the Mac, sign in at https://chalkandiron.vercel.app/signin, tap **Start a workout**, and start a quick workout while one is running on the iPhone. It says "A workout is already running", with **Carry on with it here** and **Finish it, and start this one**.
 
-**Nathan's results, 19 November 2026:** all twelve passed. Notes: step 6 passed, but the offline line was cut off (fixed: it now wraps and is shorter). Step 9 passed, and deleting a set added a set to do at the end. Nathan decided it should not: from the next merge, deleting a set removes it with no fresh set added, a set still to do can be deleted too, and in a superset Delete removes that whole round for every exercise in it. Step 10 passed, but the finished screen said "Saved to your account" twice (fixed).
+**Nate's results, 19 November 2026:** all twelve passed. Notes: step 6 passed, but the offline line was cut off (fixed: it now wraps and is shorter). Step 9 passed, and deleting a set added a set to do at the end. Nate decided it should not: from the next merge, deleting a set removes it with no fresh set added, a set still to do can be deleted too, and in a superset Delete removes that whole round for every exercise in it. Step 10 passed, but the finished screen said "Saved to your account" twice (fixed).
 
 Once step 3 passes, the throwaway iPhone checks page and its two tables can be removed. The coding agent does that with a new migration, and tells you first, since it deletes the test page's tables. **Done 19 November 2026** (section 6 below).
 
@@ -172,7 +172,7 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 4. [x] **Pause during rest.** Log a set so rest starts, then pause. Rest ends at once and no "Rest over" notification comes.
 5. [x] **Sets and rest in the tray.** In the tray, tap **+** and **−** beside **Sets** (or **Rounds** for a superset), and beside **Rest**. The boxes for that exercise change, and the next rest uses the new time. Your library workout is not changed.
 
-**Nathan's results, 19 November 2026:** all five passed. Step 2: the screen shrank, but the empty space above stayed and he had to scroll up. Fixed the same day: while the keyboard is up the page is held at the top, so the boxes and Log set sit just under the exercise name. If it still leaves a gap on the iPhone, the typing layout is turned off and the screen goes back to how it was before (Nathan, 19 Nov). Step 5: the library cannot be seen on the phone yet, so a database test now checks that adding and removing sets and changing rest leave the library workout and the exercise exactly as they were. Also changed: the tray, Swap and Stats close with **Return to workout**.
+**Nate's results, 19 November 2026:** all five passed. Step 2: the screen shrank, but the empty space above stayed and he had to scroll up. Fixed the same day: while the keyboard is up the page is held at the top, so the boxes and Log set sit just under the exercise name. If it still leaves a gap on the iPhone, the typing layout is turned off and the screen goes back to how it was before (Nate, 19 Nov). Step 5: the library cannot be seen on the phone yet, so a database test now checks that adding and removing sets and changing rest leave the library workout and the exercise exactly as they were. Also changed: the tray, Swap and Stats close with **Return to workout**.
 
 ### M. On your iPhone, after the next merge
 
@@ -180,14 +180,14 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 2. [x] **Return to workout.** Open the tray, Swap and Stats in turn. Each closes with **Return to workout**.
 3. [x] **Delete a superset round.** In a superset, log one set, tap **⋯** on that round's row and **Delete round 1**. The round leaves both exercises and no round is added.
 
-**Nathan's results, 19 November 2026:** all three passed. An account cannot make a superset until the planner (Phase 3), so a "Superset test" workout was added to his account once through the SQL Editor for check 3. Nathan then asked for a box around the superset header (step N).
+**Nate's results, 19 November 2026:** all three passed. An account cannot make a superset until the planner (Phase 3), so a "Superset test" workout was added to his account once through the SQL Editor for check 3. Nate then asked for a box around the superset header (step N).
 
 ### N. On your iPhone, after the next merge
 
 1. [x] **Superset box.** Start **Superset test**. The panel with "Superset A1 of 2", the exercise name and **Break superset** sits inside a box in the accent color. Move to **Cable Lat Pulldown**: no box. Tap **Break superset** on a superset: the box goes away.
 2. [x] **Superset bracket.** In the same box, a bracket in the accent color on the left joins the exercise name to the "Then …" or "With …" line below it. It goes away with the box.
 
-**Nathan's results, 19 November 2026:** both passed. He approved the box and bracket ("That looks really good. This is approved.").
+**Nate's results, 19 November 2026:** both passed. He approved the box and bracket ("That looks really good. This is approved.").
 
 ## 6. Phase 2: the last items before the review (19 November 2026)
 
@@ -204,7 +204,7 @@ Built on the `phase-2-swap-today-cleanup` branch (`docs/TECHNICAL_DESIGN.md` Sec
 1. [x] [`20261119000200_swap_new_exercise_and_remove_test_page.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261119000200_swap_new_exercise_and_remove_test_page.sql). It should end with "Success. No rows returned". Safe to run more than once.
 2. [x] To check: in a new query, paste `select count(*) from cron.job where jobname = 'lab-rest-alerts';` and click **Run**. It shows **0**.
 
-**Done 19 November 2026:** Nathan ran the file before the merge. Pull request 22 was then merged into `main` at his request, after GitHub's checks passed.
+**Done 19 November 2026:** Nate ran the file before the merge. Pull request 22 was then merged into `main` at his request, after GitHub's checks passed.
 
 ### P. On your iPhone, after the merge
 
@@ -216,11 +216,11 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 4. [ ] **Swap to an exercise not in your library.** Every alternate in the starter library is already in your library, so this one shows only once the planner can archive or rename exercises (Phase 3). The test browser on GitHub checks it meanwhile: the new exercise is added at once, "Added to your library" shows its suggested details with an equipment picker, and **Confirm details** saves them.
 5. [x] **Swap to any exercise in your library** (after the next merge). Tap **Swap**, type part of a name under **Or any exercise in your library**, and tap one. The workout changes to it, with the same rules as an alternate.
 
-**Nathan's results, 19 November 2026:** steps 1, 2, 3 and 5 passed. Step 3: the bench press was replaced and the other exercise stayed in the superset. He then asked to swap to any exercise in the library, not only the three alternates; that was built as step 5 (pull request 25) and passed. Step 4 cannot be done on the phone until Phase 3; GitHub's browser test covers it.
+**Nate's results, 19 November 2026:** steps 1, 2, 3 and 5 passed. Step 3: the bench press was replaced and the other exercise stayed in the superset. He then asked to swap to any exercise in the library, not only the three alternates; that was built as step 5 (pull request 25) and passed. Step 4 cannot be done on the phone until Phase 3; GitHub's browser test covers it.
 
 ## 7. Phase 2 review fixes (20 November 2026)
 
-A fresh review of Phase 2 found seven problems, and Nathan chose to fix all seven (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10, "Phase 2 review"). They are on the `claude/serene-ritchie-ch1e1x` branch. **No SQL to run:** every fix is in the app itself.
+A fresh review of Phase 2 found seven problems, and Nate chose to fix all seven (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10, "Phase 2 review"). They are on the `claude/serene-ritchie-ch1e1x` branch. **No SQL to run:** every fix is in the app itself.
 
 ### Q. On your iPhone, after the merge
 
@@ -234,11 +234,11 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 
 Two more fixes have no quick iPhone check, and GitHub's tests cover them: a workout that finished itself while paused now reopens running, not "paused"; and **+ Set** stops at 24 sets, the most the account keeps for one exercise.
 
-**Result: all five passed on Nathan's iPhone on 20 November 2026.** Check 4 failed the first time because Warm-up was chosen in the **⋯** sheet, which did not add a set the way the tap does. Nathan decided the two must behave the same, which led to step R.
+**Result: all five passed on Nate's iPhone on 20 November 2026.** Check 4 failed the first time because Warm-up was chosen in the **⋯** sheet, which did not add a set the way the tap does. Nate decided the two must behave the same, which led to step R.
 
 ## 8. Phase 2: Warm-up in the set details sheet (20 November 2026)
 
-Nathan decided that choosing Warm-up in the set details sheet must do exactly what tapping the set does. It is on the `phase-2-warmup-sheet` branch. **No SQL to run:** the fix is in the app itself.
+Nate decided that choosing Warm-up in the set details sheet must do exactly what tapping the set does. It is on the `phase-2-warmup-sheet` branch. **No SQL to run:** the fix is in the app itself.
 
 ### R. On your iPhone, after the merge
 
@@ -247,4 +247,4 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 1. [x] **Warm-up from the sheet.** Start **Superset test** and tap **Start exercise**. Note **Budget** under the exercise clock. On set 1, tap **⋯** and choose **Warm-up**, then save. A 4th set appears on both exercises, and the budget grows by one round of work and rest (from 7:30 to 10:30 with the usual numbers).
 2. [x] **Back to Working.** Tap **⋯** on set 1 again and choose **Working**, then save. The 4th set goes away on both exercises, and the budget returns to what it was.
 
-**Result: both passed on Nathan's iPhone on 20 November 2026.**
+**Result: both passed on Nate's iPhone on 20 November 2026.**
