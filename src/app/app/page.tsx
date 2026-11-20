@@ -111,6 +111,7 @@ export default async function PhoneHome() {
       <div className="muted">Your library holds {count ?? 0} exercises.</div>
       <HomeActions passkeyCheck />
       <div className="row">
+        <Link className="btn" href="/planner">Planner</Link>
         <Link className="btn" href="/planner/account">Account</Link>
         {p.is_admin && <Link className="btn" href="/planner/admin">Admin</Link>}
       </div>
