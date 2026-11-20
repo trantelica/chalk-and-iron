@@ -340,7 +340,7 @@ export function sessionFromRows(
       baseLogged: brokenFrom && first ? Number(first.sets_before_break ?? 0) : 0,
       ...(uneven ? { bases: before! } : {}),
       closed,
-      fixedBudget: closed || brokenFrom ? Number(b.time_budget_seconds) : null,
+      fixedBudget: closed ? Number(b.time_budget_seconds) : null, // other blocks follow their sets
       closedDone: closed ? Number(b.sets_done_at_break ?? 0) : 0,
       closedPlanned: closed ? Number(b.sets_planned_at_break ?? 0) : 0,
       brokenFrom,

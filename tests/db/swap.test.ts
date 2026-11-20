@@ -5,7 +5,7 @@
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { makeDb, type Db } from './harness';
 import { Outbox } from '@/lib/outbox';
-import { logSet, startExercise, startSession, swapExercise, type PlanItem, type Session } from '@/rules/session';
+import { liveBlocks, logSet, moveBlock, startExercise, startSession, swapExercise, type PlanItem, type Session } from '@/rules/session';
 import { exerciseConfirmChange, exerciseCreateChange, sessionChanges, type Change, type SwapMadeExercise, type SyncAnswer } from '@/rules/sync';
 import { suggestSwapMade, type VocabTerm } from '@/rules/swap-made';
 
@@ -116,6 +116,38 @@ describe('a swap to an alternate not yet in the library', () => {
     expect(rows[1]).toMatchObject({ origin: 'swap', swapped_from_exercise_id: bench.id });
     // The swap changes no library workout or exercise detail of the original.
     expect((await db.server<{ created_via: string }>(`select created_via from exercises where id = $1`, [bench.id]))[0].created_via).toBe('starter');
+  });
+});
+
+describe('two swaps in a superset with no connection, then a move in the tray (Phase 2 review)', () => {
+  it('the account takes it all: every block, every set', async () => {
+    const ex = await db.server<{ id: string; name: string }>(`select id, name from exercises where user_id = $1 and archived_at is null order by name limit 5`, [a]);
+    const [x, y, z, w, other] = ex.map((e) => item(e.id, e.name, { sets: 4 }));
+    const p = phone(a);
+    p.net.on = false;
+    let s = startSession('Pull', '2026-11-19', [{ ...x, superset: 'A' }, { ...y, superset: 'A' }, other], {}, T, noSeed);
+    p.commit(s);
+    const lift = (t: number) => { s = logSet(s, { lb: 50, enteredValue: 50, enteredUnit: 'lb', reps: 8 }, {}, t).session; p.commit(s); };
+    s = startExercise(s, T + 1000); p.commit(s);
+    lift(T + 2000); lift(T + 3000);
+    s = swapExercise(s, s.curMember, z, noSeed, T + 4000); p.commit(s);
+    s = startExercise(s, T + 5000); p.commit(s);
+    lift(T + 6000); lift(T + 7000);
+    const yKey = Object.values(s.exercises).find((e) => e.exerciseId === y.exerciseId)!.key;
+    s = swapExercise(s, yKey, w, noSeed, T + 8000); p.commit(s);
+    // Move the superset with both new exercises to the top of the tray.
+    const newest = liveBlocks(s).find((b) => b.members.some((k) => s.exercises[k].exerciseId === w.exerciseId))!.id;
+    for (let i = 0; i < 4; i++) { s = moveBlock(s, newest, -1); p.commit(s); }
+    s = startExercise(s, T + 9000); p.commit(s);
+    lift(T + 10_000); lift(T + 11_000);
+    p.net.on = true;
+    await p.box.flush();
+    expect(p.box.rejected).toEqual([]);
+    expect(p.box.count).toBe(0);
+    const n = await db.as<{ n: number }>(a, `select count(*)::int as n from set_logs l join session_exercises se on se.id = l.session_exercise_id where se.session_id = $1 and l.deleted_at is null`, [s.id]);
+    expect(n[0].n).toBe(6);
+    const blocks = await db.as<{ n: number }>(a, `select count(*)::int as n from session_blocks where session_id = $1`, [s.id]);
+    expect(blocks[0].n).toBe(s.blocks.length);
   });
 });
 

@@ -9,7 +9,7 @@ import {
   recordsToday, reopenSession, setDetails, setsDone, setsPlanned, skipBlock, skipRest, startExercise, startSession, swapExercise,
   toggleSet, toHistory, undoBreak, volumeOf, lastLoggedSetUndo,
   addSetToBlock, removeSetFromBlock, canDeleteSet, blockOfKey, setBlockRest, blockRest, canRemoveSet, isPaused, pauseSession, resumeSession,
-  blockSetCount, pairedIndex, swapBlocked,
+  blockSetCount, pairedIndex, swapBlocked, canAddSet, baseOf,
   type History, type LogInput, type PlanItem, type Session,
 } from '@/rules/session';
 import {
@@ -606,7 +606,7 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
           <div className="row tight">
             <button className="btn" disabled={!resting} onClick={() => commit(addRest(s, 15))}>+0:15</button>
             <button className="btn" disabled={!resting} onClick={() => commit(skipRest(s))}>Skip rest</button>
-            <button className="btn add-set" disabled={paused || blockSkipped(s, block)} onClick={() => commit(addSetToBlock(s, block.id, Date.now()))} aria-label={block.members.length > 1 ? 'Add a round to this superset' : 'Add a set'}>+ Set</button>
+            <button className="btn add-set" disabled={paused || !canAddSet(s, block)} onClick={() => commit(addSetToBlock(s, block.id, Date.now()))} aria-label={block.members.length > 1 ? 'Add a round to this superset' : 'Add a set'}>+ Set</button>
           </div>
         </div>
       </div>
@@ -920,7 +920,7 @@ function Tray({ s, now, libById, onClose, onGo, onSkip, onMove, onBreak, onUndoB
                   <span className="lab">{b.members.length > 1 ? 'Rounds' : 'Sets'}</span>
                   <button className="btn small" disabled={!canRemoveSet(s, b)} onClick={() => onRemoveSet(b.id)} aria-label="Remove a set">−</button>
                   <span className="tray-num">{blockSetCount(s, b)}</span>
-                  <button className="btn small" onClick={() => onAddSet(b.id)} aria-label="Add a set">+</button>
+                  <button className="btn small" disabled={!canAddSet(s, b)} onClick={() => onAddSet(b.id)} aria-label="Add a set">+</button>
                 </span>
                 <span className="row tight">
                   <span className="lab">Rest</span>
@@ -959,7 +959,10 @@ function DetailSheet({ s, e, round, unit, onClose, onSave, onDelete }: {
   onSave: (t: SetType, rpe: number | null, edit: LogInput | null) => void; onDelete: () => void;
 }) {
   const blk = blockOfKey(s, e.key);
-  const pairedWith = !blk.closed && blk.members.length > 1 ? blk.members.map((k) => s.exercises[k]) : null;
+  // A set from before a part-way swap in a superset belongs to this exercise alone, so Delete removes only it.
+  const inRound = round - baseOf(blk, e.key);
+  const pairedWith = !blk.closed && blk.members.length > 1 && inRound >= 0 ? blk.members.map((k) => s.exercises[k]) : null;
+  const roundNo = inRound + 1;
   const loggedInRound = (pairedWith ?? [e]).filter((m) => m.logs[pairedWith ? pairedIndex(blk, e.key, round, m.key) : round]).length;
   const deletable = canDeleteSet(s, e.key, round);
   const [type, setType] = useState<SetType>(e.types[round] ?? 'working');
@@ -1012,13 +1015,13 @@ function DetailSheet({ s, e, round, unit, onClose, onSave, onDelete }: {
           <>
             <div className="muted">
               {pairedWith
-                ? `Round ${round + 1} is removed from all ${pairedWith.length} exercises in this superset${loggedInRound ? `, including ${loggedInRound} logged set${loggedInRound === 1 ? '' : 's'}` : ''}. No set is added in its place.`
+                ? `Round ${roundNo} is removed from all ${pairedWith.length} exercises in this superset${loggedInRound ? `, including ${loggedInRound} logged set${loggedInRound === 1 ? '' : 's'}` : ''}. No set is added in its place.`
                 : `Set ${round + 1} is removed${lg ? ', with what was logged' : ''}. No set is added in its place.`}
             </div>
-            <button className="btn" onClick={onDelete}>{pairedWith ? `Yes, delete round ${round + 1}` : `Yes, delete set ${round + 1}`}</button>
+            <button className="btn" onClick={onDelete}>{pairedWith ? `Yes, delete round ${roundNo}` : `Yes, delete set ${round + 1}`}</button>
           </>
         )
-        : <button className="btn" onClick={() => setSure(true)}>{pairedWith ? `Delete round ${round + 1}` : 'Delete this set'}</button>)}
+        : <button className="btn" onClick={() => setSure(true)}>{pairedWith ? `Delete round ${roundNo}` : 'Delete this set'}</button>)}
     </Sheet>
   );
 }

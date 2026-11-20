@@ -8,7 +8,6 @@
 import {
   budgetSingle,
   budgetSuperset,
-  budgetsAfterBreak,
   celebrationName,
   efficiency,
   newClock,
@@ -214,9 +213,16 @@ export const memberDone = (e: SessionExercise) => e.logs.length >= e.types.lengt
 export const blockDone = (s: Session, b: Block) => b.members.every((k) => memberDone(s.exercises[k]));
 export const blockSkipped = (s: Session, b: Block) => b.members.every((k) => s.exercises[k].skipped);
 
-/** Time budget of a block, from its members' current sets. */
+/**
+ * Time budget of a block, from its members' current sets. Only a closed block
+ * (a superset broken apart, or carried on after a part-way swap) keeps the
+ * budget it had; every other block follows its sets, so a warm-up switch or
+ * + Set changes it, on this phone and after a resume on another one. A block
+ * made by a break gets the one-exercise formula on the sets it has left,
+ * which is what the break worked out.
+ */
 export function blockBudget(s: Session, b: Block): number {
-  if (b.fixedBudget !== null) return b.fixedBudget;
+  if (b.closed && b.fixedBudget !== null) return b.fixedBudget;
   const ms = b.members.map((k) => s.exercises[k]);
   if (ms.length === 1) return budgetSingle(setsOf(ms[0], b), ms[0].work, ms[0].rest);
   return budgetSuperset(setsOf(ms[0], b), ms.map((m) => m.work), ms[0].rest);
@@ -226,8 +232,13 @@ export function blockBudget(s: Session, b: Block): number {
 export const blockLogged = (s: Session, b: Block) => b.members.reduce((a, k) => a + roundIn(s, b, k), 0);
 export const blockPlanned = (s: Session, b: Block) => b.members.reduce((a, k) => a + setsOf(s.exercises[k], b), 0);
 
+/**
+ * Workout efficiency, over every started exercise. A skipped exercise is left
+ * out, but one skipped part-way still counts the sets it did, as normal; only
+ * the sets left are left out (spec Section 10).
+ */
 export function efficiencyOf(s: Session, now: number): number | null {
-  const parts = s.blocks.filter((b) => b.started && (b.closed || !blockSkipped(s, b))).map((b) => ({
+  const parts = s.blocks.filter((b) => b.started && (b.closed || !blockSkipped(s, b) || blockLogged(s, b) > 0)).map((b) => ({
     budget: blockBudget(s, b),
     planned: b.closed ? b.closedPlanned : blockPlanned(s, b),
     done: b.closed ? b.closedDone : blockLogged(s, b),
@@ -258,8 +269,15 @@ export function volumeOf(s: Session): { lb: number; bw: number } {
   return { lb, bw };
 }
 
-export const setsDone = (s: Session) => Object.values(s.exercises).reduce((a, e) => a + (e.skipped ? 0 : e.logs.length), 0);
-export const setsPlanned = (s: Session) => liveBlocks(s).reduce((a, b) => a + b.members.reduce((x, k) => x + (s.exercises[k].skipped ? 0 : s.exercises[k].types.length), 0), 0);
+/** Sets done: every logged set counts, including those of an exercise skipped part-way (spec Section 10). */
+export const setsDone = (s: Session) => Object.values(s.exercises).reduce((a, e) => a + e.logs.length, 0);
+/** Sets planned: a skipped exercise keeps only the sets it did. */
+export const setsPlanned = (s: Session) => liveBlocks(s).reduce((a, b) => a + b.members.reduce((x, k) => {
+  const e = s.exercises[k];
+  return x + (e.skipped ? Math.min(e.logs.length, e.types.length) : e.types.length);
+}, 0), 0);
+/** The account accepts at most 24 sets for one exercise. */
+export const MAX_SETS = 24;
 export const recordsToday = (s: Session) => Object.values(s.exercises).reduce((a, e) => a + e.logs.filter((l) => l.records.length).length, 0);
 
 export function allDone(s: Session): boolean {
@@ -477,7 +495,7 @@ export function resumeSession(s0: Session, now: number): Session {
 export function addSetToBlock(s0: Session, blockId: string, now: number): Session {
   const s = clone(s0);
   const b = blockOf(s, blockId);
-  if (b.closed || blockSkipped(s, b)) return s0;
+  if (!canAddSet(s, b)) return s0;
   for (const k of b.members) {
     const e = s.exercises[k];
     e.types.push('working');
@@ -524,6 +542,9 @@ export function setBlockRest(s0: Session, blockId: string, seconds: number, now:
 }
 
 export const blockRest = (s: Session, b: Block) => s.exercises[b.members[0]].rest;
+/** + Set is offered until an exercise has the 24 sets the account accepts. */
+export const canAddSet = (s: Session, b: Block) =>
+  !b.closed && !blockSkipped(s, b) && b.members.every((k) => s.exercises[k].types.length < MAX_SETS);
 export const canRemoveSet = (s: Session, b: Block) =>
   !b.closed && b.members.every((k) => s.exercises[k].types.length > Math.max(1, s.exercises[k].logs.length, baseOf(b, k) + 1));
 /** Sets (rounds, in a superset) shown in the tray: the most any member has. */
@@ -547,6 +568,8 @@ export function toggleSet(s0: Session, round: number): Session {
   const at = r >= 0 ? r : round;
   const next = toggleWarmup(members.map((m) => m.types.slice(off(m.key))), members.map((m) => m.logs.length - off(m.key)), at);
   if (!next) return s;
+  // A warm-up adds a working set; never past the 24 sets the account accepts.
+  if (members.some((m, i) => off(m.key) + next[i].length > MAX_SETS)) return s;
   members.forEach((m, i) => {
     const o = off(m.key);
     m.types = [...m.types.slice(0, o), ...next[i]];
@@ -577,13 +600,38 @@ export function skipBlock(s0: Session, blockId: string, now: number): Session {
   return s;
 }
 
+/**
+ * Moves an exercise up or down in the tray. It moves past the next exercise
+ * shown: a superset broken apart, or carried on after a part-way swap, is no
+ * longer shown and is passed over. Each of those hidden blocks is then kept
+ * just before the first block made from it, so the account always meets a
+ * block before the blocks made from it.
+ */
 export function moveBlock(s0: Session, blockId: string, delta: -1 | 1): Session {
   const s = clone(s0);
-  const i = s.blocks.findIndex((b) => b.id === blockId);
+  const live = s.blocks.filter((b) => !b.closed);
+  const i = live.findIndex((b) => b.id === blockId);
   const j = i + delta;
-  if (i < 0 || j < 0 || j >= s.blocks.length) return s;
-  [s.blocks[i], s.blocks[j]] = [s.blocks[j], s.blocks[i]];
+  if (i < 0 || j < 0 || j >= live.length) return s;
+  [live[i], live[j]] = [live[j], live[i]];
+  s.blocks = parentsFirst(live, s.blocks.filter((b) => b.closed));
   return s;
+}
+
+function parentsFirst(live: Block[], closed: Block[]): Block[] {
+  const hidden = new Map(closed.map((b) => [b.id, b]));
+  const out: Block[] = [];
+  const placed = new Set<string>();
+  const place = (b: Block) => {
+    if (placed.has(b.id)) return;
+    placed.add(b.id);
+    const parent = b.brokenFrom ? hidden.get(b.brokenFrom) : undefined;
+    if (parent) place(parent);
+    out.push(b);
+  };
+  live.forEach(place);
+  closed.forEach(place);
+  return out;
 }
 
 export function addExercise(s0: Session, it: PlanItem, seedOf: (id: string, sets: number, assisted: boolean) => (number | null)[]): Session {
@@ -696,7 +744,7 @@ export function swapExercise(s0: Session, key: string, it: PlanItem, seedOf: See
   e.types = e.types.slice(0, done);
   e.seeds = e.seeds.slice(0, done);
   // The exercise swapped out stays in the workout, done.
-  const kept: Block = { ...emptyBlock([key]), baseLogged: done, stopped: true, stoppedAt: now, fixedBudget: 0, brokenFrom: b.id };
+  const kept: Block = { ...emptyBlock([key]), baseLogged: done, stopped: true, stoppedAt: now, brokenFrom: b.id };
   // The superset carries on with the new exercise in its place.
   const nb: Block = {
     ...emptyBlock(b.members.map((k) => (k === key ? nk : k)), b.letter),
@@ -729,7 +777,6 @@ export function breakSuperset(s0: Session, blockId: string, now: number): Sessio
   if (!canBreak(s, old)) return s;
   s.breakUndo = clone(s.blocks);
   const members = old.members.map((k) => s.exercises[k]);
-  const budgets = budgetsAfterBreak(members.map((m) => ({ sets: m.types.length, logged: m.logs.length, work: m.work, rest: m.rest })));
   const budgetBefore = blockBudget(s, old);
   const doneBefore = blockLogged(s, old);
   const plannedBefore = blockPlanned(s, old);
@@ -741,9 +788,10 @@ export function breakSuperset(s0: Session, blockId: string, now: number): Sessio
   old.fixedBudget = budgetBefore;
   old.closedDone = doneBefore;
   old.closedPlanned = plannedBefore;
-  const made: Block[] = members.map((m, i) => ({
+  // Each new block's budget is the one-exercise formula on the sets it has left (blockBudget).
+  const made: Block[] = members.map((m) => ({
     id: uid('b'), letter: null, members: [m.key], clock: newClock(), started: false, stopped: m.logs.length >= m.types.length,
-    baseLogged: m.logs.length, closed: false, fixedBudget: budgets[i], closedDone: 0, closedPlanned: 0, brokenFrom: old.id,
+    baseLogged: m.logs.length, closed: false, fixedBudget: null, closedDone: 0, closedPlanned: 0, brokenFrom: old.id,
     startedAt: null, stoppedAt: m.logs.length >= m.types.length ? now : null, brokenAt: null,
   }));
   const at = s.blocks.findIndex((b) => b.id === blockId);
@@ -755,15 +803,28 @@ export function breakSuperset(s0: Session, blockId: string, now: number): Sessio
 export function undoBreak(s0: Session, now: number): Session {
   const s = clone(s0);
   if (!s.breakUndo) return s;
-  const restored = s.breakUndo;
-  // Time on the new blocks' clocks is added back to the superset's clock.
-  for (const nb of s.blocks) {
-    if (!nb.brokenFrom) continue;
-    const parent = restored.find((b) => b.id === nb.brokenFrom);
-    if (parent) parent.clock = { banked: parent.clock.banked + readClock(nb.clock, now), since: parent.clock.since };
-  }
-  s.blocks = restored;
-  const cur = s.blocks.find((b) => b.id === s.curBlock) ?? s.blocks.find((b) => b.members.includes(s.curMember)) ?? s.blocks[0];
+  const before = s.breakUndo;
+  const known = new Set(before.map((b) => b.id));
+  // The blocks this break made, and the superset it broke. Only these change
+  // back; every other block keeps what has happened to it since the break,
+  // and an exercise added since stays at the end.
+  const made = s.blocks.filter((b) => !known.has(b.id) && b.brokenFrom && known.has(b.brokenFrom));
+  const added = s.blocks.filter((b) => !known.has(b.id) && !made.includes(b));
+  const broken = new Set(made.map((b) => b.brokenFrom!));
+  const current = new Map(s.blocks.map((b) => [b.id, b]));
+  const onMade = made.some((b) => b.id === s.curBlock);
+  s.blocks = [...before.map((b) => {
+    const nowB = current.get(b.id) ?? b;
+    if (!broken.has(b.id)) return nowB;
+    // The superset's clock stopped at the break. It takes back the time run on
+    // the new blocks' clocks, and runs again if the person is on it.
+    const banked = nowB.clock.banked + made.filter((m) => m.brokenFrom === b.id).reduce((t, m) => t + readClock(m.clock, now), 0);
+    const restored: Block = { ...b, clock: { banked, since: null } };
+    if (onMade && restored.started && !restored.stopped && !isPaused(s) && s.endedAt === null) restored.clock = startClock(restored.clock, now);
+    return restored;
+  }), ...added];
+  const cur = s.blocks.find((b) => b.id === s.curBlock)
+    ?? s.blocks.find((b) => !b.closed && b.members.includes(s.curMember)) ?? s.blocks[0];
   s.curBlock = cur.id;
   s.curMember = firstOpenMember(s, cur);
   s.breakUndo = null;
@@ -779,6 +840,7 @@ export function finishSession(s0: Session, now: number, reason: 'user' | 'auto' 
   s.endedAt = now;
   s.finishReason = reason;
   s.restEndsAt = null;
+  s.pausedAt = null; // a finished workout is not paused; reopening it runs its clocks
   return s;
 }
 
@@ -804,6 +866,7 @@ export function reopenSession(s0: Session, now: number): Session {
   const s = clone(s0);
   s.endedAt = null;
   s.finishReason = null;
+  s.pausedAt = null;
   s.clock = startClock(s.clock, now);
   const b = blockOf(s, s.curBlock);
   if (b.started && !b.stopped) b.clock = startClock(b.clock, now);
