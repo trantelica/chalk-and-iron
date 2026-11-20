@@ -4,15 +4,13 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 
 ## Now
 
-**Phase 3, the planner. Not started.** Library for exercises, workouts and campaigns, the Plan view with per-day overrides, History, and sending a day to the phone (`docs/SPEC.md` Section 7, screens in Section 5, rules in Section 10). Phases 1 and 2 are accepted. The live app is https://chalkandiron.vercel.app, built from `main`. Model and effort: `docs/MODEL_AND_EFFORT.md` (Phases 2 to 5: Sonnet 5.5 at medium; hard spots and the phase review on Opus 5.5 at high).
+**Phase 3, the planner. Opening done; the planner screens are next.** Phases 1 and 2 are accepted. The live app is https://chalkandiron.vercel.app, built from `main`.
 
-Carried into Phase 3: `docs/SETUP.md` step P item 4 (a swap to an exercise not in the library) can only be checked on the iPhone once the planner can archive or rename exercises.
-
-**Fix first in Phase 3: from the fresh check of the fixes after the Phase 2 review (20 Nov).** Nate accepted Phase 2 with these carried over. They are older than pull request 28, which changed the set details sheet, but the sheet can now cause them as well as the tap.
-1. **Undo break can leave a superset uneven (medium).** Break a superset of A and B (3 rounds), switch A's set 1 to a warm-up (or use + Set), then tap Undo break: A comes back with 4 sets and B with 3, and the budget is worked out from A. If Warm-up is then chosen on B's set 1, A's warm-up is removed instead. Cause: `undoBreak` in `src/rules/session.ts` restores the blocks but not each exercise's sets.
-2. **A finished exercise's clock stays stopped after a warm-up switch (low).** Switching a logged set of a finished exercise to a warm-up adds a set to do, but the exercise clock does not restart (`toggleSet` does not reopen a stopped block the way `addSetToBlock` does). The time spent on that set is not counted, so efficiency reads too high.
-3. **A record badge can stay on a warm-up (low).** In a superset, when a logged record set becomes a warm-up, the partner's matching set keeps its record badge on the phone (with a tap, both keep it). The account clears it, and the phone takes the account's records once online, so it shows mainly offline.
-4. **Documents.** Put back the rule "Do not start a phase before the previous one is accepted" (it was dropped from `AGENTS.md` in pull request 31), and "reuse phase0's ideas, not its code". Untick the two graph-drawing tests in `docs/SPEC.md` Section 8 (three bars of equal height) until a test or an iPhone check covers the drawing. Confirm with Nate the `docs/LOG.md` entry for pull request 30 (skin and accent picker stays in Phase 5; setup step O was run).
+- **How the work divides** (agreed by Nate, 20 Nov; `docs/MODEL_AND_EFFORT.md`, "Phase 3"): the opening on Opus 5.5 at high effort; then the planner screens on Sonnet 5.5 at medium effort, in a new session; the review by a fresh Opus 5.5 high-effort session.
+- **Opening (pull request `phase3-opening`):** the three workout fixes carried from the fresh check after the Phase 2 review (Undo break comes back even; a finished exercise opens again after a warm-up switch, with its clock; a warm-up never keeps a record badge) and the carried document points. Nate's iPhone check: `docs/SETUP.md` step S, after the merge. These fixes are checked by the fresh Opus 5.5 high-effort review, with the rest of Phase 3, unless Nate asks for a separate check.
+- **Next, on Sonnet 5.5 at medium effort:** the Library (exercises, workouts, campaigns), the Vocabulary screen, the Plan view with per-day overrides and the exercise panel, History with set editing, and sending a day to the phone with its inbox card (`docs/SPEC.md` Section 7, screens in Section 5, rules in Section 10).
+- **Nate decided on 20 Nov:** logged sets can be edited or deleted in History, nothing else; the Vocabulary screen is built in Phase 3, in the planner only, never on the phone; a day sent when today already has a workout gets its inbox card in Phase 3, and Phase 4 adds the coach's cards to the same inbox.
+- Carried: `docs/SETUP.md` step P item 4 (a swap to an exercise not in the library) can be checked on the iPhone once the planner can archive or rename exercises.
 
 ## Waiting on Nate
 

@@ -248,3 +248,16 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 2. [x] **Back to Working.** Tap **⋯** on set 1 again and choose **Working**, then save. The 4th set goes away on both exercises, and the budget returns to what it was.
 
 **Result: both passed on Nate's iPhone on 20 November 2026.**
+
+## 9. Phase 3 opening: three carried workout fixes (20 November 2026)
+
+The fresh check after the Phase 2 review found three older problems, which Nate chose to fix first in Phase 3 (`docs/TECHNICAL_DESIGN.md` Section 5, Session). They are on the `phase3-opening` branch. **No SQL to run:** every fix is in the app itself.
+
+### S. On your iPhone, after the merge
+
+Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it away and open it again. Finish each test workout at the end.
+
+1. [ ] **Undo break comes back even.** Start **Superset test** and tap **Start exercise**. Note **Budget** under the exercise clock. Tap **Break superset**. Tap the words of the set 1 row, to the left of the vertical bar (not the **⋯**), to make it a warm-up: a 4th set appears. Tap **Undo break**. Both exercises show 3 sets again, with no warm-up, and **Budget** is what you noted.
+2. [ ] **A finished exercise opens again.** Start a quick workout with one exercise. Tap **Start exercise** and log every set, tapping **Skip** on each rest, until the exercise shows as done and its clock stops. Tap the words of the set 1 row to make it a warm-up. A set to do appears and the exercise clock counts again. Log it: the clock stops again.
+
+The third fix (a record badge left on a warm-up while offline) needs a record set to show, so it has no quick iPhone check; GitHub's tests cover it.

@@ -572,7 +572,7 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
           <button className="btn small hide-typing" onClick={() => commit(breakSuperset(s, block.id, Date.now()))}>Break superset</button>
         )}
         {block.brokenFrom && s.breakUndo && (
-          <button className="btn small hide-typing" onClick={() => commit(undoBreak(s, Date.now()))}>Undo break</button>
+          <button className="btn small hide-typing" onClick={() => commit(undoBreak(s, Date.now(), history))}>Undo break</button>
         )}
       </div>
 
@@ -613,7 +613,7 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
 
       <SetList
         s={s} e={e} unit={unit} round={round}
-        onToggle={(r) => commit(toggleSet(s, r))}
+        onToggle={(r) => commit(toggleSet(s, r, history, Date.now()))}
         onDetail={(r) => { setDetailRound(r); setSheet('detail'); }}
       />
 
@@ -650,7 +650,7 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
           onSkip={(id) => commit(skipBlock(s, id, Date.now()))}
           onMove={(id, dlt) => commit(moveBlock(s, id, dlt))}
           onBreak={(id) => commit(breakSuperset(s, id, Date.now()))}
-          onUndoBreak={() => commit(undoBreak(s, Date.now()))}
+          onUndoBreak={() => commit(undoBreak(s, Date.now(), history))}
           onAdd={() => setSheet('add')}
           onFinish={() => setSheet('finish')}
           onAddSet={(id) => commit(addSetToBlock(s, id, Date.now()))}
