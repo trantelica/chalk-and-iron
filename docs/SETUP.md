@@ -176,5 +176,12 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 
 ### M. On your iPhone, after the next merge
 
-1. [ ] **Typing, again.** Start a workout and scroll down so the weight box is near the bottom of the screen. Tap it. The screen shrinks with no empty space above: the exercise name is at the top and **Log set** is just above the keyboard, with no scrolling needed.
-2. [ ] **Return to workout.** Open the tray, Swap and Stats in turn. Each closes with **Return to workout**.
+1. [x] **Typing, again.** Start a workout and scroll down so the weight box is near the bottom of the screen. Tap it. The screen shrinks with no empty space above: the exercise name is at the top and **Log set** is just above the keyboard, with no scrolling needed.
+2. [x] **Return to workout.** Open the tray, Swap and Stats in turn. Each closes with **Return to workout**.
+3. [x] **Delete a superset round.** In a superset, log one set, tap **⋯** on that round's row and **Delete round 1**. The round leaves both exercises and no round is added.
+
+**Nathan's results, 19 November 2026:** all three passed. An account cannot make a superset until the planner (Phase 3), so a "Superset test" workout was added to his account once through the SQL Editor for check 3. Nathan then asked for a box around the superset header (step N).
+
+### N. On your iPhone, after the next merge
+
+1. [ ] **Superset box.** Start **Superset test**. The panel with "Superset A1 of 2", the exercise name and **Break superset** sits inside a box in the accent color. Move to **Cable Lat Pulldown**: no box. Tap **Break superset** on a superset: the box goes away.
