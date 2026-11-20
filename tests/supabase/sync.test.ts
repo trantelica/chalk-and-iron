@@ -55,3 +55,22 @@ describe('the phone\'s changes on real Supabase', () => {
     expect(res.ok).toBe(false);
   });
 });
+
+describe('the throwaway iPhone test page is gone (19 Nov 2026)', () => {
+  it('has left no tables, helper or scheduled job behind', async () => {
+    expect(await sql(`select table_name from information_schema.tables where table_schema = 'public' and table_name like 'lab\\_%'`)).toEqual([]);
+    expect(await sql(`select 1 from pg_proc where proname = 'lab_hand_over_due_alerts'`)).toEqual([]);
+    expect(await sql(`select 1 from cron.job where jobname = 'lab-rest-alerts'`)).toEqual([]);
+  });
+
+  it('a swap-made exercise can be added through the phone\'s call, with real row-level security', async () => {
+    const ana = await registerAccount('Ana');
+    const id = crypto.randomUUID();
+    const r = await send(ana.client, [{ id: crypto.randomUUID(), at: Date.now(), kind: 'exercise.create', data: {
+      id, name: 'Swap Made Test', muscle_group_id: null, focus_id: null, equipment_id: null, default_unit: 'lb', work_seconds: 45, rest_seconds: 90,
+    } }]);
+    expect(r.rejected).toEqual([]);
+    const rows = await sql<{ created_via: string }>(`select created_via from exercises where id = $1`, [id]);
+    expect(rows[0].created_via).toBe('swap');
+  });
+});

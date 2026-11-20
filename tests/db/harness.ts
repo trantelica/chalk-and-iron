@@ -22,7 +22,8 @@ export async function makeDb(): Promise<Db> {
   await pg.exec(readFileSync(join(import.meta.dirname, 'supabase-shim.sql'), 'utf8'));
   const dir = join(root, 'supabase', 'migrations');
   // Skipped here, because this stand-in has no scheduler and no web calls:
-  // the scheduled jobs, and the throwaway iPhone test page's tables.
+  // the scheduled jobs, and the throwaway iPhone test page's tables (removed
+  // again by …20261119000200, which runs here and finds nothing to remove).
   const skip = (f: string) => f.includes('schedules') || f.includes('iphone_test_page');
   for (const f of readdirSync(dir).filter((f) => f.endsWith('.sql') && !skip(f)).sort()) {
     await pg.exec(readFileSync(join(dir, f), 'utf8'));

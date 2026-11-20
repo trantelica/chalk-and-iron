@@ -1,6 +1,6 @@
 # Setting up the real app
 
-17 November 2026, updated 18 November 2026 · Phase 1 and Phase 2 · For Nathan
+17 November 2026, updated 19 November 2026 · Phase 1 and Phase 2 · For Nathan
 
 The Phase 1 foundation was accepted by Nathan and merged on 17 November 2026. It runs at https://chalkandiron.vercel.app on the real Supabase project `chalk-and-iron`, built from `main`. Your account and a test account are set up. This page records how it was set up, in order, and the checks still to tick.
 
@@ -148,7 +148,7 @@ Open Chalk and Iron from its home-screen icon, and tap **Start a workout** (it r
 
 **Nathan's results, 19 November 2026:** all twelve passed. Notes: step 6 passed, but the offline line was cut off (fixed: it now wraps and is shorter). Step 9 passed, and deleting a set added a set to do at the end. Nathan decided it should not: from the next merge, deleting a set removes it with no fresh set added, a set still to do can be deleted too, and in a superset Delete removes that whole round for every exercise in it. Step 10 passed, but the finished screen said "Saved to your account" twice (fixed).
 
-Once step 3 passes, the throwaway iPhone checks page and its two tables can be removed. The coding agent does that with a new migration, and tells you first, since it deletes the test page's tables.
+Once step 3 passes, the throwaway iPhone checks page and its two tables can be removed. The coding agent does that with a new migration, and tells you first, since it deletes the test page's tables. **Done 19 November 2026** (section 6 below).
 
 ## 5. Phase 2: Add set, Pause, and sets and rest in the tray (19 November 2026)
 
@@ -186,3 +186,27 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 
 1. [ ] **Superset box.** Start **Superset test**. The panel with "Superset A1 of 2", the exercise name and **Break superset** sits inside a box in the accent color. Move to **Cable Lat Pulldown**: no box. Tap **Break superset** on a superset: the box goes away.
 2. [ ] **Superset bracket.** In the same box, a bracket in the accent color on the left joins the exercise name to the "Then …" or "With …" line below it. It goes away with the box.
+
+## 6. Phase 2: the last items before the review (19 November 2026)
+
+Built on the `phase-2-swap-today-cleanup` branch (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10): the iPhone checks page removed, a swap part-way through an exercise, a swap to an alternate not yet in your library, and the Home screen's Today panel.
+
+### O. Supabase SQL Editor, **before** merging
+
+**Run this before the pull request is merged.** The new app sends the account a new kind of change when a swap adds an exercise. If the app arrived first, that change would be refused, and the workout changes after it with it. Run before merging, nothing changes for the app you have now, except that the old **iPhone checks** page stops working, which is the point.
+
+**What it deletes:** the iPhone checks page's two tables (its notification addresses, and its test rest alerts), its helper and its 5-second scheduled job. Your workouts, sets, library, account and the real rest alerts are not touched.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
+
+1. [ ] [`20261119000200_swap_new_exercise_and_remove_test_page.sql`](https://github.com/trantelica/chalk-and-iron/blob/phase-2-swap-today-cleanup/supabase/migrations/20261119000200_swap_new_exercise_and_remove_test_page.sql). It should end with "Success. No rows returned". Safe to run more than once.
+2. [ ] To check: in a new query, paste `select count(*) from cron.job where jobname = 'lab-rest-alerts';` and click **Run**. It shows **0**.
+
+### P. On your iPhone, after the merge
+
+Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it away and open it again.
+
+1. [ ] **Home.** The **iPhone checks** button is gone. A **Today** panel shows today's date and "No workout planned for today", with **Start another workout** (planned days arrive with the planner). While a workout runs, it shows **Resume** and the workout's name instead.
+2. [ ] **Swap part-way.** Start a quick workout with `Barbell Bench Press`, tap **Start exercise** and log one set. Tap **Swap**. The sheet says the 1 set you logged stays with Barbell Bench Press and the 2 sets left are done as the exercise you pick. Tap **Dumbbell Bench Press**. The screen moves to Dumbbell Bench Press with 2 sets and **Start exercise**. Open the tray (**Workout** at the top): Barbell Bench Press shows **Done** with its one set, and Dumbbell Bench Press comes right after it.
+3. [ ] **Swap in a superset.** Start **Superset test**, tap **Start exercise** and log one full round (a set on each exercise). Tap **Swap** and pick an alternate. The superset carries on with the new exercise in its place for the rounds left, still alternating. Part-way through a round, the sheet says to finish the round first.
+4. [ ] **Swap to an exercise not in your library.** Every alternate in the starter library is already in your library, so this one shows only once the planner can archive or rename exercises (Phase 3). The test browser on GitHub checks it meanwhile: the new exercise is added at once, "Added to your library" shows its suggested details with an equipment picker, and **Confirm details** saves them.

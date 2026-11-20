@@ -10,7 +10,7 @@ import { historyFromMemory, sessionFromRows, type Change, type LibraryFacts, typ
 import type { History, Session } from '@/rules/session';
 
 const PREFIX = 'ci2';
-export const keyFor = (userId: string, what: 'session' | 'last' | 'outbox' | 'history' | 'memory' | 'units' | 'push') => `${PREFIX}:${userId}:${what}`;
+export const keyFor = (userId: string, what: 'session' | 'last' | 'outbox' | 'history' | 'memory' | 'units' | 'push' | 'made') => `${PREFIX}:${userId}:${what}`;
 
 export function readStore<T>(k: string, fallback: T): T {
   try { const v = localStorage.getItem(k); return v ? (JSON.parse(v) as T) : fallback; } catch { return fallback; }
