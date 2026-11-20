@@ -184,8 +184,10 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 
 ### N. On your iPhone, after the next merge
 
-1. [ ] **Superset box.** Start **Superset test**. The panel with "Superset A1 of 2", the exercise name and **Break superset** sits inside a box in the accent color. Move to **Cable Lat Pulldown**: no box. Tap **Break superset** on a superset: the box goes away.
-2. [ ] **Superset bracket.** In the same box, a bracket in the accent color on the left joins the exercise name to the "Then …" or "With …" line below it. It goes away with the box.
+1. [x] **Superset box.** Start **Superset test**. The panel with "Superset A1 of 2", the exercise name and **Break superset** sits inside a box in the accent color. Move to **Cable Lat Pulldown**: no box. Tap **Break superset** on a superset: the box goes away.
+2. [x] **Superset bracket.** In the same box, a bracket in the accent color on the left joins the exercise name to the "Then …" or "With …" line below it. It goes away with the box.
+
+**Nathan's results, 19 November 2026:** both passed. He approved the box and bracket ("That looks really good. This is approved.").
 
 ## 6. Phase 2: the last items before the review (19 November 2026)
 
@@ -199,8 +201,10 @@ Built on the `phase-2-swap-today-cleanup` branch (`docs/TECHNICAL_DESIGN.md` Sec
 
 **Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
 
-1. [ ] [`20261119000200_swap_new_exercise_and_remove_test_page.sql`](https://github.com/trantelica/chalk-and-iron/blob/phase-2-swap-today-cleanup/supabase/migrations/20261119000200_swap_new_exercise_and_remove_test_page.sql). It should end with "Success. No rows returned". Safe to run more than once.
-2. [ ] To check: in a new query, paste `select count(*) from cron.job where jobname = 'lab-rest-alerts';` and click **Run**. It shows **0**.
+1. [x] [`20261119000200_swap_new_exercise_and_remove_test_page.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261119000200_swap_new_exercise_and_remove_test_page.sql). It should end with "Success. No rows returned". Safe to run more than once.
+2. [x] To check: in a new query, paste `select count(*) from cron.job where jobname = 'lab-rest-alerts';` and click **Run**. It shows **0**.
+
+**Done 19 November 2026:** Nathan ran the file before the merge. Pull request 22 was then merged into `main` at his request, after GitHub's checks passed.
 
 ### P. On your iPhone, after the merge
 
