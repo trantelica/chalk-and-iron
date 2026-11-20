@@ -560,7 +560,8 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
       </div>
       <div className="hide-typing">{syncLine}</div>
 
-      <div className="ex-title">
+      {/* A box in the accent color marks a superset in play (Nathan, 19 Nov). */}
+      <div className={`ex-title${block.letter ? ' superset-box' : ''}`}>
         <div className="lab accent-text">{phase}</div>
         <h1 className="ex-name">{e.name}</h1>
  <div className="muted fixed-line hide-typing">{subline}</div>
