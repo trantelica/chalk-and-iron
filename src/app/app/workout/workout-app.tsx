@@ -8,7 +8,7 @@ import {
   deleteSet, editSet, efficiencyOf, factsFor, finishSession, goTo, kindOf, liveBlocks, logSet, moveBlock, pastFacts, realSessions,
   recordsToday, reopenSession, setDetails, setsDone, setsPlanned, skipBlock, skipRest, startExercise, startSession, swapExercise,
   toggleSet, toHistory, undoBreak, volumeOf, lastLoggedSetUndo,
-  addSetToBlock, removeSetFromBlock, setBlockRest, blockRest, canRemoveSet, isPaused, pauseSession, resumeSession,
+  addSetToBlock, removeSetFromBlock, canDeleteSet, blockOfKey, setBlockRest, blockRest, canRemoveSet, isPaused, pauseSession, resumeSession,
   type History, type LogInput, type PlanItem, type Session,
 } from '@/rules/session';
 import {
@@ -862,7 +862,10 @@ function DetailSheet({ s, e, round, unit, onClose, onSave, onDelete }: {
   s: Session; e: Session['exercises'][string]; round: number; unit: WeightUnit | 'bw'; onClose: () => void;
   onSave: (t: SetType, rpe: number | null, edit: LogInput | null) => void; onDelete: () => void;
 }) {
-  void s;
+  const blk = blockOfKey(s, e.key);
+  const pairedWith = !blk.closed && blk.members.length > 1 ? blk.members.map((k) => s.exercises[k]) : null;
+  const loggedInRound = (pairedWith ?? [e]).filter((m) => m.logs[round]).length;
+  const deletable = canDeleteSet(s, e.key, round);
   const [type, setType] = useState<SetType>(e.types[round] ?? 'working');
   const [rpe, setRpe] = useState<number | null>(e.logs[round]?.rpe ?? null);
   const lg = e.logs[round];
@@ -908,9 +911,18 @@ function DetailSheet({ s, e, round, unit, onClose, onSave, onDelete }: {
         ))}
       </div>
       <button className="btn primary" onClick={() => onSave(type, rpe, edit())}>Save</button>
-      {lg && (sure
-        ? <button className="btn" onClick={onDelete}>Yes, delete set {round + 1}</button>
-        : <button className="btn" onClick={() => setSure(true)}>Delete this set</button>)}
+      {deletable && (sure
+        ? (
+          <>
+            <div className="muted">
+              {pairedWith
+                ? `Round ${round + 1} is removed from all ${pairedWith.length} exercises in this superset${loggedInRound ? `, including ${loggedInRound} logged set${loggedInRound === 1 ? '' : 's'}` : ''}. No set is added in its place.`
+                : `Set ${round + 1} is removed${lg ? ', with what was logged' : ''}. No set is added in its place.`}
+            </div>
+            <button className="btn" onClick={onDelete}>{pairedWith ? `Yes, delete round ${round + 1}` : `Yes, delete set ${round + 1}`}</button>
+          </>
+        )
+        : <button className="btn" onClick={() => setSure(true)}>{pairedWith ? `Delete round ${round + 1}` : 'Delete this set'}</button>)}
     </Sheet>
   );
 }

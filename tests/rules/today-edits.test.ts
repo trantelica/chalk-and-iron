@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  addSetToBlock, blockBudget, blockOf, breakSuperset, canRemoveSet, goTo, isPaused, logSet, pauseSession, removeSetFromBlock,
+  addSetToBlock, blockBudget, canDeleteSet, deleteSet, lastLoggedSetUndo, blockOf, breakSuperset, canRemoveSet, goTo, isPaused, logSet, pauseSession, removeSetFromBlock,
   resumeSession, setBlockRest, startExercise, startSession, type PlanItem, type Session,
 } from '@/rules/session';
 import { readClock } from '@/rules/workout';
@@ -102,5 +102,71 @@ describe('pause', () => {
     s = pauseSession(s, T0 + 10_000);
     s = goTo(s, first, T0 + 20_000);
     expect(blockOf(s, first).clock.since).toBeNull();
+  });
+});
+
+describe('deleting a logged set (Nathan, 19 Nov)', () => {
+  it('removes the set and adds no fresh one', () => {
+    let s = startExercise(startSession('x', '2026-11-19', [item('Solo', { sets: 3, work: 50, rest: 150 })], {}, T0, noSeed), T0);
+    s = log(log(s, T0 + 1000), T0 + 2000);
+    const key = blockOf(s, s.curBlock).members[0];
+    s = deleteSet(s, key, 0, {}, T0 + 3000);
+    expect(s.exercises[key].logs.length).toBe(1);
+    expect(s.exercises[key].types.length).toBe(2);
+    expect(blockBudget(s, blockOf(s, s.curBlock))).toBe(2 * 50 + 150);
+  });
+
+  it('Undo still puts the set back as one to do', () => {
+    let s = startExercise(startSession('x', '2026-11-19', [item('Solo', { sets: 3 })], {}, T0, noSeed), T0);
+    s = log(s, T0 + 1000);
+    const key = blockOf(s, s.curBlock).members[0];
+    s = lastLoggedSetUndo(s, key, {}, T0 + 2000);
+    expect(s.exercises[key].logs.length).toBe(0);
+    expect(s.exercises[key].types.length).toBe(3);
+  });
+
+  it('in a superset it removes that whole round from every member, logged sets included', () => {
+    let s = startExercise(superset(), T0);
+    s = log(log(s, T0 + 1000), T0 + 2000); // round 1 done for both
+    s = log(s, T0 + 3000); // round 2: first member only
+    const [k1, k2] = blockOf(s, s.curBlock).members;
+    s = deleteSet(s, k2, 1, {}, T0 + 4000); // delete round 2 from the second member's list
+    expect([s.exercises[k1].types.length, s.exercises[k2].types.length]).toEqual([2, 2]);
+    expect([s.exercises[k1].logs.length, s.exercises[k2].logs.length]).toEqual([1, 1]);
+    expect(s.curMember).toBe(k1); // round 2 (was 3) starts with the first member
+  });
+
+  it('a set still to do can be deleted, so it never has to be done', () => {
+    let s = startExercise(startSession('x', '2026-11-19', [item('Solo', { sets: 4 })], {}, T0, noSeed), T0);
+    s = log(s, T0 + 1000);
+    const key = blockOf(s, s.curBlock).members[0];
+    s = deleteSet(s, key, 2, {}, T0 + 2000);
+    expect(s.exercises[key].types.length).toBe(3);
+    expect(s.exercises[key].logs.length).toBe(1);
+  });
+
+  it('Undo in a superset takes back only the log, and the pair stays equal', () => {
+    let s = startExercise(superset(), T0);
+    s = log(s, T0 + 1000);
+    const [k1, k2] = blockOf(s, s.curBlock).members;
+    s = lastLoggedSetUndo(s, k1, {}, T0 + 2000);
+    expect([s.exercises[k1].types.length, s.exercises[k2].types.length]).toEqual([3, 3]);
+    expect(s.exercises[k1].logs.length).toBe(0);
+  });
+
+  it('an exercise is never left with no sets, and a finished one stays finished', () => {
+    let s = startExercise(startSession('x', '2026-11-19', [item('Solo', { sets: 1 })], {}, T0, noSeed), T0);
+    s = log(s, T0 + 1000);
+    const key = blockOf(s, s.curBlock).members[0];
+    s = deleteSet(s, key, 0, {}, T0 + 2000);
+    expect(s.exercises[key].types.length).toBe(1);
+    expect(canDeleteSet(s, key, 0)).toBe(false); // the last set left, not logged
+
+    let f = startExercise(startSession('x', '2026-11-19', [item('Solo', { sets: 2 })], {}, T0, noSeed), T0);
+    f = log(log(f, T0 + 1000), T0 + 2000);
+    const fk = blockOf(f, f.curBlock).members[0];
+    f = deleteSet(f, fk, 0, {}, T0 + 3000);
+    expect(f.exercises[fk].types.length).toBe(1);
+    expect(blockOf(f, f.curBlock).stopped).toBe(true);
   });
 });
