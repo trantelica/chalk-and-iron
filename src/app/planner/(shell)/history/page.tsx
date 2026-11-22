@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { browserClient } from '@/lib/supabase/browser';
 import { fromPounds } from '@/rules/units';
 import { mmss, RECORD_LABEL, type RecordType } from '@/rules/workout';
@@ -19,6 +19,7 @@ export default function History() {
   const [workout, setWorkout] = useState('');
   const [sel, setSel] = useState<string | null>(null);
   const [msg, setMsg] = useState('');
+  const [shown, setShown] = useState(10);
 
   const load = useCallback(async () => setList(await loadSessions(sb)), [sb]);
   useEffect(() => { void load(); }, [load]);
@@ -39,7 +40,6 @@ export default function History() {
     }),
   })), [list, workout, kindOf]);
   const names = useMemo(() => [...new Set((list ?? []).map((x) => x.session.workout_name))].sort(), [list]);
-  const open = (list ?? []).find((x) => x.session.id === sel) ?? null;
 
   async function apply(changes: { kind: string; data: Record<string, unknown> }[]) {
     setMsg('');
@@ -54,35 +54,44 @@ export default function History() {
   return (
     <div className="cols">
       <div className="stack">
-        <div className="muted">What you already did: past sessions, graphs and records. Logged sets can be edited or deleted (records are worked out again). Nothing else here can be edited.</div>
+        <div className="muted">What you already did: past sessions, graphs and records. Click a session to see its sets. A logged set can be edited or deleted with its Edit button (records are worked out again). Nothing else here can be edited.</div>
         {msg && <div className="error" role="alert">{msg}</div>}
         <div className="row">
-          <select aria-label="Show sessions of" value={workout} onChange={(e) => setWorkout(e.target.value)}>
+          <select aria-label="Show sessions of" value={workout} onChange={(e) => { setWorkout(e.target.value); setShown(10); }}>
             <option value="">All workouts</option>
             {names.map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
-          <span className="muted">{list === null ? 'Loading…' : `${rows.length} session${rows.length === 1 ? '' : 's'} (latest 60)`}</span>
+          <span className="muted">{list === null ? 'Loading…' : `Showing ${Math.min(shown, rows.length)} of ${rows.length} session${rows.length === 1 ? '' : 's'}`}</span>
         </div>
         <div className="pbox scroll">
           <table>
             <thead><tr><th>Date</th><th>Workout</th><th>Time</th><th>Volume</th><th>Efficiency</th><th>Records</th><th></th></tr></thead>
             <tbody>
-              {rows.map(({ x, sum }) => (
-                <tr key={x.session.id} className={x.session.id === sel ? 'sel-row' : undefined}>
-                  <td>{x.session.local_date}</td>
-                  <td>{x.session.workout_name}{x.session.status === 'active' && <span className="tag on">In progress</span>}{x.session.finish_reason === 'replaced' && <span className="tag">Replaced</span>}</td>
-                  <td>{mmss(sum.elapsed)}</td>
-                  <td>{volumeText(sum.volumeLb, sum.volumeBw, view)}</td>
-                  <td>{sum.efficiency === null ? 'n/a' : `${sum.efficiency}%`}</td>
-                  <td>{sum.records}</td>
-                  <td><button className="btn small" onClick={() => setSel(x.session.id === sel ? null : x.session.id)}>{x.session.id === sel ? 'Close' : 'Open'}</button></td>
-                </tr>
-              ))}
+              {rows.slice(0, shown).map(({ x, sum }) => {
+                const isOpen = x.session.id === sel;
+                const toggle = () => setSel(isOpen ? null : x.session.id);
+                return (
+                  <Fragment key={x.session.id}>
+                    <tr className={`click-row ${isOpen ? 'sel-row' : ''}`} onClick={toggle} aria-expanded={isOpen}>
+                      <td>{x.session.local_date}</td>
+                      <td>{x.session.workout_name}{x.session.status === 'active' && <span className="tag on">In progress</span>}{x.session.finish_reason === 'replaced' && <span className="tag">Replaced</span>}</td>
+                      <td>{mmss(sum.elapsed)}</td>
+                      <td>{volumeText(sum.volumeLb, sum.volumeBw, view)}</td>
+                      <td>{sum.efficiency === null ? 'n/a' : `${sum.efficiency}%`}</td>
+                      <td>{sum.records}</td>
+                      <td><button className="btn small" onClick={(e) => { e.stopPropagation(); toggle(); }}>{isOpen ? 'Close' : 'Open'}</button></td>
+                    </tr>
+                    {isOpen && (
+                      <tr className="detail-row"><td colSpan={7}><SessionDetail s={x} view={view} onDetails={showInPanel} apply={apply} /></td></tr>
+                    )}
+                  </Fragment>
+                );
+              })}
               {list !== null && rows.length === 0 && <tr><td colSpan={7} className="muted">No sessions yet. They appear here as you finish workouts on the phone.</td></tr>}
             </tbody>
           </table>
         </div>
-        {open && <SessionDetail s={open} view={view} onDetails={showInPanel} apply={apply} />}
+        {rows.length > shown && <button className="btn" onClick={() => setShown((n) => n + 10)}>Show 10 more ({rows.length - shown} older)</button>}
       </div>
       <ExercisePanel />
     </div>
@@ -142,12 +151,15 @@ function SetRow({ set, view, locked, onSave, onDelete }: {
 }) {
   const bw = set.enteredUnit === 'bw';
   const shown = bw ? '' : String(set.enteredUnit === view ? set.enteredValue : fromPounds(set.lb ?? 0, view));
+  const [editing, setEditing] = useState(false);
   const [w, setW] = useState(shown);
   const [reps, setReps] = useState(String(set.reps));
   const [type, setType] = useState(set.type);
   const [rpe, setRpe] = useState(set.rpe === null ? '' : String(set.rpe));
-  const dirty = w !== shown || reps !== String(set.reps) || type !== set.type || rpe !== (set.rpe === null ? '' : String(set.rpe));
+  const [busy, setBusy] = useState(false);
   const label = (t: string) => `${t} of set ${set.setNumber}`;
+  const TYPE: Record<LoggedSet['type'], string> = { warm_up: 'Warm-up', working: 'Working', drop: 'Drop set' };
+  const reset = () => { setW(shown); setReps(String(set.reps)); setType(set.type); setRpe(set.rpe === null ? '' : String(set.rpe)); setEditing(false); };
   async function save() {
     const n = Number(reps);
     if (!Number.isInteger(n) || n < 1 || n > 500) { window.alert('Reps must be a whole number of 1 or more.'); return; }
@@ -161,22 +173,35 @@ function SetRow({ set, view, locked, onSave, onDelete }: {
       if (!Number.isFinite(v) || v < 0 || w.trim() === '') { window.alert('A weight must be zero or more.'); return; }
       weight = { weight_lb: typedToPounds(v, view), entered_value: v, entered_unit: view };
     }
-    await onSave({ ...weight, reps: n, set_type: type, rpe: r });
+    setBusy(true);
+    const ok = await onSave({ ...weight, reps: n, set_type: type, rpe: r });
+    setBusy(false);
+    if (ok) setEditing(false);
+  }
+  const badges = set.records.map((t) => <span key={t} className="tag on">{RECORD_LABEL[t as RecordType] ?? t}</span>);
+  if (!editing) {
+    return (
+      <div className="row set-edit">
+        <span className="muted set-no">Set {set.setNumber}</span>
+        <span className="set-text">{bw ? '1 BW' : viewWeight(set.lb ?? 0, view)} × {set.reps}</span>
+        <span className="muted">{TYPE[set.type]}{set.rpe !== null ? ` · RPE ${set.rpe}` : ''}</span>
+        {badges}
+        {!locked && <button className="btn small" onClick={() => setEditing(true)}>Edit</button>}
+      </div>
+    );
   }
   return (
-    <div className="row set-edit">
-      <span className="muted">Set {set.setNumber}</span>
-      {bw ? <span>1 BW</span> : <input type="number" min={0} step="0.5" value={w} aria-label={label(`Weight in ${view}`)} disabled={locked} onChange={(e) => setW(e.target.value)} />}
-      <span>×</span>
-      <input type="number" min={1} value={reps} aria-label={label('Reps')} disabled={locked} onChange={(e) => setReps(e.target.value)} />
-      <select value={type} aria-label={label('Type')} disabled={locked} onChange={(e) => setType(e.target.value as LoggedSet['type'])}>
+    <div className="row set-edit editing" role="group" aria-label={`Editing set ${set.setNumber}`}>
+      <span className="muted set-no">Set {set.setNumber}</span>
+      {bw ? <span>1 BW</span> : <label className="inline">Weight ({view})<input type="number" min={0} step="0.5" value={w} aria-label={label(`Weight in ${view}`)} onChange={(e) => setW(e.target.value)} /></label>}
+      <label className="inline">Reps<input type="number" min={1} value={reps} aria-label={label('Reps')} onChange={(e) => setReps(e.target.value)} /></label>
+      <label className="inline">Type<select value={type} aria-label={label('Type')} onChange={(e) => setType(e.target.value as LoggedSet['type'])}>
         <option value="warm_up">Warm-up</option><option value="working">Working</option><option value="drop">Drop set</option>
-      </select>
-      <input type="number" min={1} max={10} step="0.5" placeholder="RPE" value={rpe} aria-label={label('RPE')} disabled={locked} onChange={(e) => setRpe(e.target.value)} />
-      {set.records.map((t) => <span key={t} className="tag on">{RECORD_LABEL[t as RecordType] ?? t}</span>)}
-      {!locked && <button className="btn small" disabled={!dirty} onClick={save}>Save</button>}
-      {!locked && <button className="btn small" onClick={onDelete}>Delete</button>}
-      {!bw && set.lb !== null && !dirty && <span className="muted">{viewWeight(set.lb, view)}</span>}
+      </select></label>
+      <label className="inline">RPE<input type="number" min={1} max={10} step="0.5" placeholder="blank" value={rpe} aria-label={label('RPE')} onChange={(e) => setRpe(e.target.value)} /></label>
+      <button className="btn small primary-small" disabled={busy} onClick={save}>{busy ? 'Saving…' : 'Save'}</button>
+      <button className="btn small" disabled={busy} onClick={reset}>Cancel</button>
+      <button className="btn small danger" disabled={busy} onClick={onDelete}>Delete set</button>
     </div>
   );
 }
