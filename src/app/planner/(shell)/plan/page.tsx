@@ -144,10 +144,12 @@ export default function Plan() {
                         <tr key={r.id}>
                           <td>{i + 1}</td>
                           <td>
+                            <div className="row tight">
                             <select aria-label={`Exercise ${i + 1} for this day`} className={libEx ? 'ov-input' : undefined} value={r.exerciseId} onChange={(e) => change(r.id, 'exerciseId', e.target.value)}>
                               {data.exercises.filter((e) => !e.archived_at || e.id === r.exerciseId).map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
                             </select>
                             <button className="btn small" onClick={() => showInPanel(r.exerciseId)}>Details</button>
+                            </div>
                             {libEx && <div className="override-note">library: {libEx.name}</div>}
                           </td>
                           <td>

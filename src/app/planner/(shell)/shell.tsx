@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PlannerProvider, usePlannerMaybe } from '../planner-data';
+import { SaveStatusLine } from '../save-status-line';
 
 const TABS: [string, string][] = [['/planner/plan', 'Plan'], ['/planner/library', 'Library'], ['/planner/history', 'History'], ['/planner/vocabulary', 'Vocabulary']];
 
@@ -33,7 +34,7 @@ function Body({ children }: { children: React.ReactNode }) {
   const p = usePlannerMaybe();
   return (
     <main className="page wide planner">
-      <div className="row spread"><h1>Planner</h1><Toggle /></div>
+      <div className="row spread"><h1>Planner</h1><SaveStatusLine /><Toggle /></div>
       <Tabs tabs={TABS} label="Planner" />
       {p?.error && <div className="error" role="alert">{p.error}</div>}
       {p?.data ? children : !p?.error && <div className="muted">Loading your library…</div>}
