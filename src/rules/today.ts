@@ -154,7 +154,9 @@ export function todayView(input: TodayInput): TodayView {
       let state: DayState;
       if (!pos) state = 'off';
       else if (!cd) state = 'rest';
-      else if (input.sessions.some((s) => s.campaign_day_id === cd.id && s.status === 'finished')) state = 'done';
+      // Only workouts of this run count: a campaign can be run again from a new
+      // start date (Nate, 21 Nov), and the last run's workouts stay in History.
+      else if (input.sessions.some((s) => s.campaign_day_id === cd.id && s.status === 'finished' && s.local_date.slice(0, 10) >= active.start_date.slice(0, 10))) state = 'done';
       else if (dt === date) state = 'today';
       else state = dt < date ? 'missed' : 'upcoming';
       return { date: dt, weekday: i + 1, label, workout: name, state, isToday: dt === date };
