@@ -120,10 +120,12 @@ export default function Workouts() {
                       <tr key={r.id}>
                         <td>{i + 1}</td>
                         <td>
+                          <div className="row tight">
                           <select aria-label={`Exercise ${i + 1}`} value={r.exerciseId} onChange={(e) => patch(i, { exerciseId: e.target.value })}>
                             {pickable.concat(ex && ex.archived_at ? [ex] : []).map((e) => <option key={e.id} value={e.id}>{e.name}{e.archived_at ? ' (archived)' : ''}</option>)}
                           </select>
                           <button className="btn small" onClick={() => showInPanel(r.exerciseId)}>Details</button>
+                          </div>
                         </td>
                         <td><NumCell value={r.sets} label={`Sets of row ${i + 1}`} min={1} max={12} onSave={(v) => save(setRowSets(rows, i, v ?? r.sets))} /></td>
                         <td><NumCell value={r.reps} label={`Reps of row ${i + 1}`} min={1} max={50} onSave={(v) => patch(i, { reps: v ?? r.reps })} /></td>

@@ -274,14 +274,16 @@ The first planner screens. They are on the `phase3-library-vocabulary` branch (p
 
 Open https://chalkandiron.vercel.app and sign in (a passkey, as on the phone). On the home page tap **Planner** (next to **Account**), or go straight to https://chalkandiron.vercel.app/planner. You land in **Library**.
 
-1. [ ] **Exercises.** Under **Library**, **Exercises** shows your 227 exercises in a table. Type `dumbbell incline press` in the search box: **Incline Dumbbell Press** shows. Press **Add exercise**, type that same name, pick a muscle group and equipment: a warning says it looks like an existing exercise, and **Add to library** asks you to confirm. Press **Cancel**.
-2. [ ] **Rename keeps history.** Change the name of any exercise and press Enter. The new name shows at once. (Its logged sets stay with it; the tests check that.)
-3. [ ] **Archive and restore.** Press **Archive** on `Barbell Curl` and confirm. It disappears. Tick **Show archived**: it shows faded with an **Archived** tag and a **Restore** button. Press **Restore**.
-4. [ ] **Workouts.** Open **Workouts**, pick **Superset test**. Change **Sets** on one of the two superset exercises: the other changes with it. Press **Details** on a row: the **Exercise** panel on the right shows its swaps, graph and records. Press **Copy this one**, then **Archive** the copy.
-5. [ ] **Campaigns.** Open **Campaigns**. Press **New campaign**, name it `Test block`, pick a workout for two days, then press **Activate**. If another campaign is active, you are asked to confirm it ends. Press **Shift forward a week** and confirm; the dates move. Press **End campaign** on it.
-6. [ ] **Vocabulary.** Open **Vocabulary** (top row). Rename the equipment value `cable` to `cable stack`, then look at any cable exercise under **Exercises**: it shows `cable stack`. Rename it back. Press **Archive** on `band`: it says exercises keep it. Press **Restore**.
-7. [ ] **Pounds or kilograms.** Top right, press **Kilograms**, then press **Details** on `Barbell Bench Press` (if it has history): the records show kilograms to one decimal.
-8. [ ] **Carried: step P item 4 (swap to an exercise not in the library).** In **Exercises**, archive `Dumbbell Bench Press`. On your iPhone, start a quick workout with `Barbell Bench Press`, tap **Swap** and pick the **Basic gym** alternate: it is added to your library at once, and **Added to your library** shows suggested details with an equipment picker. Tap **Confirm details**. Back in the planner, the new `Dumbbell Bench Press` is live; archive or rename it and **Restore** the old one if you want your original back (two live exercises cannot share a name, so restore only after renaming or archiving the new one).
+1. [x] **Exercises.** Under **Library**, **Exercises** shows your 227 exercises in a table. Type `dumbbell incline press` in the search box: **Incline Dumbbell Press** shows. Press **Add exercise**, type that same name, pick a muscle group and equipment: a warning says it looks like an existing exercise, and **Add to library** asks you to confirm. Press **Cancel**.
+2. [x] **Rename keeps history.** Change the name of any exercise and press Enter. The new name shows at once. (Its logged sets stay with it; the tests check that.)
+3. [x] **Archive and restore.** Press **Archive** on `Barbell Curl` and confirm. It disappears. Tick **Show archived**: it shows faded with an **Archived** tag and a **Restore** button. Press **Restore**.
+4. [x] **Workouts.** Open **Workouts**, pick **Superset test**. Change **Sets** on one of the two superset exercises: the other changes with it. Press **Details** on a row: the **Exercise** panel on the right shows its swaps, graph and records. Press **Copy this one**, then **Archive** the copy.
+5. [x] **Campaigns.** Open **Campaigns**. Press **New campaign**, name it `Test block`, pick a workout for two days, then press **Activate**. If another campaign is active, you are asked to confirm it ends. Press **Shift forward a week** and confirm; the dates move. Press **End campaign** on it.
+6. [x] **Vocabulary.** Open **Vocabulary** (top row). Rename the equipment value `cable` to `cable stack`, then look at any cable exercise under **Exercises**: it shows `cable stack`. Rename it back. Press **Archive** on `band`: it says exercises keep it. Press **Restore**.
+7. [x] **Pounds or kilograms.** Top right, press **Kilograms**, then press **Details** on `Barbell Bench Press` (if it has history): the records show kilograms to one decimal.
+8. [x] **Carried: step P item 4 (swap to an exercise not in the library).** In **Exercises**, archive `Dumbbell Bench Press`. On your iPhone, start a quick workout with `Barbell Bench Press`, tap **Swap** and pick the **Basic gym** alternate: it is added to your library at once, and **Added to your library** shows suggested details with an equipment picker. Tap **Confirm details**. Back in the planner, the new `Dumbbell Bench Press` is live; archive or rename it and **Restore** the old one if you want your original back (two live exercises cannot share a name, so restore only after renaming or archiving the new one).
+
+**Result: all eight passed in Nate's browser on 21 November 2026, after the layout fix.** His notes: it was not clear that a rename or a workout edit was being saved, button presses gave no sign they registered, and some boxes were not lined up vertically. The next pull request adds those (step W).
 
 ## 11. Phase 3: deciding a day sent from the planner (20 November 2026)
 
@@ -316,4 +318,16 @@ Open https://chalkandiron.vercel.app/planner. The top row now has **Plan**, **Li
 6. [ ] **Send when today has a workout.** Press **Send** again for a different day. The planner says it is waiting in the inbox. On the iPhone Home, under **Coach proposals**, a card says what would replace what, with **Accept** and **Dismiss**. Press **Dismiss**: nothing changes. Send again and press **Accept**: Today shows the new workout.
 7. [ ] **Accept mid-workout.** Start any workout on the phone and log one set. Send a day from the planner and press **Accept** on the phone. The phone says your workout was saved and replaced, and **Go to Home** shows the new day. **History** shows the first workout with a **Replaced** tag.
 8. [ ] **History.** Open **History**: sessions with time, volume, efficiency and records. Press **Open** on one, change a set's reps and press **Save**, then check the **Graph and records** panel: the records follow. Press **Delete** on a set and confirm.
+
+## 13. The planner: presses, saving and alignment (21 November 2026)
+
+From Nate's notes on step T. **No SQL to run.**
+
+### W. In your computer's browser and on your iPhone, after the merge
+
+Open https://chalkandiron.vercel.app/planner (reload with Cmd+Shift+R if it looks unchanged).
+
+1. [ ] **Saving is clear.** At the top, between **Planner** and **Weights in**, a line reads "Changes save as you make them". Under **Library**, **Workouts**, change **Reps** on a row and press Enter: the line says "Saving…", then "All changes saved" with the time, and a small tick shows beside the box for a moment. Rename an exercise under **Exercises**: the same.
+2. [ ] **Presses show.** Press and hold any button (in the planner, and on the phone's Home and workout screens): it dims and gets a coloured ring while held. Nothing moves.
+3. [ ] **Lined up.** In **Workouts**, each row's exercise, **Details**, sets, reps, rest, superset and the **↑ ↓ Remove** buttons sit on one line, with nothing cut off at the right. In **Campaigns**, the Name, Start date and Weeks boxes line up along their bottom edge.
 
