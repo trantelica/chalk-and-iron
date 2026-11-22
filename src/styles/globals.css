@@ -300,3 +300,16 @@ input.is-saved { border-color: var(--accent); }
    other columns out of sight, so it is capped and the name shortened. */
 .page.planner td select { max-width: 220px; text-overflow: ellipsis; }
 .page.planner td .btn.small { margin: 2px 0; }
+.inbox-top { border: 2px solid var(--accent); }
+/* History (Nate, 21 Nov): a session opens right under its own row, and a set
+   is edited only after pressing its Edit button. */
+.click-row { cursor: pointer; }
+.click-row:hover td { background: var(--surface); }
+.detail-row > td { padding: 0 0 12px; }
+.detail-row .pbox { border-color: var(--accent); }
+.set-edit .set-no { width: 48px; }
+.set-edit .set-text { min-width: 110px; font-weight: 700; }
+.set-edit.editing { border: 1px solid var(--accent); border-radius: var(--radius-small); padding: 6px 8px; }
+.page.planner label.inline { flex-direction: row; align-items: center; gap: 6px; font-weight: 400; }
+.btn.primary-small { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.btn.danger { border-color: var(--overage-red); }

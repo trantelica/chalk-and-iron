@@ -12,7 +12,7 @@ import { browserClient } from '@/lib/supabase/browser';
 
 interface Card { id: string; summary_lines: string[]; created_at: string; expires_at: string | null; payload: { workout_name?: string } }
 
-export function ProposalCards({ onChange, compact }: { onChange?: () => void; compact?: boolean }) {
+export function ProposalCards({ onChange, className }: { onChange?: () => void; className?: string }) {
   const sb = browserClient();
   const router = useRouter();
   const [cards, setCards] = useState<Card[] | null>(null);
@@ -39,8 +39,8 @@ export function ProposalCards({ onChange, compact }: { onChange?: () => void; co
 
   if (cards === null || (cards.length === 0 && !msg)) return null;
   return (
-    <section className={compact ? 'cards' : 'pbox cards'} aria-label="Inbox">
-      <div className="lab">Inbox</div>
+    <section className={className ?? 'pbox cards'} aria-label="Inbox">
+      <div className="lab accent-text">Inbox · {cards.length} waiting</div>
       {cards.map((c) => (
         <div key={c.id} className="panel" role="group" aria-label="Day sent from the planner">
           <div className="lab">Sent from the planner</div>

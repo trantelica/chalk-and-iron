@@ -65,6 +65,8 @@ export default async function PhoneHome() {
         <div className="notice">Your account is set to be deleted. <Link href="/planner/account">Cancel deletion</Link></div>
       )}
       <div className="display">Hi, {p.display_name}</div>
+      {/* A card waiting for a decision sits above Today, so it cannot be missed (Nate, 21 Nov). */}
+      <ProposalCards className="panel cards inbox-top" />
       <section className="panel today" aria-label="Today">
         <div className="lab">Today · {dayText}</div>
         {running ? (
@@ -104,11 +106,10 @@ export default async function PhoneHome() {
           </div>
         </section>
       )}
-      <section className="panel" aria-label="Coach proposals">
-        <div className="lab">Coach proposals</div>
-        <div>{today.pendingProposals ? `${today.pendingProposals} waiting for your decision.` : 'None waiting.'}</div>
-        <ProposalCards compact />
-        <div className="muted">The coach&apos;s cards join this inbox with the coach.</div>
+      <section className="panel" aria-label="Inbox summary">
+        <div className="lab">Inbox</div>
+        <div>{today.pendingProposals ? `${today.pendingProposals} waiting for your decision, at the top of this screen.` : 'Nothing waiting.'}</div>
+        <div className="muted">Days sent from the planner arrive here. Your coach&apos;s cards join them with the coach.</div>
       </section>
       <div className="muted">Your library holds {count ?? 0} exercises.</div>
       <HomeActions passkeyCheck />

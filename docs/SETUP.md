@@ -310,14 +310,16 @@ The rest of the planner. **No SQL of its own**, but it needs step U (pull reques
 
 Open https://chalkandiron.vercel.app/planner. The top row now has **Plan**, **Library**, **History** and **Vocabulary**.
 
-1. [ ] **Plan.** Open **Plan**. Pick a campaign (make and activate one under **Library**, **Campaigns** if you have none), a week and a day with a workout. Change **Reps** on one row: the old value shows under it as `library: 10`. Open **Library**, **Workouts**: the workout itself is unchanged, and so are the other days.
-2. [ ] **Superset sets.** On a day with a superset, change **Sets** on one of its exercises: the other changes too.
-3. [ ] **Weight in kilograms.** Press **Kilograms** (top right), type `27.5` in a **Weight** box, press Enter. Press **Pounds**: it shows 60.6. Clear the box to go back to your last weight.
-4. [ ] **Clear overrides.** Press **Clear this day's overrides** and confirm: the library values are back.
-5. [ ] **Send with no workout today.** On a day when your campaign has nothing planned today (or with no active campaign), pick any day with a workout and press **Send to phone as today's workout**. On the iPhone, **Today** on the Home screen shows it at once, with **Start**.
-6. [ ] **Send when today has a workout.** Press **Send** again for a different day. The planner says it is waiting in the inbox. On the iPhone Home, under **Coach proposals**, a card says what would replace what, with **Accept** and **Dismiss**. Press **Dismiss**: nothing changes. Send again and press **Accept**: Today shows the new workout.
-7. [ ] **Accept mid-workout.** Start any workout on the phone and log one set. Send a day from the planner and press **Accept** on the phone. The phone says your workout was saved and replaced, and **Go to Home** shows the new day. **History** shows the first workout with a **Replaced** tag.
-8. [ ] **History.** Open **History**: sessions with time, volume, efficiency and records. Press **Open** on one, change a set's reps and press **Save**, then check the **Graph and records** panel: the records follow. Press **Delete** on a set and confirm.
+1. [x] **Plan.** Open **Plan**. Pick a campaign (make and activate one under **Library**, **Campaigns** if you have none), a week and a day with a workout. Change **Reps** on one row: the old value shows under it as `library: 10`. Open **Library**, **Workouts**: the workout itself is unchanged, and so are the other days.
+2. [x] **Superset sets.** On a day with a superset, change **Sets** on one of its exercises: the other changes too.
+3. [x] **Weight in kilograms.** Press **Kilograms** (top right), type `27.5` in a **Weight** box, press Enter. Press **Pounds**: it shows 60.6. Clear the box to go back to your last weight.
+4. [x] **Clear overrides.** Press **Clear this day's overrides** and confirm: the library values are back.
+5. [x] **Send with no workout today.** On a day when your campaign has nothing planned today (or with no active campaign), pick any day with a workout and press **Send to phone as today's workout**. On the iPhone, **Today** on the Home screen shows it at once, with **Start**.
+6. [x] **Send when today has a workout.** Press **Send** again for a different day. The planner says it is waiting in the inbox. On the iPhone Home, under **Coach proposals**, a card says what would replace what, with **Accept** and **Dismiss**. Press **Dismiss**: nothing changes. Send again and press **Accept**: Today shows the new workout.
+7. [x] **Accept mid-workout.** Start any workout on the phone and log one set. Send a day from the planner and press **Accept** on the phone. The phone says your workout was saved and replaced, and **Go to Home** shows the new day. **History** shows the first workout with a **Replaced** tag.
+8. [x] **History.** Open **History**: sessions with time, volume, efficiency and records. Press **Open** on one, change a set's reps and press **Save**, then check the **Graph and records** panel: the records follow. Press **Delete** on a set and confirm.
+
+**Result, 21 November 2026:** items 1 to 5, 7 and 8 passed in Nate's browser and on his iPhone. Item 6's setup was unclear (activating a campaign ends the one active, as it should); **Nate agreed** to count it passed, since item 7 uses the same card and GitHub's database tests cover Dismiss and Accept with no workout running. His notes: the inbox did not look like an inbox, and editing in History was buried under the list (step X).
 
 ## 13. The planner: presses, saving and alignment (21 November 2026)
 
@@ -330,4 +332,15 @@ Open https://chalkandiron.vercel.app/planner (reload with Cmd+Shift+R if it look
 1. [ ] **Saving is clear.** At the top, between **Planner** and **Weights in**, a line reads "Changes save as you make them". Under **Library**, **Workouts**, change **Reps** on a row and press Enter: the line says "Saving…", then "All changes saved" with the time, and a small tick shows beside the box for a moment. Rename an exercise under **Exercises**: the same.
 2. [ ] **Presses show.** Press and hold any button (in the planner, and on the phone's Home and workout screens): it dims and gets a coloured ring while held. Nothing moves.
 3. [ ] **Lined up.** In **Workouts**, each row's exercise, **Details**, sets, reps, rest, superset and the **↑ ↓ Remove** buttons sit on one line, with nothing cut off at the right. In **Campaigns**, the Name, Start date and Weeks boxes line up along their bottom edge.
+
+## 14. Inbox above Today, and easier History editing (21 November 2026)
+
+From Nate's notes on step V. **No SQL to run.**
+
+### X. On your iPhone and in your computer's browser, after the merge
+
+1. [ ] **Inbox.** In the planner's **Plan**, send a day when today already has a workout. On the iPhone Home, an **Inbox · 1 waiting** panel with an orange border sits at the top, above **Today**, with the card's **Accept** and **Dismiss**. Press **Dismiss**: the panel goes away and nothing else changes.
+2. [ ] **History list.** In the planner open **History**. It shows the 10 latest sessions, with **Show 10 more** below when there are more.
+3. [ ] **Open under the row.** Click anywhere on a session's row. Its exercises and sets open right under that row. Click the row again to close it.
+4. [ ] **Edit a set.** Each set reads like "Set 1 · 180 lb × 8 · Working" with an **Edit** button. Press **Edit**: that one set turns into boxes with **Save**, **Cancel** and **Delete set**. Change the reps, press **Save**; the set goes back to plain text with the new reps. Press **Edit** then **Cancel**: nothing changes.
 
