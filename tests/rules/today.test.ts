@@ -122,3 +122,14 @@ describe('a workout started from the Today panel', () => {
     expect(sessionRows(s0).session).toMatchObject({ source_kind: 'ad_hoc', campaign_day_id: null });
   });
 });
+
+describe('a campaign run again (Nate, 21 Nov)', () => {
+  it("counts only this run's workouts as done; the last run's stay in History and mark nothing", () => {
+    // The same campaign ran from 2 Nov; Monday's workout was done then. It now runs again from 16 Nov.
+    const old = { id: 's-old', local_date: '2026-11-02', status: 'finished', campaign_day_id: 'd-mon', workout_name: 'Push' };
+    const v = todayView(base({ sessions: [old] }));
+    expect(v.campaign?.days[0].state).toBe('missed');
+    const now = { id: 's-new', local_date: '2026-11-17', status: 'finished', campaign_day_id: 'd-mon', workout_name: 'Push' };
+    expect(todayView(base({ sessions: [old, now] })).campaign?.days[0].state).toBe('done');
+  });
+});

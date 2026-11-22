@@ -344,3 +344,13 @@ From Nate's notes on step V. **No SQL to run.**
 3. [ ] **Open under the row.** Click anywhere on a session's row. Its exercises and sets open right under that row. Click the row again to close it.
 4. [ ] **Edit a set.** Each set reads like "Set 1 · 180 lb × 8 · Working" with an **Edit** button. Press **Edit**: that one set turns into boxes with **Save**, **Cancel** and **Delete set**. Change the reps, press **Save**; the set goes back to plain text with the new reps. Press **Edit** then **Cancel**: nothing changes.
 
+## 15. Running a campaign again (21 November 2026)
+
+**Nate decided on 21 November:** a finished campaign can be run again, rather than copied. **No SQL to run.**
+
+### Y. In your computer's browser, then on your iPhone, after the merge
+
+1. [ ] Open https://chalkandiron.vercel.app/planner, then **Library**, **Campaigns**. Pick a finished campaign (end one with **End campaign** if you have none). Below the grid, **Run again from** shows today's date, with a **Run again** button.
+2. [ ] Press **Run again** and confirm. The campaign shows **active**, with the same days, and no second copy appears in the campaign list. If another campaign was active, you were asked first and it now shows **finished**.
+3. [ ] On the iPhone Home, the week strip shows this campaign. Days you did in its last run do **not** show Done.
+

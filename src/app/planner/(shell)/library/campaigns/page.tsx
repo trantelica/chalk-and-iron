@@ -20,6 +20,7 @@ export default function Campaigns() {
   const [msg, setMsg] = useState('');
   const [coachLink, setCoachLink] = useState<string | null>(null);
   const today = trainingDay(new Date(), data.timeZone);
+  const [runFrom, setRunFrom] = useState(today);
 
   useEffect(() => { void sb.from('profiles').select('coach_link').maybeSingle().then((r) => setCoachLink((r.data as { coach_link?: string } | null)?.coach_link ?? null)); }, [sb]);
 
@@ -102,6 +103,18 @@ export default function Campaigns() {
     if (!ok && prev) await sb.from('campaigns').update({ status: 'active' }).eq('id', prev.id);
     await reload();
   }
+  /** Runs a finished campaign again from a new start date: the same campaign, no copy (Nate, 21 Nov). */
+  async function runAgain() {
+    if (!c) return;
+    const other = activationNeedsConfirm(data.campaigns, c.id);
+    const ask = `Run "${c.name}" again from ${pretty(runFrom)}? It becomes the active campaign with the same days and overrides.${other ? ` "${other}" is active now and will end.` : ''} Your past workouts stay in History.`;
+    if (!window.confirm(ask)) return;
+    const prev = data.campaigns.find((x) => x.status === 'active' && x.id !== c.id);
+    if (blank.length) { const d = await sb.from('campaign_shifts').delete().eq('campaign_id', c.id); if (d.error) { setMsg(plainError(d.error.message)); return; } }
+    if (prev && !(await run(() => sb.from('campaigns').update({ status: 'finished' }).eq('id', prev.id)))) return;
+    const ok = await run(() => sb.from('campaigns').update({ status: 'active', start_date: runFrom }).eq('id', c.id));
+    if (!ok && prev) { await sb.from('campaigns').update({ status: 'active' }).eq('id', prev.id); await reload(); }
+  }
   async function finish() {
     if (!c || !window.confirm(`End "${c.name}" now? It becomes finished. You can copy it into a new draft.`)) return;
     await run(() => sb.from('campaigns').update({ status: 'finished' }).eq('id', c.id));
@@ -137,7 +150,7 @@ export default function Campaigns() {
           {finished && (
             <div className="notice" role="status">
               <strong>{c.name} {c.status === 'finished' ? 'is finished' : 'has run its last day'}.</strong>
-              <div className="notice-detail">Ask your coach for the next one. The app never repeats or extends a campaign by itself.{coachLink ? <> <a href={coachLink} target="_blank" rel="noreferrer">Open my coach</a>.</> : ' Open your coach project and ask for the next campaign.'}</div>
+              <div className="notice-detail">Ask your coach for the next one, or press Run again below to repeat it from a new start date. The app never repeats or extends a campaign by itself.{coachLink ? <> <a href={coachLink} target="_blank" rel="noreferrer">Open my coach</a>.</> : ' Open your coach project and ask for the next campaign.'}</div>
               {c.status === 'active' && <button className="btn" onClick={finish}>Mark it finished</button>}
             </div>
           )}
@@ -186,6 +199,12 @@ export default function Campaigns() {
             {c.status === 'active' && <button className="btn" onClick={shift}>Shift forward a week</button>}
             {c.status !== 'finished' && blank.length > 0 && <button className="btn" onClick={undoShift}>Undo last shift</button>}
             {c.status === 'active' && <button className="btn" onClick={finish}>End campaign</button>}
+            {c.status === 'finished' && (
+              <>
+                <label>Run again from<input type="date" value={runFrom} onChange={(e) => e.target.value && setRunFrom(e.target.value)} /></label>
+                <button className="btn primary small-primary" onClick={runAgain}>Run again</button>
+              </>
+            )}
           </div>
           <div className="muted">Per-day overrides are set in Plan, by picking a week and a day. Changing a day&apos;s workout here clears that day&apos;s overrides. One campaign is active at a time; the others wait as drafts.</div>
         </div>

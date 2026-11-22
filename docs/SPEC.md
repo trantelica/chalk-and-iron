@@ -60,7 +60,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - **Workouts** list exercises in order with sets, reps, an optional rest that overrides the exercise default, and an optional superset letter. A workout can be copied.
 - **Campaigns** run one to six consecutive weeks. Each day holds a workout or is a rest day.
 - A campaign day can override the exercise, sets, reps, weight and rest for any row. Overrides apply to that day only.
-- When a campaign ends, the app prompts the user to ask their coach for the next one. It does not repeat or extend by itself.
+- When a campaign ends, the app prompts the user to ask their coach for the next one. It does not repeat or extend by itself. The user can **run a finished campaign again** from a new start date: the same campaign, not a copy (Nate, 21 Nov).
 
 ### Logging a workout
 
@@ -634,6 +634,7 @@ These rules settle what happens outside the normal path. Nate decided them in re
 - Weeks run Monday to Sunday. A campaign may start on any date, and week 1 is the week holding its start date.
 - One campaign is active at a time. Others wait as drafts. An accepted proposal for a new campaign arrives as a draft. Activating a draft while another campaign is active ends that one after a confirmation.
 - A campaign can be shifted forward by a week, by the user or by an accepted proposal. There is no pause state. The shifted week does not count toward the six-week limit.
+- A finished campaign can be run again from a new start date (Nate, 21 Nov). It becomes the active campaign with the same days and overrides; activating it ends another active campaign after a confirmation, and the last run's shifts are cleared. Only workouts logged on or after the current start date mark its days Done or Missed; the last run's workouts stay in History.
 
 ### Designs and history
 
