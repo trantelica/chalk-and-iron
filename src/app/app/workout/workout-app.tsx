@@ -15,7 +15,7 @@ import {
 } from '@/rules/session';
 import {
   applyServerRecords, exerciseConfirmChange, exerciseCreateChange, finishOtherChange, mergeHistory, noteChange, pendingChoices, restChange,
-  sessionChanges, unitChange, wasReplaced, type LibraryFacts, type SwapMadeExercise,
+  idsToAskReplaced, sessionChanges, unitChange, wasReplaced, type LibraryFacts, type SwapMadeExercise,
 } from '@/rules/sync';
 import type { OutboxStatus } from '@/lib/outbox';
 import {
@@ -192,10 +192,10 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
 
   /** Asks the account whether this phone's workout was replaced; used on open and on return to the screen. */
   const checkReplaced = useCallback(() => {
-    const ids = [sessRef.current?.id, readStore<Session | null>(keyFor(userId, LAST), null)?.id].filter((x): x is string => !!x);
+    const ids = idsToAskReplaced([sessRef.current?.id, readStore<Session | null>(keyFor(userId, LAST), null)?.id], box.entries);
     if (!ids.length || (typeof navigator !== 'undefined' && !navigator.onLine)) return;
     replacedOnServer(ids).then((r) => { if (r.length) dropReplaced(r); }).catch(() => { /* offline: asked again later */ });
-  }, [userId, dropReplaced]);
+  }, [userId, dropReplaced, box]);
 
   useEffect(() => {
     forgetOldPhoneOnlyData();
@@ -222,9 +222,9 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
     setSync({ ...box.status });
     setRejectedCount(box.rejected.length);
     setReady(true);
-    void box.flush();
+    // Asked only after sending, so the account has this phone's copy first (fix check of pull request 47, 24 Nov).
+    void box.flush().finally(checkReplaced);
     refreshHistory(s && s.endedAt === null ? s.id : null);
-    checkReplaced();
     setAlertsOn(!pushSupported() || (Notification.permission === 'granted' && !!readStore(K('push'), '')));
     turnOnRestAlerts(userId, true).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -241,7 +241,7 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
       const t = applyServerRecords(cur, a.records); // the server's records win
       if (t !== cur) { sessRef.current = t; writeStore(keyFor(userId, 'session'), t); setSessState(t); }
     });
-    const kick = () => { if (document.visibilityState === 'visible') { void box.flush(); checkReplaced(); } };
+    const kick = () => { if (document.visibilityState === 'visible') { void box.flush().finally(checkReplaced); } };
     window.addEventListener('online', kick);
     document.addEventListener('visibilitychange', kick);
     const iv = setInterval(() => { if (box.count && box.status.state !== 'conflict') void box.flush(); }, 20000);

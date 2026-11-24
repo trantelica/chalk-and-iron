@@ -396,7 +396,17 @@ The review at high effort found two points to fix, and **Nate chose to fix both*
 
 **Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
 
-1. [ ] [`20261123000100_late_changes_and_workout_save.sql`](https://github.com/trantelica/chalk-and-iron/blob/phase3-review-high-fixes/supabase/migrations/20261123000100_late_changes_and_workout_save.sql) (on the pull request's branch until it is merged). It should end with "Success. No rows returned". Safe to run more than once.
+1. [x] [`20261123000100_late_changes_and_workout_save.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261123000100_late_changes_and_workout_save.sql) (this link shows the file on `main` once the pull request is merged). It should end with "Success. No rows returned". Safe to run more than once. **Run by Nate on 24 November 2026.**
+
+### AD. Supabase SQL Editor, **before** merging
+
+**Run this before the pull request is merged**, after step AB. The fix check of this pull request found that the phone's late changes to a replaced workout could reset its exercise times; this keeps them. Run before merging, nothing changes for the app you have now.
+
+**What it changes:** only the function phones send workout changes through. It removes no table and deletes no data.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
+
+1. [ ] [`20261124000100_late_copy_clocks.sql`](https://github.com/trantelica/chalk-and-iron/blob/phase3-review-high-fixes/supabase/migrations/20261124000100_late_copy_clocks.sql) (on the pull request's branch until it is merged). It should end with "Success. No rows returned". Safe to run more than once.
 
 ### AC. In your computer's browser, after the merge
 

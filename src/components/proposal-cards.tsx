@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '@/lib/supabase/browser';
-import { cardsChanged, decisionMessage, INBOX_CHECK_MS, sendWaitingFirst, UNSAVED_BEFORE_ACCEPT, type DecideAnswer } from '@/rules/inbox';
+import { acceptRefusal, cardsChanged, decisionMessage, INBOX_CHECK_MS, type DecideAnswer } from '@/rules/inbox';
 import { dropLocalCopyOf, outboxFor } from '@/lib/phone-store';
 
 // The inbox card for a day sent from the planner (spec Sections 5 and 10;
@@ -55,13 +55,12 @@ export function ProposalCards({ onChange, className }: { onChange?: () => void; 
 
   async function decide(c: Card, accept: boolean) {
     setBusy(c.id); setMsg('');
-    const { data: who } = await sb.auth.getUser();
-    const me = who.user?.id ?? null;
+    // Who is signed in, read on this device (no network request, so a weak signal cannot skip the next step).
+    const { data: who } = await sb.auth.getSession();
+    const me = who.session?.user.id ?? null;
     // Accept may replace the workout this phone is doing: send what the phone has waiting first.
-    if (accept && !(await sendWaitingFirst(me ? outboxFor(me) : null))) {
-      setBusy(''); setMsg(UNSAVED_BEFORE_ACCEPT);
-      return;
-    }
+    const refusal = accept ? await acceptRefusal(me, outboxFor) : null;
+    if (refusal) { setBusy(''); setMsg(refusal); return; }
     const r = await sb.rpc('decide_planner_proposal', { p_proposal: c.id, p_accept: accept });
     setBusy('');
     if (r.error) setMsg(`Not ${accept ? 'accepted' : 'dismissed'}. ${r.error.message}`);

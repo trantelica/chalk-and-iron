@@ -1,7 +1,8 @@
 // Fixes from the Phase 3 review at high effort (23 Nov).
 import { describe, expect, it } from 'vitest';
 import { daySetsForSupersets } from '@/rules/planner';
-import { sendWaitingFirst, UNSAVED_BEFORE_ACCEPT } from '@/rules/inbox';
+import { acceptRefusal, NO_USER_BEFORE_ACCEPT, sendWaitingFirst, UNSAVED_BEFORE_ACCEPT } from '@/rules/inbox';
+import { idsToAskReplaced } from '@/rules/sync';
 
 const row = (id: string, sets: number, superset: string | null) => ({ id, sets, superset });
 const ov = (item: string, sets: number | null, day = 'd1') => ({ campaignDayId: day, workoutItemId: item, sets });
@@ -43,5 +44,28 @@ describe('Accept sends what this phone has waiting first', () => {
     expect(await sendWaitingFirst({ count: 2, flush: () => Promise.reject(new Error('offline')) })).toBe(false);
     expect(await sendWaitingFirst({ count: 1, flush: () => new Promise<void>(() => {}) }, 20)).toBe(false);
     expect(UNSAVED_BEFORE_ACCEPT).toMatch(/^Not accepted\./);
+  });
+});
+
+// Fix check of pull request 47 (24 Nov), findings 2 and 4.
+describe('Accept with no one known to be signed in on this device', () => {
+  const never = () => { throw new Error('the outbox is not looked at'); };
+  it('is refused, rather than going ahead with changes unsent', async () => {
+    expect(await acceptRefusal(null, never)).toBe(NO_USER_BEFORE_ACCEPT);
+    expect(NO_USER_BEFORE_ACCEPT).toMatch(/^Not accepted\./);
+  });
+  it('goes ahead for the person signed in once nothing waits, and is refused while changes cannot be sent', async () => {
+    expect(await acceptRefusal('u1', () => ({ count: 0, flush: async () => {} }))).toBeNull();
+    expect(await acceptRefusal('u1', () => ({ count: 1, flush: () => Promise.reject(new Error('offline')) }))).toBe(UNSAVED_BEFORE_ACCEPT);
+  });
+});
+
+describe('asking the account whether a workout was replaced', () => {
+  it('leaves out a workout whose own copy is still waiting to be sent', () => {
+    const waiting = [{ kind: 'session.put' as const, key: 'session:s1' }, { kind: 'set.put' as const, key: 'set:x' }];
+    expect(idsToAskReplaced(['s1', 's2', null, undefined, 's2'], waiting)).toEqual(['s2']);
+  });
+  it('asks about every workout once nothing waits', () => {
+    expect(idsToAskReplaced(['s1', 's2'], [])).toEqual(['s1', 's2']);
   });
 });

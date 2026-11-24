@@ -423,6 +423,24 @@ describe('late changes from the phone after a split', () => {
     expect(await db.as(a, `select id from sessions where status = 'active'`)).toEqual([]);
   });
 
+  it('the late copy keeps the time the clocks had run: each stops at the account\'s end, never below what the account had', async () => {
+    let s = await midWorkout(); // bench's block ran 3 minutes to the last logged set, and is still running on the phone
+    const curl = Object.values(s.exercises).find((e) => e.exerciseId === ex['Barbell Curl'])!.key;
+    const benchBlock = s.blocks.find((x) => !x.members.includes(curl))!.id;
+    expect((await decide(a, await card(a), true)).ok).toBe(true);
+    const at = async () => Number((await db.as<{ b: string }>(a, `select clock_banked_seconds as b from session_blocks where id = $1`, [benchBlock]))[0].b);
+    expect(await at()).toBe(180);
+    // The phone's late copy: only a swap of Curl, its bench clock still running (less banked than the account).
+    const r = await send(a, sessionChanges(s, swapExercise(s, curl, plan(['Dumbbell Lateral Raise'])[0], noSeed, T0 + 300000)));
+    expect(r.rejected).toEqual([]);
+    expect(await at()).toBe(180);
+    expect(await db.as(a, `select id from session_blocks where session_id = $1 and clock_running_since is not null`, [s.id])).toEqual([]);
+    // A later copy where the phone's clock had run further before the end banks that too, up to the end only.
+    s = { ...s, blocks: s.blocks.map((x) => (x.id === benchBlock ? { ...x, clock: { banked: 200, since: null } } : x)) };
+    expect((await send(a, sessionChanges(null, s))).rejected).toEqual([]);
+    expect(await at()).toBe(200);
+  });
+
   it('a workout the phone finished with no signal before the Accept is put back as finished, on its campaign day', async () => {
     let s = await midWorkout();
     const late: NewChange[] = [];

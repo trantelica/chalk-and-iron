@@ -47,3 +47,19 @@ export async function sendWaitingFirst(box: { count: number; flush(): Promise<vo
   clearTimeout(timer);
   return box.count === 0;
 }
+
+/** What the card says when Accept cannot tell who is signed in on this device (fix check of pull request 47, 24 Nov). */
+export const NO_USER_BEFORE_ACCEPT = 'Not accepted. This device could not tell who is signed in. Try again, or sign in again.';
+
+type WaitingBox = { count: number; flush(): Promise<void> };
+
+/**
+ * Whether Accept may go ahead: the person signed in on this device is known
+ * (read on the device, never over the network), and what this device has
+ * waiting has been sent first. Returns the refusal to show, or null to go ahead.
+ * Without a person, Accept is refused rather than going ahead with changes unsent.
+ */
+export async function acceptRefusal(me: string | null, boxFor: (userId: string) => WaitingBox, ms = 8000): Promise<string | null> {
+  if (!me) return NO_USER_BEFORE_ACCEPT;
+  return (await sendWaitingFirst(boxFor(me), ms)) ? null : UNSAVED_BEFORE_ACCEPT;
+}
