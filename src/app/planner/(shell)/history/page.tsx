@@ -5,7 +5,7 @@ import { fromPounds } from '@/rules/units';
 import { mmss, RECORD_LABEL, type RecordType } from '@/rules/workout';
 import { setsToDelete, summarizeSession, typedToPounds, viewWeight, volumeText, type ViewUnit } from '@/rules/planner';
 import { usePlanner } from '../../planner-data';
-import { loadSessions, type LoggedSet, type SessionData } from '../../history-data';
+import { loadSessions, loadWorkoutNames, type LoggedSet, type SessionData } from '../../history-data';
 import { ExercisePanel } from '../../exercise-panel';
 
 // History (spec Section 5): the past. Sessions by workout, and any exercise's
@@ -21,15 +21,24 @@ export default function History() {
   const [msg, setMsg] = useState('');
   const [shown, setShown] = useState(10);
 
-  const load = useCallback(async () => setList(await loadSessions(sb)), [sb]);
-  useEffect(() => { void load(); }, [load]);
+  const [names, setNames] = useState<string[]>([]);
+  const [more, setMore] = useState(false);
+  const PAGE = 10;
+  // Loads the first `count` sessions (for the chosen workout), one more than shown, to know whether more exist.
+  const load = useCallback(async (count: number) => {
+    const got = await loadSessions(sb, { offset: 0, limit: count + 1, workout: workout || undefined });
+    setMore(got.length > count);
+    setList(got.slice(0, count));
+  }, [sb, workout]);
+  useEffect(() => { void load(shown); }, [load, shown]);
+  useEffect(() => { void loadWorkoutNames(sb).then(setNames); }, [sb]);
 
   const kindOf = useCallback((id: string) => {
     const e = data.exercises.find((x) => x.id === id);
     return { unit: e?.default_unit ?? 'lb', assisted: e?.assisted ?? false, loadCount: e?.load_count ?? 1 } as const;
   }, [data.exercises]);
 
-  const rows = useMemo(() => (list ?? []).filter((x) => !workout || x.session.workout_name === workout).map((x) => ({
+  const rows = useMemo(() => (list ?? []).map((x) => ({
     x,
     sum: summarizeSession({
       clockBanked: x.session.clock_banked_seconds,
@@ -38,8 +47,7 @@ export default function History() {
       sets: x.sets.map((s) => ({ id: s.id, session_exercise_id: s.sessionExerciseId, lb: s.lb, reps: s.reps, type: s.type, records: s.records })),
       kind: kindOf,
     }),
-  })), [list, workout, kindOf]);
-  const names = useMemo(() => [...new Set((list ?? []).map((x) => x.session.workout_name))].sort(), [list]);
+  })), [list, kindOf]);
 
   async function apply(changes: { kind: string; data: Record<string, unknown> }[]) {
     setMsg('');
@@ -47,7 +55,7 @@ export default function History() {
     if (r.error) { setMsg(r.error.message); return false; }
     const ans = r.data as { rejected?: { reason: string }[] };
     if (ans.rejected?.length) { setMsg(ans.rejected[0].reason); return false; }
-    await load();
+    await load(shown);
     return true;
   }
 
@@ -61,13 +69,13 @@ export default function History() {
             <option value="">All workouts</option>
             {names.map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
-          <span className="muted">{list === null ? 'Loading…' : `Showing ${Math.min(shown, rows.length)} of ${rows.length} session${rows.length === 1 ? '' : 's'}`}</span>
+          <span className="muted">{list === null ? 'Loading…' : `Showing ${rows.length} session${rows.length === 1 ? '' : 's'}${more ? ', newest first' : ''}`}</span>
         </div>
         <div className="pbox scroll">
           <table>
             <thead><tr><th>Date</th><th>Workout</th><th>Time</th><th>Volume</th><th>Efficiency</th><th>Records</th><th></th></tr></thead>
             <tbody>
-              {rows.slice(0, shown).map(({ x, sum }) => {
+              {rows.map(({ x, sum }) => {
                 const isOpen = x.session.id === sel;
                 const toggle = () => setSel(isOpen ? null : x.session.id);
                 return (
@@ -91,7 +99,7 @@ export default function History() {
             </tbody>
           </table>
         </div>
-        {rows.length > shown && <button className="btn" onClick={() => setShown((n) => n + 10)}>Show 10 more ({rows.length - shown} older)</button>}
+        {more && <button className="btn" onClick={() => setShown((n) => n + PAGE)}>Show 10 more</button>}
       </div>
       <ExercisePanel />
     </div>
@@ -199,7 +207,7 @@ function SetRow({ set, view, locked, onSave, onDelete }: {
         <option value="warm_up">Warm-up</option><option value="working">Working</option><option value="drop">Drop set</option>
       </select></label>
       <label className="inline">RPE<input type="number" min={1} max={10} step="0.5" placeholder="blank" value={rpe} aria-label={label('RPE')} onChange={(e) => setRpe(e.target.value)} /></label>
-      <button className="btn small primary-small" disabled={busy} onClick={save}>{busy ? 'Saving…' : 'Save'}</button>
+      <button className="btn primary small-primary" disabled={busy} onClick={save}>{busy ? 'Saving…' : 'Save'}</button>
       <button className="btn small" disabled={busy} onClick={reset}>Cancel</button>
       <button className="btn small danger" disabled={busy} onClick={onDelete}>Delete set</button>
     </div>

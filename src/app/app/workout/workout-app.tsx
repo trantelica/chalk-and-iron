@@ -393,8 +393,21 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
     setSheet(null);
   }
 
-  function reopen(s0: Session) {
-    commit(reopenSession(s0, Date.now()));
+  /**
+   * Reopen a finished workout. When online with nothing waiting to send, it is
+   * rebuilt from the account first, so sets edited or deleted in the planner's
+   * History since it finished are as the account has them (review finding 3,
+   * 23 Nov). Offline, or with changes still waiting, this phone's copy is newer.
+   */
+  async function reopen(s0: Session) {
+    let base = s0;
+    if (navigator.onLine && box.count === 0) {
+      try {
+        const fromAccount = await loadServerSession(s0.id, libFacts);
+        if (fromAccount.endedAt !== null) base = fromAccount;
+      } catch { /* no answer: carry on with this phone's copy */ }
+    }
+    commit(reopenSession(base, Date.now()));
     setSheet(null);
     refreshHistory(s0.id);
   }

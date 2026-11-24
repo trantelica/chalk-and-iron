@@ -75,11 +75,25 @@ export interface SeRowH {
 }
 export interface SessionData { session: SessionRowH; blocks: BlockRowH[]; exercises: SeRowH[]; sets: LoggedSet[] }
 
-/** The latest finished (and any running) sessions, with their blocks, exercises and live sets. */
-export async function loadSessions(sb: SupabaseClient, limit = 60): Promise<SessionData[]> {
-  const ss = await sb.from('sessions')
+/** Every workout name the person has sessions for, for History's filter. */
+export async function loadWorkoutNames(sb: SupabaseClient): Promise<string[]> {
+  const r = await sb.from('sessions').select('workout_name');
+  return [...new Set(((r.data ?? []) as { workout_name: string }[]).map((x) => x.workout_name))].sort();
+}
+
+/**
+ * One page of sessions, newest first, with their blocks, exercises and live
+ * sets. History asks for the next page as "Show 10 more" is pressed, so every
+ * session can be reached (review finding 4, 23 Nov); the workout filter is
+ * applied by the account, not to the page already loaded.
+ */
+export async function loadSessions(sb: SupabaseClient, opts: { offset?: number; limit?: number; workout?: string } = {}): Promise<SessionData[]> {
+  const from = opts.offset ?? 0;
+  let q = sb.from('sessions')
     .select('id, local_date, workout_name, started_at, ended_at, status, finish_reason, clock_banked_seconds, source_kind')
-    .order('started_at', { ascending: false }).limit(limit);
+    .order('started_at', { ascending: false });
+  if (opts.workout) q = q.eq('workout_name', opts.workout);
+  const ss = await q.range(from, from + (opts.limit ?? 10) - 1);
   const sessions = ((ss.data ?? []) as Record<string, unknown>[]).map((r) => ({ ...r, local_date: String(r.local_date).slice(0, 10), clock_banked_seconds: Number(r.clock_banked_seconds) })) as SessionRowH[];
   if (!sessions.length) return [];
   const ids = sessions.map((x) => x.id);

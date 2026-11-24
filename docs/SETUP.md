@@ -297,7 +297,7 @@ When a day is sent from the planner and today already has a workout, it arrives 
 
 **Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
 
-1. [x] [`20261120000100_decide_planner_proposal.sql`](https://github.com/trantelica/chalk-and-iron/blob/decide-planner-proposal/supabase/migrations/20261120000100_decide_planner_proposal.sql) (this link shows the file on its branch, before the merge). It should end with "Success. No rows returned". Safe to run more than once.
+1. [x] [`20261120000100_decide_planner_proposal.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261120000100_decide_planner_proposal.sql) (this link now shows the file on `main`). It should end with "Success. No rows returned". Safe to run more than once.
 2. [x] To check: in a new query, paste `select count(*) from pg_proc where proname = 'decide_planner_proposal';` and click **Run**. It shows **1**.
 
 The iPhone checks for Accept and Dismiss come with the planner's inbox card, once both pull requests are merged.
@@ -373,3 +373,13 @@ From Nate's note on step X: the card showed only after leaving Home and coming b
 3. [ ] Press **Accept**: **Today** shows the new day straight away.
 
 **Not run on Nate's devices (agreed by Nate, 23 November 2026):** the agent checked item 1 in a local browser with test data. Items 2 and 3 depend on the iPhone; Nate will report anything that looks off in normal use.
+
+## 17. Fixes from the Phase 3 review (23 November 2026)
+
+The fresh review found nine points, and **Nate chose to fix all nine** (`docs/NEXT.md`). **No SQL to run.**
+
+### AA. In your computer's browser, after the merge
+
+1. [ ] **A new superset.** Open https://chalkandiron.vercel.app/planner, **Library**, **Workouts**, and press **New workout**. Add two exercises. On the first row, under **Superset**, choose **New superset with the next exercise**. Both rows now show the same letter and the same sets, and **All changes saved** shows at the top.
+2. [ ] **History goes further back.** Open **History** and press **Show 10 more** until it disappears: your oldest session is in the list.
+

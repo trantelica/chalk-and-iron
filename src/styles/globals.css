@@ -311,5 +311,4 @@ input.is-saved { border-color: var(--accent); }
 .set-edit .set-text { min-width: 110px; font-weight: 700; }
 .set-edit.editing { border: 1px solid var(--accent); border-radius: var(--radius-small); padding: 6px 8px; }
 .page.planner label.inline { flex-direction: row; align-items: center; gap: 6px; font-weight: 400; }
-.btn.primary-small { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .btn.danger { border-color: var(--overage-red); }

@@ -110,10 +110,13 @@ export default function Campaigns() {
     const ask = `Run "${c.name}" again from ${pretty(runFrom)}? It becomes the active campaign with the same days and overrides.${other ? ` "${other}" is active now and will end.` : ''} Your past workouts stay in History.`;
     if (!window.confirm(ask)) return;
     const prev = data.campaigns.find((x) => x.status === 'active' && x.id !== c.id);
-    if (blank.length) { const d = await sb.from('campaign_shifts').delete().eq('campaign_id', c.id); if (d.error) { setMsg(plainError(d.error.message)); return; } }
+    // In this order, so a dropped connection part-way never leaves this campaign without
+    // its shifts while still finished (review finding 7): end the other, activate this one,
+    // and only then clear the last run's shifts.
     if (prev && !(await run(() => sb.from('campaigns').update({ status: 'finished' }).eq('id', prev.id)))) return;
     const ok = await run(() => sb.from('campaigns').update({ status: 'active', start_date: runFrom }).eq('id', c.id));
-    if (!ok && prev) { await sb.from('campaigns').update({ status: 'active' }).eq('id', prev.id); await reload(); }
+    if (!ok) { if (prev) { await sb.from('campaigns').update({ status: 'active' }).eq('id', prev.id); await reload(); } return; }
+    if (blank.length) await run(() => sb.from('campaign_shifts').delete().eq('campaign_id', c.id));
   }
   async function finish() {
     if (!c || !window.confirm(`End "${c.name}" now? It becomes finished. You can copy it into a new draft.`)) return;

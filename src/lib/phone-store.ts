@@ -175,3 +175,17 @@ export async function clearPhoneCopy() {
   clearPhone();
   try { for (const k of await caches.keys()) await caches.delete(k); } catch { /* not available */ }
 }
+
+/**
+ * Drops this phone's own copy of a workout that the account has just ended
+ * as replaced (Accept on Home mid-workout, review finding 5, 23 Nov), so the
+ * workout screen opens on the day that was sent, not the old workout.
+ * Sets still waiting to be sent stay in the outbox and are sent as usual.
+ */
+export function dropLocalCopyOf(userId: string, sessionId: string) {
+  for (const what of ['session', 'last'] as const) {
+    const k = keyFor(userId, what);
+    const s = readStore<{ id?: string } | null>(k, null);
+    if (s?.id === sessionId) writeStore(k, null);
+  }
+}
