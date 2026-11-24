@@ -343,12 +343,12 @@ From Nate's notes on step V. **No SQL to run.**
 
 ### X. On your iPhone and in your computer's browser, after the merge
 
-1. [ ] **Inbox.** In the planner's **Plan**, send a day when today already has a workout. On the iPhone Home, an **Inbox · 1 waiting** panel with an orange border sits at the top, above **Today**, with the card's **Accept** and **Dismiss**. Press **Dismiss**: the panel goes away and nothing else changes.
+1. [x] **Inbox.** In the planner's **Plan**, send a day when today already has a workout. On the iPhone Home, an **Inbox · 1 waiting** panel with an orange border sits at the top, above **Today**, with the card's **Accept** and **Dismiss**. Press **Dismiss**: the panel goes away and nothing else changes.
 2. [x] **History list.** In the planner open **History**. It shows the 10 latest sessions, with **Show 10 more** below when there are more.
 3. [x] **Open under the row.** Click anywhere on a session's row. Its exercises and sets open right under that row. Click the row again to close it.
 4. [x] **Edit a set.** Each set reads like "Set 1 · 180 lb × 8 · Working" with an **Edit** button. Press **Edit**: that one set turns into boxes with **Save**, **Cancel** and **Delete set**. Change the reps, press **Save**; the set goes back to plain text with the new reps. Press **Edit** then **Cancel**: nothing changes.
 
-**Result, 23 November 2026:** items 2, 3 and 4 passed. Item 1 to retry: the card appears only after pressing **Send to phone as today's workout** in **Plan** while today already has a workout; giving today a workout in **Campaigns** makes it today's plan directly, with no card, which is what Nate saw.
+**Result, 23 November 2026: all four passed.** Item 1 passed on a retry: the card appears only after pressing **Send to phone as today's workout** in **Plan** while today already has a workout (giving today a workout in **Campaigns** makes it today's plan directly). Nate noticed the phone's Home did not show the card until he left the screen and came back.
 
 ## 15. Running a campaign again (21 November 2026)
 
