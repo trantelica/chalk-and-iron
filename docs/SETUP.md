@@ -374,7 +374,7 @@ From Nate's note on step X: the card showed only after leaving Home and coming b
 
 **Not run on Nate's devices (agreed by Nate, 23 November 2026):** the agent checked item 1 in a local browser with test data. Items 2 and 3 depend on the iPhone; Nate will report anything that looks off in normal use.
 
-## 17. Fixes from the Phase 3 review (24 November 2026)
+## 17. Fixes from the Phase 3 review (23 November 2026)
 
 The fresh review found nine points, and **Nate chose to fix all nine** (`docs/NEXT.md`). **No SQL to run.**
 

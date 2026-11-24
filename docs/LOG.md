@@ -64,6 +64,6 @@ Pull requests are at `https://github.com/trantelica/chalk-and-iron/pull/<number>
 - [#44](https://github.com/trantelica/chalk-and-iron/pull/44): **Phone Home notices a new card by itself** (Nate's note, 23 Nov): it looks at the inbox again whenever it comes back into view and every 30 seconds while open, and reads Today again when a card comes or goes. An instant push waits for the proposal notifications in Phase 5. Step Z.
 - [#45](https://github.com/trantelica/chalk-and-iron/pull/45): steps Y and Z checked by the agent in a local browser, not on Nate's devices (Nate agreed, 23 Nov). **The fresh Opus 5.5 high-effort review of Phase 3 started** (pull requests 34 to 44).
 
-## 24 November 2026
+## 23 November 2026
 
 - **Phase 3 review** (fresh Opus 5.5; its effort setting showed below high). Not ready to accept: two important bugs (a new superset could not be made in the planner; the inbox card said Accepted even when refused), two medium (the phone could undo a History edit on Reopen; History reached only 60 sessions) and five low. **Nate chose to fix all nine.** Fixes: a new superset pairs the row with the next exercise; the card shows the account's reason when refused; Reopen rebuilds the workout from the account; History loads more as asked and filters in the account; Accept mid-workout clears the phone's old copy; one weight limit (2000 lb); Run again saves in a safer order; the send check sees a workout left running from an earlier week; document tidy-ups. Step AA.
