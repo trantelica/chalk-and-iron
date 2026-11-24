@@ -360,3 +360,13 @@ From Nate's notes on step V. **No SQL to run.**
 2. [ ] Press **Run again** and confirm. The campaign shows **active**, with the same days, and no second copy appears in the campaign list. If another campaign was active, you were asked first and it now shows **finished**.
 3. [ ] On the iPhone Home, the week strip shows this campaign. Days you did in its last run do **not** show Done.
 
+## 16. The phone's Home notices a new card by itself (23 November 2026)
+
+From Nate's note on step X: the card showed only after leaving Home and coming back. **No SQL to run.**
+
+### Z. On your iPhone and in your computer's browser, after the merge
+
+1. [ ] Open Chalk and Iron on the iPhone and leave it on **Home**. In the planner's **Plan**, send a day while today already has a workout. Within about 30 seconds, without touching the phone, the **Inbox · 1 waiting** panel appears at the top.
+2. [ ] Lock the phone, send another day from the planner, then unlock it: the new card is there as soon as Home shows.
+3. [ ] Press **Accept**: **Today** shows the new day straight away.
+
