@@ -97,6 +97,42 @@ export function startSuperset<T extends { sets: number; superset: string | null 
   return { rows: rows.map((r, i) => (i === index ? { ...r, superset: letter } : i === partner ? { ...r, superset: letter, sets } : r)), problem: null };
 }
 
+/** One campaign day's set count for one row, as the Workouts screen writes it (null: follow the workout). */
+export interface DaySets { campaignDayId: string; workoutItemId: string; sets: number | null }
+
+/**
+ * The day overrides a workout save needs so that every superset stays even on
+ * every campaign day that uses the workout (spec Section 10, "Supersets"; review
+ * at high effort, 23 Nov). A day may override a row's sets; when that row joins
+ * a superset, or another row joins its superset, the day would be uneven and
+ * the database would refuse the save. An exercise joining a superset takes its
+ * set count, on each day as in the workout: the count of the members already
+ * there (or, for a new superset, of the row that started it), as that day has it.
+ */
+export function daySetsForSupersets(
+  before: { id: string; superset: string | null }[],
+  after: { id: string; sets: number; superset: string | null }[],
+  dayIds: string[],
+  overrides: { campaignDayId: string; workoutItemId: string; sets: number | null }[],
+  startedBy: string | null = null,
+): DaySets[] {
+  const out: DaySets[] = [];
+  const letters = [...new Set(after.map((r) => r.superset).filter((l): l is string => !!l))];
+  for (const day of dayIds) {
+    const ov = new Map(overrides.filter((o) => o.campaignDayId === day).map((o) => [o.workoutItemId, o.sets]));
+    for (const letter of letters) {
+      const members = after.filter((r) => r.superset === letter);
+      const count = (r: { id: string; sets: number }) => ov.get(r.id) ?? r.sets;
+      if (new Set(members.map(count)).size <= 1) continue;
+      const already = new Set(before.filter((r) => r.superset === letter).map((r) => r.id));
+      const anchor = members.find((m) => already.has(m.id)) ?? members.find((m) => m.id === startedBy) ?? members[0];
+      const target = count(anchor);
+      for (const m of members) if (count(m) !== target) out.push({ campaignDayId: day, workoutItemId: m.id, sets: target === m.sets ? null : target });
+    }
+  }
+  return out;
+}
+
 /** Problems that stop a workout being saved: every superset holds two or three with equal sets. */
 export function workoutProblems(rows: { sets: number; superset: string | null }[]): string[] {
   return supersetProblems(rows.map((r) => ({ sets: r.sets, superset: r.superset })));

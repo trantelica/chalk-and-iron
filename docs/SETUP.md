@@ -383,3 +383,23 @@ The fresh review found nine points, and **Nate chose to fix all nine** (`docs/NE
 1. [ ] **A new superset.** Open https://chalkandiron.vercel.app/planner, **Library**, **Workouts**, and press **New workout**. Add two exercises. On the first row, under **Superset**, choose **New superset with the next exercise**. Both rows now show the same letter and the same sets, and **All changes saved** shows at the top.
 2. [ ] **History goes further back.** Open **History** and press **Show 10 more** until it disappears: your oldest session is in the list.
 
+
+## 18. Fixes from the Phase 3 review at high effort (23 November 2026)
+
+The review at high effort found two points to fix, and **Nate chose to fix both** (`docs/NEXT.md`): sets logged on a swapped exercise could be saved under the old exercise when a sent day was accepted while the phone still had unsaved changes; and the Workouts screen refused to add an exercise to a superset when a campaign day overrode its sets.
+
+### AB. Supabase SQL Editor, **before** merging
+
+**Run this before the pull request is merged.** The new Workouts screen saves through a new database step, so it must be there first. Run before merging, nothing changes for the app you have now.
+
+**What it changes:** the function phones send workout changes through (late changes to a replaced workout now land correctly), and a new step for saving a workout with its day overrides. It removes no table and deletes no data.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
+
+1. [ ] [`20261123000100_late_changes_and_workout_save.sql`](https://github.com/trantelica/chalk-and-iron/blob/phase3-review-high-fixes/supabase/migrations/20261123000100_late_changes_and_workout_save.sql) (on the pull request's branch until it is merged). It should end with "Success. No rows returned". Safe to run more than once.
+
+### AC. In your computer's browser, after the merge
+
+1. [ ] **A day override and a superset.** Open https://chalkandiron.vercel.app/planner, **Plan**, pick a day whose workout has an exercise that is not in a superset, and change that exercise's **Sets**. Then open **Library**, **Workouts**, that workout, and put that exercise into a superset (under **Superset**, pick a letter, or **New superset with the next exercise**). **All changes saved** shows at the top, with no red message. Back in **Plan**, on that day, every exercise of the superset shows the same sets.
+
+The phone side (a swap made with no signal, then a sent day accepted) is covered by the database tests; it is not a device check.

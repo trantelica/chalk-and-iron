@@ -6,7 +6,7 @@
 // reopen or overwrite it.
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { makeDb, type Db } from './harness';
-import { addExercise, logSet, startExercise, startSession, type PlanItem, type Session } from '@/rules/session';
+import { addExercise, finishSession, logSet, startExercise, startSession, swapExercise, type PlanItem, type Session } from '@/rules/session';
 import { restChange, sessionChanges, type NewChange, type SyncAnswer } from '@/rules/sync';
 import { planItems, planName } from '@/rules/today';
 
@@ -383,5 +383,80 @@ describe('a card that breaks a rule is refused, and stays pending', () => {
     const id = await card(a, { plan_items: [{ exercise_id: crypto.randomUUID(), sets: 3, reps: 8 }] });
     expect((await decide(a, id, true)).ok).toBe(false);
     expect((await db.as<{ status: string }>(a, `select status from sessions where id = $1`, [s.id]))[0].status).toBe('active');
+  });
+});
+
+// Review at high effort (23 Nov): the phone's changes that had not reached the
+// account when the sent day was accepted (a weak signal in the gym).
+describe('late changes from the phone after a split', () => {
+  it('a swap made before the first set keeps its sets under the new exercise', async () => {
+    let s = await midWorkout();
+    const curl = Object.values(s.exercises).find((e) => e.exerciseId === ex['Barbell Curl'])!.key;
+    const late: NewChange[] = [];
+    const step = (next: Session) => { late.push(...sessionChanges(s, next)); s = next; };
+    // Offline: Curl is swapped for Lateral Raise before any set, and two sets are logged.
+    step(swapExercise(s, curl, plan(['Dumbbell Lateral Raise'])[0], noSeed, T0 + 300000));
+    const blk = s.blocks.find((x) => x.members.includes(curl))!;
+    step(startExercise({ ...s, curBlock: blk.id, curMember: curl }, T0 + 310000));
+    step(logSet(s, lbSet(20, 15), {}, T0 + 360000).session);
+    step(logSet(s, lbSet(20, 15), {}, T0 + 420000).session);
+    // The planner's card is accepted before those changes arrive.
+    expect((await decide(a, await card(a), true)).ok).toBe(true);
+    const r = await send(a, late);
+    expect(r.rejected).toEqual([]);
+    expect(r.replaced).toEqual([s.id]);
+    const [row] = await db.as<{ exercise_id: string; exercise_name_then: string; state: string; n: number }>(a,
+      `select se.exercise_id, se.exercise_name_then, se.state, (select count(*)::int from set_logs l where l.session_exercise_id = se.id and l.deleted_at is null) as n
+       from session_exercises se where se.id = $1`, [curl]);
+    expect(row).toEqual({ exercise_id: ex['Dumbbell Lateral Raise'], exercise_name_then: 'Dumbbell Lateral Raise', state: 'done', n: 2 });
+    // Curl's history has none of them.
+    const curlSets = await db.as(a, `select l.id from set_logs l join session_exercises se on se.id = l.session_exercise_id
+      where se.session_id = $1 and se.exercise_id = $2`, [s.id, ex['Barbell Curl']]);
+    expect(curlSets).toEqual([]);
+    // Still the replaced workout: finished, not reopened, at the same end, ad hoc; every clock stopped.
+    const [h] = await db.as<{ status: string; finish_reason: string; source_kind: string; ended_at: string }>(a,
+      `select status, finish_reason, source_kind, ended_at from sessions where id = $1`, [s.id]);
+    expect(h).toMatchObject({ status: 'finished', finish_reason: 'replaced', source_kind: 'ad_hoc' });
+    expect(new Date(h.ended_at).getTime()).toBe(T0 + 240000);
+    const running = await db.as(a, `select id from session_blocks where session_id = $1 and clock_running_since is not null`, [s.id]);
+    expect(running).toEqual([]);
+    expect(await db.as(a, `select id from sessions where status = 'active'`)).toEqual([]);
+  });
+
+  it('a workout the phone finished with no signal before the Accept is put back as finished, on its campaign day', async () => {
+    let s = await midWorkout();
+    const late: NewChange[] = [];
+    const step = (next: Session) => { late.push(...sessionChanges(s, next)); s = next; };
+    step(finishSession(s, T0 + 300000, 'user'));
+    expect((await decide(a, await card(a), true)).ok).toBe(true);
+    // Before the phone's changes arrive, the account had it as replaced.
+    expect((await db.as<{ finish_reason: string }>(a, `select finish_reason from sessions where id = $1`, [s.id]))[0].finish_reason).toBe('replaced');
+    const r = await send(a, late);
+    expect(r.rejected).toEqual([]);
+    expect(r.replaced).toEqual([]);
+    const [h] = await db.as<{ status: string; finish_reason: string; source_kind: string; campaign_day_id: string | null }>(a,
+      `select status, finish_reason, source_kind, campaign_day_id from sessions where id = $1`, [s.id]);
+    expect(h).toEqual({ status: 'finished', finish_reason: 'user', source_kind: 'campaign_day', campaign_day_id: day });
+    const states = await db.as<{ exercise_name_then: string; state: string }>(a,
+      `select exercise_name_then, state from session_exercises where session_id = $1 order by exercise_name_then`, [s.id]);
+    // As the phone finished it: Bench done, Curl never started so Skipped (not Replaced).
+    expect(states).toEqual([{ exercise_name_then: 'Barbell Bench Press', state: 'done' }, { exercise_name_then: 'Barbell Curl', state: 'skipped' }]);
+  });
+
+  it('a workout the phone carried on with after the Accept stays replaced, even once finished there', async () => {
+    let s = await midWorkout();
+    expect((await decide(a, await card(a), true)).ok).toBe(true);
+    const late: NewChange[] = [];
+    const step = (next: Session) => { late.push(...sessionChanges(s, next)); s = next; };
+    step(logSet(s, lbSet(150), {}, Date.now() + 30000).session);
+    step(finishSession(s, Date.now() + 60000, 'user'));
+    const r = await send(a, late);
+    expect(r.replaced).toEqual([s.id]);
+    const [h] = await db.as<{ status: string; finish_reason: string; campaign_day_id: string | null }>(a,
+      `select status, finish_reason, campaign_day_id from sessions where id = $1`, [s.id]);
+    expect(h).toEqual({ status: 'finished', finish_reason: 'replaced', campaign_day_id: null });
+    // The third set is kept.
+    const n = await db.as<{ n: number }>(a, `select count(*)::int as n from set_logs l join session_exercises se on se.id = l.session_exercise_id where se.session_id = $1 and l.deleted_at is null`, [s.id]);
+    expect(n[0].n).toBe(3);
   });
 });

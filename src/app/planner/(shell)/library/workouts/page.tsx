@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { browserClient } from '@/lib/supabase/browser';
-import { copyName, moveRow, removeRow, startSuperset, rowBudget, setRowSets, setRowSuperset, workoutProblems, type WorkoutRow } from '@/rules/planner';
+import { copyName, daySetsForSupersets, moveRow, removeRow, startSuperset, rowBudget, setRowSets, setRowSuperset, workoutProblems, type WorkoutRow } from '@/rules/planner';
 import { mmss } from '@/rules/workout';
 import { plainError, usePlanner } from '../../../planner-data';
 import { NumCell, TextCell } from '../../../fields';
@@ -28,25 +28,30 @@ export default function Workouts() {
   const pickable = data.exercises.filter((e) => !e.archived_at);
   const usedBy = (id: string) => data.days.filter((d) => d.workout_id === id).length;
 
-  /** Writes the whole list of rows in one request, so the database sees a finished superset, never a half-changed one. */
-  async function save(next: WorkoutRow[], removed: string[] = []) {
+  /**
+   * Writes the whole list of rows in one step, with any day overrides that keep
+   * each campaign day's supersets even (an exercise joining a superset takes its
+   * set count on every day too), so the database sees a finished superset,
+   * never a half-changed one, and keeps nothing if a check fails.
+   */
+  async function save(next: WorkoutRow[], removed: string[] = [], startedBy: string | null = null) {
     if (!w) return;
     const problems = workoutProblems(next);
     if (problems.length) { setMsg(problems[0]); return; }
     setMsg('');
-    // A row being removed first leaves its superset, in the same request, so the database never sees a superset of one.
+    // A row being removed first leaves its superset, in the same step, so the database never sees a superset of one.
     const leaving = rows.filter((r) => removed.includes(r.id)).map((r) => ({ ...r, superset: null }));
-    const upsert = [...next, ...leaving].map((r, i) => ({
-      id: r.id, user_id: data.userId, workout_id: w.id, position: i, exercise_id: r.exerciseId, sets: r.sets, reps: r.reps, rest_seconds: r.rest, superset_letter: r.superset,
+    const items = [...next, ...leaving].map((r, i) => ({
+      id: r.id, position: i, exercise_id: r.exerciseId, sets: r.sets, reps: r.reps, rest_seconds: r.rest, superset_letter: r.superset,
     }));
-    if (upsert.length) {
-      const r = await sb.from('workout_items').upsert(upsert, { onConflict: 'id' });
-      if (r.error) { setMsg(plainError(r.error.message)); await reload(); return; }
-    }
-    if (removed.length) {
-      const r = await sb.from('workout_items').delete().in('id', removed);
-      if (r.error) setMsg(plainError(r.error.message));
-    }
+    const dayIds = data.days.filter((d) => d.workout_id === w.id).map((d) => d.id);
+    const daySets = daySetsForSupersets(rows, next, dayIds,
+      data.overrides.map((o) => ({ campaignDayId: o.campaign_day_id, workoutItemId: o.workout_item_id, sets: o.sets })), startedBy);
+    const r = await sb.rpc('save_workout', {
+      p_workout: w.id, p_items: items, p_removed: removed,
+      p_day_sets: daySets.map((d) => ({ campaign_day_id: d.campaignDayId, workout_item_id: d.workoutItemId, sets: d.sets })),
+    });
+    if (r.error) setMsg(plainError(r.error.message));
     await reload();
   }
   const patch = (i: number, p: Partial<WorkoutRow>) => save(rows.map((r, k) => (k === i ? { ...r, ...p } : r)));
@@ -134,7 +139,7 @@ export default function Workouts() {
                           <select aria-label={`Superset letter of row ${i + 1}`} value={r.superset ?? ''} onChange={(e) => {
                             const res = e.target.value === '__new' ? startSuperset(rows, i) : setRowSuperset(rows, i, e.target.value || null);
                             if (res.problem) { setMsg(res.problem); return; }
-                            void save(res.rows);
+                            void save(res.rows, [], r.id);
                           }}>
                             <option value="">None</option>
                             {[...new Set(rows.map((x) => x.superset).filter(Boolean) as string[])].map((l) => <option key={l} value={l}>{l}</option>)}

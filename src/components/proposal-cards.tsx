@@ -2,8 +2,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '@/lib/supabase/browser';
-import { cardsChanged, decisionMessage, INBOX_CHECK_MS, type DecideAnswer } from '@/rules/inbox';
-import { dropLocalCopyOf } from '@/lib/phone-store';
+import { cardsChanged, decisionMessage, INBOX_CHECK_MS, sendWaitingFirst, UNSAVED_BEFORE_ACCEPT, type DecideAnswer } from '@/rules/inbox';
+import { dropLocalCopyOf, outboxFor } from '@/lib/phone-store';
 
 // The inbox card for a day sent from the planner (spec Sections 5 and 10;
 // built in Phase 3 for this one kind, Nate 20 Nov; Phase 4 adds the coach's
@@ -55,6 +55,13 @@ export function ProposalCards({ onChange, className }: { onChange?: () => void; 
 
   async function decide(c: Card, accept: boolean) {
     setBusy(c.id); setMsg('');
+    const { data: who } = await sb.auth.getUser();
+    const me = who.user?.id ?? null;
+    // Accept may replace the workout this phone is doing: send what the phone has waiting first.
+    if (accept && !(await sendWaitingFirst(me ? outboxFor(me) : null))) {
+      setBusy(''); setMsg(UNSAVED_BEFORE_ACCEPT);
+      return;
+    }
     const r = await sb.rpc('decide_planner_proposal', { p_proposal: c.id, p_accept: accept });
     setBusy('');
     if (r.error) setMsg(`Not ${accept ? 'accepted' : 'dismissed'}. ${r.error.message}`);
@@ -62,10 +69,7 @@ export function ProposalCards({ onChange, className }: { onChange?: () => void; 
       const answer = r.data as DecideAnswer | null;
       setMsg(decisionMessage(answer, accept, c.payload.workout_name).text);
       // A workout running on this phone was saved and replaced: forget this phone's copy of it now.
-      if (answer?.ok && answer.replaced_session_id) {
-        const { data } = await sb.auth.getUser();
-        if (data.user) dropLocalCopyOf(data.user.id, answer.replaced_session_id);
-      }
+      if (answer?.ok && answer.replaced_session_id && me) dropLocalCopyOf(me, answer.replaced_session_id);
     }
     await load();
     onChange?.();
