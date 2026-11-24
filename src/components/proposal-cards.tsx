@@ -1,7 +1,8 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '@/lib/supabase/browser';
+import { cardsChanged, INBOX_CHECK_MS } from '@/rules/inbox';
 
 // The inbox card for a day sent from the planner (spec Sections 5 and 10;
 // built in Phase 3 for this one kind, Nate 20 Nov; Phase 4 adds the coach's
@@ -19,12 +20,37 @@ export function ProposalCards({ onChange, className }: { onChange?: () => void; 
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState('');
 
+  const seen = useRef<string[] | null>(null);
+
   const load = useCallback(async () => {
     const r = await sb.from('proposals').select('id, summary_lines, created_at, expires_at, payload').eq('status', 'pending').eq('source', 'planner').order('created_at', { ascending: false });
+    if (r.error) return; // no connection: keep what is shown, and look again later
     const now = Date.now();
-    setCards(((r.data ?? []) as Card[]).filter((c) => !c.expires_at || Date.parse(c.expires_at) > now));
-  }, [sb]);
-  useEffect(() => { void load(); }, [load]);
+    const next = ((r.data ?? []) as Card[]).filter((c) => !c.expires_at || Date.parse(c.expires_at) > now);
+    const ids = next.map((c) => c.id);
+    // A card came or went elsewhere (sent from the planner, or decided on another
+    // screen): read the page again too, so Today shows what is planned now.
+    if (cardsChanged(seen.current, ids)) router.refresh();
+    seen.current = ids;
+    setCards(next);
+  }, [sb, router]);
+
+  // Look when the screen opens, whenever it comes back into view (switching back
+  // to the app, unlocking the phone), and every 30 seconds while it is on screen.
+  useEffect(() => {
+    void load();
+    const again = () => { if (document.visibilityState === 'visible') void load(); };
+    document.addEventListener('visibilitychange', again);
+    window.addEventListener('focus', again);
+    window.addEventListener('pageshow', again);
+    const timer = setInterval(again, INBOX_CHECK_MS);
+    return () => {
+      document.removeEventListener('visibilitychange', again);
+      window.removeEventListener('focus', again);
+      window.removeEventListener('pageshow', again);
+      clearInterval(timer);
+    };
+  }, [load]);
 
   async function decide(c: Card, accept: boolean) {
     setBusy(c.id); setMsg('');
