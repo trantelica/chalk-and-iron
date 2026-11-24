@@ -297,10 +297,12 @@ When a day is sent from the planner and today already has a workout, it arrives 
 
 **Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
 
-1. [ ] [`20261120000100_decide_planner_proposal.sql`](https://github.com/trantelica/chalk-and-iron/blob/decide-planner-proposal/supabase/migrations/20261120000100_decide_planner_proposal.sql) (this link shows the file on its branch, before the merge). It should end with "Success. No rows returned". Safe to run more than once.
-2. [ ] To check: in a new query, paste `select count(*) from pg_proc where proname = 'decide_planner_proposal';` and click **Run**. It shows **1**.
+1. [x] [`20261120000100_decide_planner_proposal.sql`](https://github.com/trantelica/chalk-and-iron/blob/decide-planner-proposal/supabase/migrations/20261120000100_decide_planner_proposal.sql) (this link shows the file on its branch, before the merge). It should end with "Success. No rows returned". Safe to run more than once.
+2. [x] To check: in a new query, paste `select count(*) from pg_proc where proname = 'decide_planner_proposal';` and click **Run**. It shows **1**.
 
 The iPhone checks for Accept and Dismiss come with the planner's inbox card, once both pull requests are merged.
+
+**Done:** Nate ran the file before pull request 36 was merged (20 November 2026).
 
 ## 12. Phase 3: Plan, History and sending a day to the phone (20 November 2026)
 
@@ -329,9 +331,11 @@ From Nate's notes on step T. **No SQL to run.**
 
 Open https://chalkandiron.vercel.app/planner (reload with Cmd+Shift+R if it looks unchanged).
 
-1. [ ] **Saving is clear.** At the top, between **Planner** and **Weights in**, a line reads "Changes save as you make them". Under **Library**, **Workouts**, change **Reps** on a row and press Enter: the line says "Saving…", then "All changes saved" with the time, and a small tick shows beside the box for a moment. Rename an exercise under **Exercises**: the same.
-2. [ ] **Presses show.** Press and hold any button (in the planner, and on the phone's Home and workout screens): it dims and gets a coloured ring while held. Nothing moves.
-3. [ ] **Lined up.** In **Workouts**, each row's exercise, **Details**, sets, reps, rest, superset and the **↑ ↓ Remove** buttons sit on one line, with nothing cut off at the right. In **Campaigns**, the Name, Start date and Weeks boxes line up along their bottom edge.
+1. [x] **Saving is clear.** At the top, between **Planner** and **Weights in**, a line reads "Changes save as you make them". Under **Library**, **Workouts**, change **Reps** on a row and press Enter: the line says "Saving…", then "All changes saved" with the time, and a small tick shows beside the box for a moment. Rename an exercise under **Exercises**: the same.
+2. [x] **Presses show.** Press and hold any button (in the planner, and on the phone's Home and workout screens): it dims and gets a coloured ring while held. Nothing moves.
+3. [x] **Lined up.** In **Workouts**, each row's exercise, **Details**, sets, reps, rest, superset and the **↑ ↓ Remove** buttons sit on one line, with nothing cut off at the right. In **Campaigns**, the Name, Start date and Weeks boxes line up along their bottom edge.
+
+**Result: all three passed and were clear, Nate, 23 November 2026.**
 
 ## 14. Inbox above Today, and easier History editing (21 November 2026)
 
@@ -340,9 +344,11 @@ From Nate's notes on step V. **No SQL to run.**
 ### X. On your iPhone and in your computer's browser, after the merge
 
 1. [ ] **Inbox.** In the planner's **Plan**, send a day when today already has a workout. On the iPhone Home, an **Inbox · 1 waiting** panel with an orange border sits at the top, above **Today**, with the card's **Accept** and **Dismiss**. Press **Dismiss**: the panel goes away and nothing else changes.
-2. [ ] **History list.** In the planner open **History**. It shows the 10 latest sessions, with **Show 10 more** below when there are more.
-3. [ ] **Open under the row.** Click anywhere on a session's row. Its exercises and sets open right under that row. Click the row again to close it.
-4. [ ] **Edit a set.** Each set reads like "Set 1 · 180 lb × 8 · Working" with an **Edit** button. Press **Edit**: that one set turns into boxes with **Save**, **Cancel** and **Delete set**. Change the reps, press **Save**; the set goes back to plain text with the new reps. Press **Edit** then **Cancel**: nothing changes.
+2. [x] **History list.** In the planner open **History**. It shows the 10 latest sessions, with **Show 10 more** below when there are more.
+3. [x] **Open under the row.** Click anywhere on a session's row. Its exercises and sets open right under that row. Click the row again to close it.
+4. [x] **Edit a set.** Each set reads like "Set 1 · 180 lb × 8 · Working" with an **Edit** button. Press **Edit**: that one set turns into boxes with **Save**, **Cancel** and **Delete set**. Change the reps, press **Save**; the set goes back to plain text with the new reps. Press **Edit** then **Cancel**: nothing changes.
+
+**Result, 23 November 2026:** items 2, 3 and 4 passed. Item 1 to retry: the card appears only after pressing **Send to phone as today's workout** in **Plan** while today already has a workout; giving today a workout in **Campaigns** makes it today's plan directly, with no card, which is what Nate saw.
 
 ## 15. Running a campaign again (21 November 2026)
 
