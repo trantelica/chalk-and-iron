@@ -360,6 +360,8 @@ From Nate's notes on step V. **No SQL to run.**
 2. [ ] Press **Run again** and confirm. The campaign shows **active**, with the same days, and no second copy appears in the campaign list. If another campaign was active, you were asked first and it now shows **finished**.
 3. [ ] On the iPhone Home, the week strip shows this campaign. Days you did in its last run do **not** show Done.
 
+**Not run on Nate's devices (agreed by Nate, 23 November 2026):** the agent checked it in a local browser with test data, and the automated tests cover the rest. Nate will report anything that looks off in normal use.
+
 ## 16. The phone's Home notices a new card by itself (23 November 2026)
 
 From Nate's note on step X: the card showed only after leaving Home and coming back. **No SQL to run.**
@@ -370,3 +372,4 @@ From Nate's note on step X: the card showed only after leaving Home and coming b
 2. [ ] Lock the phone, send another day from the planner, then unlock it: the new card is there as soon as Home shows.
 3. [ ] Press **Accept**: **Today** shows the new day straight away.
 
+**Not run on Nate's devices (agreed by Nate, 23 November 2026):** the agent checked item 1 in a local browser with test data. Items 2 and 3 depend on the iPhone; Nate will report anything that looks off in normal use.
