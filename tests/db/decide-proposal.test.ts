@@ -6,7 +6,7 @@
 // reopen or overwrite it.
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { makeDb, type Db } from './harness';
-import { addExercise, finishSession, logSet, startExercise, startSession, swapExercise, type PlanItem, type Session } from '@/rules/session';
+import { addExercise, finishSession, goTo, logSet, startExercise, startSession, swapExercise, type PlanItem, type Session } from '@/rules/session';
 import { restChange, sessionChanges, type NewChange, type SyncAnswer } from '@/rules/sync';
 import { planItems, planName } from '@/rules/today';
 
@@ -423,7 +423,7 @@ describe('late changes from the phone after a split', () => {
     expect(await db.as(a, `select id from sessions where status = 'active'`)).toEqual([]);
   });
 
-  it('the late copy keeps the time the clocks had run: each stops at the account\'s end, never below what the account had', async () => {
+  it('the late copy keeps the time the clocks had run, never below what the account had', async () => {
     let s = await midWorkout(); // bench's block ran 3 minutes to the last logged set, and is still running on the phone
     const curl = Object.values(s.exercises).find((e) => e.exerciseId === ex['Barbell Curl'])!.key;
     const benchBlock = s.blocks.find((x) => !x.members.includes(curl))!.id;
@@ -431,14 +431,45 @@ describe('late changes from the phone after a split', () => {
     const at = async () => Number((await db.as<{ b: string }>(a, `select clock_banked_seconds as b from session_blocks where id = $1`, [benchBlock]))[0].b);
     expect(await at()).toBe(180);
     // The phone's late copy: only a swap of Curl, its bench clock still running (less banked than the account).
+    // A swap is not a step of the workout, so the phone's last step is still the set at 4:00, the account's end.
     const r = await send(a, sessionChanges(s, swapExercise(s, curl, plan(['Dumbbell Lateral Raise'])[0], noSeed, T0 + 300000)));
     expect(r.rejected).toEqual([]);
     expect(await at()).toBe(180);
     expect(await db.as(a, `select id from session_blocks where session_id = $1 and clock_running_since is not null`, [s.id])).toEqual([]);
-    // A later copy where the phone's clock had run further before the end banks that too, up to the end only.
+    // A later copy where the phone's clock had banked more keeps that too.
     s = { ...s, blocks: s.blocks.map((x) => (x.id === benchBlock ? { ...x, clock: { banked: 200, since: null } } : x)) };
     expect((await send(a, sessionChanges(null, s))).rejected).toEqual([]);
     expect(await at()).toBe(200);
+  });
+
+  it('work done with no signal after the account ended the workout keeps its time (second fix check, 24 Nov)', async () => {
+    let s = await midWorkout(); // the account last heard from the phone at 4:00
+    const curl = Object.values(s.exercises).find((e) => e.exerciseId === ex['Barbell Curl'])!.key;
+    const benchBlock = s.blocks.find((x) => !x.members.includes(curl))!.id;
+    const curlBlock = s.blocks.find((x) => x.members.includes(curl))!.id;
+    const late: NewChange[] = [];
+    const step = (next: Session) => { late.push(...sessionChanges(s, next)); s = next; };
+    // No signal: on to Curl at 5:00, started at 5:10, two sets by 7:00. The clock is still running when the signal comes back.
+    step(goTo(s, curlBlock, T0 + 300000));
+    step(startExercise(s, T0 + 310000));
+    step(logSet(s, lbSet(60, 12), {}, T0 + 360000).session);
+    step(logSet(s, lbSet(60, 12), {}, T0 + 420000).session);
+    // Meanwhile the sent day is accepted on another device.
+    expect((await decide(a, await card(a), true)).ok).toBe(true);
+    const r = await send(a, late);
+    expect(r.rejected).toEqual([]);
+    expect(r.replaced).toEqual([s.id]);
+    const rows = await db.as<{ id: string; b: string; stopped: string }>(a,
+      `select id, clock_banked_seconds as b, clock_stopped_at as stopped from session_blocks where session_id = $1`, [s.id]);
+    const of = (id: string) => rows.find((x) => x.id === id)!;
+    // Curl's clock ran from 5:10 to the last set at 7:00, not nothing; bench's to the move at 5:00.
+    expect(Number(of(curlBlock).b)).toBe(110);
+    expect(new Date(of(curlBlock).stopped).getTime()).toBe(T0 + 420000);
+    expect(Number(of(benchBlock).b)).toBe(240);
+    // The workout itself stays as the account ended it.
+    const [h] = await db.as<{ ended_at: string; finish_reason: string }>(a, `select ended_at, finish_reason from sessions where id = $1`, [s.id]);
+    expect(new Date(h.ended_at).getTime()).toBe(T0 + 240000);
+    expect(h.finish_reason).toBe('replaced');
   });
 
   it('a workout the phone finished with no signal before the Accept is put back as finished, on its campaign day', async () => {
