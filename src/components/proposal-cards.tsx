@@ -2,7 +2,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { browserClient } from '@/lib/supabase/browser';
-import { cardsChanged, INBOX_CHECK_MS } from '@/rules/inbox';
+import { cardsChanged, decisionMessage, INBOX_CHECK_MS, type DecideAnswer } from '@/rules/inbox';
+import { dropLocalCopyOf } from '@/lib/phone-store';
 
 // The inbox card for a day sent from the planner (spec Sections 5 and 10;
 // built in Phase 3 for this one kind, Nate 20 Nov; Phase 4 adds the coach's
@@ -56,8 +57,16 @@ export function ProposalCards({ onChange, className }: { onChange?: () => void; 
     setBusy(c.id); setMsg('');
     const r = await sb.rpc('decide_planner_proposal', { p_proposal: c.id, p_accept: accept });
     setBusy('');
-    if (r.error) setMsg(r.error.message);
-    else setMsg(accept ? `Accepted. ${c.payload.workout_name ?? 'The day'} is today's workout. Your library and campaign are unchanged.` : 'Dismissed. Nothing changed.');
+    if (r.error) setMsg(`Not ${accept ? 'accepted' : 'dismissed'}. ${r.error.message}`);
+    else {
+      const answer = r.data as DecideAnswer | null;
+      setMsg(decisionMessage(answer, accept, c.payload.workout_name).text);
+      // A workout running on this phone was saved and replaced: forget this phone's copy of it now.
+      if (answer?.ok && answer.replaced_session_id) {
+        const { data } = await sb.auth.getUser();
+        if (data.user) dropLocalCopyOf(data.user.id, answer.replaced_session_id);
+      }
+    }
     await load();
     onChange?.();
     router.refresh();

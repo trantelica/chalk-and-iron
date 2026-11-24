@@ -82,6 +82,21 @@ export function setRowSuperset<T extends { sets: number; superset: string | null
   return { rows: rows.map((r, i) => (i === index ? { ...r, superset: letter, sets } : r)), problem: null };
 }
 
+/**
+ * Starts a new superset from one row (review finding 1, 23 Nov): a superset of
+ * one cannot be saved, so the row is paired at once with a partner, the next
+ * row not already in a superset (or else the one before), which takes its set
+ * count. The person can then change either row's letter or add a third.
+ */
+export function startSuperset<T extends { sets: number; superset: string | null }>(rows: T[], index: number): { rows: T[]; problem: string | null } {
+  const free = (i: number) => i >= 0 && i < rows.length && i !== index && !rows[i].superset;
+  const partner = free(index + 1) ? index + 1 : free(index - 1) ? index - 1 : rows.findIndex((_, i) => free(i));
+  if (partner < 0) return { rows, problem: 'A new superset needs a second exercise that is not already in one. Add one first.' };
+  const letter = nextSupersetLetter(rows);
+  const sets = rows[index].sets;
+  return { rows: rows.map((r, i) => (i === index ? { ...r, superset: letter } : i === partner ? { ...r, superset: letter, sets } : r)), problem: null };
+}
+
 /** Problems that stop a workout being saved: every superset holds two or three with equal sets. */
 export function workoutProblems(rows: { sets: number; superset: string | null }[]): string[] {
   return supersetProblems(rows.map((r) => ({ sets: r.sets, superset: r.superset })));
@@ -279,6 +294,11 @@ export function viewWeight(lb: number, view: ViewUnit): string {
   const text = Number.isInteger(n) ? String(n) : view === 'lb' ? String(n) : n.toFixed(1).replace(/\.0$/, '');
   return `${text} ${view}`;
 }
+
+/** The heaviest weight a day may plan: the same limit the account checks when a sent day is accepted (review finding 6). */
+export const MAX_PLAN_LB = 2000;
+/** That limit in the view unit, rounded down. */
+export const maxPlanWeight = (view: ViewUnit): number => (view === 'lb' ? MAX_PLAN_LB : Math.floor(MAX_PLAN_LB * KG_PER_LB));
 
 /** Pounds from what was typed in the view unit. */
 export function typedToPounds(value: number, view: ViewUnit): number {

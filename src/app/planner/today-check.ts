@@ -13,10 +13,12 @@ export async function todayState(sb: SupabaseClient, data: Data, date: string): 
   workoutName: string | null; running: string | null; pendingCards: number;
 }> {
   const monday = mondayOf(date);
-  const [plans, sess, pend] = await Promise.all([
+  const [plans, sess, pend, live] = await Promise.all([
     sb.from('today_plans').select('id, local_date, workout_id, campaign_day_id, plan, consumed_at, created_at').eq('local_date', date).is('consumed_at', null),
-    sb.from('sessions').select('id, local_date, status, campaign_day_id, workout_name').gte('local_date', monday).lte('local_date', addDays(monday, 6)),
+    sb.from('sessions').select('id, local_date, status, campaign_day_id, workout_name, finish_reason').gte('local_date', monday).lte('local_date', addDays(monday, 6)),
     sb.from('proposals').select('payload, expires_at').eq('status', 'pending').eq('source', 'planner'),
+    // A workout still running, whenever it started (one left on past Monday 3:00 am counts too; review finding 8).
+    sb.from('sessions').select('workout_name').eq('status', 'active').limit(1),
   ]);
   const sessions = (sess.data ?? []) as TodayInput['sessions'];
   const view = todayView({
@@ -30,7 +32,7 @@ export async function todayState(sb: SupabaseClient, data: Data, date: string): 
     todayPlans: (plans.data ?? []) as TodayInput['todayPlans'],
     sessions,
   });
-  const running = sessions.find((s) => s.status === 'active')?.workout_name ?? null;
+  const running = ((live.data ?? []) as { workout_name: string }[])[0]?.workout_name ?? null;
   const today = new Date();
   const waiting = ((pend.data ?? []) as { payload: { local_date?: string } | null; expires_at: string | null }[])
     .filter((p) => (!p.expires_at || Date.parse(p.expires_at) > today.getTime()) && p.payload?.local_date === date).length;

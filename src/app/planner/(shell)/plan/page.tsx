@@ -4,7 +4,7 @@ import { browserClient } from '@/lib/supabase/browser';
 import { trainingDay, nextRollover } from '@/rules/days';
 import { mmss } from '@/rules/workout';
 import {
-  dateOfCampaignDay, effectiveRows, overrideChange, overridesAny, planFromRows, rowBudget, sendSummary, typedToPounds, viewWeight,
+  dateOfCampaignDay, effectiveRows, maxPlanWeight, overrideChange, overridesAny, planFromRows, rowBudget, sendSummary, typedToPounds, viewWeight,
   type OverrideField, type OverrideRow, type WorkoutRow,
 } from '@/rules/planner';
 import { fromPounds } from '@/rules/units';
@@ -162,7 +162,7 @@ export default function Plan() {
                           </td>
                           <td>
                             {bwEx ? <span className="muted">BW</span> : (
-                              <NumCell value={shown} blank label={`Weight of row ${i + 1} this day in ${view}`} min={0} max={5000} step={0.5} width={80} placeholder="last weight"
+                              <NumCell value={shown} blank label={`Weight of row ${i + 1} this day in ${view}`} min={0} max={maxPlanWeight(view)} step={0.5} width={80} placeholder="last weight"
                                 onSave={(v) => change(r.id, 'weight', v === null ? null : { lb: typedToPounds(v, view), value: v, unit: view })} />
                             )}
                             {r.library.weight && r.weightLb !== null && <div className="override-note">{viewWeight(r.weightLb, view)} (library: last weight used)</div>}

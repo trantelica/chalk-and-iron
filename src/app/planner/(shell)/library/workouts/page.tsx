@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { browserClient } from '@/lib/supabase/browser';
-import { copyName, moveRow, nextSupersetLetter, removeRow, rowBudget, setRowSets, setRowSuperset, workoutProblems, type WorkoutRow } from '@/rules/planner';
+import { copyName, moveRow, removeRow, startSuperset, rowBudget, setRowSets, setRowSuperset, workoutProblems, type WorkoutRow } from '@/rules/planner';
 import { mmss } from '@/rules/workout';
 import { plainError, usePlanner } from '../../../planner-data';
 import { NumCell, TextCell } from '../../../fields';
@@ -132,14 +132,13 @@ export default function Workouts() {
                         <td><NumCell value={r.rest} blank placeholder={ex ? String(ex.rest_seconds) : ''} label={`Rest of row ${i + 1}, blank uses the exercise's rest`} min={0} max={600} onSave={(v) => patch(i, { rest: v })} /></td>
                         <td>
                           <select aria-label={`Superset letter of row ${i + 1}`} value={r.superset ?? ''} onChange={(e) => {
-                            const v = e.target.value === '__new' ? nextSupersetLetter(rows) : e.target.value || null;
-                            const res = setRowSuperset(rows, i, v);
+                            const res = e.target.value === '__new' ? startSuperset(rows, i) : setRowSuperset(rows, i, e.target.value || null);
                             if (res.problem) { setMsg(res.problem); return; }
                             void save(res.rows);
                           }}>
                             <option value="">None</option>
                             {[...new Set(rows.map((x) => x.superset).filter(Boolean) as string[])].map((l) => <option key={l} value={l}>{l}</option>)}
-                            <option value="__new">New superset…</option>
+                            <option value="__new">New superset with the next exercise</option>
                           </select>
                           {r.superset && members < 2 && <div className="muted">needs a partner</div>}
                         </td>
