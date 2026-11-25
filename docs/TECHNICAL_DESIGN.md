@@ -8,7 +8,7 @@ This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md`. W
 
 Written by Fable 5.2 on 16 November 2026, as `docs/MODEL_AND_EFFORT.md` sets out. Any later revision is done on Opus 5.5 at high effort.
 
-Both revisions of 17 November 2026 were done on Opus 5.5 at high effort. Section 10E, added during Phase 1 on 17 November 2026, records what the Phase 1 sign-in research found.
+Both revisions of 17 November 2026 were done on Opus 5.5 at high effort. Section 10E, added during Phase 1 on 17 November 2026, records what the Phase 1 sign-in research found. On 24 November 2026 (Opus 5.5) Nate's Phase 4 decisions were added: the coach intake on the coach profile, an optional decline reason, the campaign's last-week note on Home, and weekly check-in marks; with them, what the connector tells the coach (Section 3), the coach behaviour evals (Section 9) and the Phase 4 stages (Section 11).
 
 **Status is not kept here.** What is being built now is in `docs/NEXT.md`, and what was done and decided, by date, is in `docs/LOG.md`. This document keeps the design, its findings and Nate's decisions about it.
 
@@ -114,7 +114,18 @@ These are the choices in this design that cost money, add an account, or change 
 | setup_done | list of text | Which walkthrough steps are finished |
 | delete_requested_at | timestamp or empty | Starts the 14-day grace period |
 
-**coach_profiles**. One row per user: `goals`, `injuries_and_limits`, `weekly_schedule`, `notes` (all text), `version`.
+**coach_profiles**. One row per user: `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`, `version`, and the coach intake (added 24 Nov; spec Section 4, "Coach intake"; every field may be empty):
+
+| Field | Type |
+|---|---|
+| coach_style | 'supportive', 'challenging' or 'neutral' |
+| experience | 'new', 'returning', 'intermediate', 'experienced' or 'all_in' |
+| priorities | Up to three, in rank order. Each is one of 'strength', 'muscle', 'fat_loss', 'general_fitness', 'endurance', 'mobility', 'sport', 'habit', or 'other' with its own text (up to 100 characters). No value twice except 'other' |
+| progression_pace | 'steady', 'moderate' or 'aggressive' |
+| workout_minutes | 10 to 240 |
+| days_per_week | 1 to 7 |
+| variety | 'familiar', 'some' or 'lots' |
+| exercises_liked, exercises_to_avoid, how_to_coach_me | text, up to 2,000 characters each |
 
 **gyms**: `name`, `equipment` (list of text), `notes`, `is_default`, `archived_at`, `version`. The database allows only one default gym per user. The equipment list is free text, not picked from the equipment vocabulary, because gyms have things the vocabulary does not, such as a rower (decided 17 Nov, question 25).
 
@@ -362,11 +373,14 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 | status | 'pending', 'accepted', 'rejected', 'out_of_date' or 'expired' | The five states, all visible to the coach (decided 17 Nov, question 4). See Section 5 |
 | expires_at | timestamp or empty | Set for today proposals: the next 3:00 am day rollover in the user's time zone (decided 17 Nov, question 24) |
 | created_at, decided_at | timestamps | |
+| decline_reason | text or empty | An optional line, up to 300 characters, the user may give when declining a coach's card (Nate, 24 Nov). The coach reads it through `get_proposal_status` and `list_proposals` |
 | result | structured data or empty | What was created on Accept, including the ids of any bundled new exercises and workouts |
 
 **proposal_targets**. One row per existing record a proposal would change: `proposal_id`, `record_kind`, `record_id`, `version_seen`. When the user edits a record, any pending proposal that targets it is marked out of date. The phone's lb/kg switch is not an edit to the exercise, so it never does this.
 
 **connector_calls**. A short log of connector use: `client_name`, `tool`, `ok`, `called_at`. No content is stored. It powers the "connection test" on the Coach setup page and a "last used" line in settings.
+
+**weekly_checkins** (added 24 Nov). One row per user and week: `week_start` (a Monday) and `first_read_at`. Added the first time a coach reads that week's summary through `get_weekly_summary`, at any time, through the guarded step `record_weekly_checkin` (Section 3). It is kept as long as the account, unlike the short call log. Home marks those weeks, and "check-ins in a row" counts back from the most recent full week, unbroken.
 
 ### Housekeeping
 
@@ -413,7 +427,7 @@ Validation errors are returned to the coach before anything reaches the inbox, a
 
 | Tool | Inputs | Returns | Errors |
 |---|---|---|---|
-| get_profile | None | Display name, goals, injuries and limits, weekly schedule, notes, totals unit, time zone, today's date, default gym (id and name) | not_signed_in |
+| get_profile | None | Display name, goals, injuries and limits, weekly schedule, notes, the coach intake (coach style, experience, priorities in rank order, progression pace, workout minutes, days per week, variety, exercises liked, exercises to avoid, how to coach me), totals unit, time zone, today's date, default gym (id and name) | not_signed_in |
 | list_gyms | None | Each gym: id, name, equipment list, notes, default flag | not_signed_in |
 | get_vocabulary | None | Muscle groups, each with its focus values. Equipment values. Allowed units and set types | not_signed_in |
 | list_exercises | Optional: `muscle_group`, `equipment`, `search`, `include_archived`, `next` | Each exercise with every field: id, name, muscle group, focus, equipment, default unit, work seconds, rest seconds, note, the alternates, archived flag, and an incomplete flag naming any empty fields (question 16) | invalid_input |
@@ -423,10 +437,10 @@ Validation errors are returned to the coach before anything reaches the inbox, a
 | get_campaign | Optional: `campaign_id`. Without it, the active campaign | Name, status, start date, week count, end date, any shifts. Each day: date, workout, state (upcoming, done, missed or rest), overrides per item. Also a short list of draft campaigns by id and name | not_found. No active campaign is not an error: it returns none, with a sentence |
 | get_today | None | Today's date. What is planned, with overrides applied and last session's numbers per exercise. Any missed workouts still available. The live session if one is running: elapsed time, efficiency, volume, current exercise, each exercise's logged sets and Skipped or Replaced marks. Pending today proposals | not_signed_in |
 | list_sessions | Optional: `from`, `to`, `limit` (default 20), `next` | Per session: id, date, workout name, source, gym, duration, volume, efficiency, records set, and each exercise with its sets and Skipped marks | invalid_input |
-| get_proposal_status | `proposal_id` | Status (pending, accepted, rejected, out of date or expired), kind, created and decided times | not_found |
-| list_proposals | Optional: `status` (any of the five), `kind`, `from`, `to`, `limit` (default 20, most 100), `next` | Newest first. Per proposal: id, source (which coach app, or the planner), kind, what it applies to, summary lines, status, created, decided and expiry times | invalid_input |
+| get_proposal_status | `proposal_id` | Status (pending, accepted, rejected, out of date or expired), kind, created and decided times, and the decline reason if the user gave one | not_found |
+| list_proposals | Optional: `status` (any of the five), `kind`, `from`, `to`, `limit` (default 20, most 100), `next` | Newest first. Per proposal: id, source (which coach app, or the planner), kind, what it applies to, summary lines, status, created, decided and expiry times, decline reason | invalid_input |
 | list_cardio | Optional: `from`, `to` (default the last 12 weeks), `limit` (default 20, most 100), `next` | Newest first. Per entry: id, date, type, duration, distance and its unit, notes | invalid_input |
-| get_weekly_summary | Optional: `week_of` (any date in the week wanted). Without it, the most recent full week | The week's dates. Sessions done and planned days missed. For each session: the exercises with sets, reps and weights. Total volume, records set, efficiency. Cardio entries for the week | invalid_input |
+| get_weekly_summary | Optional: `week_of` (any date in the week wanted). Without it, the most recent full week | The week's dates. Sessions done and planned days missed. For each session: the exercises with sets, reps and weights. Total volume, records set, efficiency. Cardio entries for the week. Check-ins in a row, counted before this read is recorded | invalid_input |
 
 **The weekly summary goes through the coach.** The app cannot push anything to the user's LLM, because the app never calls an LLM (rule 1). So the summary is a read tool: the user asks their coach for the week, or sets their coach app to ask on a schedule, and the coach writes it up. For an accountability partner, the coach writes a version to share and the user sends it themselves. Whether a coach app's scheduled tasks can use a custom connector is not confirmed (Section 10C).
 
@@ -449,7 +463,7 @@ Every propose tool:
 | propose_workout | `workout` to edit, or leave out for new. `name`. `items` in order: `exercise`, `sets`, `reps`, optional `rest_seconds`, optional `superset` letter. Optional `new_exercises`: brand-new exercises with the same fields as `propose_exercise`, which the items can name (question 22) | Every exercise exists and is not archived, or is defined in `new_exercises`. Each new exercise passes every `propose_exercise` check, including the three alternates, and its name is not a near-duplicate of the library or of another new exercise in the proposal. Numbers in range. A superset letter is used by two or three rows, and every row sharing it has the same sets | not_found, invalid_input, unknown_vocabulary, near_duplicate_name |
 | propose_campaign | `campaign_id` to edit, or leave out for new. `name`, `start_date`, `week_count`. `days`: week, weekday (1 is Monday), a workout or rest, and optional overrides per item (exercise, sets, reps, weight, rest). Or `shift_forward_weeks: 1` on its own. Optional `new_exercises` and `new_workouts` (each shaped as in `propose_workout`), which days and overrides can name (question 22) | 1 to 6 weeks. Every workout and exercise exists, or is defined in the same proposal. Bundled new exercises and workouts pass the same checks as in `propose_exercise` and `propose_workout`. Each override names an item of that day's workout. No day's overrides give superset members different set counts | not_found, invalid_input, unknown_vocabulary, near_duplicate_name |
 | propose_today_change | `changes`, each with an `action` (swap, set_sets, set_reps, set_weight, set_rest, add, remove, reorder, break_superset), the exercise it applies to, and the new value. `break_superset` names the superset by its letter, or by any one of its members, and needs no value (question 41) | There is a workout today or a live session. Exercises exist in the library. It does not touch a set already logged. A `set_sets` on a superset member must be matched by the same `set_sets` on every other member, unless the same proposal breaks that superset first. `break_superset` names a superset that exists today and is not already broken | nothing_to_change, not_found, invalid_input |
-| propose_profile_update | Any of `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`. And or a `gym`: id to edit or none for new, `name`, `equipment`, `notes`, `make_default` | At least one change is present | not_found, invalid_input |
+| propose_profile_update | Any of `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`, and the intake fields (`coach_style`, `experience`, `priorities`, `progression_pace`, `workout_minutes`, `days_per_week`, `variety`, `exercises_liked`, `exercises_to_avoid`, `how_to_coach_me`), each checked against its allowed values. And or a `gym`: id to edit or none for new, `name`, `equipment`, `notes`, `make_default` | At least one change is present | not_found, invalid_input |
 
 **Bundled proposals** (decided 17 Nov, question 22). A workout or campaign proposal can bring its own new exercises (and, for a campaign, new workouts) in the same proposal, so a plan with new movements needs only one approval. One card lists everything, new exercises first, and one Accept applies all of it or none. "Unknown exercise" as an error now means not in the library and not defined in the same proposal. A today proposal cannot bundle new exercises; a swap or an add today names an exercise already in the library.
 
@@ -457,10 +471,20 @@ Every propose tool:
 
 A today proposal expires at the 3:00 am day rollover that ends its day (decided 17 Nov, question 24). A new campaign from an accepted proposal arrives as a draft, and the user activates it (question 21). A propose call repeated word for word within a minute returns the first proposal, so a coach app that retries does not fill the inbox with copies.
 
+### What the connector tells the coach (24 Nov)
+
+The coach behaviour brief (spec Section 4) reaches the coach in three places the connector controls, so every user's coach gets it without pasting anything:
+
+- **The connector's own instructions:** the short text MCP lets a connector give a coach app when it connects. It carries the brief in a few lines: you can only propose and nothing changes until the user accepts in the app; read before proposing; one request, one proposal; say it is waiting in the app; ask when unsure; take the tone and pace from `get_profile`. Whether ChatGPT and Claude pass this text to their model is to be confirmed (Section 10C); the tool descriptions carry the same rules either way.
+- **Each tool's description:** what it returns, plus the brief's rules that apply at that moment. `get_profile`: read it first, and the intake's coach style, pace and "how to coach me" set how to work. `get_weekly_summary`: the check-in (brief 3) and the pace check (brief 5). `list_proposals` and `get_proposal_status`: what to do after a decline (brief 4). Every propose tool: one line per change, bundle related changes, nothing changes until the user accepts, tell the user it is waiting. `propose_today_change`: propose straight away, today only. `propose_workout` and `propose_campaign`: ask first, bundle new exercises and workouts. `propose_profile_update`: the intake by conversation, and a pace change after a pace check.
+- **Error messages:** written to the coach, saying what is wrong and how to fix it, for example "A superset holds two or three exercises. Split these four into two supersets, or make one a single exercise."
+
+The descriptions live in one file in the connector, beside a list of the brief items each tool must carry. A code check fails a pull request when a description leaves out an item assigned to it, as the existing check does for the coach instructions and the tool list.
+
 ### What the connector may not do
 
 - It never calls out to any LLM or any other service. It only answers.
-- A coach sign-in can read the user's rows and add rows to `proposals` and `proposal_targets`. The database refuses every other write from a coach sign-in. Even a mistake in the connector's code cannot change a workout.
+- A coach sign-in can read the user's rows and add rows to `proposals` and `proposal_targets`, and can record a weekly check-in through one guarded step (`record_weekly_checkin`, for the signed-in user only; added 24 Nov). The database refuses every other write from a coach sign-in. Even a mistake in the connector's code cannot change a workout.
 - Applying a proposal happens only when the signed-in user taps Accept in the app.
 
 ---
@@ -613,7 +637,7 @@ The five states are decided (17 Nov, question 4), and the coach can see each one
 | Finished | Read. Copy into a new draft. Run again from a new start date (Nate, 21 Nov): the same campaign becomes active, its shifts are cleared, and another active campaign ends after a confirmation. Its sessions stay in History | Run again |
 
 - Weeks run Monday to Sunday. A campaign may start on any date, and week 1 is the week holding its start date (decided 17 Nov, question 19).
-- When the active campaign finishes, the app prompts the user to ask their coach for the next one. It does not repeat or extend.
+- When the active campaign finishes, the app prompts the user to ask their coach for the next one. It does not repeat or extend. During its last week (the week holding its end date), Home shows a note to ask the coach for the next one, with the Coach button (Nate, 24 Nov).
 - A day is **missed** when its date has passed with no session from it. Nothing moves. A missed workout stays available to start on a later day.
 - A day is **done** when a session that came from it exists, logged on or after the campaign's current start date (so a campaign run again starts with no day done; changed 21 Nov). The date it was logged within that run does not matter.
 
@@ -881,6 +905,14 @@ All automated tests run on every pull request. One of the code checks compares `
 | | A superset with members of different set counts, or with more than three members, is an error and never reaches the inbox | Connector, for workout, campaign and today proposals |
 | | One user's connector cannot reach another's data | Connector and Database, every tool and every table |
 | | No outgoing call to any LLM service | Code check: a scan for LLM libraries and addresses, plus a test that the server makes no outside calls beyond an allowed list (push notifications, and the email service if one is used) |
+| | Intake answers outside their lists, or more than three priorities, refused | Database, Connector, App |
+| | Decline with no reason, and with a reason up to 300 characters; longer refused | Database, App |
+| | The Coach button's count goes down after Accept or Decline; the banner after Accept | App |
+| | One check-in per week however often the summary is read; marks on Home; check-ins in a row | Database, Rules, App |
+| | The last-week note shows only in the week holding the campaign's end date | Rules, App |
+| | Tool descriptions carry their brief items; the coach instructions name every tool | Code checks |
+| | Coach setup completed unaided | **Device** |
+| Coach behaviour (evals) | Scenarios E1 to E19 | Agent pass and Nate's client pass (below) |
 | Theming | Switching skins moves and resizes nothing | App: record every element's position and size under each skin and compare |
 | | No color or font outside the token files | Code check |
 | | Reduced motion: no dust or shake | App, with reduced motion switched on |
@@ -888,6 +920,17 @@ All automated tests run on every pull request. One of the code checks compares `
 | | Offline set appears exactly once | App with the network off, then on (`tests/browser/offline.spec.ts`). Also Database: the same change sent twice, an answer lost, offline then online in order, delete wins, auto-finish, and each person's changes kept to their own rows (`tests/db/sync.test.ts`, and on Supabase's own local version `tests/supabase/sync.test.ts`) |
 | | Screen stays awake for a full session | **Device** |
 | Friends | A new user registers, installs and connects a coach unaided | **Device**, with a friend |
+
+### Coach behaviour evals (24 Nov)
+
+The spec's scenarios E1 to E19 (Section 8) test the coach, not the app's code, so they sit outside the automated tests. The app still never calls an LLM: in every eval a coach connects to the app exactly as a user's coach does.
+
+- **The eval account.** A separate account, so evals never put cards in Nate's real inbox: Nate's Phase 1 test account, named "Test Account", is reused for it (Nate, 25 Nov). Each reset replaces what is in it. A fixed starting data set is loaded into it: two gyms (a full home gym, and a hotel gym with dumbbells to 50 lb, a bench and bands), an intake filled in, eight weeks of history, an active campaign, and past proposals (one declined with a reason, one with none, one declined four weeks ago). Each scenario names the state it needs (for example "empty profile" or "campaign ends in five days"), and a reset puts the account into that state. How the data is loaded, without putting the project's secret key in the repository, is settled in stage 4A. The scenario prompts and states live in `tests/coach-evals/`.
+- **The agent pass.** An agent session adds the connector as its own coach connection, signs in to the eval account, takes the coach instructions as its instructions, and runs every scenario. It records the tool calls made and the reply, and scores each against Must and Must not. It runs on Sonnet 5.5 at medium effort, close to the coaches people use (`docs/MODEL_AND_EFFORT.md`). Whether an agent session can attach to the connector this way is to be confirmed (Section 10C).
+- **Nate's client pass.** The core set (★) in ChatGPT on his iPhone, and E2 and E4 in Claude, on the eval account, from a short checklist in `docs/SETUP.md`. Only Nate judges E14, the tone.
+- **When a scenario fails.** Change the tool description, the error message or the connector's instructions (or, with Nate's agreement, the coach instructions), then run the failed scenario again with every other scenario that uses the same tool.
+- **When evals run.** The agent pass runs on the live app after a stage that changes tools merges (4C, 4E and 4H), and in full before the phase is offered for acceptance. From then on, the full agent pass runs again whenever a tool description, an error message, the connector's instructions or the coach instructions change. LLMs vary from run to run, so a scenario that passes only some of the time counts as a failure.
+- **Results.** One file per run in `tests/coach-evals/results/` (date, coach app, model, and pass or fail per scenario, with a line on each failure). One line in `docs/LOG.md` per full pass.
 
 ### Device checks I suggest adding
 
@@ -977,6 +1020,8 @@ I did not check these against current documentation in this sitting. Each is con
 | The Vercel and Supabase free tiers fit this use | Paid tiers |
 | A coach app's scheduled tasks can call a custom connector, so the weekly summary can arrive without being asked for | The user asks their coach for the week's summary by hand. Nate plans a scheduled task on the LLM side, or his Dot agent, which he has shown can call the connector. A ChatGPT scheduled task is not tested yet; Nate expects it to work (20 Nov) |
 | A passkey can be the only sign-in method with Supabase, and works in the iPhone home-screen app and on the coach-connection page | Sign in by emailed code, which needs an email service and a domain |
+| ChatGPT and Claude give their model the connector's own instructions (added 24 Nov, Section 3) | The tool descriptions and the pasted coach instructions carry the brief, as they do anyway |
+| An agent session can add the connector as a coach connection, for the agent pass of the coach evals (added 24 Nov, Section 9) | The agent pass runs in Claude on the web with Nate signed in, or Nate runs more of the scenarios himself |
 
 ### E. Phase 1 findings (17 November 2026)
 
@@ -1044,6 +1089,22 @@ Choices the build made within the design:
 The items still open (the Coach button opening a ChatGPT project, default work and rest seconds with no researched source, the parked coach instructions) are kept in `docs/NEXT.md`, under Open items. Answered: Claude works as a coach through the same connector (17 Nov, the sign-in proof), on the web, in a Project and in the iPhone app.
 
 ---
+
+## 11. Phase 4: stages of work (24 Nov 2026)
+
+**In short:** Phase 4 is built in eight stages, one pull request each, in this order. Each ends with its tests passing and, where it says so, a check by Nate on the live app (steps added to `docs/SETUP.md` as each stage is built). Stages 4C and 4D touch different files and can run side by side. The model for each follows `docs/MODEL_AND_EFFORT.md`, Phase 4.
+
+| Stage | Model | What it builds | Done when | Nate's part |
+|---|---|---|---|---|
+| 4A. Data and the lock | Opus 5.5, high | The new fields and table: the coach intake, `decline_reason`, `weekly_checkins` with `record_weekly_checkin`. The database refuses every coach write except adding proposals and their targets and recording a check-in. How the eval data is loaded | The database and isolation tests pass for every new field and table, on Supabase's own local version too | Runs the SQL step on the live project |
+| 4B. Connector core | Opus 5.5, high | The real connector at its permanent link, with the proof's sign-in kept (a per-call check, passes only from this project). The error shape, size limits, too-many-requests, the one-minute repeat guard, the call log. The connector's instructions. The first read tools: `get_profile`, `list_gyms`, `get_vocabulary`. Deletes `phase0/` and `proofs/connector-signin/` | Connector, isolation and sign-in tests pass | Connects ChatGPT and Claude to the real link and asks each "who am I?" |
+| 4C. The other read tools | Sonnet 5.5, medium | The other eleven read tools, including the weekly summary with check-in recording, `list_proposals` with decline reasons, and `list_cardio` | Contract and isolation tests pass for every read tool; agent pass on E9, E15, E16 and E18 | None |
+| 4D. Accept and Decline | Opus 5.5, high | The payload for each kind of proposal. Accept for all five kinds, all or nothing: targets and out of date, bundled new exercises and workouts, a change to today inside a running workout or in today's plan (including breaking a superset), a new campaign as a draft, profile and gym. Decline with its reason. The 3:00 am expiry | Database tests pass for every Accept and Decline test in spec Section 8, including a phone that was offline | None |
+| 4E. Propose tools | Sonnet 5.5, medium | The five propose tools: every check, errors written to the coach, tool descriptions from the brief, and the description code check | Every validation test passes; agent pass on E3, E4, E5, E17 and E19 | None |
+| 4F. The inbox | Sonnet 5.5, medium | The coach's cards on the phone and on the planner's new Proposals screen (with room for a full campaign), the Coach button's count, the banner after Accept, Decline with its optional reason, out-of-date and expired cards shown | Browser tests pass | Accepts and declines a coach card on the iPhone and in the planner |
+| 4G. Coach setup, Profile and gyms | Sonnet 5.5, medium | Coach setup in order: intake, ChatGPT and Claude steps with screenshots, the instructions to copy, the connection test, "let's get started". The coach link and connected coach apps with Disconnect. Profile and gyms with the intake's answers | Browser tests pass | Completes Coach setup on the eval account using only the page |
+| 4H. Home and the full eval | Sonnet 5.5, medium | Home's last-week note and check-in marks with the count. The coach instructions brought in line with the brief and the final tool names (Nate's own revision of the wording still waits for real use). The full agent pass | Every Phase 4 acceptance test passes; the agent pass passes E1 to E19 | Runs the client pass |
+| Review | Opus 5.5, high, fresh | The phase review, as for every phase. Fixes after it are checked by a fresh Opus 5.5 high session unless Nate waives it | The review's points are settled | Accepts Phase 4 |
 
 ## What happens next
 
