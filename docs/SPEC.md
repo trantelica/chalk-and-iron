@@ -60,7 +60,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - **Workouts** list exercises in order with sets, reps, an optional rest that overrides the exercise default, and an optional superset letter. A workout can be copied.
 - **Campaigns** run one to six consecutive weeks. Each day holds a workout or is a rest day.
 - A campaign day can override the exercise, sets, reps, weight and rest for any row. Overrides apply to that day only.
-- When a campaign ends, the app prompts the user to ask their coach for the next one. It does not repeat or extend by itself. The user can **run a finished campaign again** from a new start date: the same campaign, not a copy (Nate, 21 Nov).
+- When a campaign ends, the app prompts the user to ask their coach for the next one. It does not repeat or extend by itself. During the campaign's last week, Home shows a note to ask the coach for the next one, with the Coach button (Nate, 24 Nov). The user can **run a finished campaign again** from a new start date: the same campaign, not a copy (Nate, 21 Nov).
 
 ### Logging a workout
 
@@ -114,7 +114,8 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 
 - A Coach button on the phone opens the user's own LLM project.
 - The coach reads the user's profile, gyms, library and history, and proposes changes. Section 4 covers the connector.
-- The app keeps a coach profile (goals, injuries, schedule) and gym profiles (equipment lists) that the coach reads.
+- The app keeps a coach profile (goals, injuries, schedule) and gym profiles (equipment lists) that the coach reads. The coach profile also holds three coaching preferences in plain words: exercises I like, exercises to avoid, and how I want my coach to work with me (Nate, 24 Nov).
+- The coach acts only when it is asked: by the user in a chat, or by a scheduled task the user sets up in their LLM app, such as a weekly check-in. The app never contacts it (rule 1).
 - Proposals arrive in an inbox on the phone and in the planner. Each is accepted or rejected.
 
 ### Other
@@ -233,7 +234,7 @@ The coach reads freely but can only propose. A proposal changes nothing until th
 | get_campaign | The active campaign with days and overrides |
 | get_today | Today's planned workout and live session progress |
 | list_sessions | Past sessions with time, volume, efficiency and records |
-| get_proposal_status | Whether a proposal is pending, accepted, rejected, out of date or expired |
+| get_proposal_status | Whether a proposal is pending, accepted, rejected, out of date or expired, and any decline reason |
 | list_proposals | Past and pending proposals, newest first, with their status |
 | list_cardio | Cardio entries over a date range |
 | get_weekly_summary | One week's sessions, sets, reps and weights, total volume, records, efficiency, missed days and cardio |
@@ -256,13 +257,17 @@ Every propose tool requires one plain-language summary line per change, which is
 
 - The Coach button shows a count of pending proposals. A notification is sent when one arrives.
 - A proposal card shows the summary lines, what it applies to (today only, the library, or a campaign), and Accept and Decline.
-- Accept applies the whole proposal or none of it. Decline discards it. Decline and Dismiss are the same thing: both end the proposal as rejected. The app's Accept is always required, even when the LLM client has already asked the user to confirm, because it is the only confirmation the app controls.
+- Accept applies the whole proposal or none of it. Decline discards it. Decline and Dismiss are the same thing: both end the proposal as rejected. Declining a coach's card offers an optional one-line reason, such as "too much volume", which the coach can read (Nate, 24 Nov). The app's Accept is always required, even when the LLM client has already asked the user to confirm, because it is the only confirmation the app controls.
 - A proposal for today's session never changes the library or the campaign, and never alters sets already logged.
 - A proposal for today's session expires at the 3:00 am day rollover that ends its day.
 - An accepted proposal for a new campaign arrives as a draft. The user activates it.
 - A workout or campaign proposal can bundle the new exercises it needs (and, for a campaign, new workouts) in the same proposal. One card lists everything, and one Accept applies all of it or none.
 - A proposal is in one of five states: pending, accepted, rejected, out of date or expired. The coach can see each one.
 - Proposals are validated when received. Unknown exercises (not in the library and not defined in the same proposal), values outside the vocabulary, near-duplicate names, a new exercise without all three alternates, and a superset with fewer than two or more than three members, or with members of different set counts, are returned to the coach as errors, before the user sees anything.
+
+### Coach behaviour
+
+How the coach behaves with the user (when it reads, when it asks and when it proposes, check-ins and a campaign's end, what it does after a decline, how bold it is, and what it does when unsure) is set out in a coach behaviour brief, written at the start of Phase 4 and approved by Nate (decided 24 Nov). The brief shapes the tool descriptions, the error messages, the setup page and the coach instructions. The wording of the instructions stays a parked draft until Nate has used the coach for real.
 
 ### Coach instructions
 
@@ -372,7 +377,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | Screen | Contents |
 | --- | --- |
 | Sign in and register | Opening an invite link, name and email, passkey setup, sign-in, first-run setup steps |
-| Home | Today's workout with a Start button, pending proposals, the campaign week at a glance, and Start another workout. Today's workout is a day sent to the phone for today if there is one, otherwise the active campaign's day for today with its overrides. The week runs Monday to Sunday, each day marked Done, Missed, Today, upcoming or Rest. Built 19 Nov; the planner (Phase 3) and the coach (Phase 4) are what fill it, and the proposals inbox comes with the coach |
+| Home | Today's workout with a Start button, pending proposals, the campaign week at a glance, and Start another workout. Today's workout is a day sent to the phone for today if there is one, otherwise the active campaign's day for today with its overrides. The week runs Monday to Sunday, each day marked Done, Missed, Today, upcoming or Rest. Built 19 Nov; the planner (Phase 3) and the coach (Phase 4) are what fill it, and the proposals inbox comes with the coach. During the active campaign's last week it shows a note to ask the coach for the next one, with the Coach button (Phase 4) |
 | Cardio entry | Type, duration, distance, notes, and a list of recent entries |
 | Settings | Look (skin, accent, background), totals unit, notifications, coach link, sign out |
 
@@ -390,7 +395,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | --- | --- |
 | Proposals | The same inbox as the phone, with room for longer proposals such as a full campaign |
 | Coach setup | Step-by-step connection for ChatGPT and for Claude, the coach instructions to copy, and a connection test |
-| Profile and gyms | Coach profile fields and gym equipment lists |
+| Profile and gyms | Coach profile fields, the three coaching preferences (exercises I like, exercises to avoid, how I want my coach to work with me), and gym equipment lists |
 | Account | Email, export, delete account |
 | Admin (admins only) | Accounts and single-use links. Create, deactivate, reactivate, reset and delete an account, make a user an admin, with ready-to-paste invite and reset text. No training data |
 | Vocabulary | Editable lists of muscle groups, focus values and equipment. This is the only place the vocabulary is managed. The phone has no vocabulary screen, to keep it uncluttered |
@@ -471,7 +476,7 @@ This section is the plan, not the status. What is being worked on now is in `doc
 2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary. It also includes a project task: draft the starter library of about 40 exercises, each with its three alternates and starter work and rest seconds, for Nate to review (it became version 2, 227 exercises, `docs/STARTER_LIBRARY.md`).
 3. **Phase 2, logging.** It opens with the items carried from the Phase 1 review: the two account fixes, tests against Supabase's own local version, the three iPhone checks below, the counting rules for assisted machines and load counts (Section 3; bands were made bodyweight in Phase 1), and the safe area (Section 5). Then the active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, breaking a superset into individual exercises, and crash-safe sessions. This phase must match the prototype, except for what the prototype lacks, such as breaking a superset.
 4. **Phase 3, planner.** Library for exercises, workouts and campaigns, the Vocabulary screen (in the planner only, never on the phone), the Plan view with per-day overrides, History (with set editing), and sending a day to the phone. When today already has a workout, the sent day's inbox card (Accept or Dismiss) is built in this phase; Phase 4 adds the coach's cards to the same inbox (Nate, 20 Nov).
-5. **Phase 4, coach.** The full connector tool set, all nineteen tools, including the weekly summary, cardio and the proposal list, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens.
+5. **Phase 4, coach.** It opens with the coach behaviour brief (Section 4), approved by Nate. Then the full connector tool set, all nineteen tools, including the weekly summary, cardio and the proposal list, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens with the coaching preferences. Also the optional decline reason and the campaign's last-week note on Home (Nate, 24 Nov). Notifications for proposals wait for Phase 5; in Phase 4 the Coach button shows the count. The cardio tool is built now but returns entries only once cardio can be logged (Phase 5).
 6. **Phase 5, reach.** Notifications for rest and proposals, the daily workout reminder, cardio (including cardio rows inside a workout), export, the Arcade and Liquid Color skins, backgrounds and celebrations.
 7. **Phase 6, friends.** Onboarding polish for non-technical users, tested by one friend completing setup without help. Before the first friend is invited: either move Supabase to its paid plan or add a scheduled backup. (The permanent web address, `https://chalkandiron.vercel.app`, and the two account fixes from the Phase 1 review are already done.)
 
@@ -549,7 +554,7 @@ The build is accepted when every test below passes as an automated test, except 
 - [ ] Any propose tool call creates one pending proposal and changes no other record.
 - [ ] Accept applies every change in the proposal. Decline applies none.
 - [ ] A workout proposal that bundles a new exercise adds both the exercise and the workout on Accept, and neither on Decline.
-- [ ] The proposal's status is readable through get_proposal_status and list_proposals after either decision.
+- [ ] The proposal's status is readable through get_proposal_status and list_proposals after either decision, with the decline reason if the user gave one.
 - [ ] A proposal for today's session leaves the library, the campaign and already-logged sets unchanged.
 - [ ] A proposal using an equipment value outside the vocabulary is returned to the coach as an error and never reaches the inbox.
 - [ ] A workout proposal that gives two members of a superset different set counts, or puts four exercises in one superset, is returned to the coach as an error and never reaches the inbox.
@@ -673,7 +678,7 @@ These rules settle what happens outside the normal path. Nate decided them in re
 - A proposal is pending, accepted, rejected, out of date or expired. The coach can see each state.
 - If the user edits something a pending proposal would change, the proposal is marked out of date. It cannot be accepted, and the coach can see that.
 - A workout or campaign proposal may bundle new exercises, and a campaign proposal new workouts too. One Accept applies all of it or none. An exercise counts as unknown only if it is neither in the library nor defined in the same proposal.
-- Any proposal can be dismissed at any time. Dismissing is the same as declining: the proposal ends as rejected. A proposal never blocks an action.
+- Any proposal can be dismissed at any time. Dismissing is the same as declining: the proposal ends as rejected. A proposal never blocks an action. A coach's card can be declined with an optional one-line reason, which the coach can read; it is never required (Nate, 24 Nov).
 - A proposal for today's session expires at the 3:00 am day rollover.
 - Only a proposal that replaces today's workout with a different one, such as a day sent from the planner, splits a running session. If one is accepted mid-session, the work already logged is saved as its own ad hoc session, and the proposed workout starts as a new session. Sets not yet reached are marked Replaced and excluded from efficiency.
 - Every other change to today's workout accepted mid-session (a swap, a change to sets, reps, weight or rest, adding, removing or reordering exercises, or breaking a superset) is applied inside the running session, to sets not yet logged. The session carries on.

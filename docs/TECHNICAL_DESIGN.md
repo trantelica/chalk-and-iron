@@ -8,7 +8,7 @@ This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md`. W
 
 Written by Fable 5.2 on 16 November 2026, as `docs/MODEL_AND_EFFORT.md` sets out. Any later revision is done on Opus 5.5 at high effort.
 
-Both revisions of 17 November 2026 were done on Opus 5.5 at high effort. Section 10E, added during Phase 1 on 17 November 2026, records what the Phase 1 sign-in research found.
+Both revisions of 17 November 2026 were done on Opus 5.5 at high effort. Section 10E, added during Phase 1 on 17 November 2026, records what the Phase 1 sign-in research found. On 24 November 2026 (Opus 5.5) Nate's Phase 4 decisions were added: three coaching preferences on the coach profile, an optional decline reason, and the campaign's last-week note on Home.
 
 **Status is not kept here.** What is being built now is in `docs/NEXT.md`, and what was done and decided, by date, is in `docs/LOG.md`. This document keeps the design, its findings and Nate's decisions about it.
 
@@ -114,7 +114,7 @@ These are the choices in this design that cost money, add an account, or change 
 | setup_done | list of text | Which walkthrough steps are finished |
 | delete_requested_at | timestamp or empty | Starts the 14-day grace period |
 
-**coach_profiles**. One row per user: `goals`, `injuries_and_limits`, `weekly_schedule`, `notes` (all text), `version`.
+**coach_profiles**. One row per user: `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`, and the three coaching preferences `exercises_liked`, `exercises_to_avoid` and `how_to_coach_me` (all text; preferences added 24 Nov), `version`.
 
 **gyms**: `name`, `equipment` (list of text), `notes`, `is_default`, `archived_at`, `version`. The database allows only one default gym per user. The equipment list is free text, not picked from the equipment vocabulary, because gyms have things the vocabulary does not, such as a rower (decided 17 Nov, question 25).
 
@@ -362,6 +362,7 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 | status | 'pending', 'accepted', 'rejected', 'out_of_date' or 'expired' | The five states, all visible to the coach (decided 17 Nov, question 4). See Section 5 |
 | expires_at | timestamp or empty | Set for today proposals: the next 3:00 am day rollover in the user's time zone (decided 17 Nov, question 24) |
 | created_at, decided_at | timestamps | |
+| decline_reason | text or empty | An optional line, up to 300 characters, the user may give when declining a coach's card (Nate, 24 Nov). The coach reads it through `get_proposal_status` and `list_proposals` |
 | result | structured data or empty | What was created on Accept, including the ids of any bundled new exercises and workouts |
 
 **proposal_targets**. One row per existing record a proposal would change: `proposal_id`, `record_kind`, `record_id`, `version_seen`. When the user edits a record, any pending proposal that targets it is marked out of date. The phone's lb/kg switch is not an edit to the exercise, so it never does this.
@@ -413,7 +414,7 @@ Validation errors are returned to the coach before anything reaches the inbox, a
 
 | Tool | Inputs | Returns | Errors |
 |---|---|---|---|
-| get_profile | None | Display name, goals, injuries and limits, weekly schedule, notes, totals unit, time zone, today's date, default gym (id and name) | not_signed_in |
+| get_profile | None | Display name, goals, injuries and limits, weekly schedule, notes, the three coaching preferences (exercises liked, exercises to avoid, how to coach me), totals unit, time zone, today's date, default gym (id and name) | not_signed_in |
 | list_gyms | None | Each gym: id, name, equipment list, notes, default flag | not_signed_in |
 | get_vocabulary | None | Muscle groups, each with its focus values. Equipment values. Allowed units and set types | not_signed_in |
 | list_exercises | Optional: `muscle_group`, `equipment`, `search`, `include_archived`, `next` | Each exercise with every field: id, name, muscle group, focus, equipment, default unit, work seconds, rest seconds, note, the alternates, archived flag, and an incomplete flag naming any empty fields (question 16) | invalid_input |
@@ -423,8 +424,8 @@ Validation errors are returned to the coach before anything reaches the inbox, a
 | get_campaign | Optional: `campaign_id`. Without it, the active campaign | Name, status, start date, week count, end date, any shifts. Each day: date, workout, state (upcoming, done, missed or rest), overrides per item. Also a short list of draft campaigns by id and name | not_found. No active campaign is not an error: it returns none, with a sentence |
 | get_today | None | Today's date. What is planned, with overrides applied and last session's numbers per exercise. Any missed workouts still available. The live session if one is running: elapsed time, efficiency, volume, current exercise, each exercise's logged sets and Skipped or Replaced marks. Pending today proposals | not_signed_in |
 | list_sessions | Optional: `from`, `to`, `limit` (default 20), `next` | Per session: id, date, workout name, source, gym, duration, volume, efficiency, records set, and each exercise with its sets and Skipped marks | invalid_input |
-| get_proposal_status | `proposal_id` | Status (pending, accepted, rejected, out of date or expired), kind, created and decided times | not_found |
-| list_proposals | Optional: `status` (any of the five), `kind`, `from`, `to`, `limit` (default 20, most 100), `next` | Newest first. Per proposal: id, source (which coach app, or the planner), kind, what it applies to, summary lines, status, created, decided and expiry times | invalid_input |
+| get_proposal_status | `proposal_id` | Status (pending, accepted, rejected, out of date or expired), kind, created and decided times, and the decline reason if the user gave one | not_found |
+| list_proposals | Optional: `status` (any of the five), `kind`, `from`, `to`, `limit` (default 20, most 100), `next` | Newest first. Per proposal: id, source (which coach app, or the planner), kind, what it applies to, summary lines, status, created, decided and expiry times, decline reason | invalid_input |
 | list_cardio | Optional: `from`, `to` (default the last 12 weeks), `limit` (default 20, most 100), `next` | Newest first. Per entry: id, date, type, duration, distance and its unit, notes | invalid_input |
 | get_weekly_summary | Optional: `week_of` (any date in the week wanted). Without it, the most recent full week | The week's dates. Sessions done and planned days missed. For each session: the exercises with sets, reps and weights. Total volume, records set, efficiency. Cardio entries for the week | invalid_input |
 
@@ -449,7 +450,7 @@ Every propose tool:
 | propose_workout | `workout` to edit, or leave out for new. `name`. `items` in order: `exercise`, `sets`, `reps`, optional `rest_seconds`, optional `superset` letter. Optional `new_exercises`: brand-new exercises with the same fields as `propose_exercise`, which the items can name (question 22) | Every exercise exists and is not archived, or is defined in `new_exercises`. Each new exercise passes every `propose_exercise` check, including the three alternates, and its name is not a near-duplicate of the library or of another new exercise in the proposal. Numbers in range. A superset letter is used by two or three rows, and every row sharing it has the same sets | not_found, invalid_input, unknown_vocabulary, near_duplicate_name |
 | propose_campaign | `campaign_id` to edit, or leave out for new. `name`, `start_date`, `week_count`. `days`: week, weekday (1 is Monday), a workout or rest, and optional overrides per item (exercise, sets, reps, weight, rest). Or `shift_forward_weeks: 1` on its own. Optional `new_exercises` and `new_workouts` (each shaped as in `propose_workout`), which days and overrides can name (question 22) | 1 to 6 weeks. Every workout and exercise exists, or is defined in the same proposal. Bundled new exercises and workouts pass the same checks as in `propose_exercise` and `propose_workout`. Each override names an item of that day's workout. No day's overrides give superset members different set counts | not_found, invalid_input, unknown_vocabulary, near_duplicate_name |
 | propose_today_change | `changes`, each with an `action` (swap, set_sets, set_reps, set_weight, set_rest, add, remove, reorder, break_superset), the exercise it applies to, and the new value. `break_superset` names the superset by its letter, or by any one of its members, and needs no value (question 41) | There is a workout today or a live session. Exercises exist in the library. It does not touch a set already logged. A `set_sets` on a superset member must be matched by the same `set_sets` on every other member, unless the same proposal breaks that superset first. `break_superset` names a superset that exists today and is not already broken | nothing_to_change, not_found, invalid_input |
-| propose_profile_update | Any of `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`. And or a `gym`: id to edit or none for new, `name`, `equipment`, `notes`, `make_default` | At least one change is present | not_found, invalid_input |
+| propose_profile_update | Any of `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`, `exercises_liked`, `exercises_to_avoid`, `how_to_coach_me`. And or a `gym`: id to edit or none for new, `name`, `equipment`, `notes`, `make_default` | At least one change is present | not_found, invalid_input |
 
 **Bundled proposals** (decided 17 Nov, question 22). A workout or campaign proposal can bring its own new exercises (and, for a campaign, new workouts) in the same proposal, so a plan with new movements needs only one approval. One card lists everything, new exercises first, and one Accept applies all of it or none. "Unknown exercise" as an error now means not in the library and not defined in the same proposal. A today proposal cannot bundle new exercises; a swap or an add today names an exercise already in the library.
 
@@ -613,7 +614,7 @@ The five states are decided (17 Nov, question 4), and the coach can see each one
 | Finished | Read. Copy into a new draft. Run again from a new start date (Nate, 21 Nov): the same campaign becomes active, its shifts are cleared, and another active campaign ends after a confirmation. Its sessions stay in History | Run again |
 
 - Weeks run Monday to Sunday. A campaign may start on any date, and week 1 is the week holding its start date (decided 17 Nov, question 19).
-- When the active campaign finishes, the app prompts the user to ask their coach for the next one. It does not repeat or extend.
+- When the active campaign finishes, the app prompts the user to ask their coach for the next one. It does not repeat or extend. During its last week (the week holding its end date), Home shows a note to ask the coach for the next one, with the Coach button (Nate, 24 Nov).
 - A day is **missed** when its date has passed with no session from it. Nothing moves. A missed workout stays available to start on a later day.
 - A day is **done** when a session that came from it exists, logged on or after the campaign's current start date (so a campaign run again starts with no day done; changed 21 Nov). The date it was logged within that run does not matter.
 
