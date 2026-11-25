@@ -27,3 +27,39 @@ export function decisionMessage(answer: DecideAnswer | null, accept: boolean, wo
     ? { ok: true, text: `Accepted. ${workoutName ?? 'The day'} is today's workout. Your library and campaign are unchanged.` }
     : { ok: true, text: 'Dismissed. Nothing changed.' };
 }
+
+/** What the card says when this phone still has changes the account has not received (review at high effort, 23 Nov). */
+export const UNSAVED_BEFORE_ACCEPT = 'Not accepted. This phone has workout changes not yet saved to your account. Try again when it is back online.';
+
+/**
+ * Before Accept, everything this phone has waiting is sent first (design
+ * Section 6: "Accept needs a connection, and the outbox is sent first"), so
+ * the workout that may be replaced is in the account as the phone has it.
+ * Waits at most `ms`. True when nothing is left waiting.
+ */
+export async function sendWaitingFirst(box: { count: number; flush(): Promise<void> } | null, ms = 8000): Promise<boolean> {
+  if (!box || box.count === 0) return true;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  await Promise.race([
+    box.flush().catch(() => {}),
+    new Promise<void>((done) => { timer = setTimeout(done, ms); }),
+  ]);
+  clearTimeout(timer);
+  return box.count === 0;
+}
+
+/** What the card says when Accept cannot tell who is signed in on this device (fix check of pull request 47, 24 Nov). */
+export const NO_USER_BEFORE_ACCEPT = 'Not accepted. This device could not tell who is signed in. Try again, or sign in again.';
+
+type WaitingBox = { count: number; flush(): Promise<void> };
+
+/**
+ * Whether Accept may go ahead: the person signed in on this device is known
+ * (read on the device, never over the network), and what this device has
+ * waiting has been sent first. Returns the refusal to show, or null to go ahead.
+ * Without a person, Accept is refused rather than going ahead with changes unsent.
+ */
+export async function acceptRefusal(me: string | null, boxFor: (userId: string) => WaitingBox, ms = 8000): Promise<string | null> {
+  if (!me) return NO_USER_BEFORE_ACCEPT;
+  return (await sendWaitingFirst(boxFor(me), ms)) ? null : UNSAVED_BEFORE_ACCEPT;
+}

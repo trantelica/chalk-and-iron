@@ -151,3 +151,74 @@ describe('vocabulary', () => {
     expect(await db.as(other, `update vocabulary_terms set name = 'hacked' where id = $1 returning id`, [t.id])).toEqual([]);
   });
 });
+
+// Review at high effort (23 Nov): the Workouts screen saves its rows and the
+// day overrides that keep each campaign day's supersets even, in one step
+// (save_workout), so an exercise joining a superset takes its set count on
+// every day too.
+describe('saving a workout with the day overrides that keep supersets even', () => {
+  let w: string;
+  let x: string; let y: string; let z: string;
+  let dayId: string;
+  type Row = { id: string; exerciseId: string; sets: number; reps: number; rest: number | null; superset: string | null };
+  let rows: Row[];
+  const daySets = async () => (await db.as<{ workout_item_id: string; sets: number | null }>(u,
+    `select workout_item_id, sets from campaign_day_overrides where campaign_day_id = $1`, [dayId]))
+    .map((o) => ({ campaignDayId: dayId, workoutItemId: o.workout_item_id, sets: o.sets }));
+  const plannedOnDay = async () => (await db.as<{ id: string; sets: number }>(u,
+    `select i.id, coalesce(o.sets, i.sets) as sets from workout_items i
+     left join campaign_day_overrides o on o.workout_item_id = i.id and o.campaign_day_id = $2
+     where i.workout_id = $1 order by i.position`, [w, dayId])).map((q) => q.sets);
+  async function save(next: Row[], startedBy: string | null = null, removed: string[] = []) {
+    const { daySetsForSupersets } = await import('@/rules/planner');
+    const ds = daySetsForSupersets(rows, next, [dayId], await daySets(), startedBy);
+    await db.as(u, `select save_workout($1, $2::jsonb, $3::uuid[], $4::jsonb)`, [w,
+      JSON.stringify(next.map((q, i) => ({ id: q.id, position: i, exercise_id: q.exerciseId, sets: q.sets, reps: q.reps, rest_seconds: q.rest, superset_letter: q.superset }))),
+      removed, JSON.stringify(ds.map((d) => ({ campaign_day_id: d.campaignDayId, workout_item_id: d.workoutItemId, sets: d.sets })))]);
+    rows = next;
+  }
+
+  beforeAll(async () => {
+    w = (await one<{ id: string }>(`insert into workouts (user_id, name) values ($1, 'Join') returning id`, [u])).id;
+    [x, y, z] = (await db.as<{ id: string }>(u, `insert into workout_items (user_id, workout_id, position, exercise_id, sets, reps, superset_letter)
+      values ($1, $2, 0, $3, 3, 8, 'A'), ($1, $2, 1, $4, 3, 8, 'A'), ($1, $2, 2, $5, 3, 8, null) returning id`, [u, w, r.bench, r.row, r.curl])).map((q) => q.id);
+    const [c] = await db.as<{ id: string }>(u, `insert into campaigns (user_id, name, start_date, week_count) values ($1, 'Join test', '2026-12-07', 2) returning id`, [u]);
+    dayId = (await one<{ id: string }>(`insert into campaign_days (user_id, campaign_id, week, weekday, workout_id) values ($1, $2, 1, 3, $3) returning id`, [u, c.id, w])).id;
+    rows = [x, y, z].map((id, i) => ({ id, exerciseId: [r.bench, r.row, r.curl][i], sets: 3, reps: 8, rest: null, superset: i < 2 ? 'A' : null }));
+  });
+
+  it('a row with a day override of its own joins a superset and takes the superset\'s count on that day', async () => {
+    await db.as(u, `insert into campaign_day_overrides (user_id, campaign_day_id, workout_id, workout_item_id, sets) values ($1, $2, $3, $4, 5)`, [u, dayId, w, z]);
+    await save(rows.map((q) => (q.id === z ? { ...q, superset: 'A' } : q)), z);
+    expect(await plannedOnDay()).toEqual([3, 3, 3]);
+    expect(await db.as(u, `select sets, superset_letter from workout_items where id = $1`, [z])).toEqual([{ sets: 3, superset_letter: 'A' }]);
+  });
+
+  it('a row joining a superset that a day overrides takes that day\'s count', async () => {
+    await save(rows.map((q) => (q.id === z ? { ...q, superset: null } : q)));
+    // The day gives superset A five sets.
+    await db.as(u, `insert into campaign_day_overrides (user_id, campaign_day_id, workout_id, workout_item_id, sets) values ($1, $2, $3, $4, 5), ($1, $2, $3, $5, 5)
+      on conflict (campaign_day_id, workout_item_id) do update set sets = excluded.sets`, [u, dayId, w, x, y]);
+    await save(rows.map((q) => (q.id === z ? { ...q, superset: 'A' } : q)), z);
+    expect(await plannedOnDay()).toEqual([5, 5, 5]);
+    // The library workout keeps its own three sets.
+    expect((await db.as<{ sets: number }>(u, `select sets from workout_items where workout_id = $1 order by position`, [w])).map((q) => q.sets)).toEqual([3, 3, 3]);
+  });
+
+  it('a save the database refuses keeps none of it', async () => {
+    const before = await db.as(u, `select to_jsonb(i) as j from workout_items i where workout_id = $1 order by position`, [w]);
+    const ovBefore = await daySets();
+    const [ex4] = await db.as<{ id: string }>(u, `select id from exercises where user_id = $1 and archived_at is null and id <> all($2) limit 1`, [u, [r.bench, r.row, r.curl]]);
+    const four = [...rows, { id: crypto.randomUUID(), exerciseId: ex4.id, sets: 3, reps: 8, rest: null, superset: 'A' }];
+    await expect(db.as(u, `select save_workout($1, $2::jsonb, '{}', '[]')`, [w,
+      JSON.stringify(four.map((q, i) => ({ id: q.id, position: i, exercise_id: q.exerciseId, sets: q.sets, reps: q.reps, rest_seconds: q.rest, superset_letter: q.superset })))])).rejects.toThrow(/two or three/);
+    expect(await db.as(u, `select to_jsonb(i) as j from workout_items i where workout_id = $1 order by position`, [w])).toEqual(before);
+    expect(await daySets()).toEqual(ovBefore);
+  });
+
+  it('another person cannot save into this workout, and a coach sign-in cannot save at all', async () => {
+    const other = await db.register('other-planner@example.test', 'Other', { inviter: u });
+    await expect(db.as(other, `select save_workout($1, '[]', '{}', '[]')`, [w])).rejects.toThrow(/not in your library/);
+    await expect(db.as(u, `select save_workout($1, '[]', '{}', '[]')`, [w], { coach: true })).rejects.toThrow(/not_signed_in/);
+  });
+});

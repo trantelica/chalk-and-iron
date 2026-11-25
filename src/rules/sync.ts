@@ -230,6 +230,18 @@ export interface SyncAnswer {
   replaced?: string[];
 }
 
+/**
+ * Which of these workouts to ask the account about ("was it replaced?"). A
+ * workout with its own copy still waiting to be sent is left out: the account
+ * may not have it as the phone does yet (finished offline, say), so its answer
+ * could be out of date. Sending it answers that anyway (`replaced` in the
+ * answer). Fix check of pull request 47, 24 Nov.
+ */
+export function idsToAskReplaced(ids: (string | null | undefined)[], waiting: readonly Pick<Change, 'kind' | 'key'>[]): string[] {
+  const unsent = new Set(waiting.filter((c) => c.kind === 'session.put' && c.key?.startsWith('session:')).map((c) => c.key!.slice('session:'.length)));
+  return [...new Set(ids.filter((x): x is string => !!x))].filter((id) => !unsent.has(id));
+}
+
 /** True when the server's answer says this session was replaced by a day sent from the planner. */
 export const wasReplaced = (answer: Pick<SyncAnswer, 'replaced'>, sessionId: string | null | undefined) =>
   !!sessionId && (answer.replaced ?? []).includes(sessionId);
