@@ -11,5 +11,11 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: '/app',
     scope: '/',
     display: 'standalone',
+    // The app icon (Nate, 25 Nov). The iPhone itself uses apple-icon.png in
+    // this folder; these are for other phones and browsers.
+    icons: [
+      { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
   };
 }

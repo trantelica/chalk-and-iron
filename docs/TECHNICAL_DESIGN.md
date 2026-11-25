@@ -847,6 +847,13 @@ Every skin defines the same token names. Values below are the prototype's.
 - The build fails if a color value or font name appears in any file outside `tokens/`.
 - The record card always shows in the Arcade skin and the workout summary in Liquid Color, whichever skin the user has chosen. The per-user gate applies to what the user can select, not to these moments.
 
+### The app icon
+
+- One fixed icon for now (Nate, 25 Nov): the chalk handprint gripping a dumbbell in ember on near-black, with no words. The original, 1024 pixels square, is `docs/app-icon-source.jpg`.
+- The iPhone uses `src/app/apple-icon.png` (180 pixels); the browser tab uses `src/app/icon.png`; the web app manifest lists `public/icons/icon-192.png` and `icon-512.png` for other phones. All are made from the original.
+- The icon is a picture, not a style, so the token rule does not apply to it. The sign-in check lets these files through without signing in, since the iPhone fetches the icon before anyone is signed in.
+- A home-screen web app cannot change its own icon: the iPhone keeps the copy it took at Add to Home Screen. An icon that follows the chosen skin would mean serving that skin's icon and the user adding the app to the home screen again. Not planned; Phase 5 at the earliest, with the skin picker.
+
 ---
 
 ## 9. Testing
