@@ -1,17 +1,13 @@
 # Next: Chalk and Iron
 
-The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 24 November 2026 (pull request 47 merged).
+The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 24 November 2026 (Phase 3 accepted).
 
 ## Now
 
-**Phase 3, the planner: built, reviewed and fixed; Nate's step AC next, then he accepts it.** Phases 1 and 2 are accepted. The live app is https://chalkandiron.vercel.app, built from `main`.
+**Phase 3, the planner: accepted by Nate on 24 November 2026.** Phases 1, 2 and 3 are accepted. The live app is https://chalkandiron.vercel.app, built from `main`.
 
-- **How the work divides** (agreed by Nate, 20 Nov; `docs/MODEL_AND_EFFORT.md`, "Phase 3"): the opening on Opus 5.5 at high effort; then the planner screens on Sonnet 5.5 at medium effort, in a new session; the review by a fresh Opus 5.5 high-effort session.
-- **Opening (pull request 34):** the three workout fixes carried from the fresh check after the Phase 2 review (Undo break comes back even; a finished exercise opens again after a warm-up switch, with its clock; a warm-up never keeps a record badge) and the carried document points. Nate's iPhone check, `docs/SETUP.md` step S, passed on 20 Nov. These fixes are checked by the fresh Opus 5.5 high-effort review, with the rest of Phase 3, unless Nate asks for a separate check.
-- **Deciding a sent day:** merged (pull request 36). The Plan view, History and sending a day with its inbox card are pull request 37, merged; Nate's checks are `docs/SETUP.md` step V (and step T for the Library). Step T passed after the layout fix (21 Nov); his notes (presses, saving, alignment) are their own pull request, checked by step W. Step V passed (21 Nov; item 6 counted passed by Nate's agreement). His notes (inbox above Today, History editing) are their own pull request, checked by step X (passed 23 Nov). The phone's Home now looks at the inbox again when it comes back into view and every 30 seconds (step Z). **Nate decided (21 Nov)** a finished campaign can be run again from a new start date instead of copied: its own pull request, checked by step Y. Steps Y and Z were checked by the agent, not on Nate's devices, by his agreement.
-- **Review (23 Nov):** the fresh Opus 5.5 review of pull requests 34 to 44 found nine points; **Nate chose to fix all nine**, in one pull request (Nate's check: `docs/SETUP.md` step AA). Merged (pull request 46). **Review at high effort (23 Nov):** a fresh Opus 5.5 session at high effort reviewed pull requests 34 to 46 and found one medium point (sets of a swapped exercise could be saved under the old one when a sent day was accepted while the phone had unsaved changes) and one low-to-medium (a day override blocked adding an exercise to a superset), plus small ones left as they are. **Nate chose to fix those two**, in one pull request (Nate's steps: `docs/SETUP.md` AB, SQL before merging, and AC). The fresh high-effort check of pull request 47 (24 Nov) found a new medium point (a late change reset the replaced workout's exercise times) and smaller ones; **Nate chose to fix 1, 2 and 4** in the same pull request (step AD, SQL run by Nate on 24 Nov). The second fresh high-effort check (24 Nov) found one new low point (work done with no signal after an Accept on another device lost its exercise time, so efficiency showed too high) and two small ones left as they are; **Nate chose to fix the low point** in the same pull request (step AE, SQL before merging). **Nate waived the fresh check of that fix** (24 Nov). Nate ran steps AB, AD and AE (24 Nov); merged (pull request 47). **Next:** Nate's browser check, `docs/SETUP.md` step AC; then he accepts Phase 3.
-- **Nate decided on 20 Nov:** logged sets can be edited or deleted in History, nothing else; the Vocabulary screen is built in Phase 3, in the planner only, never on the phone; a day sent when today already has a workout gets its inbox card in Phase 3, and Phase 4 adds the coach's cards to the same inbox.
-- Carried: `docs/SETUP.md` step P item 4 (a swap to an exercise not in the library): the planner can now archive exercises, so it is item 8 of step T.
+- **Next: Phase 4, the coach** (`docs/SPEC.md` Section 7, item 5): the full connector tool set (all nineteen tools, including the weekly summary, cardio and the proposal list), proposals and the inbox on both surfaces, coach setup pages, coach instructions, and the profile and gym screens.
+- **Before it starts:** Nate agrees how Phase 4 divides by model and effort, as for Phases 2 and 3 (`docs/MODEL_AND_EFFORT.md`). Connector sign-in is a hard spot (Opus 5.5, high) under the standing table.
 
 ## Waiting on Nate
 
@@ -28,5 +24,6 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 
 ## Decided, not yet built
 
+- **Phase 4:** the coach's cards join the inbox the planner's sent days already use (Nate, 20 Nov).
 - **Phase 5:** cardio as a row inside a workout, with a heart symbol on cardio exercises (Nate, 19 Nov); a daily workout reminder at a time the user picks (Nate, 19 Nov); the skin and accent picker stays in Phase 5 with the Settings screen (Nate, 20 Nov).
 - **Before the first friend is invited (Phase 6):** move Supabase to its paid plan or add a scheduled backup. Setup must tell users that a Focus mode can hold back rest alerts, and how to let Chalk and Iron through.

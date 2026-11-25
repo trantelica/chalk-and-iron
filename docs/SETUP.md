@@ -420,6 +420,8 @@ The review at high effort found two points to fix, and **Nate chose to fix both*
 
 ### AC. In your computer's browser, after the merge
 
-1. [ ] **A day override and a superset.** Open https://chalkandiron.vercel.app/planner, **Plan**, pick a day whose workout has an exercise that is not in a superset, and change that exercise's **Sets**. Then open **Library**, **Workouts**, that workout, and put that exercise into a superset (under **Superset**, pick a letter, or **New superset with the next exercise**). **All changes saved** shows at the top, with no red message. Back in **Plan**, on that day, every exercise of the superset shows the same sets.
+1. [x] **A day override and a superset.** Open https://chalkandiron.vercel.app/planner, **Plan**, pick a day whose workout has an exercise that is not in a superset, and change that exercise's **Sets**. Then open **Library**, **Workouts**, that workout, and put that exercise into a superset (under **Superset**, pick a letter, or **New superset with the next exercise**). **All changes saved** shows at the top, with no red message. Back in **Plan**, on that day, every exercise of the superset shows the same sets.
 
 The phone side (a swap made with no signal, then a sent day accepted) is covered by the database tests; it is not a device check.
+
+**Passed (Nate, 24 November 2026).**
