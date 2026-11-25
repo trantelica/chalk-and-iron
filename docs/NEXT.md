@@ -7,12 +7,14 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 **Phase 3, the planner: accepted by Nate on 24 November 2026.** Phases 1, 2 and 3 are accepted. The live app is https://chalkandiron.vercel.app, built from `main`.
 
 - **Phase 4, the coach, is starting** (`docs/SPEC.md` Section 7, item 5). Nate agreed how it divides by model on 24 November (`docs/MODEL_AND_EFFORT.md`, Phase 4).
-- **The coach behaviour brief and the coach intake are approved** (24 Nov; `docs/SPEC.md` Section 4). Next, once this plan is merged: the Opus 5.5 high opening session builds the connector, its database lock, Accept for every kind of proposal and the new fields (`docs/MODEL_AND_EFFORT.md`, Phase 4).
+- **The coach behaviour brief and the coach intake are approved** (24 Nov; `docs/SPEC.md` Section 4), with the coach behaviour evals (`docs/SPEC.md` Section 8, E1 to E19).
+- **Next, once the plan is merged: stage 4A, data and the lock** (Opus 5.5, high). Phase 4 runs in eight stages, one pull request each: 4A data and the lock, 4B connector core, 4C the other read tools, 4D Accept and Decline, 4E propose tools, 4F the inbox, 4G Coach setup, Profile and gyms, 4H Home and the full eval, then the fresh review (`docs/TECHNICAL_DESIGN.md` Section 11).
 
 ## Waiting on Nate
 
 1. **Say yes or no to merging the Phase 4 plan** (pull request `phase4-plan`, documents only).
-2. **Delete the throwaway sign-in proof projects,** now that their last check has passed: Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot. Supabase: https://supabase.com/dashboard, open `chalk-iron-signin-proof`, then **Project Settings** > **General**, and **Delete project** at the bottom. Vercel: https://vercel.com, open `chalk-iron-signin-proof`, then **Settings**, and **Delete Project** at the bottom. Delete only these two, never `chalk-and-iron` or `chalkandiron`.
+2. **Before stage 4C: make the coach eval account,** a separate account so evals never touch your real inbox. Open https://chalkandiron.vercel.app/planner/admin, make an invite labelled "Coach eval", and register it with a second email of yours (as you did for the Phase 1 test account). The agent loads its starting data in stage 4A's way.
+3. **Delete the throwaway sign-in proof projects,** now that their last check has passed: Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot. Supabase: https://supabase.com/dashboard, open `chalk-iron-signin-proof`, then **Project Settings** > **General**, and **Delete project** at the bottom. Vercel: https://vercel.com, open `chalk-iron-signin-proof`, then **Settings**, and **Delete Project** at the bottom. Delete only these two, never `chalk-and-iron` or `chalkandiron`.
 
 ## Open items
 
@@ -22,6 +24,7 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 - Delete `phase0/` (the throwaway connector test) once the real connector exists (Phase 4). The sign-in proof, `proofs/connector-signin/`, is throwaway too.
 - Whether a ChatGPT scheduled task can use the connector (for the weekly summary on a schedule). Not tested; Nate expects it to work.
 - Open product decisions with a default to build: `docs/SPEC.md` Section 9.
+- To confirm in Phase 4 (`docs/TECHNICAL_DESIGN.md` Section 10C): whether ChatGPT and Claude give their model the connector's own instructions, and whether an agent session can attach to the connector for the eval agent pass.
 - Plan against actual in the coach's tools: Nate said not yet (24 Nov). Listed in `docs/SPEC.md` Section 10, Later enhancements.
 
 ## Decided, not yet built

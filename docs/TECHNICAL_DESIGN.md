@@ -8,7 +8,7 @@ This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md`. W
 
 Written by Fable 5.2 on 16 November 2026, as `docs/MODEL_AND_EFFORT.md` sets out. Any later revision is done on Opus 5.5 at high effort.
 
-Both revisions of 17 November 2026 were done on Opus 5.5 at high effort. Section 10E, added during Phase 1 on 17 November 2026, records what the Phase 1 sign-in research found. On 24 November 2026 (Opus 5.5) Nate's Phase 4 decisions were added: the coach intake on the coach profile, an optional decline reason, the campaign's last-week note on Home, and weekly check-in marks.
+Both revisions of 17 November 2026 were done on Opus 5.5 at high effort. Section 10E, added during Phase 1 on 17 November 2026, records what the Phase 1 sign-in research found. On 24 November 2026 (Opus 5.5) Nate's Phase 4 decisions were added: the coach intake on the coach profile, an optional decline reason, the campaign's last-week note on Home, and weekly check-in marks; with them, what the connector tells the coach (Section 3), the coach behaviour evals (Section 9) and the Phase 4 stages (Section 11).
 
 **Status is not kept here.** What is being built now is in `docs/NEXT.md`, and what was done and decided, by date, is in `docs/LOG.md`. This document keeps the design, its findings and Nate's decisions about it.
 
@@ -380,7 +380,7 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 
 **connector_calls**. A short log of connector use: `client_name`, `tool`, `ok`, `called_at`. No content is stored. It powers the "connection test" on the Coach setup page and a "last used" line in settings.
 
-**weekly_checkins** (added 24 Nov). One row per user and week: `week_start` (a Monday) and `first_read_at`. Added the first time a coach reads that week's summary through `get_weekly_summary`, at any time. It is kept as long as the account, unlike the short call log. Home marks those weeks, and "check-ins in a row" counts back from the most recent full week, unbroken.
+**weekly_checkins** (added 24 Nov). One row per user and week: `week_start` (a Monday) and `first_read_at`. Added the first time a coach reads that week's summary through `get_weekly_summary`, at any time, through the guarded step `record_weekly_checkin` (Section 3). It is kept as long as the account, unlike the short call log. Home marks those weeks, and "check-ins in a row" counts back from the most recent full week, unbroken.
 
 ### Housekeeping
 
@@ -471,10 +471,20 @@ Every propose tool:
 
 A today proposal expires at the 3:00 am day rollover that ends its day (decided 17 Nov, question 24). A new campaign from an accepted proposal arrives as a draft, and the user activates it (question 21). A propose call repeated word for word within a minute returns the first proposal, so a coach app that retries does not fill the inbox with copies.
 
+### What the connector tells the coach (24 Nov)
+
+The coach behaviour brief (spec Section 4) reaches the coach in three places the connector controls, so every user's coach gets it without pasting anything:
+
+- **The connector's own instructions:** the short text MCP lets a connector give a coach app when it connects. It carries the brief in a few lines: you can only propose and nothing changes until the user accepts in the app; read before proposing; one request, one proposal; say it is waiting in the app; ask when unsure; take the tone and pace from `get_profile`. Whether ChatGPT and Claude pass this text to their model is to be confirmed (Section 10C); the tool descriptions carry the same rules either way.
+- **Each tool's description:** what it returns, plus the brief's rules that apply at that moment. `get_profile`: read it first, and the intake's coach style, pace and "how to coach me" set how to work. `get_weekly_summary`: the check-in (brief 3) and the pace check (brief 5). `list_proposals` and `get_proposal_status`: what to do after a decline (brief 4). Every propose tool: one line per change, bundle related changes, nothing changes until the user accepts, tell the user it is waiting. `propose_today_change`: propose straight away, today only. `propose_workout` and `propose_campaign`: ask first, bundle new exercises and workouts. `propose_profile_update`: the intake by conversation, and a pace change after a pace check.
+- **Error messages:** written to the coach, saying what is wrong and how to fix it, for example "A superset holds two or three exercises. Split these four into two supersets, or make one a single exercise."
+
+The descriptions live in one file in the connector, beside a list of the brief items each tool must carry. A code check fails a pull request when a description leaves out an item assigned to it, as the existing check does for the coach instructions and the tool list.
+
 ### What the connector may not do
 
 - It never calls out to any LLM or any other service. It only answers.
-- A coach sign-in can read the user's rows and add rows to `proposals` and `proposal_targets`. The database refuses every other write from a coach sign-in. Even a mistake in the connector's code cannot change a workout.
+- A coach sign-in can read the user's rows and add rows to `proposals` and `proposal_targets`, and can record a weekly check-in through one guarded step (`record_weekly_checkin`, for the signed-in user only; added 24 Nov). The database refuses every other write from a coach sign-in. Even a mistake in the connector's code cannot change a workout.
 - Applying a proposal happens only when the signed-in user taps Accept in the app.
 
 ---
@@ -895,6 +905,14 @@ All automated tests run on every pull request. One of the code checks compares `
 | | A superset with members of different set counts, or with more than three members, is an error and never reaches the inbox | Connector, for workout, campaign and today proposals |
 | | One user's connector cannot reach another's data | Connector and Database, every tool and every table |
 | | No outgoing call to any LLM service | Code check: a scan for LLM libraries and addresses, plus a test that the server makes no outside calls beyond an allowed list (push notifications, and the email service if one is used) |
+| | Intake answers outside their lists, or more than three priorities, refused | Database, Connector, App |
+| | Decline with no reason, and with a reason up to 300 characters; longer refused | Database, App |
+| | The Coach button's count goes down after Accept or Decline; the banner after Accept | App |
+| | One check-in per week however often the summary is read; marks on Home; check-ins in a row | Database, Rules, App |
+| | The last-week note shows only in the week holding the campaign's end date | Rules, App |
+| | Tool descriptions carry their brief items; the coach instructions name every tool | Code checks |
+| | Coach setup completed unaided | **Device** |
+| Coach behaviour (evals) | Scenarios E1 to E19 | Agent pass and Nate's client pass (below) |
 | Theming | Switching skins moves and resizes nothing | App: record every element's position and size under each skin and compare |
 | | No color or font outside the token files | Code check |
 | | Reduced motion: no dust or shake | App, with reduced motion switched on |
@@ -902,6 +920,17 @@ All automated tests run on every pull request. One of the code checks compares `
 | | Offline set appears exactly once | App with the network off, then on (`tests/browser/offline.spec.ts`). Also Database: the same change sent twice, an answer lost, offline then online in order, delete wins, auto-finish, and each person's changes kept to their own rows (`tests/db/sync.test.ts`, and on Supabase's own local version `tests/supabase/sync.test.ts`) |
 | | Screen stays awake for a full session | **Device** |
 | Friends | A new user registers, installs and connects a coach unaided | **Device**, with a friend |
+
+### Coach behaviour evals (24 Nov)
+
+The spec's scenarios E1 to E19 (Section 8) test the coach, not the app's code, so they sit outside the automated tests. The app still never calls an LLM: in every eval a coach connects to the app exactly as a user's coach does.
+
+- **The eval account.** A separate account, made by Nate from the Admin page, so evals never put cards in his real inbox. A fixed starting data set is loaded into it: two gyms (a full home gym, and a hotel gym with dumbbells to 50 lb, a bench and bands), an intake filled in, eight weeks of history, an active campaign, and past proposals (one declined with a reason, one with none, one declined four weeks ago). Each scenario names the state it needs (for example "empty profile" or "campaign ends in five days"), and a reset puts the account into that state. How the data is loaded, without putting the project's secret key in the repository, is settled in stage 4A. The scenario prompts and states live in `tests/coach-evals/`.
+- **The agent pass.** An agent session adds the connector as its own coach connection, signs in to the eval account, takes the coach instructions as its instructions, and runs every scenario. It records the tool calls made and the reply, and scores each against Must and Must not. It runs on Sonnet 5.5 at medium effort, close to the coaches people use (`docs/MODEL_AND_EFFORT.md`). Whether an agent session can attach to the connector this way is to be confirmed (Section 10C).
+- **Nate's client pass.** The core set (★) in ChatGPT on his iPhone, and E2 and E4 in Claude, on the eval account, from a short checklist in `docs/SETUP.md`. Only Nate judges E14, the tone.
+- **When a scenario fails.** Change the tool description, the error message or the connector's instructions (or, with Nate's agreement, the coach instructions), then run the failed scenario again with every other scenario that uses the same tool.
+- **When evals run.** The agent pass runs on the live app after a stage that changes tools merges (4C, 4E and 4H), and in full before the phase is offered for acceptance. From then on, the full agent pass runs again whenever a tool description, an error message, the connector's instructions or the coach instructions change. LLMs vary from run to run, so a scenario that passes only some of the time counts as a failure.
+- **Results.** One file per run in `tests/coach-evals/results/` (date, coach app, model, and pass or fail per scenario, with a line on each failure). One line in `docs/LOG.md` per full pass.
 
 ### Device checks I suggest adding
 
@@ -991,6 +1020,8 @@ I did not check these against current documentation in this sitting. Each is con
 | The Vercel and Supabase free tiers fit this use | Paid tiers |
 | A coach app's scheduled tasks can call a custom connector, so the weekly summary can arrive without being asked for | The user asks their coach for the week's summary by hand. Nate plans a scheduled task on the LLM side, or his Dot agent, which he has shown can call the connector. A ChatGPT scheduled task is not tested yet; Nate expects it to work (20 Nov) |
 | A passkey can be the only sign-in method with Supabase, and works in the iPhone home-screen app and on the coach-connection page | Sign in by emailed code, which needs an email service and a domain |
+| ChatGPT and Claude give their model the connector's own instructions (added 24 Nov, Section 3) | The tool descriptions and the pasted coach instructions carry the brief, as they do anyway |
+| An agent session can add the connector as a coach connection, for the agent pass of the coach evals (added 24 Nov, Section 9) | The agent pass runs in Claude on the web with Nate signed in, or Nate runs more of the scenarios himself |
 
 ### E. Phase 1 findings (17 November 2026)
 
@@ -1058,6 +1089,22 @@ Choices the build made within the design:
 The items still open (the Coach button opening a ChatGPT project, default work and rest seconds with no researched source, the parked coach instructions) are kept in `docs/NEXT.md`, under Open items. Answered: Claude works as a coach through the same connector (17 Nov, the sign-in proof), on the web, in a Project and in the iPhone app.
 
 ---
+
+## 11. Phase 4: stages of work (24 Nov 2026)
+
+**In short:** Phase 4 is built in eight stages, one pull request each, in this order. Each ends with its tests passing and, where it says so, a check by Nate on the live app (steps added to `docs/SETUP.md` as each stage is built). Stages 4C and 4D touch different files and can run side by side. The model for each follows `docs/MODEL_AND_EFFORT.md`, Phase 4.
+
+| Stage | Model | What it builds | Done when | Nate's part |
+|---|---|---|---|---|
+| 4A. Data and the lock | Opus 5.5, high | The new fields and table: the coach intake, `decline_reason`, `weekly_checkins` with `record_weekly_checkin`. The database refuses every coach write except adding proposals and their targets and recording a check-in. How the eval data is loaded | The database and isolation tests pass for every new field and table, on Supabase's own local version too | Runs the SQL step on the live project |
+| 4B. Connector core | Opus 5.5, high | The real connector at its permanent link, with the proof's sign-in kept (a per-call check, passes only from this project). The error shape, size limits, too-many-requests, the one-minute repeat guard, the call log. The connector's instructions. The first read tools: `get_profile`, `list_gyms`, `get_vocabulary`. Deletes `phase0/` and `proofs/connector-signin/` | Connector, isolation and sign-in tests pass | Connects ChatGPT and Claude to the real link and asks each "who am I?" |
+| 4C. The other read tools | Sonnet 5.5, medium | The other eleven read tools, including the weekly summary with check-in recording, `list_proposals` with decline reasons, and `list_cardio` | Contract and isolation tests pass for every read tool; agent pass on E9, E15, E16 and E18 | None |
+| 4D. Accept and Decline | Opus 5.5, high | The payload for each kind of proposal. Accept for all five kinds, all or nothing: targets and out of date, bundled new exercises and workouts, a change to today inside a running workout or in today's plan (including breaking a superset), a new campaign as a draft, profile and gym. Decline with its reason. The 3:00 am expiry | Database tests pass for every Accept and Decline test in spec Section 8, including a phone that was offline | None |
+| 4E. Propose tools | Sonnet 5.5, medium | The five propose tools: every check, errors written to the coach, tool descriptions from the brief, and the description code check | Every validation test passes; agent pass on E3, E4, E5, E17 and E19 | None |
+| 4F. The inbox | Sonnet 5.5, medium | The coach's cards on the phone and on the planner's new Proposals screen (with room for a full campaign), the Coach button's count, the banner after Accept, Decline with its optional reason, out-of-date and expired cards shown | Browser tests pass | Accepts and declines a coach card on the iPhone and in the planner |
+| 4G. Coach setup, Profile and gyms | Sonnet 5.5, medium | Coach setup in order: intake, ChatGPT and Claude steps with screenshots, the instructions to copy, the connection test, "let's get started". The coach link and connected coach apps with Disconnect. Profile and gyms with the intake's answers | Browser tests pass | Completes Coach setup on the eval account using only the page |
+| 4H. Home and the full eval | Sonnet 5.5, medium | Home's last-week note and check-in marks with the count. The coach instructions brought in line with the brief and the final tool names (Nate's own revision of the wording still waits for real use). The full agent pass | Every Phase 4 acceptance test passes; the agent pass passes E1 to E19 | Runs the client pass |
+| Review | Opus 5.5, high, fresh | The phase review, as for every phase. Fixes after it are checked by a fresh Opus 5.5 high session unless Nate waives it | The review's points are settled | Accepts Phase 4 |
 
 ## What happens next
 
