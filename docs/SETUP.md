@@ -425,3 +425,15 @@ The review at high effort found two points to fix, and **Nate chose to fix both*
 The phone side (a swap made with no signal, then a sent day accepted) is covered by the database tests; it is not a device check.
 
 **Passed (Nate, 24 November 2026).**
+
+## 19. The app icon (25 November 2026)
+
+The app now has its own icon: the chalk handprint and dumbbell. An iPhone keeps the icon it took when the app was added to the home screen, so the new one shows only after adding it again.
+
+### AF. On your iPhone, after the merge
+
+1. [ ] Press and hold the Chalk and Iron icon on your home screen, tap **Remove App**, then **Delete from Home Screen**. Your passkey and data are unaffected.
+2. [ ] Open https://chalkandiron.vercel.app in Safari, tap the **Share** button (the square with an arrow pointing up), then **Add to Home Screen**, then **Add**. The preview in that sheet already shows the new icon.
+3. [ ] The home screen shows the handprint and dumbbell icon, named Chalk and Iron. Open it from there and you land in the app, signed in.
+4. [ ] Rest alerts: removing the icon also removes this phone's notification permission. Start a workout; when **Turn on rest alerts** shows, tap it, then **Allow**. Log a set and lock the phone: "Rest over" should arrive when the rest ends. Finish the test workout at the end.
+
