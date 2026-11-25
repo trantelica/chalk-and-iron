@@ -8,7 +8,7 @@ This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md`. W
 
 Written by Fable 5.2 on 16 November 2026, as `docs/MODEL_AND_EFFORT.md` sets out. Any later revision is done on Opus 5.5 at high effort.
 
-Both revisions of 17 November 2026 were done on Opus 5.5 at high effort. Section 10E, added during Phase 1 on 17 November 2026, records what the Phase 1 sign-in research found. On 24 November 2026 (Opus 5.5) Nate's Phase 4 decisions were added: three coaching preferences on the coach profile, an optional decline reason, and the campaign's last-week note on Home.
+Both revisions of 17 November 2026 were done on Opus 5.5 at high effort. Section 10E, added during Phase 1 on 17 November 2026, records what the Phase 1 sign-in research found. On 24 November 2026 (Opus 5.5) Nate's Phase 4 decisions were added: the coach intake on the coach profile, an optional decline reason, the campaign's last-week note on Home, and weekly check-in marks.
 
 **Status is not kept here.** What is being built now is in `docs/NEXT.md`, and what was done and decided, by date, is in `docs/LOG.md`. This document keeps the design, its findings and Nate's decisions about it.
 
@@ -114,7 +114,18 @@ These are the choices in this design that cost money, add an account, or change 
 | setup_done | list of text | Which walkthrough steps are finished |
 | delete_requested_at | timestamp or empty | Starts the 14-day grace period |
 
-**coach_profiles**. One row per user: `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`, and the three coaching preferences `exercises_liked`, `exercises_to_avoid` and `how_to_coach_me` (all text; preferences added 24 Nov), `version`.
+**coach_profiles**. One row per user: `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`, `version`, and the coach intake (added 24 Nov; spec Section 4, "Coach intake"; every field may be empty):
+
+| Field | Type |
+|---|---|
+| coach_style | 'supportive', 'challenging' or 'neutral' |
+| experience | 'new', 'returning', 'intermediate', 'experienced' or 'all_in' |
+| priorities | Up to three, in rank order. Each is one of 'strength', 'muscle', 'fat_loss', 'general_fitness', 'endurance', 'mobility', 'sport', 'habit', or 'other' with its own text (up to 100 characters). No value twice except 'other' |
+| progression_pace | 'steady', 'moderate' or 'aggressive' |
+| workout_minutes | 10 to 240 |
+| days_per_week | 1 to 7 |
+| variety | 'familiar', 'some' or 'lots' |
+| exercises_liked, exercises_to_avoid, how_to_coach_me | text, up to 2,000 characters each |
 
 **gyms**: `name`, `equipment` (list of text), `notes`, `is_default`, `archived_at`, `version`. The database allows only one default gym per user. The equipment list is free text, not picked from the equipment vocabulary, because gyms have things the vocabulary does not, such as a rower (decided 17 Nov, question 25).
 
@@ -369,6 +380,8 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 
 **connector_calls**. A short log of connector use: `client_name`, `tool`, `ok`, `called_at`. No content is stored. It powers the "connection test" on the Coach setup page and a "last used" line in settings.
 
+**weekly_checkins** (added 24 Nov). One row per user and week: `week_start` (a Monday) and `first_read_at`. Added the first time a coach reads that week's summary through `get_weekly_summary`, at any time. It is kept as long as the account, unlike the short call log. Home marks those weeks, and "check-ins in a row" counts back from the most recent full week, unbroken.
+
 ### Housekeeping
 
 - **admin_actions**: who did what to which account, and when. Written for every admin action. Holds no training data.
@@ -414,7 +427,7 @@ Validation errors are returned to the coach before anything reaches the inbox, a
 
 | Tool | Inputs | Returns | Errors |
 |---|---|---|---|
-| get_profile | None | Display name, goals, injuries and limits, weekly schedule, notes, the three coaching preferences (exercises liked, exercises to avoid, how to coach me), totals unit, time zone, today's date, default gym (id and name) | not_signed_in |
+| get_profile | None | Display name, goals, injuries and limits, weekly schedule, notes, the coach intake (coach style, experience, priorities in rank order, progression pace, workout minutes, days per week, variety, exercises liked, exercises to avoid, how to coach me), totals unit, time zone, today's date, default gym (id and name) | not_signed_in |
 | list_gyms | None | Each gym: id, name, equipment list, notes, default flag | not_signed_in |
 | get_vocabulary | None | Muscle groups, each with its focus values. Equipment values. Allowed units and set types | not_signed_in |
 | list_exercises | Optional: `muscle_group`, `equipment`, `search`, `include_archived`, `next` | Each exercise with every field: id, name, muscle group, focus, equipment, default unit, work seconds, rest seconds, note, the alternates, archived flag, and an incomplete flag naming any empty fields (question 16) | invalid_input |
@@ -427,7 +440,7 @@ Validation errors are returned to the coach before anything reaches the inbox, a
 | get_proposal_status | `proposal_id` | Status (pending, accepted, rejected, out of date or expired), kind, created and decided times, and the decline reason if the user gave one | not_found |
 | list_proposals | Optional: `status` (any of the five), `kind`, `from`, `to`, `limit` (default 20, most 100), `next` | Newest first. Per proposal: id, source (which coach app, or the planner), kind, what it applies to, summary lines, status, created, decided and expiry times, decline reason | invalid_input |
 | list_cardio | Optional: `from`, `to` (default the last 12 weeks), `limit` (default 20, most 100), `next` | Newest first. Per entry: id, date, type, duration, distance and its unit, notes | invalid_input |
-| get_weekly_summary | Optional: `week_of` (any date in the week wanted). Without it, the most recent full week | The week's dates. Sessions done and planned days missed. For each session: the exercises with sets, reps and weights. Total volume, records set, efficiency. Cardio entries for the week | invalid_input |
+| get_weekly_summary | Optional: `week_of` (any date in the week wanted). Without it, the most recent full week | The week's dates. Sessions done and planned days missed. For each session: the exercises with sets, reps and weights. Total volume, records set, efficiency. Cardio entries for the week. Check-ins in a row, counted before this read is recorded | invalid_input |
 
 **The weekly summary goes through the coach.** The app cannot push anything to the user's LLM, because the app never calls an LLM (rule 1). So the summary is a read tool: the user asks their coach for the week, or sets their coach app to ask on a schedule, and the coach writes it up. For an accountability partner, the coach writes a version to share and the user sends it themselves. Whether a coach app's scheduled tasks can use a custom connector is not confirmed (Section 10C).
 
@@ -450,7 +463,7 @@ Every propose tool:
 | propose_workout | `workout` to edit, or leave out for new. `name`. `items` in order: `exercise`, `sets`, `reps`, optional `rest_seconds`, optional `superset` letter. Optional `new_exercises`: brand-new exercises with the same fields as `propose_exercise`, which the items can name (question 22) | Every exercise exists and is not archived, or is defined in `new_exercises`. Each new exercise passes every `propose_exercise` check, including the three alternates, and its name is not a near-duplicate of the library or of another new exercise in the proposal. Numbers in range. A superset letter is used by two or three rows, and every row sharing it has the same sets | not_found, invalid_input, unknown_vocabulary, near_duplicate_name |
 | propose_campaign | `campaign_id` to edit, or leave out for new. `name`, `start_date`, `week_count`. `days`: week, weekday (1 is Monday), a workout or rest, and optional overrides per item (exercise, sets, reps, weight, rest). Or `shift_forward_weeks: 1` on its own. Optional `new_exercises` and `new_workouts` (each shaped as in `propose_workout`), which days and overrides can name (question 22) | 1 to 6 weeks. Every workout and exercise exists, or is defined in the same proposal. Bundled new exercises and workouts pass the same checks as in `propose_exercise` and `propose_workout`. Each override names an item of that day's workout. No day's overrides give superset members different set counts | not_found, invalid_input, unknown_vocabulary, near_duplicate_name |
 | propose_today_change | `changes`, each with an `action` (swap, set_sets, set_reps, set_weight, set_rest, add, remove, reorder, break_superset), the exercise it applies to, and the new value. `break_superset` names the superset by its letter, or by any one of its members, and needs no value (question 41) | There is a workout today or a live session. Exercises exist in the library. It does not touch a set already logged. A `set_sets` on a superset member must be matched by the same `set_sets` on every other member, unless the same proposal breaks that superset first. `break_superset` names a superset that exists today and is not already broken | nothing_to_change, not_found, invalid_input |
-| propose_profile_update | Any of `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`, `exercises_liked`, `exercises_to_avoid`, `how_to_coach_me`. And or a `gym`: id to edit or none for new, `name`, `equipment`, `notes`, `make_default` | At least one change is present | not_found, invalid_input |
+| propose_profile_update | Any of `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`, and the intake fields (`coach_style`, `experience`, `priorities`, `progression_pace`, `workout_minutes`, `days_per_week`, `variety`, `exercises_liked`, `exercises_to_avoid`, `how_to_coach_me`), each checked against its allowed values. And or a `gym`: id to edit or none for new, `name`, `equipment`, `notes`, `make_default` | At least one change is present | not_found, invalid_input |
 
 **Bundled proposals** (decided 17 Nov, question 22). A workout or campaign proposal can bring its own new exercises (and, for a campaign, new workouts) in the same proposal, so a plan with new movements needs only one approval. One card lists everything, new exercises first, and one Accept applies all of it or none. "Unknown exercise" as an error now means not in the library and not defined in the same proposal. A today proposal cannot bundle new exercises; a swap or an add today names an exercise already in the library.
 

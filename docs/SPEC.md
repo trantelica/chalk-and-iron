@@ -114,7 +114,8 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 
 - A Coach button on the phone opens the user's own LLM project.
 - The coach reads the user's profile, gyms, library and history, and proposes changes. Section 4 covers the connector.
-- The app keeps a coach profile (goals, injuries, schedule) and gym profiles (equipment lists) that the coach reads. The coach profile also holds three coaching preferences in plain words: exercises I like, exercises to avoid, and how I want my coach to work with me (Nate, 24 Nov).
+- The app keeps a coach profile and gym profiles (equipment lists) that the coach reads. The coach profile is filled in by a **coach intake** (Nate, 24 Nov), the first step of Coach setup: coach style, experience, up to three ranked priorities, progression pace, workout length, days per week, variety, goals, injuries and limits, exercises I like, exercises to avoid, and anything else about how to coach me. Section 4, "Coach intake", has the choices. If the intake is skipped, the coach runs it as a conversation and proposes the answers as one profile update.
+- Home's week view marks each week in which the coach read the weekly summary (a check-in), with a count of check-ins in a row (Nate, 24 Nov).
 - The coach acts only when it is asked: by the user in a chat, or by a scheduled task the user sets up in their LLM app, such as a weekly check-in. The app never contacts it (rule 1).
 - Proposals arrive in an inbox on the phone and in the planner. Each is accepted or rejected.
 
@@ -237,7 +238,7 @@ The coach reads freely but can only propose. A proposal changes nothing until th
 | get_proposal_status | Whether a proposal is pending, accepted, rejected, out of date or expired, and any decline reason |
 | list_proposals | Past and pending proposals, newest first, with their status |
 | list_cardio | Cardio entries over a date range |
-| get_weekly_summary | One week's sessions, sets, reps and weights, total volume, records, efficiency, missed days and cardio |
+| get_weekly_summary | One week's sessions, sets, reps and weights, total volume, records, efficiency, missed days, cardio and check-ins in a row |
 
 There are nineteen tools: fourteen read tools and five propose tools.
 
@@ -267,7 +268,38 @@ Every propose tool requires one plain-language summary line per change, which is
 
 ### Coach behaviour
 
-How the coach behaves with the user (when it reads, when it asks and when it proposes, check-ins and a campaign's end, what it does after a decline, how bold it is, and what it does when unsure) is set out in a coach behaviour brief, written at the start of Phase 4 and approved by Nate (decided 24 Nov). The brief shapes the tool descriptions, the error messages, the setup page and the coach instructions. The wording of the instructions stays a parked draft until Nate has used the coach for real.
+The coach behaviour brief, approved by Nate on 24 November 2026. These are the defaults for every user's coach. A user's intake answers win where they differ: coach style sets the tone, progression pace sets how bold it is, and "anything else about how to coach me" can change any of it. The brief shapes the tool descriptions, the error messages, the Coach setup page and the coach instructions. The wording of the instructions stays a parked draft until Nate has used the coach for real.
+
+The coach acts only when asked, by the user or by a scheduled task in their LLM app. It cannot watch a workout or notice anything by itself (rule 1).
+
+1. **Read first.** Before proposing anything, read the profile, the gym, today and recent history for the lifts involved. For a quick question, read only what it needs.
+2. **Propose or ask.** A change to today is proposed straight away, since the user is probably in the gym. Before a new workout or campaign, ask two or three short questions (how the last block went, new aches, days available), fewer when the intake already answers them.
+3. **The weekly check-in.** Sessions done and missed, total volume, records and efficiency, set against the user's priorities, then one or two things to adjust. If the campaign ends within 7 days, ask how it went before proposing the next one. After two or more missed workouts, ask what got in the way rather than pushing harder. Small changes for next week, such as weight increases, may go in one proposal.
+4. **After a decline.** Read the reason, and do not send the same thing straight back. It may be raised again later when something has changed (a new campaign, a few weeks on, or the reason no longer applies), saying that it was declined before and why now is different. With no reason given, ask once in the chat. A decline is never a lasting ban.
+5. **How bold.** Start from the intake's progression pace. Steady: one 5 lb step after every rep of every set is hit, hold after a miss, and drop one step after two misses at the same weight. Moderate and Aggressive take larger or more frequent steps, at the coach's judgment. **Pace check:** at each campaign's end, and at a check-in when results are clearly off, compare the chosen pace with what the history shows (reps hit, records, missed sessions). If the pace is outrunning the results, say so and propose easing it; if the user is beating it, propose stepping up. Either is a profile proposal, never a silent change.
+6. **When unsure.** Ask rather than guess. With an empty profile, run the intake as a conversation and propose the answers as one profile update. If the data cannot be read, say so.
+7. **Tone.** Short, direct and plain, with weights in the user's units, in the tone the coach style sets: supportive, challenging or neutral. Each change on a card is one clear line, such as "Overhead Press becomes Dumbbell Shoulder Press".
+8. **Size of proposals.** One request, one proposal, with related changes bundled, never one change spread across several cards.
+
+### Coach intake
+
+Asked on the Coach setup page before connecting a coach, and editable on Profile and gyms (Nate, 24 Nov). Fixed choices where the coach or the check-ins act on the answer; free text where only the user can say it. Every field may be left empty.
+
+| Field | Answer |
+| --- | --- |
+| Coach style | Supportive, Challenging or Neutral |
+| Experience | New to lifting, Returning after a break, Intermediate, Experienced or All in |
+| Priorities | Up to three, ranked, from: Build strength, Build muscle, Lose fat, General fitness, Endurance, Mobility and joint health, Sport performance, Build the habit, or Other (written in) |
+| Progression pace | Steady, Moderate or Aggressive |
+| Workout length | Minutes |
+| Days per week | A number, with which days in the weekly schedule |
+| Variety | Keep it familiar, Some variety or Lots of variety |
+| Goals | Free text, such as "bench 225 by March" |
+| Injuries and limits | Free text |
+| Exercises I like, Exercises to avoid | Free text |
+| Anything else about how to coach me | Free text |
+
+Gyms and their equipment are set on the same page, as before.
 
 ### Coach instructions
 
@@ -377,7 +409,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | Screen | Contents |
 | --- | --- |
 | Sign in and register | Opening an invite link, name and email, passkey setup, sign-in, first-run setup steps |
-| Home | Today's workout with a Start button, pending proposals, the campaign week at a glance, and Start another workout. Today's workout is a day sent to the phone for today if there is one, otherwise the active campaign's day for today with its overrides. The week runs Monday to Sunday, each day marked Done, Missed, Today, upcoming or Rest. Built 19 Nov; the planner (Phase 3) and the coach (Phase 4) are what fill it, and the proposals inbox comes with the coach. During the active campaign's last week it shows a note to ask the coach for the next one, with the Coach button (Phase 4) |
+| Home | Today's workout with a Start button, pending proposals, the campaign week at a glance, and Start another workout. Today's workout is a day sent to the phone for today if there is one, otherwise the active campaign's day for today with its overrides. The week runs Monday to Sunday, each day marked Done, Missed, Today, upcoming or Rest. Built 19 Nov; the planner (Phase 3) and the coach (Phase 4) are what fill it, and the proposals inbox comes with the coach. During the active campaign's last week it shows a note to ask the coach for the next one, with the Coach button, and each week carries a check-in mark when the coach read its weekly summary, with a count of check-ins in a row (Phase 4) |
 | Cardio entry | Type, duration, distance, notes, and a list of recent entries |
 | Settings | Look (skin, accent, background), totals unit, notifications, coach link, sign out |
 
@@ -394,8 +426,8 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | Screen | Contents |
 | --- | --- |
 | Proposals | The same inbox as the phone, with room for longer proposals such as a full campaign |
-| Coach setup | Step-by-step connection for ChatGPT and for Claude, the coach instructions to copy, and a connection test |
-| Profile and gyms | Coach profile fields, the three coaching preferences (exercises I like, exercises to avoid, how I want my coach to work with me), and gym equipment lists |
+| Coach setup | In order: the coach intake (Section 4), step-by-step connection for ChatGPT and for Claude, the coach instructions to copy, a connection test, and a last step telling the user to say "let's get started" to their coach, which reads the intake, asks any follow-ups and proposes a first campaign. Also the coach link the Coach button opens, and the connected coach apps with Disconnect |
+| Profile and gyms | The coach intake's answers, editable, and gym equipment lists |
 | Account | Email, export, delete account |
 | Admin (admins only) | Accounts and single-use links. Create, deactivate, reactivate, reset and delete an account, make a user an admin, with ready-to-paste invite and reset text. No training data |
 | Vocabulary | Editable lists of muscle groups, focus values and equipment. This is the only place the vocabulary is managed. The phone has no vocabulary screen, to keep it uncluttered |
@@ -476,7 +508,7 @@ This section is the plan, not the status. What is being worked on now is in `doc
 2. **Phase 1, foundation.** It opens with a small throwaway proof that connector sign-in works from ChatGPT and from Claude. Then accounts and sign-in, invites and the admin page, the full data model, per-user data isolation, the theme token system with the Chalk and Iron skin, and the seeded vocabulary. It also includes a project task: draft the starter library of about 40 exercises, each with its three alternates and starter work and rest seconds, for Nate to review (it became version 2, 227 exercises, `docs/STARTER_LIBRARY.md`).
 3. **Phase 2, logging.** It opens with the items carried from the Phase 1 review: the two account fixes, tests against Supabase's own local version, the three iPhone checks below, the counting rules for assisted machines and load counts (Section 3; bands were made bodyweight in Phase 1), and the safe area (Section 5). Then the active workout screen, dial, supersets, rest timer, typed and stepped entry, unit switching, records, tray, stats, swap, breaking a superset into individual exercises, and crash-safe sessions. This phase must match the prototype, except for what the prototype lacks, such as breaking a superset.
 4. **Phase 3, planner.** Library for exercises, workouts and campaigns, the Vocabulary screen (in the planner only, never on the phone), the Plan view with per-day overrides, History (with set editing), and sending a day to the phone. When today already has a workout, the sent day's inbox card (Accept or Dismiss) is built in this phase; Phase 4 adds the coach's cards to the same inbox (Nate, 20 Nov).
-5. **Phase 4, coach.** It opens with the coach behaviour brief (Section 4), approved by Nate. Then the full connector tool set, all nineteen tools, including the weekly summary, cardio and the proposal list, proposals and the inbox on both surfaces, coach setup pages, coach instructions, and profile and gym screens with the coaching preferences. Also the optional decline reason and the campaign's last-week note on Home (Nate, 24 Nov). Notifications for proposals wait for Phase 5; in Phase 4 the Coach button shows the count. The cardio tool is built now but returns entries only once cardio can be logged (Phase 5).
+5. **Phase 4, coach.** The coach behaviour brief (Section 4) was approved by Nate on 24 Nov, before building. Then the full connector tool set, all nineteen tools, including the weekly summary, cardio and the proposal list, proposals and the inbox on both surfaces, coach setup pages with the coach intake, coach instructions, and profile and gym screens. Also the optional decline reason, the campaign's last-week note on Home, and the weekly check-in marks on Home (Nate, 24 Nov). Notifications for proposals wait for Phase 5; in Phase 4 the Coach button shows the count. The cardio tool is built now but returns entries only once cardio can be logged (Phase 5).
 6. **Phase 5, reach.** Notifications for rest and proposals, the daily workout reminder, cardio (including cardio rows inside a workout), export, the Arcade and Liquid Color skins, backgrounds and celebrations.
 7. **Phase 6, friends.** Onboarding polish for non-technical users, tested by one friend completing setup without help. Before the first friend is invited: either move Supabase to its paid plan or add a scheduled backup. (The permanent web address, `https://chalkandiron.vercel.app`, and the two account fixes from the Phase 1 review are already done.)
 
@@ -694,4 +726,5 @@ These rules settle what happens outside the normal path. Nate decided them in re
 
 - Merging two library exercises into one, combining their histories and records.
 - View-only access for a friend to another person's workouts and results, without notes or account details.
+- The coach's tools showing each exercise's plan beside what was lifted, with a hit, beat or missed verdict and a weekly share of planned sets hit. The plan is already stored with each workout; until then the coach compares against earlier workouts (Nate, 24 Nov: not yet).
 - A weekly summary sent by email, and an accountability partner who receives it after confirming.

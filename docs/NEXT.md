@@ -7,11 +7,11 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 **Phase 3, the planner: accepted by Nate on 24 November 2026.** Phases 1, 2 and 3 are accepted. The live app is https://chalkandiron.vercel.app, built from `main`.
 
 - **Phase 4, the coach, is starting** (`docs/SPEC.md` Section 7, item 5). Nate agreed how it divides by model on 24 November (`docs/MODEL_AND_EFFORT.md`, Phase 4).
-- **First step: the coach behaviour brief** (Opus 5.5, high; `docs/SPEC.md` Section 4, "Coach behaviour"). Questions go to Nate with a recommendation each; his answers become the brief, which shapes the tool descriptions, error messages and setup page. Building the connector starts once he approves it.
+- **The coach behaviour brief and the coach intake are approved** (24 Nov; `docs/SPEC.md` Section 4). Next, once this plan is merged: the Opus 5.5 high opening session builds the connector, its database lock, Accept for every kind of proposal and the new fields (`docs/MODEL_AND_EFFORT.md`, Phase 4).
 
 ## Waiting on Nate
 
-1. **Answer the coach behaviour brief questions** (asked in the Phase 4 session).
+1. **Say yes or no to merging the Phase 4 plan** (pull request `phase4-plan`, documents only).
 2. **Delete the throwaway sign-in proof projects,** now that their last check has passed: Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot. Supabase: https://supabase.com/dashboard, open `chalk-iron-signin-proof`, then **Project Settings** > **General**, and **Delete project** at the bottom. Vercel: https://vercel.com, open `chalk-iron-signin-proof`, then **Settings**, and **Delete Project** at the bottom. Delete only these two, never `chalk-and-iron` or `chalkandiron`.
 
 ## Open items
@@ -22,9 +22,10 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 - Delete `phase0/` (the throwaway connector test) once the real connector exists (Phase 4). The sign-in proof, `proofs/connector-signin/`, is throwaway too.
 - Whether a ChatGPT scheduled task can use the connector (for the weekly summary on a schedule). Not tested; Nate expects it to work.
 - Open product decisions with a default to build: `docs/SPEC.md` Section 9.
+- Plan against actual in the coach's tools: Nate said not yet (24 Nov). Listed in `docs/SPEC.md` Section 10, Later enhancements.
 
 ## Decided, not yet built
 
-- **Phase 4:** the coach's cards join the inbox the planner's sent days already use (Nate, 20 Nov). Three coaching preferences on Profile (exercises I like, exercises to avoid, how I want my coach to work with me); an optional one-line reason when declining a coach's card, which the coach can read; a note on Home during a campaign's last week to ask the coach for the next one; and a weekly check-in set up as a scheduled task in the user's own LLM app (Nate, 24 Nov).
+- **Phase 4:** the coach's cards join the inbox the planner's sent days already use (Nate, 20 Nov). A coach intake on Coach setup and Profile (coach style, experience, up to three priorities, pace, workout length, days, variety, likes, dislikes and anything else); the coach behaviour brief; weekly check-in marks on Home with a count in a row; an optional one-line reason when declining a coach's card, which the coach can read; a note on Home during a campaign's last week to ask the coach for the next one; and a weekly check-in set up as a scheduled task in the user's own LLM app (Nate, 24 Nov).
 - **Phase 5:** cardio as a row inside a workout, with a heart symbol on cardio exercises (Nate, 19 Nov); a daily workout reminder at a time the user picks (Nate, 19 Nov); the skin and accent picker stays in Phase 5 with the Settings screen (Nate, 20 Nov).
 - **Before the first friend is invited (Phase 6):** move Supabase to its paid plan or add a scheduled backup. Setup must tell users that a Focus mode can hold back rest alerts, and how to let Chalk and Iron through.

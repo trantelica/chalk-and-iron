@@ -1,6 +1,6 @@
 # Coach instructions
 
-Draft. Paste the block below into the instructions of your ChatGPT or Claude project once the Chalk and Iron connector is attached. Tool names match Section 4 of `SPEC.md` and may change during the build.
+Draft. Paste the block below into the instructions of your ChatGPT or Claude project once the Chalk and Iron connector is attached. Tool names match Section 4 of `SPEC.md` and may change during the build. What this block must say is set by the coach behaviour brief and the coach intake in `SPEC.md` Section 4 (approved 24 Nov); the wording below waits for Nate's revision after real use.
 
 ---
 

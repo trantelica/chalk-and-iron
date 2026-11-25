@@ -39,12 +39,12 @@ Agreed by Nate on 20 November 2026, on the same pattern as Phase 2.
 Agreed by Nate on 24 November 2026, on the same pattern as Phases 2 and 3.
 
 1. **Opening session: Opus 5.5, high.**
-   - The coach behaviour brief: questions to Nate with a recommendation each, then the brief for his approval, because it decides how every tool is worded.
+   - The coach behaviour brief, because it decides how every tool is worded: done in the planning session and approved by Nate on 24 Nov (`docs/SPEC.md` Section 4).
    - The connector itself, with the sign-in carried from the Phase 1 proof (a hard spot).
    - The database rule that a coach pass can only add proposals, and the tests that one user's connector cannot read or propose against another's data.
    - Accept for every kind of proposal, all or nothing, with out of date and bundled exercises and workouts; a change to today applied inside a running workout.
-   - The new fields (the three coaching preferences and the decline reason), because they change the data model.
-2. **Then Sonnet 5.5, medium,** for the read tools, the propose tools' checks and errors, the tool descriptions written from the brief, the coach's cards in the inbox on both surfaces with the Coach button's count and the banner after Accept, the Proposals screen, Coach setup, Profile and gyms with the coaching preferences, the coach link and connected coach apps, the campaign's last-week note on Home, and deleting `phase0/`.
+   - The new fields and table (the coach intake, the decline reason, the weekly check-in marks), because they change the data model.
+2. **Then Sonnet 5.5, medium,** for the read tools, the propose tools' checks and errors, the tool descriptions written from the brief, the coach's cards in the inbox on both surfaces with the Coach button's count and the banner after Accept, the Proposals screen, Coach setup with the intake, Profile and gyms, the check-in marks on Home, the coach link and connected coach apps, the campaign's last-week note on Home, and deleting `phase0/`.
 3. **Hard spots to an Opus 5.5 high-effort helper** if the build reaches them.
 4. **Review: a fresh Opus 5.5 high-effort session,** as for every phase.
 
