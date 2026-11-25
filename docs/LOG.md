@@ -74,3 +74,4 @@ Pull requests are at `https://github.com/trantelica/chalk-and-iron/pull/<number>
 ## 24 November 2026
 
 - **Pull request 47 merged** (fixes from the Phase 3 review at high effort and its two fix checks). Nate ran SQL steps AB, AD and AE on the live project first; his browser check, step AC, is next. The 12 branches of merged pull requests 35 to 46 were deleted on GitHub at Nate's request.
+- **Nate accepted Phase 3** after step AC passed in his browser. Next is Phase 4, the coach, once Nate agrees how it divides by model.
