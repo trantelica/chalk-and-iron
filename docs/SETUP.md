@@ -425,3 +425,50 @@ The review at high effort found two points to fix, and **Nate chose to fix both*
 The phone side (a swap made with no signal, then a sent day accepted) is covered by the database tests; it is not a device check.
 
 **Passed (Nate, 24 November 2026).**
+
+## 19. Phase 4, stage 4A: the coach's data and the lock (25 November 2026)
+
+Stage 4A adds what the coach's tools will read and write: the coach intake on the coach profile, an optional decline reason on a coach's card, and the weekly check-in marks. It also locks the database so that a coach's pass can only read, add a pending card, record a check-in and note a call. And it adds the way the coach eval account ("Test Account") is reset to a fixed starting state for the coach evals (`docs/TECHNICAL_DESIGN.md` Section 9). Nothing changes on any screen yet.
+
+### AF. Supabase SQL Editor, **before** merging
+
+**Run this before the pull request is merged.** Run before merging, nothing changes for the app you have now.
+
+**What it changes:** the coach profile gains the intake answers; a card can hold a decline reason; a new list of weekly check-ins; the call log is written through one guarded step; every function the app's API offers is closed to signed-out people and opened to signed-in people one by one; the coach eval account can be marked and reset. It also fixes a fault from Phase 1: editing a coach profile always failed (nothing edited one until now). It removes no table and deletes no data.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
+
+1. [ ] [`20261125000100_coach_data_and_lock.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261125000100_coach_data_and_lock.sql) (this link shows the file on `main` once the pull request is merged). It should end with "Success. No rows returned". Safe to run more than once.
+
+### AG. Supabase SQL Editor: mark the coach eval account
+
+**Run this after AF**, once. It marks the account named "Test Account" as the coach eval account (Nate, 25 Nov), so the eval reset can use it and nothing else. **Each reset replaces everything in that account's library, history, plans, cards, gyms and coach profile** with the eval data. Its sign-in, its devices and its coach connections are kept.
+
+**Where:** the same **SQL Editor**, **New query**. Paste this and click **Run**. It should end with "Success. No rows returned". If it says it expected exactly one account named Test Account, tell the agent what it found.
+
+```sql
+-- Mark the coach eval account: the one account named "Test Account" (Nate, 25 Nov 2026).
+do $$
+declare
+  n integer;
+begin
+  select count(*) into n from public.profiles where display_name = 'Test Account';
+  if n <> 1 then
+    raise exception 'Expected exactly one account named Test Account, found %', n;
+  end if;
+  update public.profiles set is_eval_account = false where is_eval_account and display_name <> 'Test Account';
+  update public.profiles set is_eval_account = true where display_name = 'Test Account';
+end $$;
+```
+
+1. [ ] Run by Nate.
+
+### AH. GitHub: a key of its own for the eval reset
+
+The reset runs on GitHub, so an agent can reset the eval account whenever a scenario needs it without ever seeing a key. It gets **its own secret key**, not the one Vercel holds (which is never pasted anywhere else, step B3), so it can be cancelled at any time without touching the live app. The key is kept in GitHub's secret store, never in the repository, and the database lets the reset touch only the eval account.
+
+1. [ ] **Make the key in Supabase.** Open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **Project Settings** (the gear at the bottom of the left-hand menu), then **API Keys**. Under **Secret keys**, click **New secret key** (it may read **Add new secret key**), name it `github-coach-evals`, create it, and click **Copy** beside it. It starts `sb_secret_`. On the same page, or under **Data API**, copy the **Project URL**: the bare address like `https://abcd1234.supabase.co`, with nothing after `.co`.
+2. [ ] **Add both to GitHub.** Open https://github.com/trantelica/chalk-and-iron/settings/secrets/actions and click **New repository secret**: **Name** `SUPABASE_SECRET_KEY`, the new key as the **Secret**, then **Add secret**. Click **New repository secret** again: **Name** `SUPABASE_URL`, the Project URL as the **Secret**, then **Add secret**.
+3. [ ] **Try a reset, after the merge.** Open https://github.com/trantelica/chalk-and-iron/actions/workflows/coach-eval-reset.yml, click **Run workflow** on the right, leave **standard** chosen, and click the green **Run workflow**. After a minute or two the run shows a green tick. Sign in to the app as Test Account: **Home** shows Push A today, and the planner's **History** shows eight weeks of workouts.
+
+To cancel the key later: the same **API Keys** page, the three dots beside `github-coach-evals`, **Delete**.

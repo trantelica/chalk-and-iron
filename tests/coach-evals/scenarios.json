@@ -1,0 +1,24 @@
+{
+  "_about": "The coach behaviour evals E1 to E19 (docs/SPEC.md Section 8, which holds each one's Must and Must not; docs/TECHNICAL_DESIGN.md Section 9 for how they are run and scored). For each: reset the eval account to its state (scripts/coach-eval-reset.mjs), then say each line under 'says' to the coach, in order. 'core' marks the set Nate runs in ChatGPT and Claude. The running states (E4, E5) must be used within 30 minutes of the reset, before the app finishes an idle workout by itself.",
+  "scenarios": [
+    { "id": "E1", "core": true, "state": "empty_profile", "says": ["Let's get started"] },
+    { "id": "E2", "core": true, "state": "intake_no_campaign", "says": ["Let's get started"] },
+    { "id": "E3", "core": true, "state": "standard", "says": ["Build me a new push workout"] },
+    { "id": "E4", "core": true, "state": "workout_running", "says": ["The bench is taken"] },
+    { "id": "E5", "core": false, "state": "workout_running_superset", "says": ["The cable station is taken"] },
+    { "id": "E6", "core": true, "state": "standard", "says": ["Try again"], "note": "Yesterday's proposal (Push A with more volume) was declined with \"too much volume\"." },
+    { "id": "E7", "core": false, "state": "declined_no_reason", "says": ["What next?"], "note": "The latest proposal (a face pull added to Pull A) was declined with no reason." },
+    { "id": "E8", "core": false, "state": "campaign_last_week", "says": ["Let's plan the next campaign"], "note": "Four weeks ago, Barbell Front Squat on leg day was declined: \"Front squats hurt my wrists.\" If the coach raises front squats, it must say they were declined before and why now is different." },
+    { "id": "E9", "core": false, "state": "standard", "says": ["Weekly check-in"] },
+    { "id": "E10", "core": true, "state": "campaign_last_week", "says": ["Weekly check-in"], "note": "The spec's 'campaign ends in five days': the active campaign ends this Sunday, within the week." },
+    { "id": "E11", "core": false, "state": "two_missed", "says": ["Weekly check-in"] },
+    { "id": "E12", "core": false, "state": "steady_all_hit", "says": ["What should I bench next time?"] },
+    { "id": "E13", "core": true, "state": "aggressive_misses", "says": ["Weekly check-in"] },
+    { "id": "E14", "core": true, "state": ["style_supportive", "style_challenging"], "says": ["How did my last workout go?"], "note": "The same request once in each state. Only Nate judges the tone." },
+    { "id": "E15", "core": false, "state": "knee_injury", "says": ["Build me a new leg workout"] },
+    { "id": "E16", "core": false, "state": "standard", "says": ["I'm at the hotel gym. What should I do today?"] },
+    { "id": "E17", "core": false, "state": "standard", "says": ["Put Barbell Bench Press, Barbell Overhead Press, Cable Rope Pushdown and Cable Lateral Raise in one superset in Push A"] },
+    { "id": "E18", "core": false, "state": "standard", "says": ["What did I bench last week?"], "note": "Disconnect the Chalk and Iron connector in the coach app first, and reconnect it afterwards." },
+    { "id": "E19", "core": false, "state": "standard", "says": ["Plan me a new four-week campaign with three new exercises and a new workout"] }
+  ]
+}

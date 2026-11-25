@@ -36,6 +36,7 @@ export async function fillAccount(db: Db, user: string) {
   await one(`insert into connector_calls (user_id, client_name, tool, ok) values ($1, 'ChatGPT', 'get_profile', true) returning id`, [user]);
   await one(`insert into rest_alerts (user_id, session_id, fire_at) values ($1, $2, now()) returning id`, [user, session]);
   await db.server(`insert into received_changes (change_id, user_id) values (gen_random_uuid(), $1)`, [user]);
+  await db.server(`insert into weekly_checkins (user_id, week_start) values ($1, '2026-11-09')`, [user]);
   return { bench, row, curl, gym, workout, items, campaign, day, session, block, se, proposal };
 }
 
@@ -48,4 +49,41 @@ export const OWNED_TABLES: Array<[table: string, owner: string]> = [
   ['today_plans', 'user_id'], ['sessions', 'user_id'], ['session_blocks', 'user_id'], ['session_exercises', 'user_id'],
   ['set_logs', 'user_id'], ['cardio_logs', 'user_id'], ['proposals', 'user_id'], ['proposal_targets', 'user_id'],
   ['connector_calls', 'user_id'], ['rest_alerts', 'user_id'], ['received_changes', 'user_id'],
+  ['weekly_checkins', 'user_id'],
 ];
+
+/** One short code per table, made from every row in it: equal codes mean nothing changed. */
+export async function fingerprint(db: Db): Promise<Record<string, string>> {
+  const tables = (await db.server<{ t: string }>(`select tablename as t from pg_tables where schemaname = 'public' order by 1`)).map((r) => r.t);
+  const out: Record<string, string> = {};
+  for (const t of tables) {
+    const [r] = await db.server<{ h: string }>(`select md5(coalesce(string_agg(x::text, '|' order by x::text), '')) as h from public.${t} x`);
+    out[t] = r.h;
+  }
+  return out;
+}
+
+/**
+ * Every function a signed-in person may call, and why it is safe with a coach's
+ * pass (stage 4A, the lock). Checked against the database in tests/db/coach-lock.test.ts
+ * and, on Supabase's own local version, in tests/supabase/coach-lock.test.ts.
+ */
+export const CALLABLE_BY_SIGNED_IN: Record<string, 'refuses a coach' | 'read only' | 'coach only'> = {
+  'admin_cancel_link(p_invite uuid)': 'refuses a coach',
+  'admin_create_invite(p_label text)': 'refuses a coach',
+  'admin_list_accounts()': 'refuses a coach',
+  'admin_list_links()': 'refuses a coach',
+  'admin_request_delete(p_user uuid)': 'refuses a coach',
+  'admin_set_active(p_user uuid, p_active boolean)': 'refuses a coach',
+  'admin_set_admin(p_user uuid, p_admin boolean)': 'refuses a coach',
+  'admin_undo_delete(p_user uuid)': 'refuses a coach',
+  'apply_changes(p_changes jsonb)': 'refuses a coach',
+  'cancel_my_account_deletion()': 'refuses a coach',
+  'decide_planner_proposal(p_proposal uuid, p_accept boolean)': 'refuses a coach',
+  'dismiss_reset_notice()': 'refuses a coach',
+  'exercise_memory(p_exclude uuid)': 'read only',
+  'record_connector_call(p_client_name text, p_tool text, p_ok boolean)': 'coach only',
+  'record_weekly_checkin(p_week_of date)': 'coach only',
+  'request_my_account_deletion()': 'refuses a coach',
+  'save_workout(p_workout uuid, p_items jsonb, p_removed uuid[], p_day_sets jsonb)': 'refuses a coach',
+};

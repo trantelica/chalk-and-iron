@@ -26,6 +26,7 @@ The live app runs at https://chalkandiron.vercel.app, built from `main`. Status:
 | `tokens/` | Theme tokens: skins, accents, backgrounds |
 | `data/starter-library.json` | Starter vocabulary and exercises copied into each new account |
 | `tests/` | Automated tests. Run with `npm test` |
+| `tests/coach-evals/` | The coach behaviour eval scenarios and the eval account's starting states. `scripts/coach-eval-reset.mjs` (or the "Reset the coach eval account" workflow on GitHub) loads a state |
 | `proofs/connector-signin/` | Throwaway sign-in proof for ChatGPT, Claude and passkeys |
 | `phase0/` | The throwaway connector test, already run |
 | `prototype/index.html` | A single-file prototype of the phone app and the browser planner, on sample data |
