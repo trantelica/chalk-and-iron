@@ -17,7 +17,6 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 ## Open items
 
 - The coach eval account is Nate's Phase 1 test account, "Test Account" (Nate, 25 Nov). Nothing to make; the evals replace what is in it.
-
 - Whether the Coach button can open ChatGPT inside a specific project, so that the project's instructions apply to the coach chat. Nate wants this.
 - Default work and rest seconds have no researched source (`docs/SPEC.md` Section 9, rows 3 and 14).
 - The coach instructions in `docs/COACH_INSTRUCTIONS.md` are a parked draft. Nate will revise them after using the coach for real.
