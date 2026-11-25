@@ -1,6 +1,6 @@
 # Next: Chalk and Iron
 
-The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 25 November 2026 (Phase 4 plan merged).
+The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 25 November 2026 (app icon merged).
 
 ## Now
 
@@ -12,7 +12,8 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 
 ## Waiting on Nate
 
-1. **Delete the throwaway sign-in proof projects,** now that their last check has passed: Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot. Supabase: https://supabase.com/dashboard, open `chalk-iron-signin-proof`, then **Project Settings** > **General**, and **Delete project** at the bottom. Vercel: https://vercel.com, open `chalk-iron-signin-proof`, then **Settings**, and **Delete Project** at the bottom. Delete only these two, never `chalk-and-iron` or `chalkandiron`.
+1. **The new app icon on your iPhone** (`docs/SETUP.md` step AF): https://github.com/trantelica/chalk-and-iron/blob/main/docs/SETUP.md, section 19. Remove the home-screen icon, add the app again from Safari, and turn rest alerts back on.
+2. **Delete the throwaway sign-in proof projects,** now that their last check has passed: Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot. Supabase: https://supabase.com/dashboard, open `chalk-iron-signin-proof`, then **Project Settings** > **General**, and **Delete project** at the bottom. Vercel: https://vercel.com, open `chalk-iron-signin-proof`, then **Settings**, and **Delete Project** at the bottom. Delete only these two, never `chalk-and-iron` or `chalkandiron`.
 
 ## Open items
 

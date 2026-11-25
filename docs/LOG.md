@@ -80,3 +80,4 @@ Pull requests are at `https://github.com/trantelica/chalk-and-iron/pull/<number>
 ## 25 November 2026
 
 - [#49](https://github.com/trantelica/chalk-and-iron/pull/49) merged: **the Phase 4 plan** (documents only). **Nate decided** the coach evals reuse his Phase 1 test account, "Test Account", rather than a new one. Next is stage 4A, data and the lock.
+- [#50](https://github.com/trantelica/chalk-and-iron/pull/50) merged: **the app icon**, the chalk handprint gripping a dumbbell in ember on near-black, with no words. **Nate decided** one fixed icon for now; a home-screen web app cannot change its own icon, so an icon that follows the skin is not planned. Nate's iPhone check is step AF in `docs/SETUP.md`.
