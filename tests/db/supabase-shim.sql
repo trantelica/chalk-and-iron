@@ -10,6 +10,9 @@ grant usage on schema auth to anon, authenticated, service_role;
 grant usage on schema public to anon, authenticated, service_role;
 create table auth.users (id uuid primary key default gen_random_uuid(), email text);
 create table auth.sessions (id uuid primary key default gen_random_uuid(), user_id uuid references auth.users (id) on delete cascade);
+-- The coach apps registered with Supabase's sign-in (stage 4B reads a coach's own name).
+create table auth.oauth_clients (id uuid primary key default gen_random_uuid(), client_name text, deleted_at timestamptz);
+grant all on auth.oauth_clients to service_role;
 create function auth.jwt() returns jsonb language sql stable as $$
   select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb
 $$;

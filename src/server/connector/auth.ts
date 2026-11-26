@@ -8,7 +8,7 @@ import { checkPass, TokenError, type PassClaims } from './token';
 // - No pass: 401 with a pointer to the protected resource metadata, which is
 //   what starts sign-in in ChatGPT and Claude.
 // - A pass: checked here (token.ts), then Supabase is asked whether the
-//   sign-in behind it still exists, and the database whether the account is
+//   sign-in behind it still exists (at /oauth/userinfo), and the database whether the account is
 //   active. A Disconnect, a reset or a deactivation stops the coach at once.
 // - Only a coach's pass is accepted: one Supabase issued to a coach app (it
 //   carries a client_id). The app's own sign-in is refused here.
@@ -52,12 +52,23 @@ export function challenge(request: Request, description = ''): Response {
   );
 }
 
-/** Does the sign-in behind this pass still exist? A local check cannot see a Disconnect. */
-async function signInStillActive(token: string): Promise<boolean> {
+/**
+ * Does the sign-in behind this pass still exist? A local check cannot see a
+ * Disconnect. Asked at /oauth/userinfo, the one place Supabase means coach
+ * passes to use: since its November 2026 sign-in update it refuses them on
+ * most of /user, and says /user will refuse them entirely soon. /user is
+ * asked only if this Supabase has no /oauth/userinfo.
+ */
+async function signInStillActive(token: string, sub: string): Promise<boolean> {
   const { supabaseUrl, publishableKey } = connectorEnv();
-  const r = await fetch(supabaseUrl + '/auth/v1/user', { headers: { apikey: publishableKey, authorization: 'Bearer ' + token } });
-  if (r.ok) return true;
-  if (r.status === 401 || r.status === 403 || r.status === 404) return false;
+  const ask = (path: string) => fetch(supabaseUrl + path, { headers: { apikey: publishableKey, authorization: 'Bearer ' + token, accept: 'application/json' } });
+  let r = await ask('/auth/v1/oauth/userinfo');
+  if (r.status === 404) r = await ask('/auth/v1/user');
+  if (r.ok) {
+    const who = (await r.json().catch(() => ({}))) as { sub?: string; id?: string };
+    return (who.sub ?? who.id) === sub;
+  }
+  if (r.status === 401 || r.status === 403) return false;
   throw new Error('Supabase sign-in check answered HTTP ' + r.status);
 }
 
@@ -81,7 +92,7 @@ export async function authenticate(request: Request): Promise<Caller | Response>
       throw new TokenError('This link is for coach apps. Connect it from ChatGPT or Claude, which sign in for you.');
     }
     const db = dbAs(token);
-    const [active, me] = await Promise.all([signInStillActive(token), loadMe(db)]);
+    const [active, me] = await Promise.all([signInStillActive(token, claims.sub), loadMe(db)]);
     if (!active) throw new TokenError('This sign-in has ended: the coach app was disconnected, or the account was reset or blocked. Connect again.');
     if (!me || me.id !== claims.sub) throw new TokenError('This account is not active. Ask your admin, then connect again.');
     return { userId: claims.sub, clientId: claims.client_id, token, claims, db, me };

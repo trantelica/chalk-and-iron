@@ -143,6 +143,12 @@ describe('the call log and too many requests', () => {
     ]);
   });
 
+  it("my_coach_app answers a coach with its own app's name, and the app's own sign-in with nothing", async () => {
+    const caller = await callerFor(annCoach.access);
+    expect((await caller.db.rpc('my_coach_app')).data).toBe('Test coach');
+    expect((await ann.client.rpc('my_coach_app')).data).toBeNull();
+  });
+
   it('after 60 calls in a minute the next is refused with when to try again, and is not logged', async () => {
     const fay = await registerAccount('Fay');
     const coach = await connectCoach(fay.client);

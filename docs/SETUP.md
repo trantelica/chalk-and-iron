@@ -492,17 +492,29 @@ Stage 4B puts the real coach connector at its permanent link, **https://chalkand
 
 **Before the check in AK**, before or after merging. Nothing uses it until a coach app connects.
 
-1. [ ] Open https://supabase.com/dashboard and click the project `chalk-and-iron`.
-2. [ ] In the left-hand menu click **Authentication**, then **OAuth Server** (it may sit under **Configuration**).
-3. [ ] Turn on **Enable the Supabase OAuth Server** (the switch at the top).
-4. [ ] Set **Authorization Path** to `/oauth/consent`.
-5. [ ] Turn on **Allow dynamic client registration**. ChatGPT and Claude register themselves this way.
-6. [ ] Click **Save**.
-7. [ ] Still under **Authentication**, open **URL Configuration** and check that **Site URL** is `https://chalkandiron.vercel.app` (step A3). Supabase sends you to that address plus `/oauth/consent` to allow a coach.
+1. [x] Open https://supabase.com/dashboard and click the project `chalk-and-iron`.
+2. [x] In the left-hand menu click **Authentication**, then **OAuth Server** (it may sit under **Configuration**).
+3. [x] Turn on **Enable the Supabase OAuth Server** (the switch at the top).
+4. [x] Set **Authorization Path** to `/oauth/consent`.
+5. [x] Turn on **Allow dynamic client registration**. ChatGPT and Claude register themselves this way.
+6. [x] Click **Save**.
+7. [x] Still under **Authentication**, open **URL Configuration** and check that **Site URL** is `https://chalkandiron.vercel.app` (step A3). Supabase sends you to that address plus `/oauth/consent` to allow a coach.
+
+**Done by Nate on 25 November 2026.**
+
+### AL. Supabase SQL Editor, **before** merging
+
+**Run this before the pull request is merged.** Run before merging, nothing changes for the app you have now.
+
+**What it changes:** it adds one read-only step that tells a connected coach app its own name ("ChatGPT", "Claude"), so the call log and, later, each coach card can say which app it came from. Supabase's sign-in no longer lets a coach read your list of connected apps, which is how the connector first tried to learn the name. It reads nothing about anyone else and changes no data.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
+
+1. [ ] [`20261125000200_coach_app_name.sql`](https://github.com/trantelica/chalk-and-iron/blob/phase4b-connector-core/supabase/migrations/20261125000200_coach_app_name.sql) (on the pull request's branch until it is merged). It should end with "Success. No rows returned". Safe to run more than once.
 
 ### AK. ChatGPT and Claude: connect the real link and ask "who am I?"
 
-**After the merge.** Use your own account. You already have the proof's connector in both apps; leave it until this works, then remove it (step 4 of each).
+**After the merge**, and after AL. Use your own account. You already have the proof's connector in both apps; leave it until this works, then remove it (step 4 of each).
 
 **ChatGPT, on the web**
 
