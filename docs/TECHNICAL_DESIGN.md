@@ -494,6 +494,13 @@ The descriptions live in one file in the connector, beside a list of the brief i
 - **The one-minute repeat guard** (`repeat.ts`). A propose call's tool name and inputs, in a fixed order, make a fingerprint stored in `proposals.request_hash`. The same fingerprint from the same person within 60 seconds returns the first proposal and adds nothing. Stage 4E's propose tools add every proposal through `addProposal`. Open point for 4E: the proposal and its targets are added as two steps, so a failure between them would leave a card that is never marked out of date; 4E should make them one database step if that matters.
 - **What the connector tells the coach** is in `descriptions.ts`: the instructions and each tool's description, each beside the brief items it must carry, checked by `tests/connector/descriptions.test.ts`. `get_profile` also returns `intake_unanswered`, the intake answers still empty, so a coach knows when to run the intake (brief 6).
 
+### How the read tools are built (stage 4C, 25 Nov 2026)
+
+- **Files.** `tools-library.ts` (exercises, workouts, campaign), `tools-history.ts` (exercise history, records, sessions, cardio), `tools-today.ts` (today, proposals, weekly summary), with shared pieces in `read.ts` and `sessions.ts`. Sessions are read through `loadSessionDetails` in the planner's History code and summed by `summarizeSession`, so numbers match History.
+- **Whole lists.** The database stops at a thousand rows, so lists are read a thousand at a time, and lists of ids in pieces of 40.
+- **Choices the build made within the design.** A pending proposal past its expiry reads as `expired`. A draft campaign has no missed days. `get_campaign` days run for every date of the campaign, rest days included. A superset's time budget is on its first member in `list_workouts`. `get_records` and `list_exercises` page with `next`. `get_weekly_summary`'s efficiency is the average of the week's sessions' own figures. If recording the check-in fails, the summary is still returned and says it was not recorded.
+- **Check-ins in a row** (`src/rules/checkins.ts`) counts weeks back, unbroken, from the most recent full week; Home uses the same rule in stage 4H.
+
 ### What the connector may not do
 
 - It never calls out to any LLM or any other service. It only answers.

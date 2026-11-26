@@ -3,9 +3,13 @@ import { trainingDay } from '@/rules/days';
 import type { Caller } from './auth';
 import { TOOL_TEXT } from './descriptions';
 import { nextInput, page, PAGE_SIZE, readNext } from './limits';
+import { HISTORY_TOOLS } from './tools-history';
+import { LIBRARY_TOOLS } from './tools-library';
+import { TODAY_TOOLS } from './tools-today';
 
 // The connector's tools (design Section 3). Stage 4B: the first three read
-// tools. Stages 4C and 4E add the rest here, each with its text in
+// tools; stage 4C: the other eleven, in tools-library.ts, tools-history.ts and
+// tools-today.ts. Stage 4E adds the propose tools, each with its text in
 // descriptions.ts.
 
 export interface ToolDef {
@@ -116,6 +120,9 @@ export const TOOLS: ToolDef[] = [
   { name: 'get_profile', input: none, readOnly: true, run: (c) => getProfile(c) },
   { name: 'list_gyms', input: listGymsInput, readOnly: true, run: (c, a) => listGyms(c, a) },
   { name: 'get_vocabulary', input: none, readOnly: true, run: (c) => getVocabulary(c) },
+  ...LIBRARY_TOOLS,
+  ...HISTORY_TOOLS,
+  ...TODAY_TOOLS,
 ];
 
 /** The tools as tools/list shows them: name, title, description, input shape and annotations. */

@@ -95,6 +95,11 @@ export async function loadSessions(sb: SupabaseClient, opts: { offset?: number; 
   if (opts.workout) q = q.eq('workout_name', opts.workout);
   const ss = await q.range(from, from + (opts.limit ?? 10) - 1);
   const sessions = ((ss.data ?? []) as Record<string, unknown>[]).map((r) => ({ ...r, local_date: String(r.local_date).slice(0, 10), clock_banked_seconds: Number(r.clock_banked_seconds) })) as SessionRowH[];
+  return loadSessionDetails(sb, sessions);
+}
+
+/** The blocks, exercises and live sets of sessions already read. The coach connector reads sessions through this too, so it sees what History shows. */
+export async function loadSessionDetails(sb: SupabaseClient, sessions: SessionRowH[]): Promise<SessionData[]> {
   if (!sessions.length) return [];
   const ids = sessions.map((x) => x.id);
   const [bl, se] = await Promise.all([

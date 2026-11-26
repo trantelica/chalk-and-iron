@@ -1,6 +1,6 @@
 # Next: Chalk and Iron
 
-The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 25 November 2026 (stage 4B merged; Nate's checks done and the proof projects deleted).
+The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 25 November 2026 (stage 4C built, awaiting merge).
 
 ## Now
 
@@ -10,7 +10,8 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 - **The coach behaviour brief and the coach intake are approved** (24 Nov; `docs/SPEC.md` Section 4), with the coach behaviour evals (`docs/SPEC.md` Section 8, E1 to E19).
 - **Stage 4A, data and the lock, is merged** (25 Nov): the coach intake fields, the decline reason, the weekly check-ins, the lock (a coach's pass can only read, add a pending card, record a check-in and note a call), and the reset of the coach eval account.
 - **Stage 4B, connector core, is merged** (25 Nov): the real connector at https://chalkandiron.vercel.app/mcp with the proof's sign-in, the approval page, errors in one shape, size limits, too-many-requests, the one-minute repeat guard, the call log, the connector's instructions, and `get_profile`, `list_gyms` and `get_vocabulary`. `phase0/` and `proofs/connector-signin/` are deleted. Nate switched on the coach sign-in (step AJ) and ran the SQL step (AL) on 25 Nov; he connected ChatGPT and Claude to the real link (AK) the same day.
-- **Next: stages 4C (the other read tools, Sonnet 5.5, medium) and 4D (Accept and Decline, Opus 5.5, high)**, which touch different files and can run side by side. Phase 4 runs in eight stages, one pull request each: 4A data and the lock, 4B connector core, 4C the other read tools, 4D Accept and Decline, 4E propose tools, 4F the inbox, 4G Coach setup, Profile and gyms, 4H Home and the full eval, then the fresh review (`docs/TECHNICAL_DESIGN.md` Section 11).
+- **Stage 4C, the other read tools, is built and in a pull request** (25 Nov): the other eleven read tools (`list_exercises`, `get_exercise_history`, `get_records`, `list_workouts`, `get_campaign`, `get_today`, `list_sessions`, `get_proposal_status`, `list_proposals`, `list_cardio`, `get_weekly_summary`), with the weekly summary recording one check-in per week. After it merges: the agent pass on E9, E15, E16 and E18 on the live app (`docs/TECHNICAL_DESIGN.md` Section 9), and the new Supabase test file runs on GitHub.
+- **Next: stage 4D (Accept and Decline, Opus 5.5, high)**, which can run beside 4C's review. Phase 4 runs in eight stages, one pull request each: 4A data and the lock, 4B connector core, 4C the other read tools, 4D Accept and Decline, 4E propose tools, 4F the inbox, 4G Coach setup, Profile and gyms, 4H Home and the full eval, then the fresh review (`docs/TECHNICAL_DESIGN.md` Section 11).
 
 ## Waiting on Nate
 
