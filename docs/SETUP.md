@@ -540,3 +540,20 @@ Stage 4B puts the real coach connector at its permanent link, **https://chalkand
 
 If either app shows an error instead, copy its exact words for the agent. The agent can also read the Vercel log: each call writes one `MCP` line with no content.
 
+
+## 22. Phase 4, stage 4D: Accept and Decline (26 November 2026)
+
+Stage 4D builds what happens when you accept or decline a card from your coach: Accept applies the whole card or none of it, and Decline changes nothing but the card, with an optional one-line reason your coach can read. A change to today changes only today, inside the workout you are doing if one is running. Nothing changes on any screen yet: the coach's cards appear in the inbox in stage 4F, and the coach can send them from stage 4E.
+
+### AM. Supabase SQL Editor, **before** merging
+
+**Run this before the pull request is merged.** Run before merging, nothing changes for the app you have now: the phone saves workouts exactly as before, and nothing calls the new steps until the new app is live.
+
+**What it changes:** it adds the one guarded step that accepts or declines a coach's card (only you can use it, never a coach), a read step that gathers what a change to today needs, a counter on a running workout so a phone that was offline cannot overwrite a change you accepted, an end at 3:00 am for every card for today, and one scheduled job that marks such cards expired once their day ends. It changes no data you already have.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. For each file below, in this order: open it, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into a new query, and click **Run**.
+
+1. [ ] [`20261126000100_accept_and_decline.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261126000100_accept_and_decline.sql) It should end with "Success. No rows returned". Safe to run more than once.
+2. [ ] [`20261126000200_expiry_schedules.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261126000200_expiry_schedules.sql) It ends with a small table showing the scheduler's job number. Safe to run more than once.
+
+Until the pull request is merged, these links work from the pull request's branch instead (the agent gives you those links).
