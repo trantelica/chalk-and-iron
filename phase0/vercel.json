@@ -1,7 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/mcp", "destination": "/api/mcp" },
-    { "source": "/", "has": [{ "type": "query", "key": "view", "value": "state" }], "destination": "/api/mcp?view=state" },
-    { "source": "/", "destination": "/api/mcp?view=page" }
-  ]
-}
