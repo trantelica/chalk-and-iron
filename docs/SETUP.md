@@ -518,23 +518,25 @@ Stage 4B puts the real coach connector at its permanent link, **https://chalkand
 
 **ChatGPT, on the web**
 
-1. [ ] Open https://chatgpt.com and add a custom connector in the same place you added the Phase 0 and proof connectors (when the proof ran, OpenAI's docs called it **Plugins** > **Add custom MCP server**; OpenAI moves this menu now and then).
+1. [x] Open https://chatgpt.com and add a custom connector in the same place you added the Phase 0 and proof connectors (when the proof ran, OpenAI's docs called it **Plugins** > **Add custom MCP server**; OpenAI moves this menu now and then).
    - **Name:** `Chalk and Iron`
    - **URL:** `https://chalkandiron.vercel.app/mcp`
    - **Authentication:** **OAuth**. Leave client registration automatic and type no client ID.
-2. [ ] ChatGPT opens a Chalk and Iron page. Sign in with Face ID or Touch ID if asked. Check it reads "Allow ChatGPT to read your training data and send you proposals?", then press **Allow**. You come back to ChatGPT.
-3. [ ] In a new chat inside your coach project, ask: **"Use Chalk and Iron: who am I?"** Expect your name, your goals and today's date. Tell the agent what it said.
-4. [ ] Then remove the proof connector from the same place, so only the real one is left.
+2. [x] ChatGPT opens a Chalk and Iron page. Sign in with Face ID or Touch ID if asked. Check it reads "Allow ChatGPT to read your training data and send you proposals?", then press **Allow**. You come back to ChatGPT.
+3. [x] In a new chat inside your coach project, ask: **"Use Chalk and Iron: who am I?"** Expect your name, your goals and today's date. Tell the agent what it said.
+4. [x] Then remove the proof connector from the same place, so only the real one is left.
 
 **Claude, on the web**
 
-1. [ ] Open https://claude.ai, go to **Customize** > **Connectors**, then **Add**, then **Add custom connector**.
+1. [x] Open https://claude.ai, go to **Customize** > **Connectors**, then **Add**, then **Add custom connector**.
    - Enter the name `Chalk and Iron` and the link `https://chalkandiron.vercel.app/mcp`.
    - **Authentication:** **Sign in now**.
    - **OAuth client:** **Register automatically**. Do not choose "Use Claude's published identity". If Claude marks an option **Detected**, keep it.
-2. [ ] Click **Add**, then **Connect**. Sign in with Face ID or Touch ID if asked, check the question names Claude, and press **Allow**.
-3. [ ] In a new chat (or your coach Project), ask: **"Use Chalk and Iron: who am I?"** Expect your name. Tell the agent what it said.
-4. [ ] Then remove the proof connector: **Customize** > **Connectors**, the proof's entry, **Remove**.
+2. [x] Click **Add**, then **Connect**. Sign in with Face ID or Touch ID if asked, check the question names Claude, and press **Allow**.
+3. [x] In a new chat (or your coach Project), ask: **"Use Chalk and Iron: who am I?"** Expect your name. Tell the agent what it said.
+4. [x] Then remove the proof connector: **Customize** > **Connectors**, the proof's entry, **Remove**.
+
+**Done by Nate on 25 November 2026:** ChatGPT and Claude both connected to the real link and answered "who am I?".
 
 If either app shows an error instead, copy its exact words for the agent. The agent can also read the Vercel log: each call writes one `MCP` line with no content.
 
