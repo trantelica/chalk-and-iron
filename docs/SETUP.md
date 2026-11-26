@@ -510,7 +510,7 @@ Stage 4B puts the real coach connector at its permanent link, **https://chalkand
 
 **Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
 
-1. [ ] [`20261125000200_coach_app_name.sql`](https://github.com/trantelica/chalk-and-iron/blob/phase4b-connector-core/supabase/migrations/20261125000200_coach_app_name.sql) (on the pull request's branch until it is merged). It should end with "Success. No rows returned". Safe to run more than once.
+1. [x] [`20261125000200_coach_app_name.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261125000200_coach_app_name.sql) It should end with "Success. No rows returned". Safe to run more than once. **Run by Nate on 25 November 2026.**
 
 ### AK. ChatGPT and Claude: connect the real link and ask "who am I?"
 
