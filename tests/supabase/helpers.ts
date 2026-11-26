@@ -61,9 +61,16 @@ export async function registerAccount(name = 'Test'): Promise<Person> {
   return made;
 }
 
-/** The admin made by the first registerAccount call. */
+/** This test file's admin: the very first account, or, when another test file
+ *  ran first and made that one, an account made an admin straight in the database. */
 export async function theAdmin() {
-  if (!firstAdmin) await registerAccount('Admin');
+  if (!firstAdmin) {
+    const made = await registerAccount('Admin');
+    if (!firstAdmin) {
+      await sql(`update public.profiles set is_admin = true where id = $1`, [made.id]);
+      firstAdmin = made;
+    }
+  }
   return firstAdmin!;
 }
 

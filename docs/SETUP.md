@@ -438,7 +438,7 @@ Stage 4A adds what the coach's tools will read and write: the coach intake on th
 
 **Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the query, and click **Run**.
 
-1. [ ] [`20261125000100_coach_data_and_lock.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261125000100_coach_data_and_lock.sql) (this link shows the file on `main` once the pull request is merged). It should end with "Success. No rows returned". Safe to run more than once.
+1. [x] [`20261125000100_coach_data_and_lock.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261125000100_coach_data_and_lock.sql) (this link shows the file on `main` once the pull request is merged). It should end with "Success. No rows returned". Safe to run more than once. **Run by Nate on 25 November 2026.**
 
 ### AG. Supabase SQL Editor: mark the coach eval account
 
@@ -461,14 +461,14 @@ begin
 end $$;
 ```
 
-1. [ ] Run by Nate.
+1. [x] Run by Nate on 25 November 2026.
 
 ### AH. GitHub: a key of its own for the eval reset
 
 The reset runs on GitHub, so an agent can reset the eval account whenever a scenario needs it without ever seeing a key. It gets **its own secret key**, not the one Vercel holds (which is never pasted anywhere else, step B3), so it can be cancelled at any time without touching the live app. The key is kept in GitHub's secret store, never in the repository, and the database lets the reset touch only the eval account.
 
-1. [ ] **Make the key in Supabase.** Open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **Project Settings** (the gear at the bottom of the left-hand menu), then **API Keys**. Under **Secret keys**, click **New secret key** (it may read **Add new secret key**), name it `github-coach-evals`, create it, and click **Copy** beside it. It starts `sb_secret_`. On the same page, or under **Data API**, copy the **Project URL**: the bare address like `https://abcd1234.supabase.co`, with nothing after `.co`.
-2. [ ] **Add both to GitHub.** Open https://github.com/trantelica/chalk-and-iron/settings/secrets/actions and click **New repository secret**: **Name** `SUPABASE_SECRET_KEY`, the new key as the **Secret**, then **Add secret**. Click **New repository secret** again: **Name** `SUPABASE_URL`, the Project URL as the **Secret**, then **Add secret**.
+1. [x] **Make the key in Supabase.** Open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **Project Settings** (the gear at the bottom of the left-hand menu), then **API Keys**. Under **Secret keys**, click **New secret key** (it may read **Add new secret key**), name it `github-coach-evals`, create it, and click **Copy** beside it. It starts `sb_secret_`. On the same page, or under **Data API**, copy the **Project URL**: the bare address like `https://abcd1234.supabase.co`, with nothing after `.co`. **Done by Nate on 25 November 2026.**
+2. [x] **Add both to GitHub.** Open https://github.com/trantelica/chalk-and-iron/settings/secrets/actions and click **New repository secret**: **Name** `SUPABASE_SECRET_KEY`, the new key as the **Secret**, then **Add secret**. Click **New repository secret** again: **Name** `SUPABASE_URL`, the Project URL as the **Secret**, then **Add secret**. **Done by Nate on 25 November 2026.**
 3. [ ] **Try a reset, after the merge.** Open https://github.com/trantelica/chalk-and-iron/actions/workflows/coach-eval-reset.yml, click **Run workflow** on the right, leave **standard** chosen, and click the green **Run workflow**. After a minute or two the run shows a green tick. Sign in to the app as Test Account: **Home** shows Push A today, and the planner's **History** shows eight weeks of workouts.
 
 To cancel the key later: the same **API Keys** page, the three dots beside `github-coach-evals`, **Delete**.

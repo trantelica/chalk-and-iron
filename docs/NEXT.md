@@ -13,7 +13,7 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 
 ## Waiting on Nate
 
-1. **Stage 4A:** run SQL step AF on the live project before the merge (`docs/SETUP.md` Section 19), then, after it, step AG (mark Test Account as the coach eval account) and step AH (a separate Supabase secret key for the eval reset, added to GitHub). AG and AH are needed before the first eval run in stage 4C. Then say whether to merge.
+1. **Stage 4A:** SQL steps AF and AG and the first two parts of AH are done (25 Nov). Say whether to merge; after the merge, try one reset (`docs/SETUP.md` step AH part 3).
 2. **Delete the throwaway sign-in proof projects,** now that their last check has passed: Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot. Supabase: https://supabase.com/dashboard, open `chalk-iron-signin-proof`, then **Project Settings** > **General**, and **Delete project** at the bottom. Vercel: https://vercel.com, open `chalk-iron-signin-proof`, then **Settings**, and **Delete Project** at the bottom. Delete only these two, never `chalk-and-iron` or `chalkandiron`.
 
 ## Open items
