@@ -6,7 +6,7 @@ The Phase 1 foundation was accepted by Nate and merged on 17 November 2026. It r
 
 ## 1. Run the sign-in proof first (done 17 November 2026)
 
-Follow `proofs/connector-signin/README.md`. It uses **throwaway** Supabase and Vercel projects, separate from the real ones. It settles whether ChatGPT and Claude can sign in to the connector, and whether a passkey alone works on your iPhone, in Safari and as a home-screen app. Record the results in its checklist and tell the coding agent.
+Followed the proof's own steps ([`proofs/connector-signin/README.md`](https://github.com/trantelica/chalk-and-iron/blob/0852e08/proofs/connector-signin/README.md), removed in stage 4B and kept in the repository's history). It used **throwaway** Supabase and Vercel projects, separate from the real ones. It settles whether ChatGPT and Claude can sign in to the connector, and whether a passkey alone works on your iPhone, in Safari and as a home-screen app. Record the results in its checklist and tell the coding agent.
 
 **Result:** it passed on 17 November 2026 (design Section 10E). The last check, that a coach pass renews itself without a new sign-in, passed on 20 November 2026. Delete the throwaway Supabase and Vercel projects. Deleting them also frees the Supabase free-plan slot for the real project.
 
@@ -32,7 +32,7 @@ It was chosen in two steps on the same day. Nate first picked `https://chalkandi
    **Then run `…0700_bands_are_bodyweight.sql`** (added 17 November 2026). It makes the 14 band exercises bodyweight in every existing account, because band resistance is not standardized. It ends with a table: each account should show 14 switched and 0 left alone. Run it after the app has been rebuilt from this branch, so no new account is made with bands in pounds. If one is, run it again: a second run changes nothing else.
 7. **Settings > API Keys.** Keep the project URL, the publishable key and the secret key ready for step B3. The project URL is the bare address, like `https://abcd1234.supabase.co`, with no `/rest/v1` on the end. The secret key starts `sb_secret_`. A public key in its place gives the error "This endpoint requires a valid Bearer token".
 
-The OAuth server for the coach connection is switched on in Phase 4, when the real connector is built.
+The OAuth server for the coach connection is switched on in Phase 4, when the real connector is built (step AJ).
 
 ### B. Vercel (about 10 minutes)
 
@@ -483,3 +483,46 @@ The reset runs on GitHub, so an agent can reset the eval account whenever a scen
 3. [x] **Try a reset, after the merge.** Open https://github.com/trantelica/chalk-and-iron/actions/workflows/coach-eval-reset.yml, click **Run workflow** on the right, leave **standard** chosen, and click the green **Run workflow**. After a minute or two the run shows a green tick. Sign in to the app as Test Account: **Home** shows Push A today, and the planner's **History** shows eight weeks of workouts. **Done by Nate on 25 November 2026: the run showed a green tick.**
 
 To cancel the key later: the same **API Keys** page, the three dots beside `github-coach-evals`, **Delete**.
+
+## 21. Phase 4, stage 4B: the coach connector (25 November 2026)
+
+Stage 4B puts the real coach connector at its permanent link, **https://chalkandiron.vercel.app/mcp**, with the coach sign-in the Phase 1 proof tested. It has the first three things a coach can read: your profile (with the coach intake), your gyms and your vocabulary. The rest of the coach's tools come in later stages. Nothing changes on any screen.
+
+### AJ. Supabase: switch on the coach sign-in
+
+**Before the check in AK**, before or after merging. Nothing uses it until a coach app connects.
+
+1. [ ] Open https://supabase.com/dashboard and click the project `chalk-and-iron`.
+2. [ ] In the left-hand menu click **Authentication**, then **OAuth Server** (it may sit under **Configuration**).
+3. [ ] Turn on **Enable the Supabase OAuth Server** (the switch at the top).
+4. [ ] Set **Authorization Path** to `/oauth/consent`.
+5. [ ] Turn on **Allow dynamic client registration**. ChatGPT and Claude register themselves this way.
+6. [ ] Click **Save**.
+7. [ ] Still under **Authentication**, open **URL Configuration** and check that **Site URL** is `https://chalkandiron.vercel.app` (step A3). Supabase sends you to that address plus `/oauth/consent` to allow a coach.
+
+### AK. ChatGPT and Claude: connect the real link and ask "who am I?"
+
+**After the merge.** Use your own account. You already have the proof's connector in both apps; leave it until this works, then remove it (step 4 of each).
+
+**ChatGPT, on the web**
+
+1. [ ] Open https://chatgpt.com and add a custom connector in the same place you added the Phase 0 and proof connectors (when the proof ran, OpenAI's docs called it **Plugins** > **Add custom MCP server**; OpenAI moves this menu now and then).
+   - **Name:** `Chalk and Iron`
+   - **URL:** `https://chalkandiron.vercel.app/mcp`
+   - **Authentication:** **OAuth**. Leave client registration automatic and type no client ID.
+2. [ ] ChatGPT opens a Chalk and Iron page. Sign in with Face ID or Touch ID if asked. Check it reads "Allow ChatGPT to read your training data and send you proposals?", then press **Allow**. You come back to ChatGPT.
+3. [ ] In a new chat inside your coach project, ask: **"Use Chalk and Iron: who am I?"** Expect your name, your goals and today's date. Tell the agent what it said.
+4. [ ] Then remove the proof connector from the same place, so only the real one is left.
+
+**Claude, on the web**
+
+1. [ ] Open https://claude.ai, go to **Customize** > **Connectors**, then **Add**, then **Add custom connector**.
+   - Enter the name `Chalk and Iron` and the link `https://chalkandiron.vercel.app/mcp`.
+   - **Authentication:** **Sign in now**.
+   - **OAuth client:** **Register automatically**. Do not choose "Use Claude's published identity". If Claude marks an option **Detected**, keep it.
+2. [ ] Click **Add**, then **Connect**. Sign in with Face ID or Touch ID if asked, check the question names Claude, and press **Allow**.
+3. [ ] In a new chat (or your coach Project), ask: **"Use Chalk and Iron: who am I?"** Expect your name. Tell the agent what it said.
+4. [ ] Then remove the proof connector: **Customize** > **Connectors**, the proof's entry, **Remove**.
+
+If either app shows an error instead, copy its exact words for the agent. The agent can also read the Vercel log: each call writes one `MCP` line with no content.
+
