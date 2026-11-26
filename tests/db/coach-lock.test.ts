@@ -105,6 +105,8 @@ describe('the doors, tried with a coach\'s pass', () => {
       'apply_changes(p_changes jsonb)': [`select apply_changes($1)`, [JSON.stringify([{ id: crypto.randomUUID(), kind: 'cardio_add', data: {} }])]],
       'cancel_my_account_deletion()': [`select cancel_my_account_deletion()`, []],
       'decide_planner_proposal(p_proposal uuid, p_accept boolean)': [`select decide_planner_proposal($1, true)`, [aRecords.proposal]],
+      'decide_proposal(p_proposal uuid, p_accept boolean, p_reason text, p_today jsonb)': [`select decide_proposal($1, false, 'no')`, [aRecords.proposal]],
+      'proposal_context(p_proposal uuid)': [`select proposal_context($1)`, [aRecords.proposal]],
       'request_my_account_deletion()': [`select request_my_account_deletion()`, []],
       'save_workout(p_workout uuid, p_items jsonb, p_removed uuid[], p_day_sets jsonb)':
         [`select save_workout($1, '[]', '{}', '[]')`, [aRecords.workout]],

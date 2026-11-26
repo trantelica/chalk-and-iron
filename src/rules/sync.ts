@@ -67,6 +67,7 @@ export function sessionRows(s: Session) {
     current_session_exercise_id: s.curMember,
     last_activity_at: iso(s.lastActivityAt),
     break_undo: s.breakUndo,
+    plan_revision: s.planRevision ?? 0,
   };
   const blocks = s.blocks.map((b, position) => ({
     id: b.id,
@@ -228,6 +229,13 @@ export interface SyncAnswer {
    * holding one drops its copy and says so. Missing from older answers.
    */
   replaced?: string[];
+  /**
+   * Sessions whose plan the account changed after this phone's copy was made
+   * (an accepted coach's change to today, stage 4D). The account kept its plan
+   * and took only what it had never seen; the phone replays the change on its
+   * own copy and sends it again. Missing from older answers.
+   */
+  stale?: string[];
 }
 
 /**
@@ -396,6 +404,7 @@ export function sessionFromRows(
     finishReason: (session.finish_reason as Session['finishReason']) ?? null,
     // An active workout whose workout clock is stopped is paused (Nathan, 19 Nov).
     pausedAt: session.status === 'active' && !session.clock_running_since ? ms(session.last_activity_at) : null,
+    ...(Number(session.plan_revision ?? 0) > 0 ? { planRevision: Number(session.plan_revision) } : {}),
   };
 }
 

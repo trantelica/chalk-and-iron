@@ -117,6 +117,12 @@ export interface Session {
   todayPlanId?: string | null;
   /** Set while the workout is paused (Nathan, 19 Nov). In the account a paused workout is an active one whose workout clock is stopped. */
   pausedAt?: number | null;
+  /**
+   * How many accepted coach's changes to today this copy includes (stage 4D).
+   * The account counts them too, and never lets an older copy overwrite its
+   * plan; the phone replays the ones it is missing (src/rules/today-change.ts).
+   */
+  planRevision?: number;
 }
 
 /** A session with nothing logged for 30 minutes finishes itself (spec Section 10). */
@@ -155,7 +161,20 @@ export interface PlanItem {
 }
 
 /** A new random id, made on the phone. The prefix is only a reminder of what it names. */
-export const uid = (p: string): string => { void p; return crypto.randomUUID(); };
+export const uid = (p: string): string => { void p; return nextId ? nextId() : crypto.randomUUID(); };
+
+let nextId: (() => string) | null = null;
+/**
+ * Runs `fn` with ids taken from `gen` instead of random ones. An accepted
+ * coach's change to today is applied twice, once to the account's copy and
+ * once to the phone's own (stage 4D, src/rules/today-change.ts); the same ids
+ * make the same new rows, so the two copies meet cleanly.
+ */
+export function withIds<T>(gen: () => string, fn: () => T): T {
+  const was = nextId;
+  nextId = gen;
+  try { return fn(); } finally { nextId = was; }
+}
 
 /** Past sessions of an exercise, oldest first, without the extra record-only entries. */
 export const realSessions = (h: History, exerciseId: string) => (h[exerciseId] ?? []).filter((p) => !p.extra);

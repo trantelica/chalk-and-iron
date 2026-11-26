@@ -12,8 +12,12 @@ export function cardsChanged(before: string[] | null, after: string[]): boolean 
   return after.some((id) => !a.has(id));
 }
 
-/** What decide_planner_proposal answers (an expected refusal is an answer, not an error). */
-export interface DecideAnswer { ok?: boolean; status?: string; code?: string; message?: string; replaced_session_id?: string | null }
+/** What decide_planner_proposal and decide_proposal answer (an expected refusal is an answer, not an error). */
+export interface DecideAnswer {
+  ok?: boolean; status?: string | null; code?: string; message?: string; replaced_session_id?: string | null;
+  /** decide_proposal only: the kind of card, and what Accept made (for a running workout, its new plan revision). */
+  kind?: string; result?: Record<string, unknown> | null;
+}
 
 /**
  * The words the card shows after Accept or Dismiss (review finding 2, 23 Nov):
