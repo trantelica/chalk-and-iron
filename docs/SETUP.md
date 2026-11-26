@@ -8,7 +8,7 @@ The Phase 1 foundation was accepted by Nate and merged on 17 November 2026. It r
 
 Followed the proof's own steps ([`proofs/connector-signin/README.md`](https://github.com/trantelica/chalk-and-iron/blob/0852e08/proofs/connector-signin/README.md), removed in stage 4B and kept in the repository's history). It used **throwaway** Supabase and Vercel projects, separate from the real ones. It settles whether ChatGPT and Claude can sign in to the connector, and whether a passkey alone works on your iPhone, in Safari and as a home-screen app. Record the results in its checklist and tell the coding agent.
 
-**Result:** it passed on 17 November 2026 (design Section 10E). The last check, that a coach pass renews itself without a new sign-in, passed on 20 November 2026. Delete the throwaway Supabase and Vercel projects. Deleting them also frees the Supabase free-plan slot for the real project.
+**Result:** it passed on 17 November 2026 (design Section 10E). The last check, that a coach pass renews itself without a new sign-in, passed on 20 November 2026. Nate deleted the throwaway Supabase and Vercel projects, and removed the proof's connector from ChatGPT and Claude, on 25 November 2026.
 
 ## 2. Then set up the real app
 
