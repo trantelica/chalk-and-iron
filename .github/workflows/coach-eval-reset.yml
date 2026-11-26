@@ -1,0 +1,49 @@
+# Resets the coach eval account ("Test Account") to one eval state
+# (docs/TECHNICAL_DESIGN.md Section 9, "Coach behaviour evals").
+# Run by hand or by an agent: Actions > "Reset the coach eval account" >
+# Run workflow, or `gh workflow run coach-eval-reset.yml -f state=standard`.
+# The project's secret key is kept in GitHub's secret store (Settings >
+# Secrets and variables > Actions), never in the repository. Only people with
+# write access to the repository can run it.
+name: Reset the coach eval account
+on:
+  workflow_dispatch:
+    inputs:
+      state:
+        description: Which eval state (tests/coach-evals/states.mjs)
+        required: true
+        default: standard
+        type: choice
+        options:
+          - empty_profile
+          - intake_no_campaign
+          - standard
+          - workout_running
+          - workout_running_superset
+          - declined_no_reason
+          - campaign_last_week
+          - two_missed
+          - steady_all_hit
+          - aggressive_misses
+          - style_supportive
+          - style_challenging
+          - knee_injury
+permissions:
+  contents: read
+concurrency:
+  group: coach-eval-reset
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node scripts/coach-eval-reset.mjs "$STATE"
+        env:
+          STATE: ${{ inputs.state }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

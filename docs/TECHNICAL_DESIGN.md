@@ -8,7 +8,7 @@ This is the plan for how Chalk and Iron gets built. It follows `docs/SPEC.md`. W
 
 Written by Fable 5.2 on 16 November 2026, as `docs/MODEL_AND_EFFORT.md` sets out. Any later revision is done on Opus 5.5 at high effort.
 
-Both revisions of 17 November 2026 were done on Opus 5.5 at high effort. Section 10E, added during Phase 1 on 17 November 2026, records what the Phase 1 sign-in research found. On 24 November 2026 (Opus 5.5) Nate's Phase 4 decisions were added: the coach intake on the coach profile, an optional decline reason, the campaign's last-week note on Home, and weekly check-in marks; with them, what the connector tells the coach (Section 3), the coach behaviour evals (Section 9) and the Phase 4 stages (Section 11).
+Both revisions of 17 November 2026 were done on Opus 5.5 at high effort. Section 10E, added during Phase 1 on 17 November 2026, records what the Phase 1 sign-in research found. On 24 November 2026 (Opus 5.5) Nate's Phase 4 decisions were added: the coach intake on the coach profile, an optional decline reason, the campaign's last-week note on Home, and weekly check-in marks; with them, what the connector tells the coach (Section 3), the coach behaviour evals (Section 9) and the Phase 4 stages (Section 11). On 25 November 2026 (Opus 5.5, high) stage 4A settled how the coach eval data is loaded (Section 9) and how the call log is written (Section 2).
 
 **Status is not kept here.** What is being built now is in `docs/NEXT.md`, and what was done and decided, by date, is in `docs/LOG.md`. This document keeps the design, its findings and Nate's decisions about it.
 
@@ -113,6 +113,7 @@ These are the choices in this design that cost money, add an account, or change 
 | account_status | 'active' or 'inactive' | An inactive account cannot sign in and its coach connection is refused. Its data is kept |
 | setup_done | list of text | Which walkthrough steps are finished |
 | delete_requested_at | timestamp or empty | Starts the 14-day grace period |
+| is_eval_account | yes/no | Default no. At most one account, the coach eval account (Section 9), marked by hand in the SQL Editor. Nobody can set it from the app |
 
 **coach_profiles**. One row per user: `goals`, `injuries_and_limits`, `weekly_schedule`, `notes`, `version`, and the coach intake (added 24 Nov; spec Section 4, "Coach intake"; every field may be empty):
 
@@ -120,7 +121,7 @@ These are the choices in this design that cost money, add an account, or change 
 |---|---|
 | coach_style | 'supportive', 'challenging' or 'neutral' |
 | experience | 'new', 'returning', 'intermediate', 'experienced' or 'all_in' |
-| priorities | Up to three, in rank order. Each is one of 'strength', 'muscle', 'fat_loss', 'general_fitness', 'endurance', 'mobility', 'sport', 'habit', or 'other' with its own text (up to 100 characters). No value twice except 'other' |
+| priorities | Up to three, in rank order. Each is one of 'strength', 'muscle', 'fat_loss', 'general_fitness', 'endurance', 'mobility', 'sport', 'habit', or 'other' with its own text (up to 100 characters). No value twice except 'other' (with different wording). Stored as a list such as `[{"value": "strength"}, {"value": "other", "text": "Rock climbing"}]`; the database refuses any other shape |
 | progression_pace | 'steady', 'moderate' or 'aggressive' |
 | workout_minutes | 10 to 240 |
 | days_per_week | 1 to 7 |
@@ -378,9 +379,9 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 
 **proposal_targets**. One row per existing record a proposal would change: `proposal_id`, `record_kind`, `record_id`, `version_seen`. When the user edits a record, any pending proposal that targets it is marked out of date. The phone's lb/kg switch is not an edit to the exercise, so it never does this.
 
-**connector_calls**. A short log of connector use: `client_name`, `tool`, `ok`, `called_at`. No content is stored. It powers the "connection test" on the Coach setup page and a "last used" line in settings.
+**connector_calls**. A short log of connector use: `client_name`, `tool`, `ok`, `called_at`. No content is stored. It powers the "connection test" on the Coach setup page and a "last used" line in settings. From stage 4A it is written only through one guarded step, `record_connector_call`, which takes a coach's pass only, appends a row for the signed-in person stamped with the time now, and clears that person's rows older than 30 days.
 
-**weekly_checkins** (added 24 Nov). One row per user and week: `week_start` (a Monday) and `first_read_at`. Added the first time a coach reads that week's summary through `get_weekly_summary`, at any time, through the guarded step `record_weekly_checkin` (Section 3). It is kept as long as the account, unlike the short call log. Home marks those weeks, and "check-ins in a row" counts back from the most recent full week, unbroken.
+**weekly_checkins** (added 24 Nov). One row per user and week: `week_start` (a Monday) and `first_read_at`. Added the first time a coach reads that week's summary through `get_weekly_summary`, at any time, through the guarded step `record_weekly_checkin` (Section 3), which takes a coach's pass only, any date in the week, and refuses a week that has not started. It is kept as long as the account, unlike the short call log. Home marks those weeks, and "check-ins in a row" counts back from the most recent full week, unbroken.
 
 ### Housekeeping
 
@@ -484,7 +485,8 @@ The descriptions live in one file in the connector, beside a list of the brief i
 ### What the connector may not do
 
 - It never calls out to any LLM or any other service. It only answers.
-- A coach sign-in can read the user's rows and add rows to `proposals` and `proposal_targets`, and can record a weekly check-in through one guarded step (`record_weekly_checkin`, for the signed-in user only; added 24 Nov). The database refuses every other write from a coach sign-in. Even a mistake in the connector's code cannot change a workout.
+- A coach sign-in can read the user's rows and add rows to `proposals` and `proposal_targets`, and can record a weekly check-in through one guarded step (`record_weekly_checkin`, for the signed-in user only; added 24 Nov). It also notes each call in the call log through a second guarded step (`record_connector_call`, stage 4A), which stores no content. The database refuses every other write from a coach sign-in. Even a mistake in the connector's code cannot change a workout.
+- How the database keeps this (stage 4A): every table's write rules need the app's own sign-in, except the two that add a pending proposal and its targets. Every function in the API's schema is closed, then opened to signed-in people by name; each one either refuses a coach's pass, only reads, or is one of the two guarded steps. Signed-out people can call nothing. New functions and tables start closed, so a forgotten grant fails safe. Tests list these doors, so a new one cannot appear unnoticed, and try each with a coach's pass, comparing the whole database before and after (`tests/db/coach-lock.test.ts`, and through the real API on Supabase's own local version, `tests/supabase/coach-lock.test.ts`).
 - Applying a proposal happens only when the signed-in user taps Accept in the app.
 
 ---
@@ -932,7 +934,8 @@ All automated tests run on every pull request. One of the code checks compares `
 
 The spec's scenarios E1 to E19 (Section 8) test the coach, not the app's code, so they sit outside the automated tests. The app still never calls an LLM: in every eval a coach connects to the app exactly as a user's coach does.
 
-- **The eval account.** A separate account, so evals never put cards in Nate's real inbox: Nate's Phase 1 test account, named "Test Account", is reused for it (Nate, 25 Nov). Each reset replaces what is in it. A fixed starting data set is loaded into it: two gyms (a full home gym, and a hotel gym with dumbbells to 50 lb, a bench and bands), an intake filled in, eight weeks of history, an active campaign, and past proposals (one declined with a reason, one with none, one declined four weeks ago). Each scenario names the state it needs (for example "empty profile" or "campaign ends in five days"), and a reset puts the account into that state. How the data is loaded, without putting the project's secret key in the repository, is settled in stage 4A. The scenario prompts and states live in `tests/coach-evals/`.
+- **The eval account.** A separate account, so evals never put cards in Nate's real inbox: Nate's Phase 1 test account, named "Test Account", is reused for it (Nate, 25 Nov). Each reset replaces what is in it. A fixed starting data set is loaded into it: two gyms (a full home gym, and a hotel gym with dumbbells to 50 lb, a bench and bands), an intake filled in, eight weeks of history, an active campaign, and past proposals (one declined with a reason, one with none, one declined four weeks ago). Each scenario names the state it needs (for example "empty profile" or "campaign ends in five days"), and a reset puts the account into that state. The scenario prompts and states live in `tests/coach-evals/` (`scenarios.json`, `states.mjs`).
+- **How the data is loaded** (stage 4A). `states.mjs` builds each state with every date worked out from the moment of the reset, so "yesterday's proposal" or "the campaign ends this week" is true whenever it runs. One database step, `load_coach_eval_state`, clears the eval account's training data, seeds the starter library again and loads the state, all or nothing. Only the server's key can call it, and it refuses to run unless exactly one account is marked as the eval account, so it can reach no one else's data. The reset runs on GitHub (the "Reset the coach eval account" workflow, or `scripts/coach-eval-reset.mjs` anywhere with the two settings), with a secret key of its own kept in GitHub's secret store, never in the repository and separate from the live app's key. An agent runs a reset with `gh workflow run coach-eval-reset.yml -f state=<state>` and never sees the key. The spec's "campaign ends in five days" is loaded as a campaign whose last week is this week, since a campaign always ends on a Sunday.
 - **The agent pass.** An agent session adds the connector as its own coach connection, signs in to the eval account, takes the coach instructions as its instructions, and runs every scenario. It records the tool calls made and the reply, and scores each against Must and Must not. It runs on Sonnet 5.5 at medium effort, close to the coaches people use (`docs/MODEL_AND_EFFORT.md`). Whether an agent session can attach to the connector this way is to be confirmed (Section 10C).
 - **Nate's client pass.** The core set (★) in ChatGPT on his iPhone, and E2 and E4 in Claude, on the eval account, from a short checklist in `docs/SETUP.md`. Only Nate judges E14, the tone.
 - **When a scenario fails.** Change the tool description, the error message or the connector's instructions (or, with Nate's agreement, the coach instructions), then run the failed scenario again with every other scenario that uses the same tool.

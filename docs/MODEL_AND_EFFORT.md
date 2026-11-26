@@ -16,6 +16,28 @@ Which AI model and how much thinking effort to use at each stage of Chalk and Ir
 
 Phase 2 holds more Opus work than any other phase. The rules above already decide it; this writes the split down. Nate agreed it on 17 November 2026.
 
+1. **Opening session: Opus 5.5, high.** The items carried from the Phase 1 review (`docs/TECHNICAL_DESIGN.md` Section 10E, point 10):
+   - the two account fixes (a reset that stays shut after its link is opened, and the 14-day clean-up on real Supabase), because they are sign-in and access work;
+   - the `assisted` and `load_count` fields, because they change the data model;
+   - running the database and account tests against Supabase's own local version;
+   - the throwaway iPhone test page for notifications, server-sent rest alerts and screen wake (removed 19 November 2026, once the real rest alert worked).
+2. **Then Sonnet 5.5, medium,** for the screens and features: the active workout screen, the dial, the tray, supersets, typed and stepped entry, unit switching, records, stats, swap, breaking a superset into individual exercises, and the safe area.
+3. **Hard spots to an Opus 5.5 high-effort helper** when the build reaches them: the rest timer and clocks that survive a closed app, and crash-safe sessions with sets logged offline and sent later.
+4. **Review: a fresh Opus 5.5 high-effort session,** as for every phase.
+
+## Phase 3: how the work divides (20 Nov 2026)
+
+Agreed by Nate on 20 November 2026, on the same pattern as Phase 2.
+
+1. **Opening session: Opus 5.5, high.** The three workout fixes carried from the fresh check after the Phase 2 review (Undo break leaving a superset uneven, a finished exercise's clock after a warm-up switch, a record badge left on a warm-up), because they touch the exercise clock and records worked out offline, which are hard spots. Also the document points carried with them.
+2. **Then Sonnet 5.5, medium,** for the planner: the Library (exercises, workouts, campaigns), the Vocabulary screen, the Plan view with per-day overrides, the exercise panel, History, and sending a day to the phone with its inbox card.
+3. **Hard spots to an Opus 5.5 high-effort helper** if the build reaches them, for example anything that changes the data model or per-user isolation (see "When work leaves its row").
+4. **Review: a fresh Opus 5.5 high-effort session,** as for every phase.
+
+## Phase 4: how the work divides (24 Nov 2026)
+
+Agreed by Nate on 24 November 2026, on the same pattern as Phases 2 and 3, and set out by stage when the plan was filled out the same day.
+
 1. **Opus 5.5, high: stages 4A, 4B and 4D,** the hard spots and the data model.
    - 4A: the new fields and table (the coach intake, the decline reason, the weekly check-in marks), the database rule that a coach pass can only add proposals and record a check-in, and the tests that one user's coach cannot reach another's data.
    - 4B: the connector itself, with the sign-in carried from the Phase 1 proof.
