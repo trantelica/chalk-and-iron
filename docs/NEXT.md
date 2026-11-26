@@ -1,6 +1,6 @@
 # Next: Chalk and Iron
 
-The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 25 November 2026 (stage 4A merged).
+The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 25 November 2026 (stage 4A merged; app icon and eval reset checked by Nate).
 
 ## Now
 
@@ -13,9 +13,7 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 
 ## Waiting on Nate
 
-1. **The new app icon on your iPhone** (`docs/SETUP.md` step AF): https://github.com/trantelica/chalk-and-iron/blob/main/docs/SETUP.md, section 19. Remove the home-screen icon, add the app again from Safari, and turn rest alerts back on.
-2. **Try one coach eval reset** (`docs/SETUP.md` step AI, part 3): https://github.com/trantelica/chalk-and-iron/actions/workflows/coach-eval-reset.yml, **Run workflow**, leave **standard**, then the green **Run workflow**. A green tick, then Test Account's **Home** shows Push A today.
-3. **Delete the throwaway sign-in proof projects,** now that their last check has passed: Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot. Supabase: https://supabase.com/dashboard, open `chalk-iron-signin-proof`, then **Project Settings** > **General**, and **Delete project** at the bottom. Vercel: https://vercel.com, open `chalk-iron-signin-proof`, then **Settings**, and **Delete Project** at the bottom. Delete only these two, never `chalk-and-iron` or `chalkandiron`.
+1. **Delete the throwaway sign-in proof projects,** now that their last check has passed: Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot. Supabase: https://supabase.com/dashboard, open `chalk-iron-signin-proof`, then **Project Settings** > **General**, and **Delete project** at the bottom. Vercel: https://vercel.com, open `chalk-iron-signin-proof`, then **Settings**, and **Delete Project** at the bottom. Delete only these two, never `chalk-and-iron` or `chalkandiron`.
 
 ## Open items
 

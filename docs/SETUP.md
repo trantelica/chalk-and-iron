@@ -432,10 +432,10 @@ The app now has its own icon: the chalk handprint and dumbbell. An iPhone keeps 
 
 ### AF. On your iPhone, after the merge
 
-1. [ ] Press and hold the Chalk and Iron icon on your home screen, tap **Remove App**, then **Delete from Home Screen**. Your passkey and data are unaffected.
-2. [ ] Open https://chalkandiron.vercel.app in Safari, tap the **Share** button (the square with an arrow pointing up), then **Add to Home Screen**, then **Add**. The preview in that sheet already shows the new icon.
-3. [ ] The home screen shows the handprint and dumbbell icon, named Chalk and Iron. Open it from there and you land in the app, signed in.
-4. [ ] Rest alerts: removing the icon also removes this phone's notification permission. Start a workout; when **Turn on rest alerts** shows, tap it, then **Allow**. Log a set and lock the phone: "Rest over" should arrive when the rest ends. Finish the test workout at the end.
+1. [x] Press and hold the Chalk and Iron icon on your home screen, tap **Remove App**, then **Delete from Home Screen**. Your passkey and data are unaffected.
+2. [x] Open https://chalkandiron.vercel.app in Safari, tap the **Share** button (the square with an arrow pointing up), then **Add to Home Screen**, then **Add**. The preview in that sheet already shows the new icon.
+3. [x] The home screen shows the handprint and dumbbell icon, named Chalk and Iron. Open it from there and you land in the app, signed in.
+4. [x] Rest alerts: removing the icon also removes this phone's notification permission. Start a workout; when **Turn on rest alerts** shows, tap it, then **Allow**. Log a set and lock the phone: "Rest over" should arrive when the rest ends. Finish the test workout at the end. **Done by Nate on 25 November 2026.**
 
 ## 20. Phase 4, stage 4A: the coach's data and the lock (25 November 2026)
 
@@ -480,6 +480,6 @@ The reset runs on GitHub, so an agent can reset the eval account whenever a scen
 
 1. [x] **Make the key in Supabase.** Open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **Project Settings** (the gear at the bottom of the left-hand menu), then **API Keys**. Under **Secret keys**, click **New secret key** (it may read **Add new secret key**), name it `github-coach-evals`, create it, and click **Copy** beside it. It starts `sb_secret_`. On the same page, or under **Data API**, copy the **Project URL**: the bare address like `https://abcd1234.supabase.co`, with nothing after `.co`. **Done by Nate on 25 November 2026.**
 2. [x] **Add both to GitHub.** Open https://github.com/trantelica/chalk-and-iron/settings/secrets/actions and click **New repository secret**: **Name** `SUPABASE_SECRET_KEY`, the new key as the **Secret**, then **Add secret**. Click **New repository secret** again: **Name** `SUPABASE_URL`, the Project URL as the **Secret**, then **Add secret**. **Done by Nate on 25 November 2026.**
-3. [ ] **Try a reset, after the merge.** Open https://github.com/trantelica/chalk-and-iron/actions/workflows/coach-eval-reset.yml, click **Run workflow** on the right, leave **standard** chosen, and click the green **Run workflow**. After a minute or two the run shows a green tick. Sign in to the app as Test Account: **Home** shows Push A today, and the planner's **History** shows eight weeks of workouts.
+3. [x] **Try a reset, after the merge.** Open https://github.com/trantelica/chalk-and-iron/actions/workflows/coach-eval-reset.yml, click **Run workflow** on the right, leave **standard** chosen, and click the green **Run workflow**. After a minute or two the run shows a green tick. Sign in to the app as Test Account: **Home** shows Push A today, and the planner's **History** shows eight weeks of workouts. **Done by Nate on 25 November 2026: the run showed a green tick.**
 
 To cancel the key later: the same **API Keys** page, the three dots beside `github-coach-evals`, **Delete**.
