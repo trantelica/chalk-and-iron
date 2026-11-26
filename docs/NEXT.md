@@ -9,13 +9,12 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 - **Phase 4, the coach, is starting** (`docs/SPEC.md` Section 7, item 5). Nate agreed how it divides by model on 24 November (`docs/MODEL_AND_EFFORT.md`, Phase 4).
 - **The coach behaviour brief and the coach intake are approved** (24 Nov; `docs/SPEC.md` Section 4), with the coach behaviour evals (`docs/SPEC.md` Section 8, E1 to E19).
 - **Stage 4A, data and the lock, is merged** (25 Nov): the coach intake fields, the decline reason, the weekly check-ins, the lock (a coach's pass can only read, add a pending card, record a check-in and note a call), and the reset of the coach eval account.
-- **Stage 4B, connector core, is merged** (25 Nov): the real connector at https://chalkandiron.vercel.app/mcp with the proof's sign-in, the approval page, errors in one shape, size limits, too-many-requests, the one-minute repeat guard, the call log, the connector's instructions, and `get_profile`, `list_gyms` and `get_vocabulary`. `phase0/` and `proofs/connector-signin/` are deleted. Nate switched on the coach sign-in (step AJ) and ran the SQL step (AL) on 25 Nov; his check AK is below.
+- **Stage 4B, connector core, is merged** (25 Nov): the real connector at https://chalkandiron.vercel.app/mcp with the proof's sign-in, the approval page, errors in one shape, size limits, too-many-requests, the one-minute repeat guard, the call log, the connector's instructions, and `get_profile`, `list_gyms` and `get_vocabulary`. `phase0/` and `proofs/connector-signin/` are deleted. Nate switched on the coach sign-in (step AJ) and ran the SQL step (AL) on 25 Nov; he connected ChatGPT and Claude to the real link (AK) the same day.
 - **Next: stages 4C (the other read tools, Sonnet 5.5, medium) and 4D (Accept and Decline, Opus 5.5, high)**, which touch different files and can run side by side. Phase 4 runs in eight stages, one pull request each: 4A data and the lock, 4B connector core, 4C the other read tools, 4D Accept and Decline, 4E propose tools, 4F the inbox, 4G Coach setup, Profile and gyms, 4H Home and the full eval, then the fresh review (`docs/TECHNICAL_DESIGN.md` Section 11).
 
 ## Waiting on Nate
 
-1. **Connect ChatGPT and Claude to the real link and ask each "who am I?"** (`docs/SETUP.md` step AK), then remove the proof connector from each.
-2. **Delete the throwaway sign-in proof projects** once step AK works: Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot. Supabase: https://supabase.com/dashboard, open `chalk-iron-signin-proof`, then **Project Settings** > **General**, and **Delete project** at the bottom. Vercel: https://vercel.com, open `chalk-iron-signin-proof`, then **Settings**, and **Delete Project** at the bottom. Delete only these two, never `chalk-and-iron` or `chalkandiron`.
+1. **Delete the throwaway sign-in proof projects,** now that the real connector works (step AK, 25 Nov): Supabase `chalk-iron-signin-proof` and Vercel `chalk-iron-signin-proof`. This frees a Supabase free-plan slot. Supabase: https://supabase.com/dashboard, open `chalk-iron-signin-proof`, then **Project Settings** > **General**, and **Delete project** at the bottom. Vercel: https://vercel.com, open `chalk-iron-signin-proof`, then **Settings**, and **Delete Project** at the bottom. Delete only these two, never `chalk-and-iron` or `chalkandiron`.
 
 ## Open items
 
@@ -25,7 +24,7 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 - The coach instructions in `docs/COACH_INSTRUCTIONS.md` are a parked draft. Nate will revise them after using the coach for real.
 - Whether a ChatGPT scheduled task can use the connector (for the weekly summary on a schedule). Not tested; Nate expects it to work.
 - Open product decisions with a default to build: `docs/SPEC.md` Section 9.
-- To confirm in Phase 4 (`docs/TECHNICAL_DESIGN.md` Section 10C): whether ChatGPT and Claude give their model the connector's own instructions (step AK is a chance to look), and whether an agent session can attach to the connector for the eval agent pass.
+- To confirm in Phase 4 (`docs/TECHNICAL_DESIGN.md` Section 10C): whether ChatGPT and Claude give their model the connector's own instructions, and whether an agent session can attach to the connector for the eval agent pass.
 - For stage 4E: a proposal and its targets are added in two steps; make them one database step if a half-added card matters (`docs/TECHNICAL_DESIGN.md` Section 3, "How the connector is built").
 - Plan against actual in the coach's tools: Nate said not yet (24 Nov). Listed in `docs/SPEC.md` Section 10, Later enhancements.
 
