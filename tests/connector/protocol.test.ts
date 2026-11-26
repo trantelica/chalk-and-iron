@@ -116,11 +116,14 @@ describe('the protocol', () => {
     expect(r.headers.get('mcp-session-id')).toBeNull();
   });
 
-  it('lists the three read tools of stage 4B with read-only labels and closed inputs', async () => {
+  it('lists the fourteen read tools of stages 4B and 4C with read-only labels and closed inputs', async () => {
     const { handler } = setup();
     const j = await json(await handler(post(rpc('tools/list'))));
     const tools = j.result?.tools as Array<{ name: string; inputSchema: Record<string, unknown>; annotations: Record<string, unknown> }>;
-    expect(tools.map((t) => t.name)).toEqual(['get_profile', 'list_gyms', 'get_vocabulary']);
+    expect(tools.map((t) => t.name).sort()).toEqual([
+      'get_campaign', 'get_exercise_history', 'get_profile', 'get_proposal_status', 'get_records', 'get_today', 'get_vocabulary', 'get_weekly_summary',
+      'list_cardio', 'list_exercises', 'list_gyms', 'list_proposals', 'list_sessions', 'list_workouts',
+    ]);
     for (const t of tools) {
       expect(t.annotations).toMatchObject({ readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false });
       expect(t.inputSchema).toMatchObject({ type: 'object', additionalProperties: false });
