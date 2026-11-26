@@ -426,11 +426,22 @@ The phone side (a swap made with no signal, then a sent day accepted) is covered
 
 **Passed (Nate, 24 November 2026).**
 
-## 19. Phase 4, stage 4A: the coach's data and the lock (25 November 2026)
+## 19. The app icon (25 November 2026)
+
+The app now has its own icon: the chalk handprint and dumbbell. An iPhone keeps the icon it took when the app was added to the home screen, so the new one shows only after adding it again.
+
+### AF. On your iPhone, after the merge
+
+1. [ ] Press and hold the Chalk and Iron icon on your home screen, tap **Remove App**, then **Delete from Home Screen**. Your passkey and data are unaffected.
+2. [ ] Open https://chalkandiron.vercel.app in Safari, tap the **Share** button (the square with an arrow pointing up), then **Add to Home Screen**, then **Add**. The preview in that sheet already shows the new icon.
+3. [ ] The home screen shows the handprint and dumbbell icon, named Chalk and Iron. Open it from there and you land in the app, signed in.
+4. [ ] Rest alerts: removing the icon also removes this phone's notification permission. Start a workout; when **Turn on rest alerts** shows, tap it, then **Allow**. Log a set and lock the phone: "Rest over" should arrive when the rest ends. Finish the test workout at the end.
+
+## 20. Phase 4, stage 4A: the coach's data and the lock (25 November 2026)
 
 Stage 4A adds what the coach's tools will read and write: the coach intake on the coach profile, an optional decline reason on a coach's card, and the weekly check-in marks. It also locks the database so that a coach's pass can only read, add a pending card, record a check-in and note a call. And it adds the way the coach eval account ("Test Account") is reset to a fixed starting state for the coach evals (`docs/TECHNICAL_DESIGN.md` Section 9). Nothing changes on any screen yet.
 
-### AF. Supabase SQL Editor, **before** merging
+### AG. Supabase SQL Editor, **before** merging
 
 **Run this before the pull request is merged.** Run before merging, nothing changes for the app you have now.
 
@@ -440,9 +451,9 @@ Stage 4A adds what the coach's tools will read and write: the coach intake on th
 
 1. [x] [`20261125000100_coach_data_and_lock.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261125000100_coach_data_and_lock.sql) (this link shows the file on `main` once the pull request is merged). It should end with "Success. No rows returned". Safe to run more than once. **Run by Nate on 25 November 2026.**
 
-### AG. Supabase SQL Editor: mark the coach eval account
+### AH. Supabase SQL Editor: mark the coach eval account
 
-**Run this after AF**, once. It marks the account named "Test Account" as the coach eval account (Nate, 25 Nov), so the eval reset can use it and nothing else. **Each reset replaces everything in that account's library, history, plans, cards, gyms and coach profile** with the eval data. Its sign-in, its devices and its coach connections are kept.
+**Run this after AG**, once. It marks the account named "Test Account" as the coach eval account (Nate, 25 Nov), so the eval reset can use it and nothing else. **Each reset replaces everything in that account's library, history, plans, cards, gyms and coach profile** with the eval data. Its sign-in, its devices and its coach connections are kept.
 
 **Where:** the same **SQL Editor**, **New query**. Paste this and click **Run**. It should end with "Success. No rows returned". If it says it expected exactly one account named Test Account, tell the agent what it found.
 
@@ -463,7 +474,7 @@ end $$;
 
 1. [x] Run by Nate on 25 November 2026.
 
-### AH. GitHub: a key of its own for the eval reset
+### AI. GitHub: a key of its own for the eval reset
 
 The reset runs on GitHub, so an agent can reset the eval account whenever a scenario needs it without ever seeing a key. It gets **its own secret key**, not the one Vercel holds (which is never pasted anywhere else, step B3), so it can be cancelled at any time without touching the live app. The key is kept in GitHub's secret store, never in the repository, and the database lets the reset touch only the eval account.
 
