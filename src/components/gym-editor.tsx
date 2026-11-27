@@ -2,6 +2,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { browserClient } from '@/lib/supabase/browser';
 import { TextCell, AreaCell } from '@/app/planner/fields';
+import { GymPresetPicker } from '@/components/gym-preset-picker';
+import { WeightsEditor } from '@/components/gym-weights-editor';
+import { readWeights, setWeights, type Weights } from '@/rules/gym-weights';
 import {
   checkEquipment, cleanEquipment, filterEquipment, ITEM_MAX, listToText, parsePasted, previewAdd, renameEquipment, sortEquipment,
 } from '@/rules/gym-equipment';
@@ -16,7 +19,7 @@ import {
 
 type Gym = { id: string; name: string; equipment: string[]; notes: string; is_default: boolean; archived_at: string | null };
 
-function EquipmentEditor({ gymName, list, onSave }: { gymName: string; list: string[]; onSave: (next: string[]) => Promise<void> }) {
+function EquipmentEditor({ gymName, list, notes, onSave }: { gymName: string; list: string[]; notes: string; onSave: (next: string[], notes?: string) => Promise<void> }) {
   const [query, setQuery] = useState('');
   const [one, setOne] = useState('');
   const [pasted, setPasted] = useState('');
@@ -25,13 +28,21 @@ function EquipmentEditor({ gymName, list, onSave }: { gymName: string; list: str
   const [msg, setMsg] = useState('');
   const [undo, setUndo] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const [preset, setPreset] = useState(false);
   useEffect(() => { if (mode === 'list') setText(listToText(list)); }, [list, mode]);
 
-  async function commit(next: string[], note = ''): Promise<boolean> {
+  async function commit(next: string[], note = '', weights: Weights | null = null): Promise<boolean> {
     const c = checkEquipment(next);
     if (!c.ok) { setMsg(c.error); return false; }
+    let newNotes: string | undefined;
+    if (weights) {
+      // One save for both, so the list and the weights never end up half done.
+      const r = setWeights(notes, weights);
+      if (!r.ok) { setMsg(r.error); return false; }
+      newNotes = r.notes;
+    }
     setBusy(true);
-    try { await onSave(c.list); setMsg(note); return true; } catch (e) { setMsg('Not saved: ' + (e as Error).message); return false; } finally { setBusy(false); }
+    try { await onSave(c.list, newNotes); setMsg(note); return true; } catch (e) { setMsg('Not saved: ' + (e as Error).message); return false; } finally { setBusy(false); }
   }
 
   const shown = useMemo(() => filterEquipment(list, query), [list, query]);
@@ -54,6 +65,13 @@ function EquipmentEditor({ gymName, list, onSave }: { gymName: string; list: str
 
       {mode === 'list' ? (
         <>
+          {preset ? (
+            <GymPresetPicker current={list} hasWeights={readWeights(notes).status !== 'none'} gymLabel={gymName} busy={busy} onCancel={() => setPreset(false)}
+              actionLabel={(n) => (n ? `Add ${n} to the list` : 'Nothing new to add')}
+              onApply={async (next, n, weights) => { if (await commit(next, `Added ${n} from the preset${weights ? ' and recorded its weights' : ''}.`, weights)) setPreset(false); }} />
+          ) : (
+            <button className="btn" onClick={() => setPreset(true)}>Start from a preset</button>
+          )}
           <div className="row">
             <input type="text" aria-label={`Add equipment to ${gymName}`} placeholder="Add one: Rower" maxLength={ITEM_MAX} value={one}
               onChange={(e) => setOne(e.target.value)}
@@ -120,6 +138,7 @@ export function GymsSection() {
   const [error, setError] = useState('');
   const [open, setOpen] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
+  const [newPreset, setNewPreset] = useState(false);
 
   const load = useCallback(async () => {
     const r = await sb.from('gyms').select('id, name, equipment, notes, is_default, archived_at').order('name');
@@ -140,17 +159,20 @@ export function GymsSection() {
     if (other) await change(other.id, { is_default: false });
     await change(g.id, { is_default: true });
   }
-  async function addGym() {
+  async function addGym(equipment: string[] = [], weights: Weights | null = null) {
     const name = newName.trim();
     if (!name) return;
     if (name.length > 80) { setError('A gym name is at most 80 characters.'); return; }
     const { data: auth } = await sb.auth.getUser();
     if (!auth.user) { setError('You are signed out. Sign in again.'); return; }
     const live = (gyms ?? []).filter((g) => !g.archived_at);
-    const r = await sb.from('gyms').insert({ user_id: auth.user.id, name, equipment: [], notes: '', is_default: live.length === 0 }).select('id').single();
+    const made = weights ? setWeights('', weights) : { ok: true as const, notes: '' };
+    if (!made.ok) { setError(made.error); return; }
+    const r = await sb.from('gyms').insert({ user_id: auth.user.id, name, equipment, notes: made.notes, is_default: live.length === 0 }).select('id').single();
     if (r.error) { setError('Not saved: ' + r.error.message); return; }
     setError('');
     setNewName('');
+    setNewPreset(false);
     setOpen(r.data.id);
     await load();
   }
@@ -171,9 +193,13 @@ export function GymsSection() {
             {g.is_default ? <span className="tag on">Default gym</span> : <button className="btn small" onClick={() => makeDefault(g)}>Make default</button>}
           </div>
           <div className="intake-field">
-            <span className="lab-text">Notes, such as a limit on dumbbell weight</span>
+            <span className="lab-text">Notes (the Weights line below is kept here too)</span>
             <AreaCell label={`Notes for ${g.name}`} max={1000} rows={2} value={g.notes} onSave={(v) => change(g.id, { notes: v })} />
           </div>
+          <details className="weights-details">
+            <summary>Weights{readWeights(g.notes).status === 'ok' ? ' (recorded)' : ''}</summary>
+            <WeightsEditor gymName={g.name} notes={g.notes} onSaveNotes={(n) => change(g.id, { notes: n })} />
+          </details>
           <div className="row spread">
             <span>{g.equipment.length} equipment item{g.equipment.length === 1 ? '' : 's'}</span>
             <span className="row">
@@ -181,14 +207,21 @@ export function GymsSection() {
               <button className="btn small" onClick={() => { if (window.confirm(`Archive "${g.name}"? Your coach stops seeing it. Your history keeps it, and you can restore it.`)) void change(g.id, { archived_at: new Date().toISOString(), is_default: false }); }}>Archive</button>
             </span>
           </div>
-          {open === g.id && <EquipmentEditor gymName={g.name} list={g.equipment} onSave={(next) => change(g.id, { equipment: next })} />}
+          {open === g.id && <EquipmentEditor gymName={g.name} list={g.equipment} notes={g.notes} onSave={(next, n) => change(g.id, n === undefined ? { equipment: next } : { equipment: next, notes: n })} />}
         </section>
       ))}
       {live.length === 0 && <div className="muted">No gym yet. Add one so your coach knows what equipment you have.</div>}
       <div className="row">
         <input type="text" aria-label="Name of a new gym" placeholder="New gym name, for example Home garage" maxLength={80} value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void addGym(); }} />
-        <button className="btn" disabled={!newName.trim()} onClick={addGym}>Add gym</button>
+        <button className="btn" disabled={!newName.trim()} onClick={() => addGym()}>Add gym</button>
       </div>
+      {newPreset ? (
+        <GymPresetPicker current={[]} gymLabel="the new gym" actionDisabled={!newName.trim()} onCancel={() => setNewPreset(false)}
+          actionLabel={(n) => (newName.trim() ? `Add gym with ${n} items` : 'Type the gym name first')}
+          onApply={(next, _n, weights) => addGym(next, weights)} />
+      ) : (
+        <button className="btn" onClick={() => setNewPreset(true)}>Add a gym from a preset</button>
+      )}
       {archived.length > 0 && (
         <details>
           <summary>{archived.length} archived gym{archived.length === 1 ? '' : 's'}</summary>

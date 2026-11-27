@@ -32,21 +32,29 @@ function Pick({ label, value, choices, onSave }: { label: string; value: string 
 
 function Priorities({ stored, onSave }: { stored: unknown; onSave: (list: { value: string; text?: string }[]) => Promise<void> }) {
   const [slots, setSlots] = useState<PrioritySlot[]>(slotsFromPriorities(stored));
-  const [err, setErr] = useState('');
+  const [err, setErr] = useState<{ i: number; msg: string } | null>(null);
   const { mark, run } = useMark();
   const storedKey = JSON.stringify(stored ?? []);
+  // The boxes show only what is saved (or is still being filled in). A choice the rules refuse
+  // snaps back to the last saved value of that box, with the reason beside it.
+  const saved = useRef<PrioritySlot[]>(slotsFromPriorities(stored));
   // Once the person has touched these boxes they are the truth: another answer saving, and the
   // reload after it, must not wipe a box that is half filled in. A page reload shows what is stored.
   const touched = useRef(false);
-  useEffect(() => { if (!touched.current) setSlots(slotsFromPriorities(stored)); }, [storedKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!touched.current) { const s = slotsFromPriorities(stored); setSlots(s); saved.current = s; } }, [storedKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const change = (i: number, patch: Partial<PrioritySlot>, save: boolean) => {
     touched.current = true;
     const next = slots.map((s, j) => (j === i ? { ...s, ...patch } : s));
-    setSlots(next);
-    if (!save) return;
+    if (!save) { setSlots(next); return; }
     const r = buildPriorities(next);
-    if (!r.ok) { setErr(r.error); return; }
-    setErr('');
+    if (!r.ok) {
+      setSlots(slots.map((s, j) => (j === i ? { ...saved.current[i] } : s)));
+      setErr({ i, msg: r.error });
+      return;
+    }
+    setSlots(next);
+    setErr(null);
+    saved.current = next;
     void run(onSave(r.list));
   };
   const ranks = ['1st', '2nd', '3rd'];
@@ -58,16 +66,20 @@ function Priorities({ stored, onSave }: { stored: unknown; onSave: (list: { valu
           <span className="rank">{ranks[i]}</span>
           <select aria-label={`Priority ${ranks[i]}`} value={s.value} onChange={(e) => change(i, { value: e.target.value, text: e.target.value === 'other' ? s.text : '' }, e.target.value !== 'other' || !!s.text.trim())}>
             <option value="">None</option>
-            {PRIORITY_CHOICES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            {PRIORITY_CHOICES.map(([v, l]) => {
+              // A priority already chosen in another box is not offered again ("other" may be written in more than once).
+              const taken = v !== 'other' && slots.some((x, j) => j !== i && x.value === v);
+              return <option key={v} value={v} disabled={taken}>{taken ? `${l} (already chosen)` : l}</option>;
+            })}
           </select>
           {s.value === 'other' && (
             <input type="text" aria-label={`Your own priority ${ranks[i]}`} maxLength={OTHER_MAX} value={s.text} placeholder="For example: rock climbing"
               onChange={(e) => { touched.current = true; setSlots(slots.map((x, j) => (j === i ? { ...x, text: e.target.value } : x))); }}
               onBlur={() => change(i, {}, true)} onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
           )}
+          {err?.i === i && <div className="error" role="alert">{err.msg} It stays as it was.</div>}
         </div>
       ))}
-      {err && <div className="error" role="alert">{err}</div>}
     </div>
   );
 }

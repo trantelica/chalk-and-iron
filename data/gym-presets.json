@@ -1,0 +1,345 @@
+{
+  "_about": "Gym presets (docs/SPEC.md Section 5, Profile and gyms): starting equipment lists for a new gym. Item names follow the equipment words the starter exercises use (data/starter-library.json). Draft by the agent; reviewed by Nate. Not stored in the database: a preset only fills in tick boxes, and the ticked items are saved to the gym as ordinary free text. Each preset also carries typical weights (dumbbells, kettlebells, plates, bar); they are written into the gym's notes as one Weights line (src/rules/gym-weights.ts) and can be edited afterwards.",
+  "version": 1,
+  "presets": [
+    {
+      "id": "commercial",
+      "name": "Commercial gym",
+      "blurb": "A large, fully equipped gym. Untick what yours lacks.",
+      "groups": [
+        {
+          "name": "Free weights",
+          "items": [
+            "Dumbbells (full rack)",
+            "Barbell",
+            "EZ-bar",
+            "Trap bar",
+            "Weight plates",
+            "Kettlebells",
+            "Medicine ball",
+            "Slam ball"
+          ]
+        },
+        {
+          "name": "Benches and racks",
+          "items": [
+            "Flat bench",
+            "Adjustable bench",
+            "Decline bench",
+            "Squat rack",
+            "Power rack",
+            "Smith machine",
+            "Landmine",
+            "Preacher curl bench",
+            "Pull-up bar",
+            "Dip station",
+            "Plyo box",
+            "Hyperextension bench",
+            "Ab bench"
+          ]
+        },
+        {
+          "name": "Cables",
+          "items": [
+            "Cable crossover",
+            "Functional trainer",
+            "Lat pulldown station",
+            "Seated cable row",
+            "Cable rope attachment",
+            "Cable straight bar",
+            "Cable V-bar",
+            "Cable single handle",
+            "Ankle strap"
+          ]
+        },
+        {
+          "name": "Selectorized machines",
+          "items": [
+            "Selectorized chest press",
+            "Selectorized shoulder press",
+            "Selectorized seated row",
+            "Selectorized pec deck",
+            "Selectorized reverse pec deck",
+            "Selectorized lateral raise",
+            "Selectorized leg extension",
+            "Selectorized seated leg curl",
+            "Selectorized lying leg curl",
+            "Selectorized hip abduction",
+            "Selectorized hip adduction",
+            "Selectorized standing calf raise",
+            "Selectorized seated calf raise",
+            "Selectorized preacher curl",
+            "Selectorized triceps extension",
+            "Selectorized ab crunch",
+            "Selectorized rotary torso",
+            "Selectorized back extension",
+            "Assisted dip and pull-up machine"
+          ]
+        },
+        {
+          "name": "Plate-loaded machines",
+          "items": [
+            "Plate-loaded chest press",
+            "Plate-loaded incline chest press",
+            "Plate-loaded shoulder press",
+            "Plate-loaded lat pulldown",
+            "Plate-loaded row",
+            "Plate-loaded leg press",
+            "Plate-loaded hack squat",
+            "Plate-loaded hip thrust",
+            "Plate-loaded calf raise",
+            "Plate-loaded shrug",
+            "T-bar row",
+            "Sled"
+          ]
+        },
+        {
+          "name": "Cardio",
+          "items": [
+            "Treadmill",
+            "Elliptical",
+            "Stationary bike",
+            "Recumbent bike",
+            "Rowing machine",
+            "Stair climber",
+            "Air bike",
+            "Ski erg"
+          ]
+        },
+        {
+          "name": "Other",
+          "items": [
+            "Resistance bands",
+            "Jump rope",
+            "Foam roller",
+            "Exercise mats",
+            "Battle ropes",
+            "Stability ball",
+            "Ab wheel",
+            "Dip belt",
+            "Lifting straps",
+            "Weight belt"
+          ]
+        }
+      ],
+      "weights": {
+        "dumbbells": {
+          "min": 5,
+          "max": 150,
+          "step": 5,
+          "unit": "lb"
+        },
+        "kettlebells": {
+          "unit": "lb",
+          "sizes": [
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40,
+            45,
+            50,
+            60,
+            70,
+            80,
+            90,
+            100
+          ]
+        },
+        "plates": [
+          {
+            "size": 45,
+            "count": 8
+          },
+          {
+            "size": 35,
+            "count": 4
+          },
+          {
+            "size": 25,
+            "count": 4
+          },
+          {
+            "size": 10,
+            "count": 4
+          },
+          {
+            "size": 5,
+            "count": 4
+          },
+          {
+            "size": 2.5,
+            "count": 4
+          }
+        ],
+        "bar": {
+          "weight": 45,
+          "unit": "lb"
+        }
+      }
+    },
+    {
+      "id": "home",
+      "name": "Home gym",
+      "blurb": "A garage or spare-room setup. Untick what you do not own.",
+      "groups": [
+        {
+          "name": "Free weights",
+          "items": [
+            "Adjustable dumbbells",
+            "Barbell",
+            "Weight plates",
+            "Kettlebell",
+            "EZ-bar"
+          ]
+        },
+        {
+          "name": "Benches and racks",
+          "items": [
+            "Adjustable bench",
+            "Squat rack",
+            "Pull-up bar",
+            "Dip station",
+            "Plyo box"
+          ]
+        },
+        {
+          "name": "Cables",
+          "items": [
+            "Cable pulley station"
+          ]
+        },
+        {
+          "name": "Cardio",
+          "items": [
+            "Treadmill",
+            "Stationary bike",
+            "Rowing machine",
+            "Jump rope"
+          ]
+        },
+        {
+          "name": "Other",
+          "items": [
+            "Resistance bands",
+            "Exercise mat",
+            "Foam roller",
+            "Ab wheel",
+            "Suspension trainer",
+            "Lifting straps"
+          ]
+        }
+      ],
+      "weights": {
+        "dumbbells": {
+          "min": 5,
+          "max": 50,
+          "step": 2.5,
+          "unit": "lb"
+        },
+        "kettlebells": {
+          "unit": "lb",
+          "sizes": [
+            15,
+            25,
+            35
+          ]
+        },
+        "plates": [
+          {
+            "size": 45,
+            "count": 2
+          },
+          {
+            "size": 25,
+            "count": 2
+          },
+          {
+            "size": 10,
+            "count": 2
+          },
+          {
+            "size": 5,
+            "count": 2
+          },
+          {
+            "size": 2.5,
+            "count": 2
+          }
+        ],
+        "bar": {
+          "weight": 45,
+          "unit": "lb"
+        }
+      }
+    },
+    {
+      "id": "hotel",
+      "name": "Hotel or corporate gym",
+      "blurb": "A small room with the basics. Untick what the room lacks.",
+      "groups": [
+        {
+          "name": "Free weights",
+          "items": [
+            "Dumbbells (light to medium)",
+            "Kettlebells",
+            "Medicine ball"
+          ]
+        },
+        {
+          "name": "Benches and racks",
+          "items": [
+            "Adjustable bench"
+          ]
+        },
+        {
+          "name": "Cables",
+          "items": [
+            "Cable crossover",
+            "Lat pulldown station"
+          ]
+        },
+        {
+          "name": "Machines",
+          "items": [
+            "Smith machine",
+            "Selectorized leg extension",
+            "Selectorized chest press"
+          ]
+        },
+        {
+          "name": "Cardio",
+          "items": [
+            "Treadmill",
+            "Elliptical",
+            "Stationary bike"
+          ]
+        },
+        {
+          "name": "Other",
+          "items": [
+            "Resistance bands",
+            "Exercise mat",
+            "Stability ball"
+          ]
+        }
+      ],
+      "weights": {
+        "dumbbells": {
+          "min": 5,
+          "max": 50,
+          "step": 5,
+          "unit": "lb"
+        },
+        "kettlebells": "none",
+        "plates": "none",
+        "bar": {
+          "weight": 45,
+          "unit": "lb"
+        }
+      }
+    }
+  ]
+}
