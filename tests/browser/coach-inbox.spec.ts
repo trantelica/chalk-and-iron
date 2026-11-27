@@ -135,6 +135,14 @@ test('the Coach screen has a big Back to my workout button only while a workout 
   await page.getByLabel('Weight in lb').fill('50');
   await page.getByRole('button', { name: 'Log set' }).click();
   await expect(page.getByText('Saved to your account')).toBeVisible({ timeout: 15000 });
+  // A phone that has opened the workout screen before: the service worker is in charge and holds a copy
+  // of the page, which is what lets it open with no connection (public/sw.js keeps pages it fetched itself).
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Barbell Curl' })).toBeVisible();
+  await expect.poll(() => page.evaluate(async () => !!(await (await caches.open('ci-app-v1')).match('/app/workout')))).toBe(true);
   const sessionsBefore = (await sql<{ n: number }>(`select count(*)::int as n from public.sessions where user_id = $1`, [me]))[0].n;
   await page.getByRole('link', { name: /^Coach/ }).click();
   await page.waitForURL('**/app/coach');
