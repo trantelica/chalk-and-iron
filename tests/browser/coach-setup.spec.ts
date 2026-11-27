@@ -232,3 +232,68 @@ test('Gym presets on a phone: a new gym from a preset, untick what it lacks, add
   expect(after).not.toContain('Rowing machine');
   expect(after).toContain('Squat rack');
 });
+
+test('Gym weights on a phone: set with taps, kept in the notes beside other notes, read back, preset weights, hand edits left alone', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  const me = await register(page, 'Weights Wes');
+  await page.goto('/planner/profile');
+  const notesOf = async (name: string) => (await sql<{ notes: string }>(`select notes from public.gyms where user_id = $1 and name = $2`, [me, name]))[0]?.notes;
+
+  await page.getByRole('textbox', { name: 'Name of a new gym' }).fill('Garage');
+  await page.getByRole('button', { name: 'Add gym' }).click();
+  const gym = page.getByRole('region', { name: 'Gym Garage' });
+  await gym.getByRole('textbox', { name: 'Notes for Garage' }).fill('Closed Sundays');
+  await gym.getByRole('textbox', { name: 'Notes for Garage' }).blur();
+  await expect.poll(() => notesOf('Garage')).toBe('Closed Sundays');
+
+  // Open Weights; all targets are large and nothing is wider than the phone.
+  await gym.locator('summary', { hasText: 'Weights' }).click();
+  const weights = gym.getByRole('group', { name: 'Weights for Garage' });
+  await weights.getByRole('button', { name: 'Has some' }).first().click(); // dumbbells
+  const more = weights.getByRole('button', { name: 'More Heaviest' });
+  const b = await more.boundingBox();
+  expect(b!.height).toBeGreaterThanOrEqual(44);
+  expect(b!.width).toBeGreaterThanOrEqual(44);
+  await weights.getByRole('button', { name: 'More Heaviest' }).click(); // 50 -> 55
+  await weights.getByRole('button', { name: 'More Heaviest' }).click(); // 60
+  await weights.getByRole('group', { name: 'Kettlebells present' }).getByRole('button', { name: 'Has some' }).click();
+  await weights.getByRole('group', { name: 'Kettlebell sizes' }).getByRole('button', { name: '35', exact: true }).click();
+  await weights.getByRole('group', { name: 'Plates present' }).getByRole('button', { name: 'Has some' }).click();
+  await weights.getByRole('button', { name: 'More 45 lb plates' }).click();
+  await weights.getByRole('button', { name: 'More 45 lb plates' }).click();
+  await expect(weights.getByRole('status').filter({ hasText: 'Heaviest barbell: 375 lb' })).toBeVisible();
+  await weights.getByRole('button', { name: 'Save weights' }).click();
+  await expect.poll(() => notesOf('Garage')).toMatch(/^Closed Sundays\nWeights: Dumbbells 5 to 60 lb in 5 lb steps\. Kettlebells 35 lb\. Plates \(lb\): 45 x4, 35 x2, 25 x2, 10 x2, 5 x2\. Heaviest barbell: 375 lb \(bar 45 lb\)\.$/);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
+  expect(overflow).toBe(true);
+
+  // Reading back fills the section: reload, and the saved values are shown.
+  await page.reload();
+  const again = page.getByRole('region', { name: 'Gym Garage' });
+  await again.locator('summary', { hasText: 'Weights (recorded)' }).click();
+  await expect(again.getByRole('status').filter({ hasText: 'Heaviest barbell: 375 lb' })).toBeVisible();
+  await expect(again.getByLabel('Heaviest value')).toHaveText('60 lb');
+
+  // A later save replaces only the block.
+  await again.getByRole('button', { name: 'Less Heaviest' }).click();
+  await again.getByRole('button', { name: 'Save weights' }).click();
+  await expect.poll(() => notesOf('Garage')).toMatch(/^Closed Sundays\nWeights: Dumbbells 5 to 55 lb/);
+  expect(((await notesOf('Garage'))!.match(/Weights:/g) ?? []).length).toBe(1);
+
+  // A hand-edited block is reported and left alone.
+  await sql(`update public.gyms set notes = 'Closed Sundays' || chr(10) || 'Weights: dumbbells to about 100' where user_id = $1`, [me]);
+  await page.reload();
+  const edited = page.getByRole('region', { name: 'Gym Garage' });
+  await edited.locator('summary', { hasText: 'Weights' }).click();
+  await expect(edited.getByText(/cannot be read, so it is left as it is/)).toBeVisible();
+  await expect(edited.getByRole('button', { name: 'Save weights' })).toHaveCount(0);
+  expect(await notesOf('Garage')).toBe('Closed Sundays\nWeights: dumbbells to about 100');
+
+  // A new gym from a preset records that preset's typical weights.
+  await page.getByRole('button', { name: 'Add a gym from a preset' }).click();
+  await page.getByRole('button', { name: /Hotel or corporate gym/ }).click();
+  await page.getByRole('textbox', { name: 'Name of a new gym' }).fill('Hotel gym');
+  await expect(page.getByRole('checkbox', { name: /typical weights/ })).toBeChecked();
+  await page.getByRole('button', { name: /^Add gym with \d+ items$/ }).click();
+  await expect.poll(() => notesOf('Hotel gym')).toContain('Weights: Dumbbells 5 to 50 lb in 5 lb steps. Kettlebells none. Plates none.');
+});

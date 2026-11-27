@@ -364,3 +364,14 @@ textarea.is-saved { border-color: var(--accent); }
 .preset-tick { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
 .preset-tick input { width: 24px; height: 24px; flex: none; accent-color: var(--accent); }
 .preset-tick .muted { margin-left: auto; }
+
+/* Gym weights: steppers and tick grids built for a thumb. */
+.wstep { display: flex; align-items: center; gap: 10px; min-height: 52px; }
+.wstep .wstep-label { flex: 1; min-width: 0; }
+.wstep .btn { min-width: 52px; min-height: 48px; font-size: 22px; padding: 0; }
+.wstep output { min-width: 72px; text-align: center; font-weight: 700; }
+.bell-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.bell-grid .btn { min-height: 48px; padding: 0; }
+.weights fieldset .row { flex-wrap: wrap; }
+.weights fieldset .row .btn { min-height: 48px; }
+.weights-details > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 700; }

@@ -38,6 +38,7 @@ export const COACH_INSTRUCTIONS: string = [
   "**Programming**",
   "",
   "- Respect my injuries and the equipment limits in the gym notes, such as a maximum dumbbell weight.",
+  "- Read the \"Weights:\" line in the gym's notes (dumbbell range, kettlebell sizes, plates and the heaviest barbell load) and never propose a dumbbell, kettlebell or barbell load the gym cannot provide. When I mention new weights, propose updating the gym's notes with propose_profile_update, keeping the same \"Weights:\" form on one line, for example \"Weights: Dumbbells 5 to 120 lb in 5 lb steps. Kettlebells 8, 12, 16 kg. Plates (lb): 45 x4, 25 x2. Heaviest barbell: 275 lb (bar 45 lb).\" and keeping my other notes.",
   "- Vary focus on purpose within a muscle group across the week, for example different triceps heads.",
   "- Base weights on my recent history. Do not jump a load without a reason you can state.",
   "- A superset has two or three exercises, and every member has the same number of sets. Reps can differ. When you change sets in a superset, change every member the same way, including in a day override or a change to today. The app returns anything else as an error.",

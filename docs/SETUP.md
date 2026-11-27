@@ -660,3 +660,18 @@ Fixes from step AO. Do it after the merge, on your iPhone and in your computer's
 6. [ ] Archive the two test gyms when finished (**Archive** on each gym).
 
 Tell the agent which items pass or fail.
+
+## 27. Gym weights (27 November 2026)
+
+Do it after the gym presets pull request and this one are both merged (this one is merged second). Nothing to run in Supabase.
+
+### AS. Weights on a gym, after the merge
+
+1. [ ] On your iPhone open https://chalkandiron.vercel.app/planner/profile in Safari (sign in if asked). Under **Gyms and equipment**, find a gym and tap **Weights**.
+2. [ ] Beside **Dumbbells** tap **Has some**. Tap **+** or **-** on **Lightest** and **Heaviest**, and pick a step. Under **Kettlebells** tap **Has some** and tap the sizes the gym has. Under **Plates and bar** tap **Has some**, choose **lb** or **kg**, and use **+** on each plate size. The line **Heaviest barbell** goes up as you add plates (bar plus plates, in pairs). Tap **Save weights**.
+3. [ ] Scroll up to the gym's **Notes** box: your own notes are still there, and below them is one line starting "Weights:". Close and reopen the page: **Weights (recorded)** opens with the same numbers.
+4. [ ] Add a gym with **Add a gym from a preset**, pick **Home gym**, and check the box **Also record this preset's typical weights** is ticked. After it saves, open **Weights**: the weights are filled in and you can change them. Tell the agent if any button is hard to tap.
+5. [ ] In the Notes box change the Weights line by hand (for example type "Weights: dumbbells to about 100") and leave the box. Open **Weights**: it says the line cannot be read and leaves it as it is.
+6. [ ] **Review the preset weights** in the pull request description (Commercial, Home, Hotel or corporate) and tell the agent any to change.
+7. [ ] Ask your coach for a workout at a gym with weights recorded: it should not use a dumbbell or barbell load the gym cannot make.
+

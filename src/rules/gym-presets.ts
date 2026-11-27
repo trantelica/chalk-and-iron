@@ -3,11 +3,16 @@
 // what is ticked is saved to the gym as ordinary free-text items.
 import data from '../../data/gym-presets.json';
 import { cleanEquipment, previewAdd } from './gym-equipment';
+import { fromPreset, weightsLine, type PresetWeights, type Weights } from './gym-weights';
 
 export type PresetGroup = { name: string; items: string[] };
-export type Preset = { id: string; name: string; blurb: string; groups: PresetGroup[] };
+export type Preset = { id: string; name: string; blurb: string; groups: PresetGroup[]; weights: PresetWeights };
 
-export const GYM_PRESETS: Preset[] = data.presets;
+export const GYM_PRESETS: Preset[] = data.presets as Preset[];
+
+/** A preset's typical weights, and the line that would go in the gym's notes. */
+export const presetWeights = (p: Preset): Weights => fromPreset(p.weights);
+export const presetWeightsLine = (p: Preset): string => weightsLine(presetWeights(p));
 
 export const presetById = (id: string): Preset | undefined => GYM_PRESETS.find((p) => p.id === id);
 

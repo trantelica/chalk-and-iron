@@ -1,21 +1,25 @@
 'use client';
 import { useState } from 'react';
-import { allTicked, applyPreset, GYM_PRESETS, presetById, presetItems } from '@/rules/gym-presets';
+import { allTicked, applyPreset, GYM_PRESETS, presetById, presetItems, presetWeights, presetWeightsLine } from '@/rules/gym-presets';
+import type { Weights } from '@/rules/gym-weights';
 
 // Pick one of three starting lists, then untick what the gym lacks. No typing.
 // `current` is the gym's list now (empty for a new gym): items already in it are
 // marked and never counted, and saving only ever adds.
-export function GymPresetPicker({ current, gymLabel, actionLabel, actionDisabled, busy, onApply, onCancel }: {
+export function GymPresetPicker({ current, hasWeights, gymLabel, actionLabel, actionDisabled, busy, onApply, onCancel }: {
   current: string[];
+  /** The gym already has a Weights line in its notes: the preset's weights are then left unticked, so they never replace it by accident. */
+  hasWeights?: boolean;
   gymLabel: string;
   actionLabel: (n: number) => string;
   actionDisabled?: boolean;
   busy?: boolean;
-  onApply: (next: string[], added: number) => void | Promise<void>;
+  onApply: (next: string[], added: number, weights: Weights | null) => void | Promise<void>;
   onCancel?: () => void;
 }) {
   const [id, setId] = useState<string | null>(null);
   const [ticked, setTicked] = useState<Set<string>>(new Set());
+  const [withWeights, setWithWeights] = useState(true);
   const preset = id ? presetById(id) : undefined;
   const have = new Set(current.map((x) => x.toLowerCase()));
 
@@ -24,7 +28,7 @@ export function GymPresetPicker({ current, gymLabel, actionLabel, actionDisabled
       <div className="stack" role="group" aria-label={`Start ${gymLabel} from a preset`}>
         <div className="preset-choices">
           {GYM_PRESETS.map((p) => (
-            <button key={p.id} type="button" className="btn" onClick={() => { setId(p.id); setTicked(allTicked(p)); }}>
+            <button key={p.id} type="button" className="btn" onClick={() => { setId(p.id); setTicked(allTicked(p)); setWithWeights(!hasWeights); }}>
               <span><strong>{p.name}</strong><br /><span className="muted">{presetItems(p).length} items. {p.blurb}</span></span>
             </button>
           ))}
@@ -62,9 +66,14 @@ export function GymPresetPicker({ current, gymLabel, actionLabel, actionDisabled
           </fieldset>
         );
       })}
+      <label className="preset-tick">
+        <input type="checkbox" checked={withWeights} onChange={(e) => setWithWeights(e.target.checked)} />
+        <span>Also record this preset&apos;s typical weights{hasWeights ? ' (replaces the weights already recorded)' : ''}</span>
+      </label>
+      {withWeights && <div className="muted">{presetWeightsLine(preset).replace(/^Weights: /, '')} You can change them afterwards in Weights.</div>}
       <div className="muted" role="status" aria-live="polite">{result.fresh.length} to add{result.already.length ? `, ${result.already.length} already in the list` : ''}.</div>
       <div className="row">
-        <button type="button" className="btn primary small-primary" disabled={busy || actionDisabled || (current.length > 0 && !result.fresh.length)} onClick={() => void onApply(result.next, result.fresh.length)}>{actionLabel(result.fresh.length)}</button>
+        <button type="button" className="btn primary small-primary" disabled={busy || actionDisabled || (current.length > 0 && !result.fresh.length && !withWeights)} onClick={() => void onApply(result.next, result.fresh.length, withWeights ? presetWeights(preset) : null)}>{!result.fresh.length && withWeights && current.length > 0 ? 'Record the typical weights' : actionLabel(result.fresh.length)}</button>
         {onCancel && <button type="button" className="btn" onClick={onCancel}>Cancel</button>}
       </div>
     </div>

@@ -1,5 +1,5 @@
 {
-  "_about": "Gym presets (docs/SPEC.md Section 5, Profile and gyms): starting equipment lists for a new gym. Item names follow the equipment words the starter exercises use (data/starter-library.json). Draft by the agent; reviewed by Nate. Not stored in the database: a preset only fills in tick boxes, and the ticked items are saved to the gym as ordinary free text.",
+  "_about": "Gym presets (docs/SPEC.md Section 5, Profile and gyms): starting equipment lists for a new gym. Item names follow the equipment words the starter exercises use (data/starter-library.json). Draft by the agent; reviewed by Nate. Not stored in the database: a preset only fills in tick boxes, and the ticked items are saved to the gym as ordinary free text. Each preset also carries typical weights (dumbbells, kettlebells, plates, bar); they are written into the gym's notes as one Weights line (src/rules/gym-weights.ts) and can be edited afterwards.",
   "version": 1,
   "presets": [
     {
@@ -121,7 +121,64 @@
             "Weight belt"
           ]
         }
-      ]
+      ],
+      "weights": {
+        "dumbbells": {
+          "min": 5,
+          "max": 150,
+          "step": 5,
+          "unit": "lb"
+        },
+        "kettlebells": {
+          "unit": "lb",
+          "sizes": [
+            10,
+            15,
+            20,
+            25,
+            30,
+            35,
+            40,
+            45,
+            50,
+            60,
+            70,
+            80,
+            90,
+            100
+          ]
+        },
+        "plates": [
+          {
+            "size": 45,
+            "count": 8
+          },
+          {
+            "size": 35,
+            "count": 4
+          },
+          {
+            "size": 25,
+            "count": 4
+          },
+          {
+            "size": 10,
+            "count": 4
+          },
+          {
+            "size": 5,
+            "count": 4
+          },
+          {
+            "size": 2.5,
+            "count": 4
+          }
+        ],
+        "bar": {
+          "weight": 45,
+          "unit": "lb"
+        }
+      }
     },
     {
       "id": "home",
@@ -174,7 +231,49 @@
             "Lifting straps"
           ]
         }
-      ]
+      ],
+      "weights": {
+        "dumbbells": {
+          "min": 5,
+          "max": 50,
+          "step": 2.5,
+          "unit": "lb"
+        },
+        "kettlebells": {
+          "unit": "lb",
+          "sizes": [
+            15,
+            25,
+            35
+          ]
+        },
+        "plates": [
+          {
+            "size": 45,
+            "count": 2
+          },
+          {
+            "size": 25,
+            "count": 2
+          },
+          {
+            "size": 10,
+            "count": 2
+          },
+          {
+            "size": 5,
+            "count": 2
+          },
+          {
+            "size": 2.5,
+            "count": 2
+          }
+        ],
+        "bar": {
+          "weight": 45,
+          "unit": "lb"
+        }
+      }
     },
     {
       "id": "hotel",
@@ -226,7 +325,21 @@
             "Stability ball"
           ]
         }
-      ]
+      ],
+      "weights": {
+        "dumbbells": {
+          "min": 5,
+          "max": 50,
+          "step": 5,
+          "unit": "lb"
+        },
+        "kettlebells": "none",
+        "plates": "none",
+        "bar": {
+          "weight": 45,
+          "unit": "lb"
+        }
+      }
     }
   ]
 }
