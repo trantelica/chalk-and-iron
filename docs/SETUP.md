@@ -609,7 +609,7 @@ Use the Test Account (the coach eval account), in your computer's browser. Use o
 Then click the **Profile and gyms** tab (https://chalkandiron.vercel.app/planner/profile):
 
 11. [ ] **About you** shows the same answers; change one and see the tick.
-12. [ ] Under **Gyms and equipment** type a name such as "Big Gym" next to **New gym name**, and click **Add gym**. The first gym is the default one. Click **Review and edit equipment**.
+12. [ ] Under **Gyms and equipment** type a name such as "Big Gym" next to **New gym name**, and click **Add gym**. The first gym is the default one, and its equipment list opens (**Close equipment** and **Review and edit equipment** open and close it).
 13. [ ] Click **Add many at once**, paste a list of equipment (one per line, or separated by commas; do the real list of your gym if you like), and click **Add N to the list**. Repeats are skipped and the list stays in A to Z order.
 14. [ ] Type in the **Filter** box to find an item. Click **Remove** beside one, then **Undo**. Click **Edit as text** to see the whole list as plain lines: delete or add lines and click **Save the list**.
 15. [ ] Tell the agent what felt slow or awkward with your real gym's list, because the gym screen was built for a large gym.

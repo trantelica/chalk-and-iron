@@ -125,7 +125,8 @@ test('Profile and gyms: the intake answers are there, and a large gym can be rev
   await expect.poll(async () => (await sql<{ notes: string }>(`select notes from public.gyms where user_id = $1`, [me]))[0].notes).toBe('Dumbbells go to 100 lb');
 
   // Add one, then paste forty at once (with one already there).
-  await gym.getByRole('button', { name: 'Review and edit equipment' }).click();
+  // A new gym opens its equipment list at once.
+  await expect(gym.getByRole('button', { name: 'Close equipment' })).toBeVisible();
   await gym.getByRole('textbox', { name: 'Add equipment to Big Gym' }).fill('Rower');
   await gym.getByRole('textbox', { name: 'Add equipment to Big Gym' }).press('Enter');
   await expect.poll(equipment).toEqual(['Rower']);
