@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { serverClient } from '@/lib/supabase/server';
+import { BackToWorkout } from '@/components/back-to-workout';
 import { ProposalCards } from '@/components/proposal-cards';
 
 // The phone's Coach screen (spec Section 5, "Phone: coach inbox"): says where
@@ -19,6 +20,7 @@ export default async function CoachScreen() {
         <h1>Coach</h1>
         <Link className="btn" href="/app">Home</Link>
       </div>
+      <BackToWorkout userId={auth.user.id} />
       <section className="panel" aria-label="About your coach">
         <div className="muted">
           Your coach lives in your own ChatGPT or Claude project. You talk or type there. Anything the coach wants to change comes back here for your approval.
