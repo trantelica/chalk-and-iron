@@ -192,9 +192,9 @@ test('Gym presets on a phone: a new gym from a preset, untick what it lacks, add
 
   // Adding a gym from a preset needs the name first, then no typing at all.
   await page.getByRole('button', { name: 'Add a gym from a preset' }).click();
+  await page.getByRole('button', { name: /Hotel or corporate gym/ }).click();
   await expect(page.getByRole('button', { name: 'Type the gym name first' })).toBeDisabled();
   await page.getByRole('textbox', { name: 'Name of a new gym' }).fill('Hotel gym');
-  await page.getByRole('button', { name: /Hotel or corporate gym/ }).click();
   // Everything is ticked, and the tap targets are large.
   const treadmill = page.getByRole('checkbox', { name: 'Treadmill' });
   await expect(treadmill).toBeChecked();
