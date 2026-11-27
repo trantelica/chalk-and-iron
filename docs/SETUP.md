@@ -553,7 +553,9 @@ Stage 4D builds what happens when you accept or decline a card from your coach: 
 
 **Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. For each file below, in this order: open it, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into a new query, and click **Run**.
 
-1. [ ] [`20261126000100_accept_and_decline.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261126000100_accept_and_decline.sql) It should end with "Success. No rows returned". Safe to run more than once.
-2. [ ] [`20261126000200_expiry_schedules.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261126000200_expiry_schedules.sql) It ends with a small table showing the scheduler's job number. Safe to run more than once.
+1. [x] [`20261126000100_accept_and_decline.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261126000100_accept_and_decline.sql) It should end with "Success. No rows returned". Safe to run more than once.
+2. [x] [`20261126000200_expiry_schedules.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261126000200_expiry_schedules.sql) It ends with a small table showing the scheduler's job number. Safe to run more than once.
+
+**Run by Nate on 27 November 2026.**
 
 Until the pull request is merged, these links work from the pull request's branch instead (the agent gives you those links).
