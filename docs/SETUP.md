@@ -617,3 +617,31 @@ Then click the **Profile and gyms** tab (https://chalkandiron.vercel.app/planner
 **Screenshots the page still needs from you.** The ChatGPT and Claude steps show grey placeholder boxes. The agent did not draw any app screen. To fill them, take screenshots on your computer (on a Mac: press Shift, Command and 4, then drag over the window) of: ChatGPT's Settings, Apps, Advanced settings with Developer mode on; ChatGPT's new-app form with the link pasted; the Chalk and Iron approval page (Allow and Deny); a ChatGPT project with the instructions pasted and Chalk and Iron switched on; Claude's Add custom connector form; and a Claude project with the instructions pasted. Send them to the agent, which adds them to the page.
 
 Tell the agent which items pass or fail.
+
+## 25. The coach edits a gym's equipment one item at a time (27 November 2026)
+
+Until now a coach's card for a gym had to resend the gym's whole equipment list, which would lose items for a big gym. The coach now adds or removes single items, and Accept applies them to the gym's list as it is when you press Accept.
+
+### AP. Supabase SQL Editor, **before** merging
+
+**Run this before the pull request is merged.** Run before merging, nothing changes for the app you have now: the live app does not use the new step until the new app is live. Merge first and a coach's card for a gym's equipment would fail on Accept until you run it.
+
+**What it changes:** it adds one small helper that works out a gym's new list from its current list plus the items to add and remove (tidy, A to Z, no repeats, up to 500, refusing a bad item), and replaces the step that applies a coach's profile and gym card so it uses it. It changes no data you already have.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the new query, and click **Run**.
+
+1. [ ] [`20261127000100_gym_equipment_add_remove.sql`](https://github.com/trantelica/chalk-and-iron/blob/coach-gym-equipment-add-remove/supabase/migrations/20261127000100_gym_equipment_add_remove.sql) It should end with "Success. No rows returned". Safe to run more than once.
+
+Until the pull request is merged this link works from the pull request's branch; afterwards it is also at `.../blob/main/supabase/migrations/20261127000100_gym_equipment_add_remove.sql`.
+
+**Check afterwards (optional, in your coach chat):** ask your coach to "add a Rower and a Sandbag to my gym". A card appears in **Proposals** reading like "Add Rower and Sandbag to Home gym"; Accept it, then open **Profile and gyms** and find both in the list.
+
+### AQ. Supabase SQL Editor, before or after merging (27 November 2026)
+
+A small follow-up from the fresh review. **What it changes:** a coach's card that only renames a gym, changes its notes or makes it the default now leaves the gym's equipment list exactly as it is (before, it re-sorted it), and the helper from step AP is closed to direct calls, like every other helper of its kind. It changes no data you already have. The app works the same whether you run it before or after the merge.
+
+**Where:** the same as step AP: https://supabase.com/dashboard, the project `chalk-and-iron`, **SQL Editor** in the left-hand menu, **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it, and click **Run**.
+
+1. [ ] [`20261127000200_gym_equipment_tidy.sql`](https://github.com/trantelica/chalk-and-iron/blob/coach-gym-equipment-add-remove/supabase/migrations/20261127000200_gym_equipment_tidy.sql) It should end with "Success. No rows returned". Safe to run more than once.
+
+After the merge the link is also at `.../blob/main/supabase/migrations/20261127000200_gym_equipment_tidy.sql`.

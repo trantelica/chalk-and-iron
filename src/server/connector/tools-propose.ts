@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { trainingDay } from '@/rules/days';
+import { ITEM_MAX, LIST_MAX } from '@/rules/gym-equipment';
 import { loadSessionDetails } from '@/app/planner/history-data';
 import { loadToday } from '@/server/today-load';
 import type { Caller } from './auth';
@@ -527,10 +528,32 @@ const priorityInput = z.object({
   text: z.string().trim().min(1).max(100, 'A written-in priority is at most 100 characters.').optional().describe('Only for "other": what it is.'),
 }).strict();
 
+const eqKey = (s: string) => s.trim().replace(/\s+/g, ' ').toLowerCase();
+
+/** Checks a list of items the way the gym screen does: no repeats ignoring capitals. Returns the distinct keys. */
+function checkEquipmentItems(problems: Problems, field: string, items: string[]): string[] {
+  const seen = new Set<string>();
+  items.forEach((e, i) => {
+    const k = eqKey(e);
+    if (seen.has(k)) problems.add(`${field}[${i}]`, `"${e}" is listed twice (capitals do not matter). List each item once.`);
+    seen.add(k);
+  });
+  return [...seen];
+}
+
+async function currentEquipment(c: Caller, gymId: string): Promise<string[]> {
+  const { data, error } = await c.db.from('gyms').select('equipment').eq('id', gymId).maybeSingle();
+  if (error) failed('gym read', error);
+  return ((data as { equipment: string[] | null } | null)?.equipment ?? []);
+}
+
 const gymInput = z.object({
   gym: z.string().trim().min(1).max(80).optional().describe('To edit a gym, its id or exact name. Leave out to add a new gym.'),
   name: z.string().trim().min(1, 'A gym needs a name.').max(80, 'A gym name is at most 80 characters.').optional(),
-  equipment: z.array(z.string().trim().min(1).max(60)).max(100).optional().describe('The gym\'s whole equipment list, using equipment values from get_vocabulary.'),
+  add_equipment: z.array(z.string().trim().min(1, 'An equipment item cannot be empty.').max(ITEM_MAX, `An equipment item is at most ${ITEM_MAX} characters.`)).max(LIST_MAX, `At most ${LIST_MAX} items to add.`).optional()
+    .describe('Equipment to add to the gym, in the user\'s own words, such as "Rower" or "Hammer Strength Chest Press". Free text, not get_vocabulary values. Added to the list the gym has when the user accepts.'),
+  remove_equipment: z.array(z.string().trim().min(1, 'An equipment item cannot be empty.').max(ITEM_MAX, `An equipment item is at most ${ITEM_MAX} characters.`)).max(LIST_MAX, `At most ${LIST_MAX} items to remove.`).optional()
+    .describe('Equipment to take off the gym\'s list, written as list_gyms shows it (capitals do not matter). Only for a gym that exists.'),
   notes: z.string().max(1000, 'Gym notes are at most 1000 characters.').optional(),
   make_default: z.boolean().optional(),
 }).strict();
@@ -581,10 +604,7 @@ async function proposeProfileUpdate(c: Caller, a: z.infer<typeof profileInput>) 
   let gymPayload: Record<string, unknown> | undefined;
   if (a.gym) {
     const g = a.gym;
-    const [terms, gyms] = await Promise.all([
-      loadLibrary(c.db).then((l) => l.terms),
-      fetchAll<GymRow>('gyms read', (x, y) => c.db.from('gyms').select('id, name, archived_at, version').order('id').range(x, y) as never),
-    ]);
+    const gyms = await fetchAll<GymRow>('gyms read', (x, y) => c.db.from('gyms').select('id, name, archived_at, version').order('id').range(x, y) as never);
     const clean = g.gym?.trim();
     const edited = clean === undefined ? undefined
       : gyms.filter((x) => !x.archived_at).find((x) => (UUID.test(clean) ? x.id.toLowerCase() === clean.toLowerCase() : norm(x.name) === norm(clean)));
@@ -594,18 +614,37 @@ async function proposeProfileUpdate(c: Caller, a: z.infer<typeof profileInput>) 
       });
     }
     if (!edited && g.name === undefined) problems.add('gym.name', 'A new gym needs a name.');
-    if (edited && g.name === undefined && g.equipment === undefined && g.notes === undefined && g.make_default === undefined) {
-      problems.add('gym', `Say what to change about "${edited.name}": name, equipment, notes or make_default.`);
+    const adds = g.add_equipment ?? [];
+    const removes = g.remove_equipment ?? [];
+    if (edited && g.name === undefined && !adds.length && !removes.length && g.notes === undefined && g.make_default === undefined) {
+      problems.add('gym', `Say what to change about "${edited.name}": name, add_equipment, remove_equipment, notes or make_default.`);
     }
-    const equipment = g.equipment?.map((e, i) => term(terms, 'equipment', e, `gym.equipment[${i}]`).name);
+    const current = edited ? await currentEquipment(c, edited.id) : [];
+    const addKeys = checkEquipmentItems(problems, 'gym.add_equipment', adds);
+    const removeKeys = checkEquipmentItems(problems, 'gym.remove_equipment', removes);
+    adds.forEach((e, i) => {
+      if (removeKeys.includes(eqKey(e))) problems.add(`gym.add_equipment[${i}]`, `"${e}" is in both add_equipment and remove_equipment. Pick one.`);
+      else if (current.some((x) => eqKey(x) === eqKey(e))) problems.add(`gym.add_equipment[${i}]`, `"${e}" is already in ${edited!.name}'s list. Leave it out.`);
+    });
+    removes.forEach((e, i) => {
+      if (!edited) problems.add(`gym.remove_equipment[${i}]`, 'A new gym has nothing to remove. Leave remove_equipment out.');
+      else if (!current.some((x) => eqKey(x) === eqKey(e))) problems.add(`gym.remove_equipment[${i}]`, `"${e}" is not in ${edited.name}'s list. Check list_gyms and write it as it appears there.`);
+    });
+    if (edited && current.length + addKeys.length - removeKeys.length > LIST_MAX) {
+      problems.add('gym.add_equipment', `${edited.name} holds ${current.length} items and a gym holds at most ${LIST_MAX}. Add fewer, or remove some.`);
+    }
+    // A new gym can be filled in with add_equipment too. Adds and removes are applied to the gym's list when the user accepts, not as it is now.
     gymPayload = {
       ...(edited ? { gym_id: edited.id } : {}),
       ...(g.name !== undefined ? { name: g.name } : {}),
-      ...(equipment ? { equipment: [...new Set(equipment)] } : {}),
+      ...(adds.length ? { add_equipment: adds } : {}),
+      ...(removes.length ? { remove_equipment: removes } : {}),
       ...(g.notes !== undefined ? { notes: g.notes } : {}),
       ...(g.make_default !== undefined ? { make_default: g.make_default } : {}),
     };
-    if (edited) targets.push({ record_kind: 'gyms', record_id: edited.id, version_seen: edited.version });
+    // A card that only adds or removes items does not go out of date when the gym's list changes: it applies to the list as it is at Accept.
+    const listOnly = g.name === undefined && g.notes === undefined;
+    if (edited && !listOnly) targets.push({ record_kind: 'gyms', record_id: edited.id, version_seen: edited.version });
   }
 
   if (!Object.keys(profile).length && !gymPayload) {

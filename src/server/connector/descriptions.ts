@@ -287,7 +287,8 @@ export const TOOL_TEXT: Record<string, ToolText> = {
       'Propose changes to the user\'s coach profile (goals, injuries and limits, weekly schedule, notes and the intake: coach style, experience, priorities, progression pace, workout minutes, days per week, variety, exercises liked, exercises to avoid, how to coach me), and or to a gym (add one, or edit one with its id or exact name). Nothing changes until the user accepts it in the app.',
       'Run the intake as a short conversation, then propose the answers as one profile update. Leave out what the user did not answer.',
       'Change the progression pace only after a pace check: compare the chosen pace with what the history shows, say so to the user, and then propose it.',
-      'Use equipment values exactly as get_vocabulary gives them. When the user confirms they have equipment the gym does not list, add it to the gym here. Write summary_lines as one clear line per change.',
+      'A gym\'s equipment is free text in the user\'s own words, not get_vocabulary values, and a gym can be large. Change it one item at a time with add_equipment and remove_equipment (never the whole list), after reading the gym with list_gyms. They are applied to the gym\'s list when the user accepts, so nothing added in the meantime is lost. When the user confirms they have equipment the gym does not list, add it to the gym here.',
+      'Write summary_lines as one clear line per change, for example "Add Rower and Sandbag to Big Gym" or "Remove Spin Bike from Big Gym". For a long list say how many, for example "Add 40 items to Big Gym: Rower, Sandbag and 38 more".',
       'After it succeeds, tell the user it is waiting in the app for them to accept or decline. If it returns an error, fix the call and try again before telling the user.',
     ].join(' '),
     brief: [
