@@ -5,7 +5,10 @@ import { PlannerProvider, usePlannerMaybe } from '../planner-data';
 import { SaveStatusLine } from '../save-status-line';
 import { useWaitingCount } from '@/components/coach-count';
 
-const TABS: [string, string][] = [['/planner/plan', 'Plan'], ['/planner/library', 'Library'], ['/planner/history', 'History'], ['/planner/proposals', 'Proposals'], ['/planner/vocabulary', 'Vocabulary']];
+const TABS: [string, string][] = [['/planner/plan', 'Plan'], ['/planner/library', 'Library'], ['/planner/history', 'History'], ['/planner/proposals', 'Proposals'], ['/planner/vocabulary', 'Vocabulary'], ['/planner/coach-setup', 'Coach setup'], ['/planner/profile', 'Profile and gyms']];
+
+// These two read and save their own rows, so they open without waiting for the library to load.
+const OWN_DATA = ['/planner/coach-setup', '/planner/profile'];
 
 export function Tabs({ tabs, label, badges }: { tabs: [string, string][]; label: string; badges?: Record<string, number | null> }) {
   const path = usePathname();
@@ -34,12 +37,14 @@ function Toggle() {
 function Body({ children }: { children: React.ReactNode }) {
   const p = usePlannerMaybe();
   const waiting = useWaitingCount();
+  const path = usePathname();
+  const own = OWN_DATA.some((h) => path === h || path.startsWith(h + '/'));
   return (
     <main className="page wide planner">
       <div className="row spread"><h1>Planner</h1><SaveStatusLine /><Toggle /></div>
       <Tabs tabs={TABS} label="Planner" badges={{ '/planner/proposals': waiting }} />
-      {p?.error && <div className="error" role="alert">{p.error}</div>}
-      {p?.data ? children : !p?.error && <div className="muted">Loading your library…</div>}
+      {p?.error && !own && <div className="error" role="alert">{p.error}</div>}
+      {own || p?.data ? children : !p?.error && <div className="muted">Loading your library…</div>}
       <div className="row"><Link className="btn link-btn" href="/app">Phone home</Link><Link className="btn link-btn" href="/planner/account">Account</Link></div>
     </main>
   );

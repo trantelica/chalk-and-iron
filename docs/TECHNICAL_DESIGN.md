@@ -513,6 +513,14 @@ The descriptions live in one file in the connector, beside a list of the brief i
 - **This design's own choices in stage 4E** (for Nate to confirm): a campaign override names its row by the exercise it holds (with `row` when the workout holds it twice) and may carry `swap_to`; a new campaign must list at least one day; a gym's equipment must be vocabulary values; a coach can clear a profile choice by sending null.
 - **Still open: the card and its targets are two steps.** `addProposal` tries the second step twice. A card left with no targets would not be marked out of date when the user edits what it changes. Closing it needs one guarded database step and one SQL step from Nate, so it is left for Nate's decision (`docs/NEXT.md`, Open items).
 
+### How Coach setup, Profile and gyms are built (stage 4G, 27 Nov 2026)
+
+- **No database change.** Every read and write uses the person's own access: the intake saves to their `coach_profiles` row (the database holds the allowed choices), the coach link to `profiles.coach_link`, gyms to `gyms` (archived, never deleted), and the connection test reads their own `connector_calls` rows (a call that worked and arrived after the test began). Connected coach apps are the person's own grants in Supabase's sign-in service (`auth.oauth.listGrants`, `revokeGrant`); revoking one cancels its pass at once, which the connector's per-call check honours.
+- **Files.** Pages `src/app/planner/(shell)/coach-setup` and `.../profile`; components `coach-intake-form.tsx`, `coach-connection.tsx`, `gym-editor.tsx`, `copy-button.tsx`; rules `src/rules/coach-intake.ts` and `gym-equipment.ts`; the instructions text `src/lib/coach-instructions.ts` (a test fails if it differs from the block in `docs/COACH_INSTRUCTIONS.md`). The two pages open without waiting for the planner's library to load.
+- **Gym equipment** stays free text, kept A to Z with no blanks or repeats (ignoring capitals), items up to 60 characters and up to 500 per gym. A "fully equipped" setting is not built (Nate, 27 Nov); it would be one more field on a gym beside the list, which would then hold the exceptions.
+- **The coach link** is kept only if it is an https address, and the phone opens it only if it is one.
+- **Screenshots** for the ChatGPT and Claude steps are marked placeholders until Nate supplies them (files go in `public/coach-setup/`).
+
 ### What each proposal carries, and how it is decided (stage 4D, 26 Nov 2026)
 
 Stage 4E's propose tools check a coach's request and store it in this shape in `proposals.payload`, with exercises, workouts, vocabulary values and gyms named by id (the tools turn names into ids), weights in pounds, and the records it would change in `proposal_targets` with the version seen. Stage 4D applies it. Every field is optional unless said.
