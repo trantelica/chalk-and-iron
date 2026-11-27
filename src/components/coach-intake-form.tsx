@@ -35,18 +35,12 @@ function Priorities({ stored, onSave }: { stored: unknown; onSave: (list: { valu
   const [err, setErr] = useState('');
   const { mark, run } = useMark();
   const storedKey = JSON.stringify(stored ?? []);
-  const slotsRef = useRef(slots);
-  slotsRef.current = slots;
-  // Take in what was stored, unless the boxes already say the same or one is half filled in
-  // (a written-in priority with no words yet): another answer saving must not wipe it.
-  useEffect(() => {
-    const now = slotsRef.current;
-    if (now.some((x) => x.value === 'other' && !x.text.trim())) return;
-    const built = buildPriorities(now);
-    if (built.ok && JSON.stringify(built.list) === storedKey) return;
-    setSlots(slotsFromPriorities(stored));
-  }, [storedKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Once the person has touched these boxes they are the truth: another answer saving, and the
+  // reload after it, must not wipe a box that is half filled in. A page reload shows what is stored.
+  const touched = useRef(false);
+  useEffect(() => { if (!touched.current) setSlots(slotsFromPriorities(stored)); }, [storedKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const change = (i: number, patch: Partial<PrioritySlot>, save: boolean) => {
+    touched.current = true;
     const next = slots.map((s, j) => (j === i ? { ...s, ...patch } : s));
     setSlots(next);
     if (!save) return;
@@ -68,7 +62,7 @@ function Priorities({ stored, onSave }: { stored: unknown; onSave: (list: { valu
           </select>
           {s.value === 'other' && (
             <input type="text" aria-label={`Your own priority ${ranks[i]}`} maxLength={OTHER_MAX} value={s.text} placeholder="For example: rock climbing"
-              onChange={(e) => setSlots(slots.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
+              onChange={(e) => { touched.current = true; setSlots(slots.map((x, j) => (j === i ? { ...x, text: e.target.value } : x))); }}
               onBlur={() => change(i, {}, true)} onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
           )}
         </div>
