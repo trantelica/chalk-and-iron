@@ -1,6 +1,6 @@
 # Next: Chalk and Iron
 
-The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 27 November 2026 (stage 4F built, waiting for review and merge; next is stage 4G).
+The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 27 November 2026 (stage 4G built, waiting for review and merge; next is stage 4H).
 
 ## Now
 
@@ -15,11 +15,12 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 - **Stage 4E, the propose tools, is merged** (27 Nov, Sonnet 5.5, medium): `propose_exercise`, `propose_workout`, `propose_campaign`, `propose_today_change` and `propose_profile_update`, with every check, errors written to the coach, descriptions from the brief and the code check on them. Each card is stored in the shape stage 4D applies, and the tests accept every kind through the real Accept. **Its coach eval agent pass passed** (27 Nov): E3, E4, E5, E17 and E19 on the live app, 5 of 5 (`tests/coach-evals/results/2026-11-27-agent-pass-4e.md`). Stage 4E is ready for Nate to accept once that results pull request is merged.
 - **Stage 4F, the inbox, is built** (27 Nov, Sonnet 5.5, medium; pull request open, not merged): a Coach screen on the phone (the Coach button on the workout screen opens it, with the count of cards waiting) and a Proposals tab in the planner (also with the count), both showing every card newest first with its status: waiting, accepted, declined, out of date or expired. A waiting card has Accept and Decline; Decline offers an optional one-line reason of up to 300 characters, which the coach can read; after Accept a banner says what changed and what did not. Out-of-date and expired cards stay in view without Accept (an out-of-date one can be dismissed). A long card (a full campaign) shows its first eight lines with a "Show all" button on the phone, and in full width in the planner. Home keeps showing waiting cards at the top. Browser tests are written and run on GitHub only (no Docker on the build machine). Its iPhone check is step AN in `docs/SETUP.md`, after the merge.
 - **Follow-up to 4F, built (27 Nov; pull request open, not merged):** while a workout is running on the phone, the Coach screen shows a large **Back to my workout** button at the top; it also works offline and starts nothing. Step AN in `docs/SETUP.md` is reworded (old eval cards are almost always out of date; ask your coach for two new ones) and has the iPhone check for the button (item 6).
-- **Next: stage 4G, Coach setup, Profile and gyms (Sonnet 5.5, medium).** Phase 4 runs in eight stages, one pull request each: 4A data and the lock, 4B connector core, 4C the other read tools, 4D Accept and Decline, 4E propose tools, 4F the inbox, 4G Coach setup, Profile and gyms, 4H Home and the full eval, then the fresh review (`docs/TECHNICAL_DESIGN.md` Section 11). The Coach screen's "Open my coach" button shows once a coach link is set, which Coach setup (4G) makes easy.
+- **Stage 4G, Coach setup, Profile and gyms, is built** (27 Nov, Sonnet 5.5, medium; pull request open, not merged): two new planner tabs. **Coach setup** runs in order: the intake, connecting ChatGPT or Claude (the connector link to copy, numbered steps for each, grey placeholders where screenshots go), the coach instructions to copy, the coach link the Coach button opens (kept only if it starts with https://), a connection test that turns to Connected when the coach's call arrives, and "let's get started", with the connected coach apps and Disconnect at the bottom. **Profile and gyms** has the same intake and each gym's equipment, built for a large gym: filter, add one, paste a whole list, rename and remove with Undo, and an edit-as-text view. No database change. Browser tests are written and run on GitHub only (no Docker on the build machine). Its check is step AO in `docs/SETUP.md`, after the merge.
+- **Next: stage 4H, Home and the full eval (Sonnet 5.5, medium).** Home's last-week note and check-in marks, the coach instructions brought in line with the brief and the final tool names (`src/lib/coach-instructions.ts` must then stay identical to the block in `docs/COACH_INSTRUCTIONS.md`; a test checks it), the full agent pass, then the fresh review (`docs/TECHNICAL_DESIGN.md` Section 11).
 
 ## Waiting on Nate
 
-- Nothing at the moment.
+- **Screenshots for Coach setup** (not needed to merge): the ChatGPT and Claude steps show grey placeholders. Six screens to capture are listed at the end of step AO in `docs/SETUP.md`.
 
 ## Open items
 
@@ -33,7 +34,9 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 - A coach's card and its targets are still added in two steps (4E tries the second step twice). A card with no targets would not be marked out of date when the user edits what it changes. One guarded database step would close this; it is database work (Opus 5.5, high) and needs one SQL step from Nate. Decision for Nate: before the first friend is invited, or never (`docs/TECHNICAL_DESIGN.md` Section 3, "How the propose tools are built").
 - Plan against actual in the coach's tools: Nate said not yet (24 Nov). Listed in `docs/SPEC.md` Section 10, Later enhancements.
 
-- A "fully equipped" setting on a gym (assume everything except what is listed as not available) for a large gym. Nate is not sure it is needed with the coach asking and remembering (27 Nov); revisit after real use.
+- **Polish idea (Nate, 27 Nov):** after a coach's "add exercise first" card is accepted in the middle of a workout, the phone stays on the exercise it was on. Deliberately unchanged; consider jumping to the new first exercise.
+- **A coach cannot edit a gym over 100 items safely** (found in 4G). `propose_profile_update` sends a gym's whole equipment list, capped at 100 items, and only from the equipment vocabulary, while the gym screen allows free text and up to 500 items. A coach's card for a bigger or free-text list would drop items on Accept. Decision for Nate before real use: let the coach add or remove single items instead of replacing the list (a change to the propose tool and Accept: database work, Opus 5.5 high, and one SQL step).
+- A "fully equipped" setting on a gym (assume everything except what is listed as not available) for a large gym. Nate is not sure it is needed with the coach asking and remembering (27 Nov); revisit after real use. The gym screen is built so it can be added: it would be one more field on a gym beside the list (a database change), with the list then holding the exceptions (`src/rules/gym-equipment.ts`).
 
 ## Decided, not yet built
 

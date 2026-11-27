@@ -586,3 +586,34 @@ You need at least two cards waiting from your coach. Cards left by earlier check
 
 Tell the agent which numbers pass or fail.
 
+
+## 24. Phase 4, stage 4G: Coach setup, Profile and gyms (27 November 2026)
+
+Stage 4G adds two tabs to the planner: **Coach setup** (the intake, connecting ChatGPT or Claude, the instructions to copy, the coach link, the connection test, "let's get started", and your connected coach apps with Disconnect) and **Profile and gyms** (your intake answers, and each gym's equipment). It needs no SQL step. Do the check below only after the pull request is merged, because the live app builds only from the merged version.
+
+### AO. Complete Coach setup on the Test Account, using only the page, after the merge
+
+Use the Test Account (the coach eval account), in your computer's browser. Use only what the page says: do not look at any other note.
+
+1. [ ] Go to https://chalkandiron.vercel.app/signin and sign in as the Test Account. Then go to https://chalkandiron.vercel.app/planner/coach-setup (or open **Planner** and click the **Coach setup** tab, the sixth tab).
+2. [ ] **Step 1, Tell your coach about you.** Answer a few questions: pick a **Coach style**, **Experience**, a **1st** priority (and a **2nd** that is **Other (write it in)** with your own words), a **Progression pace**, a **Workout length**, **Days per week**, and type something in **Goals**. Each answer saves as you give it: a tick appears beside it, and the line above the questions counts "N of 12 answered". Leave a few empty on purpose: every question is optional.
+3. [ ] Try to choose the same priority twice. The page refuses it and says so.
+4. [ ] **Step 2, Connect ChatGPT or Claude.** Click **Copy the link**. It ends in `/mcp`. Click **ChatGPT**, then **Claude**: each shows its own numbered steps. Screenshots are shown as grey boxes marked "Screenshot to come" until real ones are added (see below). Follow the steps for the app you use (you already connected both on 25 November, so you can also skip to step 6 below, or first click **Disconnect** under **Connected coach apps** and connect again to test the steps).
+5. [ ] **Step 3, Give your coach its instructions.** Click **Copy the instructions**, then paste them into your coach project's instructions in ChatGPT or Claude.
+6. [ ] **Step 4, Save your coach link.** In ChatGPT or Claude open your coach project, copy its address from the browser's address bar, paste it into **Link to your coach project**, and click **Save the link**. A line says it is saved. Pasting something that does not start with `https://` is refused.
+7. [ ] **Step 5, Test the connection.** Click **Start the connection test**. The page says it is waiting. In your coach chat send: "Use Chalk and Iron to tell me my name and my gyms." Within a few seconds the page says **Connected.** and names the coach app.
+8. [ ] **Step 6, Let's get started.** In your coach chat say "Let's get started". Your coach should read your answers, ask only about what you left open, and propose a first campaign. It arrives on the **Proposals** tab.
+9. [ ] **Connected coach apps** (bottom of the page) lists ChatGPT and/or Claude. Click **Disconnect** on one and confirm: its coach can no longer read your data (ask it "what did I bench last week?": it should say it cannot read the data). Connect it again if you want to keep using it.
+10. [ ] On your iPhone, open Chalk and Iron, tap **Coach** (from Home, **Open the Coach screen**). **Open my coach** takes you to the project you saved in step 6 above.
+
+Then click the **Profile and gyms** tab (https://chalkandiron.vercel.app/planner/profile):
+
+11. [ ] **About you** shows the same answers; change one and see the tick.
+12. [ ] Under **Gyms and equipment** type a name such as "Big Gym" next to **New gym name**, and click **Add gym**. The first gym is the default one, and its equipment list opens (**Close equipment** and **Review and edit equipment** open and close it).
+13. [ ] Click **Add many at once**, paste a list of equipment (one per line, or separated by commas; do the real list of your gym if you like), and click **Add N to the list**. Repeats are skipped and the list stays in A to Z order.
+14. [ ] Type in the **Filter** box to find an item. Click **Remove** beside one, then **Undo**. Click **Edit as text** to see the whole list as plain lines: delete or add lines and click **Save the list**.
+15. [ ] Tell the agent what felt slow or awkward with your real gym's list, because the gym screen was built for a large gym.
+
+**Screenshots the page still needs from you.** The ChatGPT and Claude steps show grey placeholder boxes. The agent did not draw any app screen. To fill them, take screenshots on your computer (on a Mac: press Shift, Command and 4, then drag over the window) of: ChatGPT's Settings, Apps, Advanced settings with Developer mode on; ChatGPT's new-app form with the link pasted; the Chalk and Iron approval page (Allow and Deny); a ChatGPT project with the instructions pasted and Chalk and Iron switched on; Claude's Add custom connector form; and a Claude project with the instructions pasted. Send them to the agent, which adds them to the page.
+
+Tell the agent which items pass or fail.

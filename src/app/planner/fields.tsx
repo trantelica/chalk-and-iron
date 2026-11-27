@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 // saved it shows a tick for a moment (Nate, 21 Nov: it was not clear an edit saved).
 
 type Mark = '' | 'saving' | 'saved';
-function useMark() {
+export function useMark() {
   const [mark, setMark] = useState<Mark>('');
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
@@ -18,7 +18,7 @@ function useMark() {
   };
   return { mark, run };
 }
-const Tick = ({ mark }: { mark: Mark }) => <span className={`cell-mark ${mark}`} aria-hidden="true">{mark === 'saved' ? '✓' : mark === 'saving' ? '…' : ''}</span>;
+export const Tick = ({ mark }: { mark: Mark }) => <span className={`cell-mark ${mark}`} aria-hidden="true">{mark === 'saved' ? '✓' : mark === 'saving' ? '…' : ''}</span>;
 
 export function TextCell({ value, onSave, label, width, placeholder, flag }: {
   value: string; onSave: (v: string) => void | Promise<void>; label: string; width?: number; placeholder?: string; flag?: boolean;
@@ -55,6 +55,24 @@ export function NumCell({ value, onSave, label, min, max, step, width, placehold
         style={{ width: width ?? 70 }} className={mark ? `is-${mark}` : undefined} onChange={(e) => setV(e.target.value)} onBlur={commit}
         onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} />
       <Tick mark={mark} />
+    </span>
+  );
+}
+
+/** A larger box for free text: saves once, when the person leaves the box (the same marks as the small ones). */
+export function AreaCell({ value, onSave, label, max, rows, placeholder }: {
+  value: string; onSave: (v: string) => void | Promise<void>; label: string; max: number; rows?: number; placeholder?: string;
+}) {
+  const [v, setV] = useState(value);
+  const { mark, run } = useMark();
+  useEffect(() => setV(value), [value]);
+  const commit = () => { if (v !== value) void run(onSave(v)); };
+  return (
+    <span className="cell area-cell">
+      <textarea value={v} aria-label={label} rows={rows ?? 3} maxLength={max} placeholder={placeholder}
+        className={mark ? `is-${mark}` : undefined} onChange={(e) => setV(e.target.value)} onBlur={commit} />
+      <Tick mark={mark} />
+      <span className="muted area-count">{v.length} of {max}</span>
     </span>
   );
 }

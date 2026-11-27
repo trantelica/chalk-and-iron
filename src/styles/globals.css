@@ -320,3 +320,38 @@ input.is-saved { border-color: var(--accent); }
 .decline-box input[type='text'] { width: 100%; }
 .proposals-wide .proposal-card { max-width: 760px; }
 .btn .badge, .tabs .btn .badge { margin-left: 6px; }
+
+/* Coach setup, Profile and gyms (stage 4G). */
+.area-cell { display: flex; flex-direction: column; align-items: stretch; gap: 2px; width: 100%; position: relative; }
+.area-cell textarea { min-height: 76px; font-size: 15px; resize: vertical; width: 100%; }
+.area-cell .cell-mark { position: absolute; right: 6px; top: 6px; }
+.area-count { align-self: flex-end; font-size: 12px; }
+textarea.is-saving { border-color: var(--muted-text); }
+textarea.is-saved { border-color: var(--accent); }
+.intake { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.intake-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.intake-field > .lab-text { font-size: 13px; font-weight: 700; color: var(--muted-text); }
+.page.planner .intake select, .page.planner .intake input[type='number'] { min-height: 44px; max-width: 320px; }
+.priority-slot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.priority-slot .rank { min-width: 28px; font-weight: 700; color: var(--accent); }
+.step { display: flex; flex-direction: column; gap: 10px; }
+.step-head { display: flex; align-items: center; gap: 10px; }
+.step-no { flex: none; width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
+.step-no.done { background: var(--accent); color: var(--on-accent); }
+.step-head h2 { margin: 0; }
+.shot { border: 1px dashed var(--border); border-radius: var(--radius-small); padding: 16px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; text-align: center; background: var(--sheet); }
+.shot img { max-width: 100%; height: auto; }
+.how-list { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; }
+.copy-box { font-size: 13px; min-height: 180px; max-height: 320px; width: 100%; }
+.app-pick { display: flex; gap: 6px; }
+.test-line { display: flex; flex-direction: column; gap: 4px; }
+.test-line.ok { border-color: var(--accent); }
+.gym-card { display: flex; flex-direction: column; gap: 10px; }
+.gym-card.archived { opacity: 0.6; }
+.gym-list { max-height: 55vh; overflow-y: auto; border: 1px solid var(--line); border-radius: var(--radius-small); }
+.gym-item { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-bottom: 1px solid var(--line); }
+.gym-item:last-child { border-bottom: 0; }
+.gym-item .cell { flex: 1; min-width: 0; }
+.gym-item input[type='text'] { width: 100%; min-height: 36px; }
+.gym-text { min-height: 40vh; font-size: 14px; width: 100%; }
+.paste-box { min-height: 110px; font-size: 14px; width: 100%; }
