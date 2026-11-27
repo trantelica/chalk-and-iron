@@ -1,6 +1,6 @@
 # Next: Chalk and Iron
 
-The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 27 November 2026 (stage 4C's coach eval pass done; stage 4D built, its SQL step run, awaiting merge).
+The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 27 November 2026 (stage 4D merged; next is stage 4E).
 
 ## Now
 
@@ -11,12 +11,12 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 - **Stage 4A, data and the lock, is merged** (25 Nov): the coach intake fields, the decline reason, the weekly check-ins, the lock (a coach's pass can only read, add a pending card, record a check-in and note a call), and the reset of the coach eval account.
 - **Stage 4B, connector core, is merged** (25 Nov): the real connector at https://chalkandiron.vercel.app/mcp with the proof's sign-in, the approval page, errors in one shape, size limits, too-many-requests, the one-minute repeat guard, the call log, the connector's instructions, and `get_profile`, `list_gyms` and `get_vocabulary`. `phase0/` and `proofs/connector-signin/` are deleted. Nate switched on the coach sign-in (step AJ) and ran the SQL step (AL) on 25 Nov; he connected ChatGPT and Claude to the real link (AK) the same day.
 - **Stage 4C, the other read tools, is merged** (25 Nov): the other eleven read tools, with the weekly summary recording one check-in per week. **Its coach eval agent pass passed** (27 Nov): E9, E15, E16 and E18 on the live app, 4 of 4 (`tests/coach-evals/results/2026-11-27-agent-pass-4c.md`). Its Supabase test file runs and passes on GitHub.
-- **Stage 4D, Accept and Decline, is built and in a pull request** (26 Nov): one guarded step decides every coach's card. Accept applies all of it or none, for all five kinds: an exercise, a workout (with new exercises it brings), a campaign (a new one as a draft, or edits, or a shift; with new exercises and workouts), the profile and gyms, and a change to today, made inside a running workout without starting a new one, or in today's plan. Decline with its optional reason. Cards for today end at 3:00 am. A phone that was offline cannot overwrite an accepted change; it replays it. Nate ran its SQL step (AM) on 27 Nov.
+- **Stage 4D, Accept and Decline, is merged** (27 Nov): one guarded step decides every coach's card. Accept applies all of it or none, for all five kinds: an exercise, a workout (with new exercises it brings), a campaign (a new one as a draft, or edits, or a shift; with new exercises and workouts), the profile and gyms, and a change to today, made inside a running workout without starting a new one, or in today's plan. Decline with its optional reason. Cards for today end at 3:00 am. A phone that was offline cannot overwrite an accepted change; it replays it. Nate ran its SQL step (AM) on 27 Nov. The inbox screens that use it come in stage 4F.
 - **Next: stage 4E, the propose tools (Sonnet 5.5, medium)**, which store cards in the shape stage 4D applies (`docs/TECHNICAL_DESIGN.md` Section 3, "What each proposal carries"). Phase 4 runs in eight stages, one pull request each: 4A data and the lock, 4B connector core, 4C the other read tools, 4D Accept and Decline, 4E propose tools, 4F the inbox, 4G Coach setup, Profile and gyms, 4H Home and the full eval, then the fresh review (`docs/TECHNICAL_DESIGN.md` Section 11).
 
 ## Waiting on Nate
 
-- **Say whether to merge stage 4D** ([#57](https://github.com/trantelica/chalk-and-iron/pull/57)). Nate ran its SQL step AM on 27 Nov.
+- Nothing for stage 4D. Its own choices are listed under Open items for Nate to confirm when convenient.
 
 ## Open items
 

@@ -98,3 +98,4 @@ Pull requests are at `https://github.com/trantelica/chalk-and-iron/pull/<number>
 - [#58](https://github.com/trantelica/chalk-and-iron/pull/58) merged: the 4C coach eval results. Its GitHub run showed the 4C Supabase test file (`tests/supabase/read-tools.test.ts`) passing. **Nate deleted** the leftover Vercel project `chalk-iron-signin-proof`, which was still trying to build each pull request; only `chalkandiron` is left.
 - Steps Y (running a campaign again) and Z (Home notices a new card by itself) marked done by Nate.
 - Nate ran stage 4D's SQL step AM in the Supabase SQL Editor.
+- [#57](https://github.com/trantelica/chalk-and-iron/pull/57) merged: stage 4D, Accept and Decline, with all its GitHub checks passing (the in-memory tests and the Supabase tests). Steps Y and Z were recorded in it.
