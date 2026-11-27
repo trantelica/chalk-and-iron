@@ -3,7 +3,7 @@
 // carry rules of the coach behaviour brief (spec Section 4, "Coach behaviour",
 // items 1 to 8). Each text sits beside the brief items it must carry, and a
 // code check (tests/connector/descriptions.test.ts) fails when a text leaves
-// one out. Stage 4E adds the five propose tools here.
+// one out. The five propose tools (stage 4E) are at the end.
 
 export interface BriefItem {
   /** Which item of the coach behaviour brief, 1 to 8. */
@@ -195,6 +195,107 @@ export const TOOL_TEXT: Record<string, ToolText> = {
     brief: [
       { brief: 3, phrase: 'weekly check-in' }, { brief: 3, phrase: 'ask how it went before proposing the next one' }, { brief: 3, phrase: 'ask what got in the way' },
       { brief: 5, phrase: 'progression pace' }, { brief: 8, phrase: 'at most one proposal' },
+    ],
+  },
+
+  // ------------------------------------------------------------ propose tools (stage 4E)
+  propose_exercise: {
+    name: 'propose_exercise',
+    title: 'Propose an exercise',
+    description: [
+      'Propose a new exercise for the library, or changes to an existing one (give "exercise", its id or exact name). Nothing changes until the user accepts it in the app.',
+      'A new exercise needs a name (equipment, then variation, then movement, for example "Cable Overhead Triceps Extension"), muscle_group, equipment, default_unit, work_seconds and rest_seconds, and all three alternates: bodyweight, basic_gym and full_gym.',
+      'Use muscle group, focus and equipment values exactly as get_vocabulary gives them. Look at list_exercises before proposing an exercise: one the library already has, or one too close in name, is refused.',
+      'Write summary_lines as one clear line per change. Related changes belong in one proposal, never several.',
+      'After it succeeds, tell the user it is waiting in the app for them to accept or decline. If it returns an error, fix the call and try again before telling the user.',
+    ].join(' '),
+    brief: [
+      { brief: 2, phrase: 'nothing changes until the user accepts it in the app' },
+      { brief: 1, phrase: 'before proposing an exercise' },
+      { brief: 7, phrase: 'one clear line per change' },
+      { brief: 8, phrase: 'related changes belong in one proposal' },
+      { brief: 2, phrase: 'waiting in the app' },
+      { brief: 6, phrase: 'fix the call and try again' },
+    ],
+  },
+  propose_workout: {
+    name: 'propose_workout',
+    title: 'Propose a workout',
+    description: [
+      'Propose a new workout, or a change to one (give "workout", its id or exact name; then "items" is the whole new list). Nothing changes until the user accepts it in the app.',
+      'Ask the user two or three short questions first (how the last block went, new aches, how long they have), fewer when the intake already answers them; read list_workouts, the gym and recent history before proposing.',
+      'Each item names an exercise from the library, or one you bring in "new_exercises" in this same proposal, with sets, reps and optional rest and superset letter. A superset holds two or three exercises, each with the same number of sets.',
+      'Bundle every new exercise the workout needs into this proposal so the user approves it once. Each new exercise needs all three alternates and vocabulary values exactly as get_vocabulary gives them.',
+      'Write summary_lines as one clear line per change. After it succeeds, tell the user it is waiting in the app for them to accept or decline. If it returns an error, fix the call and try again before telling the user.',
+    ].join(' '),
+    brief: [
+      { brief: 2, phrase: 'nothing changes until the user accepts it in the app' },
+      { brief: 2, phrase: 'ask the user two or three short questions first' },
+      { brief: 1, phrase: 'read list_workouts, the gym and recent history before proposing' },
+      { brief: 8, phrase: 'bundle every new exercise the workout needs into this proposal' },
+      { brief: 7, phrase: 'one clear line per change' },
+      { brief: 2, phrase: 'waiting in the app' },
+      { brief: 6, phrase: 'fix the call and try again' },
+    ],
+  },
+  propose_campaign: {
+    name: 'propose_campaign',
+    title: 'Propose a campaign',
+    description: [
+      'Propose a new campaign (1 to 6 weeks; it arrives as a draft the user activates), or changes to one (give "campaign_id"), or on its own "shift_forward_weeks": 1 to shift an existing campaign forward a week. Nothing changes until the user accepts it in the app.',
+      'Ask the user two or three short questions first (how the last block went, new aches, days available), fewer when the intake already answers them; read the active campaign, list_workouts, the gym and recent history before proposing.',
+      'Each day gives its week, weekday (1 is Monday) and a workout or "rest": true, with optional per-day overrides of sets, reps, weight and rest. Bundle every new exercise and new workout the campaign needs into this one proposal, so the user approves it once; never send them as separate cards.',
+      'Keep each superset to two or three exercises with the same number of sets, on every day. Write summary_lines as one clear line per change.',
+      'After it succeeds, tell the user it is waiting in the app for them to accept or decline. If it returns an error, fix the call and try again before telling the user.',
+    ].join(' '),
+    brief: [
+      { brief: 2, phrase: 'nothing changes until the user accepts it in the app' },
+      { brief: 2, phrase: 'ask the user two or three short questions first' },
+      { brief: 1, phrase: 'read the active campaign, list_workouts, the gym and recent history before proposing' },
+      { brief: 8, phrase: 'bundle every new exercise and new workout the campaign needs into this one proposal' },
+      { brief: 8, phrase: 'never send them as separate cards' },
+      { brief: 7, phrase: 'one clear line per change' },
+      { brief: 2, phrase: 'waiting in the app' },
+      { brief: 6, phrase: 'fix the call and try again' },
+    ],
+  },
+  propose_today_change: {
+    name: 'propose_today_change',
+    title: 'Propose a change to today',
+    description: [
+      'Propose a change to today\'s workout only: it never changes the library or the campaign, and never a set already logged. Nothing changes until the user accepts it in the app, and the card ends at the 3:00 am rollover.',
+      'When the user tells you something that happens now, such as a taken machine, propose straight away, without questions: they are probably in the gym. Read get_today first for what is planned or running.',
+      'Each change has an "action": swap (exercise, to_exercise), set_sets, set_reps, set_weight, set_rest, add, remove, reorder or break_superset. break_superset names the superset by its letter or by one member, and needs nothing else.',
+      'A set_sets on a superset member must be matched on every other member, or break the superset first in the same proposal. Bundle related changes in one proposal and write summary_lines as one clear line per change.',
+      'After it succeeds, tell the user it is waiting in the app for them to accept or decline. If it returns an error, fix the call and try again before telling the user.',
+    ].join(' '),
+    brief: [
+      { brief: 2, phrase: 'nothing changes until the user accepts it in the app' },
+      { brief: 2, phrase: 'propose straight away' },
+      { brief: 1, phrase: 'read get_today first' },
+      { brief: 8, phrase: 'bundle related changes in one proposal' },
+      { brief: 7, phrase: 'one clear line per change' },
+      { brief: 2, phrase: 'waiting in the app' },
+      { brief: 6, phrase: 'fix the call and try again' },
+    ],
+  },
+  propose_profile_update: {
+    name: 'propose_profile_update',
+    title: 'Propose a profile update',
+    description: [
+      'Propose changes to the user\'s coach profile (goals, injuries and limits, weekly schedule, notes and the intake: coach style, experience, priorities, progression pace, workout minutes, days per week, variety, exercises liked, exercises to avoid, how to coach me), and or to a gym (add one, or edit one with its id or exact name). Nothing changes until the user accepts it in the app.',
+      'Run the intake as a short conversation, then propose the answers as one profile update. Leave out what the user did not answer.',
+      'Change the progression pace only after a pace check: compare the chosen pace with what the history shows, say so to the user, and then propose it.',
+      'Use equipment values exactly as get_vocabulary gives them. Write summary_lines as one clear line per change.',
+      'After it succeeds, tell the user it is waiting in the app for them to accept or decline. If it returns an error, fix the call and try again before telling the user.',
+    ].join(' '),
+    brief: [
+      { brief: 2, phrase: 'nothing changes until the user accepts it in the app' },
+      { brief: 6, phrase: 'run the intake as a short conversation' },
+      { brief: 5, phrase: 'only after a pace check' },
+      { brief: 7, phrase: 'one clear line per change' },
+      { brief: 2, phrase: 'waiting in the app' },
+      { brief: 6, phrase: 'fix the call and try again' },
     ],
   },
 };
