@@ -5,7 +5,7 @@ import type { Caller } from './auth';
 // propose call repeated word for word within a minute returns the first
 // proposal, so a coach app that retries does not fill the inbox with copies.
 // Each proposal stores a fingerprint of the call that made it
-// (proposals.request_hash); stage 4E's propose tools call addProposal.
+// (proposals.request_hash); the propose tools (tools-propose.ts) call addProposal.
 
 export const REPEAT_WINDOW_SECONDS = 60;
 
@@ -86,9 +86,10 @@ export async function addProposal(caller: Caller, tool: string, args: unknown, d
   if (error || !data) throw new Error('proposal insert: ' + (error?.message ?? 'nothing returned'));
   const row = data as Row;
   if (draft.targets?.length) {
-    const { error: e2 } = await caller.db
-      .from('proposal_targets')
-      .insert(draft.targets.map((t) => ({ ...t, user_id: caller.userId, proposal_id: row.id })));
+    // The card and its targets are two steps (design Section 3, "How the connector is built"): one more try before giving up, so a hiccup does not leave a card with no targets.
+    const rows = draft.targets.map((t) => ({ ...t, user_id: caller.userId, proposal_id: row.id }));
+    let { error: e2 } = await caller.db.from('proposal_targets').insert(rows);
+    if (e2) ({ error: e2 } = await caller.db.from('proposal_targets').insert(rows));
     if (e2) throw new Error('proposal targets insert: ' + e2.message);
   }
   return shape(row, false);

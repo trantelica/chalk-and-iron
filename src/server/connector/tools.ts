@@ -5,12 +5,13 @@ import { TOOL_TEXT } from './descriptions';
 import { nextInput, page, PAGE_SIZE, readNext } from './limits';
 import { HISTORY_TOOLS } from './tools-history';
 import { LIBRARY_TOOLS } from './tools-library';
+import { PROPOSE_TOOLS } from './tools-propose';
 import { TODAY_TOOLS } from './tools-today';
 
 // The connector's tools (design Section 3). Stage 4B: the first three read
 // tools; stage 4C: the other eleven, in tools-library.ts, tools-history.ts and
-// tools-today.ts. Stage 4E adds the propose tools, each with its text in
-// descriptions.ts.
+// tools-today.ts; stage 4E: the five propose tools in tools-propose.ts. Each
+// tool's text is in descriptions.ts.
 
 export interface ToolDef {
   name: string;
@@ -123,6 +124,7 @@ export const TOOLS: ToolDef[] = [
   ...LIBRARY_TOOLS,
   ...HISTORY_TOOLS,
   ...TODAY_TOOLS,
+  ...PROPOSE_TOOLS,
 ];
 
 /** The tools as tools/list shows them: name, title, description, input shape and annotations. */

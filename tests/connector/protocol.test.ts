@@ -116,16 +116,20 @@ describe('the protocol', () => {
     expect(r.headers.get('mcp-session-id')).toBeNull();
   });
 
-  it('lists the fourteen read tools of stages 4B and 4C with read-only labels and closed inputs', async () => {
+  it('lists the nineteen tools, fourteen read and five propose, with the right labels and closed inputs', async () => {
     const { handler } = setup();
     const j = await json(await handler(post(rpc('tools/list'))));
     const tools = j.result?.tools as Array<{ name: string; inputSchema: Record<string, unknown>; annotations: Record<string, unknown> }>;
     expect(tools.map((t) => t.name).sort()).toEqual([
       'get_campaign', 'get_exercise_history', 'get_profile', 'get_proposal_status', 'get_records', 'get_today', 'get_vocabulary', 'get_weekly_summary',
       'list_cardio', 'list_exercises', 'list_gyms', 'list_proposals', 'list_sessions', 'list_workouts',
+      'propose_campaign', 'propose_exercise', 'propose_profile_update', 'propose_today_change', 'propose_workout',
     ]);
     for (const t of tools) {
-      expect(t.annotations).toMatchObject({ readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false });
+      // Design Section 3, "Annotations": propose tools are not read-only and not repeat-safe; none is destructive or open-world.
+      expect(t.annotations).toMatchObject(t.name.startsWith('propose_')
+        ? { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false }
+        : { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false });
       expect(t.inputSchema).toMatchObject({ type: 'object', additionalProperties: false });
       expect(t.inputSchema.$schema).toBeUndefined();
     }
