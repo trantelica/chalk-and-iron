@@ -439,7 +439,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | --- | --- |
 | Proposals | The same inbox as the phone, with room for longer proposals such as a full campaign |
 | Coach setup | In order: the coach intake (Section 4), step-by-step connection for ChatGPT and for Claude, the coach instructions to copy, a connection test, and a last step telling the user to say "let's get started" to their coach, which reads the intake, asks any follow-ups and proposes a first campaign. Also the coach link the Coach button opens, and the connected coach apps with Disconnect |
-| Profile and gyms | The coach intake's answers, editable, and gym equipment lists |
+| Profile and gyms | The coach intake's answers, editable, and gym equipment lists. A new gym, or an existing one, can start from one of three presets (Commercial gym, Home gym, Hotel or corporate gym; lists in `data/gym-presets.json`): every item ticked in groups with Select all and Clear, untick what the gym lacks, save. A preset only adds to a gym's list. In the intake, a priority already chosen is not offered again in another box, and a refused choice snaps back to what is saved |
 | Account | Email, export, delete account |
 | Admin (admins only) | Accounts and single-use links. Create, deactivate, reactivate, reset and delete an account, make a user an admin, with ready-to-paste invite and reset text. No training data |
 | Vocabulary | Editable lists of muscle groups, focus values and equipment. This is the only place the vocabulary is managed. The phone has no vocabulary screen, to keep it uncluttered |

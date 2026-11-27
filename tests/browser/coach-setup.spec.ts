@@ -64,9 +64,17 @@ test('Coach setup: the intake saves, the link is kept, the test turns Connected,
   });
   expect(saved.priorities).toEqual([{ value: 'strength' }, { value: 'other', text: 'Rock climbing' }]);
 
-  // The same priority twice is refused on the page and nothing is stored.
-  await page.getByRole('combobox', { name: 'Priority 3rd' }).selectOption('strength');
-  await expect(page.getByRole('alert').filter({ hasText: 'Each priority can be chosen once.' })).toBeVisible();
+  // A priority already chosen is not offered again in another box, and nothing is stored for it.
+  const third = page.getByRole('combobox', { name: 'Priority 3rd' });
+  await expect(third.getByRole('option', { name: /Build strength/ })).toBeDisabled();
+  await expect(third.getByRole('option', { name: 'Build muscle' })).toBeEnabled();
+  // Writing in the same "other" words twice is refused: the box snaps back to what is saved, with the reason beside it.
+  await third.selectOption('other');
+  await page.getByRole('textbox', { name: 'Your own priority 3rd' }).fill('rock climbing');
+  await page.getByRole('textbox', { name: 'Your own priority 3rd' }).press('Enter');
+  await expect(page.getByRole('alert').filter({ hasText: 'already one of your priorities' })).toBeVisible();
+  await expect(third).toHaveValue('');
+  await expect(page.getByRole('textbox', { name: 'Your own priority 3rd' })).toHaveCount(0);
   expect((await coachRow(me)).priorities).toEqual([{ value: 'strength' }, { value: 'other', text: 'Rock climbing' }]);
 
   // Step 2: the connector link and one set of steps for each coach app, with marked placeholders for screenshots.
@@ -174,4 +182,53 @@ test('Profile and gyms: the intake answers are there, and a large gym can be rev
   await page.getByText('1 archived gym').click();
   await page.getByRole('button', { name: 'Restore' }).click();
   await expect(page.getByRole('region', { name: 'Gym Hotel' })).toBeVisible();
+});
+
+test('Gym presets on a phone: a new gym from a preset, untick what it lacks, add to it later, nothing removed', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  const me = await register(page, 'Preset Pat');
+  await page.goto('/planner/profile');
+  const equipment = async (name: string) => (await sql<{ equipment: string[] }>(`select equipment from public.gyms where user_id = $1 and name = $2`, [me, name]))[0]?.equipment;
+
+  // Adding a gym from a preset needs the name first, then no typing at all.
+  await page.getByRole('button', { name: 'Add a gym from a preset' }).click();
+  await expect(page.getByRole('button', { name: 'Type the gym name first' })).toBeDisabled();
+  await page.getByRole('textbox', { name: 'Name of a new gym' }).fill('Hotel gym');
+  await page.getByRole('button', { name: /Hotel or corporate gym/ }).click();
+  // Everything is ticked, and the tap targets are large.
+  const treadmill = page.getByRole('checkbox', { name: 'Treadmill' });
+  await expect(treadmill).toBeChecked();
+  const box = await treadmill.locator('xpath=ancestor::label').boundingBox();
+  expect(box!.height).toBeGreaterThanOrEqual(44);
+  expect(box!.width).toBeLessThanOrEqual(375);
+  // Select all / Clear per group, and one untick.
+  await page.getByRole('button', { name: 'Clear Cardio' }).click();
+  await expect(treadmill).not.toBeChecked();
+  await page.getByRole('button', { name: 'Select all Cardio' }).click();
+  await expect(treadmill).toBeChecked();
+  await page.getByRole('checkbox', { name: 'Elliptical' }).uncheck();
+  await page.getByRole('button', { name: /^Add gym with \d+ items$/ }).click();
+  await expect.poll(() => equipment('Hotel gym')).toBeTruthy();
+  const hotel = (await equipment('Hotel gym'))!;
+  expect(hotel).toContain('Treadmill');
+  expect(hotel).not.toContain('Elliptical');
+  expect(hotel).toEqual([...hotel].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true })));
+  expect(hotel.every((i) => i.length <= 60)).toBe(true);
+
+  // On the existing gym: its own item stays, the preset adds only what is ticked, and nothing is removed.
+  const gym = page.getByRole('region', { name: 'Gym Hotel gym' });
+  await gym.getByRole('textbox', { name: 'Add equipment to Hotel gym' }).fill('Sandbag');
+  await gym.getByRole('textbox', { name: 'Add equipment to Hotel gym' }).press('Enter');
+  await expect.poll(async () => (await equipment('Hotel gym'))!.includes('Sandbag')).toBe(true);
+  const before = (await equipment('Hotel gym'))!;
+  await gym.getByRole('button', { name: 'Start from a preset' }).click();
+  await gym.getByRole('button', { name: /Home gym/ }).click();
+  await expect(gym.getByText('already in the list').first()).toBeVisible();
+  await gym.getByRole('button', { name: 'Clear Cardio' }).click();
+  await gym.getByRole('button', { name: /^Add \d+ to the list$/ }).click();
+  await expect.poll(async () => (await equipment('Hotel gym'))!.includes('Suspension trainer')).toBe(true);
+  const after = (await equipment('Hotel gym'))!;
+  for (const i of before) expect(after).toContain(i);
+  expect(after).not.toContain('Rowing machine');
+  expect(after).toContain('Squat rack');
 });

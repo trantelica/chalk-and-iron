@@ -597,7 +597,7 @@ Use the Test Account (the coach eval account), in your computer's browser. Use o
 
 1. [ ] Go to https://chalkandiron.vercel.app/signin and sign in as the Test Account. Then go to https://chalkandiron.vercel.app/planner/coach-setup (or open **Planner** and click the **Coach setup** tab, the sixth tab).
 2. [ ] **Step 1, Tell your coach about you.** Answer a few questions: pick a **Coach style**, **Experience**, a **1st** priority (and a **2nd** that is **Other (write it in)** with your own words), a **Progression pace**, a **Workout length**, **Days per week**, and type something in **Goals**. Each answer saves as you give it: a tick appears beside it, and the line above the questions counts "N of 12 answered". Leave a few empty on purpose: every question is optional.
-3. [ ] Try to choose the same priority twice. The page refuses it and says so.
+3. [ ] Try to choose the same priority twice. It is not offered in the other boxes (shown greyed, "already chosen"). Check this again in step AR.
 4. [ ] **Step 2, Connect ChatGPT or Claude.** Click **Copy the link**. It ends in `/mcp`. Click **ChatGPT**, then **Claude**: each shows its own numbered steps. Screenshots are shown as grey boxes marked "Screenshot to come" until real ones are added (see below). Follow the steps for the app you use (you already connected both on 25 November, so you can also skip to step 6 below, or first click **Disconnect** under **Connected coach apps** and connect again to test the steps).
 5. [ ] **Step 3, Give your coach its instructions.** Click **Copy the instructions**, then paste them into your coach project's instructions in ChatGPT or Claude.
 6. [ ] **Step 4, Save your coach link.** In ChatGPT or Claude open your coach project, copy its address from the browser's address bar, paste it into **Link to your coach project**, and click **Save the link**. A line says it is saved. Pasting something that does not start with `https://` is refused.
@@ -609,10 +609,10 @@ Use the Test Account (the coach eval account), in your computer's browser. Use o
 Then click the **Profile and gyms** tab (https://chalkandiron.vercel.app/planner/profile):
 
 11. [ ] **About you** shows the same answers; change one and see the tick.
-12. [ ] Under **Gyms and equipment** type a name such as "Big Gym" next to **New gym name**, and click **Add gym**. The first gym is the default one, and its equipment list opens (**Close equipment** and **Review and edit equipment** open and close it).
-13. [ ] Click **Add many at once**, paste a list of equipment (one per line, or separated by commas; do the real list of your gym if you like), and click **Add N to the list**. Repeats are skipped and the list stays in A to Z order.
+12. [ ] Under **Gyms and equipment** type a name such as "Big Gym" next to **New gym name**, and click **Add gym**. The first gym is the default one, and its equipment list opens. (The presets are checked in step AR below.)
+13. [ ] Click **Add many at once**, paste a list of equipment (one per line, or separated by commas), and click **Add N to the list**. Repeats are skipped and the list stays in A to Z order.
 14. [ ] Type in the **Filter** box to find an item. Click **Remove** beside one, then **Undo**. Click **Edit as text** to see the whole list as plain lines: delete or add lines and click **Save the list**.
-15. [ ] Tell the agent what felt slow or awkward with your real gym's list, because the gym screen was built for a large gym.
+15. [ ] Tell the agent what felt slow or awkward.
 
 **Screenshots the page still needs from you.** The ChatGPT and Claude steps show grey placeholder boxes. The agent did not draw any app screen. To fill them, take screenshots on your computer (on a Mac: press Shift, Command and 4, then drag over the window) of: ChatGPT's Settings, Apps, Advanced settings with Developer mode on; ChatGPT's new-app form with the link pasted; the Chalk and Iron approval page (Allow and Deny); a ChatGPT project with the instructions pasted and Chalk and Iron switched on; Claude's Add custom connector form; and a Claude project with the instructions pasted. Send them to the agent, which adds them to the page.
 
@@ -645,3 +645,18 @@ A small follow-up from the fresh review. **What it changes:** a coach's card tha
 1. [ ] [`20261127000200_gym_equipment_tidy.sql`](https://github.com/trantelica/chalk-and-iron/blob/coach-gym-equipment-add-remove/supabase/migrations/20261127000200_gym_equipment_tidy.sql) It should end with "Success. No rows returned". Safe to run more than once.
 
 After the merge the link is also at `.../blob/main/supabase/migrations/20261127000200_gym_equipment_tidy.sql`.
+
+## 26. Gym presets and the repeated priority (27 November 2026)
+
+Fixes from step AO. Do it after the merge, on your iPhone and in your computer's browser. Nothing to run in Supabase.
+
+### AR. Presets and priorities, after the merge
+
+1. [ ] On your computer go to https://chalkandiron.vercel.app/planner/profile and sign in as the Test Account. Under **About you**, open the **Priority 2nd** box: a priority already chosen in **1st** is greyed and says "(already chosen)". It cannot be picked twice. Pick **Other (write it in)** in **Priority 3rd** and type the same words as your written-in 2nd one, then press Enter: the box goes back to **None** and a red line beside it says why.
+2. [ ] On your iPhone open https://chalkandiron.vercel.app/planner/profile in Safari (sign in if asked). Under **Gyms and equipment** tap **Add a gym from a preset**. Tap the name box, type "Hotel test" and tap **Hotel or corporate gym**. Every item is ticked, in groups. Untick two items, tap **Clear** on one group, then **Select all** on it again. The line above the button says how many will be added. Tap **Add gym with N items**.
+3. [ ] The new gym's list opens with only what you ticked, in A to Z order. Tap **Start from a preset**, tap **Home gym**: items already in the list say "already in the list". Tap **Add N to the list**. Nothing you had is removed.
+4. [ ] Do the same with **Commercial gym** on a gym named "Big test". It is a long list: check that you can scroll it and tick or untick with your thumb, and tell the agent if any row is hard to tap.
+5. [ ] **Review the three lists** (they are written in the pull request description, and in https://github.com/trantelica/chalk-and-iron/blob/main/data/gym-presets.json). Tell the agent any item to add, remove or rename.
+6. [ ] Archive the two test gyms when finished (**Archive** on each gym).
+
+Tell the agent which items pass or fail.
