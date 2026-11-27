@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { browserClient } from '@/lib/supabase/browser';
 import { AreaCell, NumCell, Tick, useMark } from '@/app/planner/fields';
 import {
@@ -35,7 +35,17 @@ function Priorities({ stored, onSave }: { stored: unknown; onSave: (list: { valu
   const [err, setErr] = useState('');
   const { mark, run } = useMark();
   const storedKey = JSON.stringify(stored ?? []);
-  useEffect(() => setSlots(slotsFromPriorities(stored)), [storedKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const slotsRef = useRef(slots);
+  slotsRef.current = slots;
+  // Take in what was stored, unless the boxes already say the same or one is half filled in
+  // (a written-in priority with no words yet): another answer saving must not wipe it.
+  useEffect(() => {
+    const now = slotsRef.current;
+    if (now.some((x) => x.value === 'other' && !x.text.trim())) return;
+    const built = buildPriorities(now);
+    if (built.ok && JSON.stringify(built.list) === storedKey) return;
+    setSlots(slotsFromPriorities(stored));
+  }, [storedKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const change = (i: number, patch: Partial<PrioritySlot>, save: boolean) => {
     const next = slots.map((s, j) => (j === i ? { ...s, ...patch } : s));
     setSlots(next);
