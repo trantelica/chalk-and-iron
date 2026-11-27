@@ -65,4 +65,14 @@ describe('Accept and Decline through the API', () => {
     const { data } = await coach.from('proposals').select('status, decline_reason').eq('id', id).single();
     expect(data).toEqual({ status: 'rejected', decline_reason: 'Keep my rest as it is' });
   });
+
+  it("a gym card adds and removes single items on the list as it is at Accept, and a bad item refuses it", async () => {
+    const [gym] = await sql<{ id: string }>(`insert into gyms (user_id, name, equipment) values ($1, 'Big Gym', '{"Cable Tower","Leg Press"}') returning id`, [person.id]);
+    const id = await card('profile_update', 'profile', { gym: { gym_id: gym.id, add_equipment: ['Rower'], remove_equipment: ['leg press'] } });
+    await sql(`update gyms set equipment = array_append(equipment, 'Added Meanwhile') where id = $1`, [gym.id]);
+    expect(await decideCard(person.client, id, true)).toMatchObject({ ok: true, status: 'accepted' });
+    expect((await sql<{ equipment: string[] }>(`select equipment from gyms where id = $1`, [gym.id]))[0].equipment).toEqual(['Added Meanwhile', 'Cable Tower', 'Rower']);
+    const bad = await card('profile_update', 'profile', { gym: { gym_id: gym.id, add_equipment: ['x'.repeat(61)] } });
+    expect(await decideCard(person.client, bad, true)).toMatchObject({ ok: false, code: 'invalid' });
+  });
 });

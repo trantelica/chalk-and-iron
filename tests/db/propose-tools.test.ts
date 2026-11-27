@@ -422,18 +422,19 @@ describe('propose_profile_update', () => {
       summary_lines: lines('Coach style: challenging', 'Priorities: strength, then climbing', 'New gym: Garage'),
       coach_style: 'challenging', experience: 'intermediate', progression_pace: 'steady', workout_minutes: 60, days_per_week: 4, variety: 'some',
       priorities: [{ value: 'strength' }, { value: 'other', text: 'Rock climbing' }], goals: 'Bench 225 by March', exercises_to_avoid: 'Upright rows',
-      gym: { name: 'Garage', equipment: ['dumbbell', 'Barbell'], notes: 'Rack and plates', make_default: true },
+      gym: { name: 'Garage', add_equipment: ['dumbbell', 'Barbell', 'Rower'], notes: 'Rack and plates', make_default: true },
     });
     expect(r.isError, JSON.stringify(r)).toBeFalsy();
     expect(r.out.applies_to).toBe('profile');
     const p = (await stored(cardOf(r))).payload;
     expect(p.profile.priorities).toEqual([{ value: 'strength' }, { value: 'other', text: 'Rock climbing' }]);
-    expect(p.gym.equipment).toEqual(['dumbbell', 'barbell']);
+    expect(p.gym.add_equipment).toEqual(['dumbbell', 'Barbell', 'Rower']);
+    expect(p.gym.equipment).toBeUndefined();
     expect(await accept(cardOf(r))).toMatchObject({ ok: true, status: 'accepted' });
     const c = await one<Record<string, unknown>>(`select * from coach_profiles where user_id = $1`, [a]);
     expect(c).toMatchObject({ coach_style: 'challenging', experience: 'intermediate', progression_pace: 'steady', workout_minutes: 60, days_per_week: 4, variety: 'some', goals: 'Bench 225 by March', exercises_to_avoid: 'Upright rows' });
     expect(parse<unknown[]>(c.priorities)).toEqual([{ value: 'strength' }, { value: 'other', text: 'Rock climbing' }]);
-    expect(await one(`select name, is_default from gyms where user_id = $1 and name = 'Garage'`, [a])).toMatchObject({ is_default: true });
+    expect(await one(`select name, is_default, equipment from gyms where user_id = $1 and name = 'Garage'`, [a])).toMatchObject({ is_default: true, equipment: ['Barbell', 'dumbbell', 'Rower'] });
   });
 
   it('targets the profile and the gym by version, and goes out of date when either is edited', async () => {
@@ -451,8 +452,9 @@ describe('propose_profile_update', () => {
 
   it('refuses unknown values, a missing intake word, a bad count, and an empty proposal', async () => {
     const n = await countCards();
-    const equip = await call('propose_profile_update', { summary_lines: lines('x'), gym: { name: 'Studio', equipment: ['Sandbag'] } });
-    expect(equip.code).toBe('unknown_vocabulary');
+    const whole = await call('propose_profile_update', { summary_lines: lines('x'), gym: { name: 'Studio', equipment: ['Sandbag'] } });
+    expect(whole.code).toBe('invalid_input'); // the whole list is no longer sent: single items only
+    expect(whole.message + JSON.stringify(whole.problems)).toContain('equipment');
     const style = await call('propose_profile_update', { summary_lines: lines('x'), coach_style: 'drill sergeant' });
     expect(style.code).toBe('invalid_input');
     const four = await call('propose_profile_update', { summary_lines: lines('x'), priorities: ['strength', 'muscle', 'fat_loss', 'habit'].map((value) => ({ value })) });
@@ -470,6 +472,133 @@ describe('propose_profile_update', () => {
     const noName = await call('propose_profile_update', { summary_lines: lines('x'), gym: { equipment: ['dumbbell'] } });
     expect(noName.code).toBe('invalid_input');
     expect(await countCards()).toBe(n);
+  });
+});
+
+describe('propose_profile_update: a gym\'s equipment, one item at a time', () => {
+  let gym: string;
+  const items = (n: number, prefix = 'Item') => Array.from({ length: n }, (_, i) => `${prefix} ${String(i).padStart(3, '0')}`);
+  const propose = (g: Record<string, unknown>, user = a) => call('propose_profile_update', { summary_lines: lines('Gym equipment'), gym: g }, user);
+  const list = async () => (await one<{ equipment: string[] }>(`select equipment from gyms where id = $1`, [gym])).equipment;
+
+  it('adds free-text items that are not in the vocabulary, on top of what the gym has', async () => {
+    gym = (await one<{ id: string }>(`insert into gyms (user_id, name, equipment) values ($1, 'Big Gym', '{"Cable Tower","Leg Press"}') returning id`, [a])).id;
+    const r = await propose({ gym: 'big gym', add_equipment: ['Rower', 'sandbag', 'Hammer Strength Chest Press'] });
+    expect(r.isError, JSON.stringify(r)).toBeFalsy();
+    expect((await stored(cardOf(r))).payload.gym).toEqual({ gym_id: gym, add_equipment: ['Rower', 'sandbag', 'Hammer Strength Chest Press'] });
+    expect(await accept(cardOf(r))).toMatchObject({ ok: true, status: 'accepted' });
+    expect(await list()).toEqual(['Cable Tower', 'Hammer Strength Chest Press', 'Leg Press', 'Rower', 'sandbag']);
+  });
+
+  it('removes items, ignoring capitals', async () => {
+    const r = await propose({ gym: gym, remove_equipment: ['leg press', 'ROWER'] });
+    expect(r.isError, JSON.stringify(r)).toBeFalsy();
+    expect(await accept(cardOf(r))).toMatchObject({ ok: true, status: 'accepted' });
+    expect(await list()).toEqual(['Cable Tower', 'Hammer Strength Chest Press', 'sandbag']);
+  });
+
+  it('applies to the list at Accept: an item added after the card was made is kept, and the card is not out of date', async () => {
+    const r = await propose({ gym: gym, add_equipment: ['Ski Erg'], remove_equipment: ['sandbag'] });
+    expect(r.isError, JSON.stringify(r)).toBeFalsy();
+    expect((await targetsOf(cardOf(r))).map((t) => t.record_kind)).toEqual([]); // nothing to go out of date
+    await db.server(`update gyms set equipment = array_append(equipment, 'Added Meanwhile') where id = $1`, [gym]);
+    expect((await stored(cardOf(r))).status).toBe('pending');
+    expect(await accept(cardOf(r))).toMatchObject({ ok: true, status: 'accepted' });
+    expect(await list()).toEqual(['Added Meanwhile', 'Cable Tower', 'Hammer Strength Chest Press', 'Ski Erg']);
+  });
+
+  it('a card that also renames the gym or changes its notes still goes out of date when the gym is edited', async () => {
+    const r = await propose({ gym: gym, notes: 'Huge', add_equipment: ['Sled'] });
+    expect((await targetsOf(cardOf(r))).map((t) => t.record_kind)).toEqual(['gyms']);
+    await db.server(`update gyms set notes = 'edited' where id = $1`, [gym]);
+    expect(await accept(cardOf(r))).toMatchObject({ ok: false, code: 'out_of_date' });
+  });
+
+  it('a new gym is filled with add_equipment', async () => {
+    const r = await propose({ name: 'Hotel Annex', add_equipment: items(30, 'Machine') });
+    expect(r.isError, JSON.stringify(r)).toBeFalsy();
+    expect(await accept(cardOf(r))).toMatchObject({ ok: true, status: 'accepted' });
+    expect((await one<{ n: number }>(`select cardinality(equipment) as n from gyms where user_id = $1 and name = 'Hotel Annex'`, [a])).n).toBe(30);
+  });
+
+  it('handles a gym over 100 items: 400 more are added and nothing is dropped', async () => {
+    const big = (await one<{ id: string }>(`insert into gyms (user_id, name, equipment) values ($1, 'Warehouse', $2) returning id`, [a, items(150, 'Existing')])).id;
+    const r = await propose({ gym: big, add_equipment: items(350, 'Fresh') });
+    expect(r.isError, JSON.stringify(r)).toBeFalsy();
+    expect(await accept(cardOf(r))).toMatchObject({ ok: true, status: 'accepted' });
+    const got = (await one<{ equipment: string[] }>(`select equipment from gyms where id = $1`, [big])).equipment;
+    expect(got).toHaveLength(500);
+    expect(got).toEqual([...got].sort((x, y) => x.toLowerCase().localeCompare(y.toLowerCase())));
+    const over = await propose({ gym: big, add_equipment: ['One More'] });
+    expect(over.code).toBe('invalid_input');
+    expect(JSON.stringify(over.problems)).toContain('at most 500');
+  });
+
+  it('Accept refuses the whole card, and changes nothing, if the list would pass 500 by then', async () => {
+    const big = (await one<{ id: string }>(`insert into gyms (user_id, name, equipment) values ($1, 'Filling Up', $2) returning id`, [a, items(490)])).id;
+    const r = await propose({ gym: big, add_equipment: items(8, 'New') });
+    expect(r.isError, JSON.stringify(r)).toBeFalsy();
+    await db.server(`update gyms set equipment = equipment || $2::text[] where id = $1`, [big, items(5, 'Meanwhile')]);
+    const before = await fingerprint(db);
+    expect(await accept(cardOf(r))).toMatchObject({ ok: false, code: 'invalid', status: 'pending' });
+    expect(await fingerprint(db)).toEqual(before);
+  });
+
+  it('refuses bad items with the field named, and stores nothing', async () => {
+    const n = await countCards();
+    const empty = await propose({ gym: gym, add_equipment: ['  '] });
+    expect(empty.code).toBe('invalid_input');
+    const long = await propose({ gym: gym, add_equipment: ['x'.repeat(61)] });
+    expect(long.code).toBe('invalid_input');
+    expect(JSON.stringify(long.problems)).toContain('at most 60');
+    const twice = await propose({ gym: gym, add_equipment: ['Sled', 'sled'] });
+    expect(twice.problems[0]).toMatchObject({ field: 'gym.add_equipment[1]' });
+    const have = await propose({ gym: gym, add_equipment: ['cable tower'] });
+    expect(have.problems[0].problem).toContain('already in');
+    const missing = await propose({ gym: gym, remove_equipment: ['Pec Deck'] });
+    expect(missing.problems[0]).toMatchObject({ field: 'gym.remove_equipment[0]' });
+    expect(missing.problems[0].problem).toContain('list_gyms');
+    const both = await propose({ gym: gym, add_equipment: ['Sled'], remove_equipment: ['sled'] });
+    expect(both.code).toBe('invalid_input');
+    const fresh = await propose({ name: 'Nothing To Remove', remove_equipment: ['Sled'] });
+    expect(fresh.code).toBe('invalid_input');
+    const none = await propose({ gym: gym, add_equipment: [] });
+    expect(none.code).toBe('invalid_input');
+    const tooMany = await propose({ gym: gym, add_equipment: items(501) });
+    expect(tooMany.code).toBe('invalid_input');
+    expect(await countCards()).toBe(n);
+  });
+
+  it('Accept refuses a stored card with a bad item, and one for a gym since removed, and changes nothing', async () => {
+    const mk = async (g: unknown) => (await one<{ id: string }>(
+      `insert into proposals (user_id, source, kind, applies_to, summary_lines, payload) values ($1, 'ChatGPT', 'profile_update', 'profile', '{"x"}', $2) returning id`,
+      [a, JSON.stringify({ gym: g })])).id;
+    const tooLong = await mk({ gym_id: gym, add_equipment: ['y'.repeat(61)] });
+    const blank = await mk({ gym_id: gym, add_equipment: [' '] });
+    const notList = await mk({ gym_id: gym, add_equipment: 'Rower' });
+    const removed = await mk({ gym_id: gym, add_equipment: ['Sled'] });
+    const before = await fingerprint(db);
+    for (const c of [tooLong, blank, notList]) expect(await accept(c)).toMatchObject({ ok: false, code: 'invalid', status: 'pending' });
+    expect(await fingerprint(db)).toEqual(before);
+    const kept = await list();
+    await db.server(`update gyms set archived_at = now() where id = $1`, [gym]);
+    const gone = await accept(removed);
+    await db.server(`update gyms set archived_at = null where id = $1`, [gym]);
+    expect(gone).toMatchObject({ ok: false, code: 'invalid' });
+    expect(gone.message).toContain('removed');
+    expect(await list()).toEqual(kept);
+  });
+
+  it("one person's coach cannot add to or remove from another person's gym", async () => {
+    const theirs = (await one<{ id: string }>(`insert into gyms (user_id, name, equipment) values ($1, 'Blair Gym', '{"Squat Rack"}') returning id`, [b])).id;
+    expect((await propose({ gym: theirs, add_equipment: ['Rower'] })).code).toBe('not_found');
+    expect((await propose({ gym: 'Blair Gym', remove_equipment: ['Squat Rack'] })).code).toBe('not_found');
+    // and a card forged with their gym id changes nothing of theirs when Alex accepts it
+    const forged = (await one<{ id: string }>(
+      `insert into proposals (user_id, source, kind, applies_to, summary_lines, payload) values ($1, 'ChatGPT', 'profile_update', 'profile', '{"x"}', $2) returning id`,
+      [a, JSON.stringify({ gym: { gym_id: theirs, remove_equipment: ['Squat Rack'] } })])).id;
+    expect(await accept(forged)).toMatchObject({ ok: false, code: 'invalid' });
+    expect((await one<{ equipment: string[] }>(`select equipment from gyms where id = $1`, [theirs])).equipment).toEqual(['Squat Rack']);
   });
 });
 
