@@ -356,11 +356,11 @@ From Nate's notes on step V. **No SQL to run.**
 
 ### Y. In your computer's browser, then on your iPhone, after the merge
 
-1. [ ] Open https://chalkandiron.vercel.app/planner, then **Library**, **Campaigns**. Pick a finished campaign (end one with **End campaign** if you have none). Below the grid, **Run again from** shows today's date, with a **Run again** button.
-2. [ ] Press **Run again** and confirm. The campaign shows **active**, with the same days, and no second copy appears in the campaign list. If another campaign was active, you were asked first and it now shows **finished**.
-3. [ ] On the iPhone Home, the week strip shows this campaign. Days you did in its last run do **not** show Done.
+1. [x] Open https://chalkandiron.vercel.app/planner, then **Library**, **Campaigns**. Pick a finished campaign (end one with **End campaign** if you have none). Below the grid, **Run again from** shows today's date, with a **Run again** button.
+2. [x] Press **Run again** and confirm. The campaign shows **active**, with the same days, and no second copy appears in the campaign list. If another campaign was active, you were asked first and it now shows **finished**.
+3. [x] On the iPhone Home, the week strip shows this campaign. Days you did in its last run do **not** show Done.
 
-**Not run on Nate's devices (agreed by Nate, 23 November 2026):** the agent checked it in a local browser with test data, and the automated tests cover the rest. Nate will report anything that looks off in normal use.
+**Result, 27 November 2026: Nate marked all three done.** (On 23 November the agent had checked it in a local browser with test data.)
 
 ## 16. The phone's Home notices a new card by itself (23 November 2026)
 
@@ -368,11 +368,11 @@ From Nate's note on step X: the card showed only after leaving Home and coming b
 
 ### Z. On your iPhone and in your computer's browser, after the merge
 
-1. [ ] Open Chalk and Iron on the iPhone and leave it on **Home**. In the planner's **Plan**, send a day while today already has a workout. Within about 30 seconds, without touching the phone, the **Inbox · 1 waiting** panel appears at the top.
-2. [ ] Lock the phone, send another day from the planner, then unlock it: the new card is there as soon as Home shows.
-3. [ ] Press **Accept**: **Today** shows the new day straight away.
+1. [x] Open Chalk and Iron on the iPhone and leave it on **Home**. In the planner's **Plan**, send a day while today already has a workout. Within about 30 seconds, without touching the phone, the **Inbox · 1 waiting** panel appears at the top.
+2. [x] Lock the phone, send another day from the planner, then unlock it: the new card is there as soon as Home shows.
+3. [x] Press **Accept**: **Today** shows the new day straight away.
 
-**Not run on Nate's devices (agreed by Nate, 23 November 2026):** the agent checked item 1 in a local browser with test data. Items 2 and 3 depend on the iPhone; Nate will report anything that looks off in normal use.
+**Result, 27 November 2026: Nate marked all three done.** (On 23 November the agent had checked item 1 in a local browser with test data.)
 
 ## 17. Fixes from the Phase 3 review (23 November 2026)
 

@@ -92,3 +92,6 @@ Pull requests are at `https://github.com/trantelica/chalk-and-iron/pull/<number>
 
 - **Stage 4D, Accept and Decline** (Opus 5.5, high): one guarded step, `decide_proposal`, decides every coach's card with the person's own sign-in only. Accept applies all of it or none, after re-checking every record it targets: exercise, workout and campaign cards (with the new exercises and workouts they bring; a new campaign as a draft), profile and gym cards, and changes to today, made inside a running workout by the phone's own rules (no new session, no logged set moved) or in today's prepared plan. Decline keeps an optional one-line reason up to 300 characters. Cards for today end at 3:00 am, with a scheduled step marking them expired. A phone that was offline is told its copy is older than the account's plan and replays the change on its own copy. The payload each kind carries is written down for stage 4E. Migrations `…20261126000100` and `…20261126000200`; Nate's step AM.
 
+## 27 November 2026
+
+- Steps Y (running a campaign again) and Z (Home notices a new card by itself) marked done by Nate.
