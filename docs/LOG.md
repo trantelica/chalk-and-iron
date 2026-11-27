@@ -99,3 +99,4 @@ Pull requests are at `https://github.com/trantelica/chalk-and-iron/pull/<number>
 - Steps Y (running a campaign again) and Z (Home notices a new card by itself) marked done by Nate.
 - Nate ran stage 4D's SQL step AM in the Supabase SQL Editor.
 - [#57](https://github.com/trantelica/chalk-and-iron/pull/57) merged: stage 4D, Accept and Decline, with all its GitHub checks passing (the in-memory tests and the Supabase tests). Steps Y and Z were recorded in it.
+- **Nate confirmed stage 4D's four own choices**: a workout card's superset sets win over campaign-day set overrides; a campaign card changes only the days it lists; a change to today that no longer fits is out of date; removing an exercise with sets logged ends it with them.

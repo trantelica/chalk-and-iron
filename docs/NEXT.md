@@ -16,7 +16,7 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 
 ## Waiting on Nate
 
-- Nothing for stage 4D. Its own choices are listed under Open items for Nate to confirm when convenient.
+- Nothing at the moment.
 
 ## Open items
 
@@ -28,7 +28,6 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 - Open product decisions with a default to build: `docs/SPEC.md` Section 9.
 - To confirm in Phase 4 (`docs/TECHNICAL_DESIGN.md` Section 10C): whether ChatGPT and the Claude app give their model the connector's own instructions (Claude Code does, and an agent session can attach for the eval agent pass: both confirmed 27 Nov).
 - For stage 4E: store each card in the shape of `docs/TECHNICAL_DESIGN.md` Section 3, "What each proposal carries", with a target (and the version seen) for every existing exercise, workout, campaign, gym or coach profile it edits; Accept re-checks those versions.
-- Stage 4D's own choices for Nate to confirm (`docs/TECHNICAL_DESIGN.md` Section 5, Proposal): a workout card's superset sets win over campaign-day set overrides; a campaign card changes only the days it lists; a change to today that no longer fits is out of date; removing an exercise with sets logged ends it with them.
 - For stage 4E: a proposal and its targets are added in two steps; make them one database step if a half-added card matters (`docs/TECHNICAL_DESIGN.md` Section 3, "How the connector is built").
 - Plan against actual in the coach's tools: Nate said not yet (24 Nov). Listed in `docs/SPEC.md` Section 10, Later enhancements.
 
