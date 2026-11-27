@@ -117,3 +117,41 @@ test("the planner's Proposals screen shows the same inbox, and its tab counts wa
   await expect(page.getByRole('status').filter({ hasText: 'Declined. Nothing was changed.' })).toBeVisible();
   await expect(page.getByRole('link', { name: /^Proposals/ })).not.toContainText('1');
 });
+
+test('the Coach screen has a big Back to my workout button only while a workout is running, and it works offline', async ({ page, context }) => {
+  const me = await register(page, 'Inbox Rhea');
+
+  // No workout running: the screen is unchanged.
+  await page.goto('/app/coach');
+  await expect(page.getByRole('heading', { name: 'Coach' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Back to my workout/ })).toHaveCount(0);
+
+  // Start a workout, log a set, open Coach from the workout screen.
+  await page.goto('/app/workout');
+  await page.getByLabel('Search your library').fill('Barbell Curl');
+  await page.getByRole('button', { name: /^Barbell Curl/ }).first().click();
+  await page.getByRole('button', { name: 'Start workout' }).click();
+  await page.getByRole('button', { name: 'Start exercise' }).click();
+  await page.getByLabel('Weight in lb').fill('50');
+  await page.getByRole('button', { name: 'Log set' }).click();
+  await expect(page.getByText('Saved to your account')).toBeVisible({ timeout: 15000 });
+  const sessionsBefore = (await sql<{ n: number }>(`select count(*)::int as n from public.sessions where user_id = $1`, [me]))[0].n;
+  await page.getByRole('link', { name: /^Coach/ }).click();
+  await page.waitForURL('**/app/coach');
+
+  // The button is at the top, above the About box, and with no connection it still goes back to the same workout.
+  const back = page.getByRole('link', { name: /Back to my workout/ });
+  await expect(back).toBeVisible();
+  const [backBox, aboutBox] = [await back.boundingBox(), await page.getByLabel('About your coach').boundingBox()];
+  expect(backBox!.y).toBeLessThan(aboutBox!.y);
+  await context.setOffline(true);
+  await back.click();
+  await page.waitForURL('**/app/workout');
+  await expect(page.getByRole('heading', { name: 'Barbell Curl' })).toBeVisible();
+  await expect(page.getByText('Log set').first()).toBeVisible();
+  await context.setOffline(false);
+
+  // It did not start another workout or change this one.
+  expect((await sql<{ n: number }>(`select count(*)::int as n from public.sessions where user_id = $1`, [me]))[0].n).toBe(sessionsBefore);
+  expect((await sql<{ n: number }>(`select count(*)::int as n from public.set_logs where user_id = $1 and deleted_at is null`, [me]))[0].n).toBe(1);
+});

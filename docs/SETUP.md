@@ -566,7 +566,10 @@ Stage 4F puts your coach's cards on your phone and in the planner. It needs no S
 
 ### AN. On your iPhone and in your computer's browser, after the merge
 
-You need at least two cards waiting from your coach. On the Test Account the five cards left by the stage 4E eval pass may still be waiting. If not, ask your coach (in ChatGPT or Claude) to propose two small changes, for example "propose changing the rest time of Barbell Bench Press to 75 seconds" and "propose a new exercise".
+You need at least two cards waiting from your coach. Cards left by earlier checks are almost always out of date, because resetting the Test Account (which rewrites its library) makes them so. So ask your coach (Claude or ChatGPT, in a new chat) to propose two small changes. For example, send these two messages:
+
+- "Propose changing the rest time of Barbell Bench Press to 75 seconds."
+- "Propose a new exercise: Cable Face Pull."
 
 **On your iPhone** (the home-screen app, https://chalkandiron.vercel.app):
 1. [ ] Open Chalk and Iron. Waiting cards sit at the top of Home. Tap **Open the Coach screen** in the Inbox box lower down.
@@ -574,11 +577,12 @@ You need at least two cards waiting from your coach. On the Test Account the fiv
 3. [ ] On one waiting card tap **Accept**. A green-outlined banner at the top says what changed and what did not, the card's label changes to Accepted, and the number goes down by one.
 4. [ ] On another waiting card tap **Decline**, type a reason such as "too much volume", and tap **Decline card**. The banner says it was declined and your coach can read the reason; the card now shows "Declined. Your reason: too much volume".
 5. [ ] Ask your coach "what happened to my last proposal?" It should tell you the status and your reason.
+6. [ ] Start a workout, tap **Coach**, top right. At the top of the Coach screen a large highlighted **Back to my workout** button shows the workout's name. Tap it: you land on the same exercise with your sets as you left them. Then finish the workout and open Coach from Home (**Open the Coach screen**): the big button is gone.
 
 **In your computer's browser** (https://chalkandiron.vercel.app/planner):
-6. [ ] Click the **Proposals** tab (the fourth tab, between History and Vocabulary). It shows the same cards, with a number on the tab for the cards waiting.
-7. [ ] Click **Decline** on a waiting card, leave the reason empty, and click **Decline card**. It works with no reason. The number on the tab goes down.
-8. [ ] If a card shows **Out of date** (you edited something it would change) or **Expired** (a card for today after 3:00 am), it has no Accept button; an out-of-date one has **Dismiss**.
+7. [ ] Click the **Proposals** tab (the fourth tab, between History and Vocabulary). It shows the same cards, with a number on the tab for the cards waiting.
+8. [ ] Click **Decline** on a waiting card, leave the reason empty, and click **Decline card**. It works with no reason. The number on the tab goes down.
+9. [ ] If a card shows **Out of date** (you edited something it would change) or **Expired** (a card for today after 3:00 am), it has no Accept button; an out-of-date one has **Dismiss**.
 
 Tell the agent which numbers pass or fail.
 
