@@ -67,3 +67,96 @@ export async function acceptRefusal(me: string | null, boxFor: (userId: string) 
   if (!me) return NO_USER_BEFORE_ACCEPT;
   return (await sendWaitingFirst(boxFor(me), ms)) ? null : UNSAVED_BEFORE_ACCEPT;
 }
+
+// ---------------------------------------------------------------------------
+// The coach's cards in the inbox (stage 4F, 27 Nov 2026; spec Section 4,
+// "Proposals in the app", and Section 5, "Phone: coach inbox").
+// ---------------------------------------------------------------------------
+
+export type CardStatus = 'pending' | 'accepted' | 'rejected' | 'out_of_date' | 'expired';
+
+/** A proposal row as the inbox reads it. */
+export interface InboxCard {
+  id: string; source: string; kind: string; applies_to: string; summary_lines: string[]; status: CardStatus;
+  created_at: string; expires_at: string | null; decided_at: string | null; decline_reason: string | null;
+  payload: { workout_name?: string };
+}
+
+/** The longest reason a person may give when declining (spec Section 4). */
+export const REASON_MAX = 300;
+/** A card with more lines than this shows the rest behind "Show all". */
+export const LINES_SHOWN = 8;
+/** How many cards the inbox lists (newest first). */
+export const INBOX_LIMIT = 50;
+
+/** The status to show: a waiting card whose day has ended is Expired, even before the account marks it. */
+export function shownStatus(c: Pick<InboxCard, 'status' | 'expires_at'>, now: number): CardStatus {
+  return c.status === 'pending' && c.expires_at && Date.parse(c.expires_at) <= now ? 'expired' : c.status;
+}
+
+/** Cards waiting for a decision now: what the Coach button counts. */
+export function waitingCards<T extends Pick<InboxCard, 'status' | 'expires_at'>>(cards: T[], now: number): T[] {
+  return cards.filter((c) => shownStatus(c, now) === 'pending');
+}
+
+export const STATUS_LABEL: Record<CardStatus, string> = {
+  pending: 'Waiting', accepted: 'Accepted', rejected: 'Declined', out_of_date: 'Out of date', expired: 'Expired',
+};
+
+const KIND_LABEL: Record<string, string> = {
+  exercise: 'An exercise', workout: 'A workout', campaign: 'A campaign', today_change: 'A change to today', profile_update: 'Your profile and gyms',
+};
+
+/** The small heading of a card. */
+export function cardHeading(c: Pick<InboxCard, 'source' | 'kind'>): string {
+  return c.source === 'planner' ? 'Sent from the planner' : `Coach · ${KIND_LABEL[c.kind] ?? 'A proposal'}`;
+}
+
+/** What the card applies to, in plain words (spec Section 4: today only, the library, or a campaign). */
+export function appliesToText(c: Pick<InboxCard, 'source' | 'applies_to' | 'kind'>): string {
+  if (c.source === 'planner') return 'Applies to today only. Your library and campaign are not changed.';
+  switch (c.applies_to) {
+    case 'today': return 'Applies to today only. Your library and campaign are not changed.';
+    case 'library': return 'Changes your library. Workouts already done are unchanged.';
+    case 'campaign': return 'Changes a campaign. A new one arrives as a draft, and your active campaign stays as it is.';
+    case 'profile': return 'Changes your coach profile or gyms. Your library and campaigns are not changed.';
+    default: return '';
+  }
+}
+
+/** A line under a card that is no longer waiting, saying why. */
+export function endedNote(c: Pick<InboxCard, 'status' | 'expires_at' | 'decline_reason'>, now: number): string {
+  switch (shownStatus(c, now)) {
+    case 'out_of_date': return 'Something this card would change was edited after the coach sent it, so it cannot be accepted. Dismiss it and ask your coach again.';
+    case 'expired': return "This card's day ended at 3:00 am, so it expired. Nothing was changed.";
+    case 'rejected': return c.decline_reason ? `Declined. Your reason: ${c.decline_reason}` : 'Declined. Nothing was changed.';
+    case 'accepted': return 'Accepted.';
+    default: return '';
+  }
+}
+
+/**
+ * The reason typed with a Decline: one line, up to 300 characters, optional.
+ * Line breaks and runs of spaces become single spaces (as the account does).
+ */
+export function cleanReason(text: string): { ok: true; reason: string | null } | { ok: false; message: string } {
+  const one = text.replace(/\s+/g, ' ').trim();
+  if (one.length > REASON_MAX) return { ok: false, message: `Keep the reason to ${REASON_MAX} characters or fewer. It is ${one.length}.` };
+  return { ok: true, reason: one === '' ? null : one };
+}
+
+/**
+ * The banner after Accept or Decline of a coach's card. The account's own
+ * sentence says what changed and what did not; a refusal never reads as done.
+ */
+export function bannerFor(answer: DecideAnswer | null, accept: boolean): { ok: boolean; text: string } {
+  const verb = accept ? 'accepted' : 'declined';
+  if (!answer) return { ok: false, text: `Not ${verb}. The account did not answer. Try again.` };
+  const said = answer.message?.trim();
+  if (answer.ok === true) return { ok: true, text: said || (accept ? 'Accepted.' : 'Declined. Nothing was changed.') };
+  if (!said) return { ok: false, text: `Not ${verb}. Try again.` };
+  return { ok: false, text: /^not (accepted|declined)/i.test(said) ? said : `Not ${verb}. ${said}` };
+}
+
+/** Browsers get told when a card is decided, so the Coach button's count drops at once. */
+export const INBOX_CHANGED_EVENT = 'chalk-inbox-changed';

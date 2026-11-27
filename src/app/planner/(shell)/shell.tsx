@@ -3,15 +3,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PlannerProvider, usePlannerMaybe } from '../planner-data';
 import { SaveStatusLine } from '../save-status-line';
+import { useWaitingCount } from '@/components/coach-count';
 
-const TABS: [string, string][] = [['/planner/plan', 'Plan'], ['/planner/library', 'Library'], ['/planner/history', 'History'], ['/planner/vocabulary', 'Vocabulary']];
+const TABS: [string, string][] = [['/planner/plan', 'Plan'], ['/planner/library', 'Library'], ['/planner/history', 'History'], ['/planner/proposals', 'Proposals'], ['/planner/vocabulary', 'Vocabulary']];
 
-export function Tabs({ tabs, label }: { tabs: [string, string][]; label: string }) {
+export function Tabs({ tabs, label, badges }: { tabs: [string, string][]; label: string; badges?: Record<string, number | null> }) {
   const path = usePathname();
   return (
     <nav className="tabs" aria-label={label}>
       {tabs.map(([href, text]) => (
-        <Link key={href} href={href} className={`btn ${path === href || path.startsWith(href + '/') ? 'selected' : ''}`} aria-current={path.startsWith(href) ? 'page' : undefined}>{text}</Link>
+        <Link key={href} href={href} className={`btn ${path === href || path.startsWith(href + '/') ? 'selected' : ''}`} aria-current={path.startsWith(href) ? 'page' : undefined}>{text}{badges?.[href] ? <span className="badge" aria-label={`${badges[href]} waiting`}>{badges[href]}</span> : null}</Link>
       ))}
     </nav>
   );
@@ -32,10 +33,11 @@ function Toggle() {
 
 function Body({ children }: { children: React.ReactNode }) {
   const p = usePlannerMaybe();
+  const waiting = useWaitingCount();
   return (
     <main className="page wide planner">
       <div className="row spread"><h1>Planner</h1><SaveStatusLine /><Toggle /></div>
-      <Tabs tabs={TABS} label="Planner" />
+      <Tabs tabs={TABS} label="Planner" badges={{ '/planner/proposals': waiting }} />
       {p?.error && <div className="error" role="alert">{p.error}</div>}
       {p?.data ? children : !p?.error && <div className="muted">Loading your library…</div>}
       <div className="row"><Link className="btn link-btn" href="/app">Phone home</Link><Link className="btn link-btn" href="/planner/account">Account</Link></div>
