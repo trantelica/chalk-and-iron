@@ -71,9 +71,10 @@ export const TOOL_TEXT: Record<string, ToolText> = {
     description: [
       'The user\'s gyms: each with its id, name, equipment and notes, and which one is the default.',
       'Read the gym before proposing a workout or a change to today, so every exercise uses equipment the user has there.',
+      'The equipment list may be incomplete, especially for a large gym. If you are not sure the user has a piece of equipment, ask them in the chat; if they have it, propose adding it to the gym with propose_profile_update so you never ask again. If they do not, offer the exercise\'s alternate (list_exercises shows its bodyweight, basic gym and full gym alternates) and ask only about the swap.',
       'At most 50 gyms come back; pass the returned "next" to get more.',
     ].join(' '),
-    brief: [{ brief: 1, phrase: 'read the gym before proposing' }],
+    brief: [{ brief: 1, phrase: 'read the gym before proposing' }, { brief: 6, phrase: 'ask them in the chat' }, { brief: 6, phrase: 'offer the exercise\'s alternate' }],
   },
   get_vocabulary: {
     name: 'get_vocabulary',
@@ -286,7 +287,7 @@ export const TOOL_TEXT: Record<string, ToolText> = {
       'Propose changes to the user\'s coach profile (goals, injuries and limits, weekly schedule, notes and the intake: coach style, experience, priorities, progression pace, workout minutes, days per week, variety, exercises liked, exercises to avoid, how to coach me), and or to a gym (add one, or edit one with its id or exact name). Nothing changes until the user accepts it in the app.',
       'Run the intake as a short conversation, then propose the answers as one profile update. Leave out what the user did not answer.',
       'Change the progression pace only after a pace check: compare the chosen pace with what the history shows, say so to the user, and then propose it.',
-      'Use equipment values exactly as get_vocabulary gives them. Write summary_lines as one clear line per change.',
+      'Use equipment values exactly as get_vocabulary gives them. When the user confirms they have equipment the gym does not list, add it to the gym here. Write summary_lines as one clear line per change.',
       'After it succeeds, tell the user it is waiting in the app for them to accept or decline. If it returns an error, fix the call and try again before telling the user.',
     ].join(' '),
     brief: [

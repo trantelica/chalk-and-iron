@@ -31,6 +31,8 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 - A coach's card and its targets are still added in two steps (4E tries the second step twice). A card with no targets would not be marked out of date when the user edits what it changes. One guarded database step would close this; it is database work (Opus 5.5, high) and needs one SQL step from Nate. Decision for Nate: before the first friend is invited, or never (`docs/TECHNICAL_DESIGN.md` Section 3, "How the propose tools are built").
 - Plan against actual in the coach's tools: Nate said not yet (24 Nov). Listed in `docs/SPEC.md` Section 10, Later enhancements.
 
+- A "fully equipped" setting on a gym (assume everything except what is listed as not available) for a large gym. Nate is not sure it is needed with the coach asking and remembering (27 Nov); revisit after real use.
+
 ## Decided, not yet built
 
 - **Phase 4:** the coach's cards join the inbox the planner's sent days already use (Nate, 20 Nov). A coach intake on Coach setup and Profile (coach style, experience, up to three priorities, pace, workout length, days, variety, likes, dislikes and anything else); the coach behaviour brief; weekly check-in marks on Home with a count in a row; an optional one-line reason when declining a coach's card, which the coach can read; a note on Home during a campaign's last week to ask the coach for the next one; and a weekly check-in set up as a scheduled task in the user's own LLM app (Nate, 24 Nov).
