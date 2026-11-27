@@ -109,7 +109,8 @@ export default async function PhoneHome() {
       <section className="panel" aria-label="Inbox summary">
         <div className="lab">Inbox</div>
         <div>{today.pendingProposals ? `${today.pendingProposals} waiting for your decision, at the top of this screen.` : 'Nothing waiting.'}</div>
-        <div className="muted">Days sent from the planner arrive here. Your coach&apos;s cards join them with the coach.</div>
+        <div className="muted">Days sent from the planner and your coach&apos;s cards arrive here.</div>
+        <Link className="btn link-btn" href="/app/coach">Open the Coach screen</Link>
       </section>
       <div className="muted">Your library holds {count ?? 0} exercises.</div>
       <HomeActions passkeyCheck />

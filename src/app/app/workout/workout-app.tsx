@@ -1,4 +1,5 @@
 'use client';
+import { CoachButton } from '@/components/coach-count';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -642,7 +643,7 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
         <button className="pull" onClick={() => setTray(true)} aria-label="Pull down the full workout">
           <span>Workout</span><span aria-hidden="true">⌄</span>
         </button>
-        <Link className="btn coach" href="/app" aria-label="Coach">Coach</Link>
+        <CoachButton />
       </div>
 
       <div className="phone-head hide-typing">

@@ -315,3 +315,8 @@ input.is-saved { border-color: var(--accent); }
 
 /* The coach approval page (src/app/oauth/consent). */
 .big-question { margin: 0; font-size: 22px; line-height: 1.25; }
+.decline-box { display: flex; flex-direction: column; gap: 6px; }
+.decline-box label { display: flex; flex-direction: column; gap: 4px; }
+.decline-box input[type='text'] { width: 100%; }
+.proposals-wide .proposal-card { max-width: 760px; }
+.btn .badge, .tabs .btn .badge { margin-left: 6px; }
