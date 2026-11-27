@@ -50,6 +50,12 @@ export function errorResult(e: ConnectorError): ToolResult {
 export const serverProblem = () =>
   new ConnectorError('server_problem', 'Something failed on the app\'s side. Try again in a minute; if it keeps failing, tell the user the app could not be read.');
 
+/** Inputs a tool once took and no longer does, with what to send instead (so a coach that remembers the old shape is told the new one). */
+const REPLACED_INPUTS: Record<string, string> = {
+  'propose_profile_update:gym.equipment':
+    'A gym\'s whole equipment list is no longer sent. Send single items with add_equipment and remove_equipment instead (read the gym with list_gyms first).',
+};
+
 /** A tool's inputs that did not pass its checks, as invalid_input with each problem named. */
 export function invalidInput(tool: string, err: ZodError): ConnectorError {
   const problems: Problem[] = [];
@@ -57,7 +63,8 @@ export function invalidInput(tool: string, err: ZodError): ConnectorError {
     const path = issue.path.map(String).join('.');
     if (issue.code === 'unrecognized_keys') {
       for (const k of issue.keys) {
-        problems.push({ field: path ? `${path}.${k}` : k, problem: `${tool} has no input called "${k}". Leave it out.` });
+        const field = path ? `${path}.${k}` : k;
+        problems.push({ field, problem: REPLACED_INPUTS[`${tool}:${field}`] ?? `${tool} has no input called "${k}". Leave it out.` });
       }
     } else {
       problems.push({ field: path || '(inputs)', problem: issue.message });

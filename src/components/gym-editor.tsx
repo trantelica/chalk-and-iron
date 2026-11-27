@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { browserClient } from '@/lib/supabase/browser';
 import { TextCell, AreaCell } from '@/app/planner/fields';
 import {
-  checkEquipment, cleanEquipment, filterEquipment, ITEM_MAX, listToText, parsePasted, previewAdd, renameEquipment,
+  checkEquipment, cleanEquipment, filterEquipment, ITEM_MAX, listToText, parsePasted, previewAdd, renameEquipment, sortEquipment,
 } from '@/rules/gym-equipment';
 
 // Gyms and their equipment lists (spec Section 4; design Section 2, gyms).
@@ -124,7 +124,8 @@ export function GymsSection() {
   const load = useCallback(async () => {
     const r = await sb.from('gyms').select('id, name, equipment, notes, is_default, archived_at').order('name');
     if (r.error) { setError('Your gyms could not be read: ' + r.error.message); return; }
-    setGyms(((r.data ?? []) as Gym[]).map((g) => ({ ...g, equipment: g.equipment ?? [] })));
+    // Shown in the app's own A to Z order (numbers in order, accents with their letter), whatever order the database holds.
+    setGyms(((r.data ?? []) as Gym[]).map((g) => ({ ...g, equipment: sortEquipment(g.equipment ?? []) })));
   }, [sb]);
   useEffect(() => { void load(); }, [load]);
 

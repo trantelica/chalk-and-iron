@@ -636,3 +636,12 @@ Until the pull request is merged this link works from the pull request's branch;
 
 **Check afterwards (optional, in your coach chat):** ask your coach to "add a Rower and a Sandbag to my gym". A card appears in **Proposals** reading like "Add Rower and Sandbag to Home gym"; Accept it, then open **Profile and gyms** and find both in the list.
 
+### AQ. Supabase SQL Editor, before or after merging (27 November 2026)
+
+A small follow-up from the fresh review. **What it changes:** a coach's card that only renames a gym, changes its notes or makes it the default now leaves the gym's equipment list exactly as it is (before, it re-sorted it), and the helper from step AP is closed to direct calls, like every other helper of its kind. It changes no data you already have. The app works the same whether you run it before or after the merge.
+
+**Where:** the same as step AP: https://supabase.com/dashboard, the project `chalk-and-iron`, **SQL Editor** in the left-hand menu, **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it, and click **Run**.
+
+1. [ ] [`20261127000200_gym_equipment_tidy.sql`](https://github.com/trantelica/chalk-and-iron/blob/coach-gym-equipment-add-remove/supabase/migrations/20261127000200_gym_equipment_tidy.sql) It should end with "Success. No rows returned". Safe to run more than once.
+
+After the merge the link is also at `.../blob/main/supabase/migrations/20261127000200_gym_equipment_tidy.sql`.

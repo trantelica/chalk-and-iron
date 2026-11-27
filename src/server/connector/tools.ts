@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { trainingDay } from '@/rules/days';
+import { sortEquipment } from '@/rules/gym-equipment';
 import type { Caller } from './auth';
 import { TOOL_TEXT } from './descriptions';
 import { nextInput, page, PAGE_SIZE, readNext } from './limits';
@@ -86,7 +87,8 @@ async function listGyms(caller: Caller, args: z.infer<typeof listGymsInput>) {
   if (error) failed('gyms read', error);
   const { items, next } = page(data ?? [], offset);
   return {
-    gyms: items.map((g) => ({ id: g.id, name: g.name, equipment: g.equipment ?? [], notes: g.notes ?? '', is_default: g.is_default })),
+    // The same A to Z order the gym screen shows.
+    gyms: items.map((g) => ({ id: g.id, name: g.name, equipment: sortEquipment(g.equipment ?? []), notes: g.notes ?? '', is_default: g.is_default })),
     next,
   };
 }

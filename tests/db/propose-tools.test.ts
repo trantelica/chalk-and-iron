@@ -600,6 +600,39 @@ describe('propose_profile_update: a gym\'s equipment, one item at a time', () =>
     expect(await accept(forged)).toMatchObject({ ok: false, code: 'invalid' });
     expect((await one<{ equipment: string[] }>(`select equipment from gyms where id = $1`, [theirs])).equipment).toEqual(['Squat Rack']);
   });
+
+  it('a card that does not touch the equipment leaves the list exactly as it is', async () => {
+    const odd = (await one<{ id: string }>(`insert into gyms (user_id, name, equipment) values ($1, 'Untidy', '{"zed","Alpha","zed"}') returning id`, [a])).id;
+    const r = await propose({ gym: odd, notes: 'Only the notes' });
+    expect(r.isError, JSON.stringify(r)).toBeFalsy();
+    expect(await accept(cardOf(r))).toMatchObject({ ok: true, status: 'accepted' });
+    expect(await one(`select equipment, notes from gyms where id = $1`, [odd])).toEqual({ equipment: ['zed', 'Alpha', 'zed'], notes: 'Only the notes' });
+  });
+
+  it('a card that only makes the gym the default has no gym target', async () => {
+    const r = await propose({ gym: gym, make_default: true });
+    expect(r.isError, JSON.stringify(r)).toBeFalsy();
+    expect(await targetsOf(cardOf(r))).toEqual([]);
+  });
+
+  it('list_gyms gives the list in the app\'s A to Z order: numbers in order, accents with their letter', async () => {
+    await one(`insert into gyms (user_id, name, equipment) values ($1, 'Numbered', '{"Dumbbell 10 lb","Elliptical","Dumbbell 5 lb","Écrou"}') returning id`, [a]);
+    const r = await call('list_gyms', {});
+    const g = (r.out.gyms as { name: string; equipment: string[] }[]).find((x) => x.name === 'Numbered')!;
+    expect(g.equipment).toEqual(['Dumbbell 5 lb', 'Dumbbell 10 lb', 'Écrou', 'Elliptical']);
+  });
+
+  it('a coach that sends the old whole list is told to use add_equipment and remove_equipment', async () => {
+    const r = await propose({ gym: gym, equipment: ['Rower'] });
+    expect(r.code).toBe('invalid_input');
+    expect(r.problems[0]).toMatchObject({ field: 'gym.equipment' });
+    expect(r.problems[0].problem).toContain('add_equipment');
+  });
+
+  it('the list helper cannot be called directly by a person or their coach', async () => {
+    await expect(db.as(a, `select app.gym_equipment_after('{}', '["x"]', null)`)).rejects.toThrow(/permission denied/);
+    await expect(db.as(a, `select app.gym_equipment_after('{}', '["x"]', null)`, [], { coach: true })).rejects.toThrow(/permission denied/);
+  });
 });
 
 describe('the propose tools and the rest of the app', () => {
