@@ -20,7 +20,7 @@ import {
 import type { OutboxStatus } from '@/lib/outbox';
 import {
   activeOnServer, fetchHistory, forgetOldPhoneOnlyData, keyFor, loadServerSession, outboxFor, pushSupported, readStore,
-  registerServiceWorker, replacedOnServer, turnOnRestAlerts, writeStore, type ActiveElsewhere,
+  acceptedTodayFor, registerServiceWorker, replacedOnServer, turnOnRestAlerts, writeStore, type ActiveElsewhere,
 } from '@/lib/phone-store';
 import {
   RECORD_LABEL, celebrationName, currentRecords, dial, estimatedOneRepMax, mmss, readClock, seedWeights, setVolume,
@@ -28,6 +28,7 @@ import {
 } from '@/rules/workout';
 import { missingFields, suggestSwapMade, type Tier, type VocabTerm } from '@/rules/swap-made';
 import type { TodayWorkout } from '@/rules/today';
+import { replayAccepted, type ExerciseFacts } from '@/rules/today-change';
 
 export interface LibExercise {
   id: string; name: string; muscle: string; equipment: string; unit: 'lb' | 'kg' | 'bw'; work: number; rest: number; note: string;
@@ -190,11 +191,14 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
     router.refresh(); // so the start screen's Today panel shows the day that was sent
   }, [userId, refreshHistory, router]);
 
-  /** Asks the account whether this phone's workout was replaced; used on open and on return to the screen. */
+  /** Brings this phone's workout up to a coach's change accepted elsewhere (stage 4D); set once seedOf exists, below. */
+  const catchUpRef = useRef<() => void>(() => {});
+
+  /** Asks the account whether this phone's workout was replaced, or changed by an accepted coach's card; used on open and on return to the screen. */
   const checkReplaced = useCallback(() => {
     const ids = idsToAskReplaced([sessRef.current?.id, readStore<Session | null>(keyFor(userId, LAST), null)?.id], box.entries);
     if (!ids.length || (typeof navigator !== 'undefined' && !navigator.onLine)) return;
-    replacedOnServer(ids).then((r) => { if (r.length) dropReplaced(r); }).catch(() => { /* offline: asked again later */ });
+    replacedOnServer(ids).then((r) => { if (r.length) dropReplaced(r); else catchUpRef.current(); }).catch(() => { /* offline: asked again later */ });
   }, [userId, dropReplaced, box]);
 
   useEffect(() => {
@@ -238,6 +242,8 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
       if (a.replaced?.length) dropReplaced(a.replaced);
       const cur = sessRef.current;
       if (!cur) return;
+      // The account's plan for this workout is newer than this copy: a coach's change was accepted elsewhere.
+      if (a.stale?.includes(cur.id)) catchUpRef.current();
       const t = applyServerRecords(cur, a.records); // the server's records win
       if (t !== cur) { sessRef.current = t; writeStore(keyFor(userId, 'session'), t); setSessState(t); }
     });
@@ -284,6 +290,38 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
   );
 
   const flash = (text: string) => { setBanner(text); setTimeout(() => setBanner((b) => (b === text ? '' : b)), 4000); };
+
+  /**
+   * A coach's change to this workout was accepted on another screen or device
+   * (stage 4D). The phone applies it to its own copy with the same rules the
+   * account used, so anything done here with no signal is kept, then sends its
+   * copy at the account's revision. If the change names an exercise this phone
+   * does not know yet, the account's copy is taken instead.
+   */
+  const catchUpPlan = useCallback(() => {
+    const cur = sessRef.current;
+    if (!cur || cur.endedAt !== null || (typeof navigator !== 'undefined' && !navigator.onLine)) return;
+    acceptedTodayFor(cur.id, cur.planRevision ?? 0).then(async (list) => {
+      const here = sessRef.current;
+      if (!list.length || !here || here.id !== cur.id) return;
+      const facts = (id: string): ExerciseFacts | undefined => {
+        const x = libById.get(id);
+        return x && { id: x.id, name: x.name, muscle: x.muscle, equipment: x.equipment, unit: x.unit, assisted: x.assisted, loadCount: x.loadCount, alternates: x.alternates, work: x.work, rest: x.rest, archived: false };
+      };
+      const named = list.flatMap((a) => a.changes.flatMap((c) => [c.exercise_id, 'to_exercise_id' in c ? c.to_exercise_id : null]));
+      if (named.some((id) => id && !libById.has(id))) {
+        await box.flush();
+        const fromAccount = await loadServerSession(cur.id, libFacts);
+        commit(fromAccount, { activity: false, send: false });
+        router.refresh();
+      } else {
+        commit(replayAccepted(here, list, facts, seedOf, Date.now()), { activity: false });
+      }
+      flash("Your coach's change was applied to this workout.");
+    }).catch(() => { /* offline: asked again later */ });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [libById, libFacts, seedOf, commit, box, router]);
+  useEffect(() => { catchUpRef.current = catchUpPlan; }, [catchUpPlan]);
 
   // With the app on screen, the server's alert is cancelled just before the
   // end, so the banner and sound arrive and not a notification as well. If the

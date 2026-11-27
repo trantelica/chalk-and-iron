@@ -356,11 +356,11 @@ From Nate's notes on step V. **No SQL to run.**
 
 ### Y. In your computer's browser, then on your iPhone, after the merge
 
-1. [ ] Open https://chalkandiron.vercel.app/planner, then **Library**, **Campaigns**. Pick a finished campaign (end one with **End campaign** if you have none). Below the grid, **Run again from** shows today's date, with a **Run again** button.
-2. [ ] Press **Run again** and confirm. The campaign shows **active**, with the same days, and no second copy appears in the campaign list. If another campaign was active, you were asked first and it now shows **finished**.
-3. [ ] On the iPhone Home, the week strip shows this campaign. Days you did in its last run do **not** show Done.
+1. [x] Open https://chalkandiron.vercel.app/planner, then **Library**, **Campaigns**. Pick a finished campaign (end one with **End campaign** if you have none). Below the grid, **Run again from** shows today's date, with a **Run again** button.
+2. [x] Press **Run again** and confirm. The campaign shows **active**, with the same days, and no second copy appears in the campaign list. If another campaign was active, you were asked first and it now shows **finished**.
+3. [x] On the iPhone Home, the week strip shows this campaign. Days you did in its last run do **not** show Done.
 
-**Not run on Nate's devices (agreed by Nate, 23 November 2026):** the agent checked it in a local browser with test data, and the automated tests cover the rest. Nate will report anything that looks off in normal use.
+**Result, 27 November 2026: Nate marked all three done.** (On 23 November the agent had checked it in a local browser with test data.)
 
 ## 16. The phone's Home notices a new card by itself (23 November 2026)
 
@@ -368,11 +368,11 @@ From Nate's note on step X: the card showed only after leaving Home and coming b
 
 ### Z. On your iPhone and in your computer's browser, after the merge
 
-1. [ ] Open Chalk and Iron on the iPhone and leave it on **Home**. In the planner's **Plan**, send a day while today already has a workout. Within about 30 seconds, without touching the phone, the **Inbox · 1 waiting** panel appears at the top.
-2. [ ] Lock the phone, send another day from the planner, then unlock it: the new card is there as soon as Home shows.
-3. [ ] Press **Accept**: **Today** shows the new day straight away.
+1. [x] Open Chalk and Iron on the iPhone and leave it on **Home**. In the planner's **Plan**, send a day while today already has a workout. Within about 30 seconds, without touching the phone, the **Inbox · 1 waiting** panel appears at the top.
+2. [x] Lock the phone, send another day from the planner, then unlock it: the new card is there as soon as Home shows.
+3. [x] Press **Accept**: **Today** shows the new day straight away.
 
-**Not run on Nate's devices (agreed by Nate, 23 November 2026):** the agent checked item 1 in a local browser with test data. Items 2 and 3 depend on the iPhone; Nate will report anything that looks off in normal use.
+**Result, 27 November 2026: Nate marked all three done.** (On 23 November the agent had checked item 1 in a local browser with test data.)
 
 ## 17. Fixes from the Phase 3 review (23 November 2026)
 
@@ -540,3 +540,22 @@ Stage 4B puts the real coach connector at its permanent link, **https://chalkand
 
 If either app shows an error instead, copy its exact words for the agent. The agent can also read the Vercel log: each call writes one `MCP` line with no content.
 
+
+## 22. Phase 4, stage 4D: Accept and Decline (26 November 2026)
+
+Stage 4D builds what happens when you accept or decline a card from your coach: Accept applies the whole card or none of it, and Decline changes nothing but the card, with an optional one-line reason your coach can read. A change to today changes only today, inside the workout you are doing if one is running. Nothing changes on any screen yet: the coach's cards appear in the inbox in stage 4F, and the coach can send them from stage 4E.
+
+### AM. Supabase SQL Editor, **before** merging
+
+**Run this before the pull request is merged.** Run before merging, nothing changes for the app you have now: the phone saves workouts exactly as before, and nothing calls the new steps until the new app is live.
+
+**What it changes:** it adds the one guarded step that accepts or declines a coach's card (only you can use it, never a coach), a read step that gathers what a change to today needs, a counter on a running workout so a phone that was offline cannot overwrite a change you accepted, an end at 3:00 am for every card for today, and one scheduled job that marks such cards expired once their day ends. It changes no data you already have.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. For each file below, in this order: open it, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into a new query, and click **Run**.
+
+1. [x] [`20261126000100_accept_and_decline.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261126000100_accept_and_decline.sql) It should end with "Success. No rows returned". Safe to run more than once.
+2. [x] [`20261126000200_expiry_schedules.sql`](https://github.com/trantelica/chalk-and-iron/blob/main/supabase/migrations/20261126000200_expiry_schedules.sql) It ends with a small table showing the scheduler's job number. Safe to run more than once.
+
+**Run by Nate on 27 November 2026.**
+
+Until the pull request is merged, these links work from the pull request's branch instead (the agent gives you those links).

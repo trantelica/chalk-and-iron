@@ -8,6 +8,7 @@ import { browserClient } from '@/lib/supabase/browser';
 import { Outbox } from '@/lib/outbox';
 import { historyFromMemory, sessionFromRows, type Change, type LibraryFacts, type MemoryRow, type SyncAnswer } from '@/rules/sync';
 import type { History, Session } from '@/rules/session';
+import type { AcceptedToday, TodayChange } from '@/rules/today-change';
 
 const PREFIX = 'ci2';
 export const keyFor = (userId: string, what: 'session' | 'last' | 'outbox' | 'history' | 'memory' | 'units' | 'push' | 'made') => `${PREFIX}:${userId}:${what}`;
@@ -93,6 +94,22 @@ export async function replacedOnServer(ids: string[]): Promise<string[]> {
   );
   if (error) throw new Error(error.message);
   return (data ?? []).map((r) => r.id as string);
+}
+
+/**
+ * The coach's changes to this workout accepted after this phone's copy was
+ * made (stage 4D), oldest first, for the phone to replay on its own copy.
+ */
+export async function acceptedTodayFor(sessionId: string, after: number): Promise<AcceptedToday[]> {
+  const { data, error } = await withTimeout(
+    browserClient().from('proposals').select('id, result').eq('status', 'accepted').eq('kind', 'today_change').eq('result->>session_id', sessionId),
+    5000,
+  );
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as { id: string; result: { plan_revision?: number; changes?: TodayChange[] } | null }[])
+    .map((p) => ({ proposalId: p.id, revision: Number(p.result?.plan_revision ?? 0), changes: p.result?.changes ?? [] }))
+    .filter((a) => a.revision > after)
+    .sort((a, b) => a.revision - b.revision);
 }
 
 /** Rebuilds a workout from the account, to carry on with it on this phone. */
