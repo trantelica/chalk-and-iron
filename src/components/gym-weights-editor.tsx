@@ -133,12 +133,17 @@ export function WeightsEditor({ gymName, notes, onSaveNotes }: { gymName: string
         {k && (
           <>
             <UnitPick label="Kettlebell" unit={k.unit} onChange={(u) => set({ kettlebells: { unit: u, sizes: [] } })} />
-            <span className="bell-grid" role="group" aria-label="Kettlebell sizes">
+            <div role="group" aria-label="Kettlebell sizes">
               {KETTLEBELL_SIZES[k.unit].map((s) => {
                 const on = k.sizes.includes(s);
-                return <button key={s} type="button" className={`btn ${on ? 'selected' : ''}`} aria-pressed={on} onClick={() => set({ kettlebells: { ...k, sizes: on ? k.sizes.filter((x) => x !== s) : [...k.sizes, s] } })}>{fmt(s)}</button>;
+                return (
+                  <label key={s} className="tick-row">
+                    <input type="checkbox" checked={on} onChange={() => set({ kettlebells: { ...k, sizes: on ? k.sizes.filter((x) => x !== s) : [...k.sizes, s] } })} />
+                    <span>{fmt(s)} {k.unit}</span>
+                  </label>
+                );
               })}
-            </span>
+            </div>
           </>
         )}
       </fieldset>

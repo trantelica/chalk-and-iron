@@ -149,3 +149,19 @@ export type PresetWeights = {
   bar: { weight: number; unit: WeightUnit };
 };
 export const fromPreset = (p: PresetWeights): Weights => ({ dumbbells: p.dumbbells, kettlebells: p.kettlebells, plates: p.plates, bar: p.bar });
+
+/** A short closed-section summary of the notes' Weights line, for example "Dumbbells 5 to 150 lb, Kettlebells 14 sizes, Heaviest barbell 535 lb". */
+export function weightsSummary(notes: string): string {
+  const r = readWeights(notes);
+  if (r.status === 'none') return 'Not recorded';
+  if (r.status === 'unreadable') return 'Edited by hand, left as it is';
+  const w = r.weights;
+  const parts: string[] = [];
+  if (w.dumbbells === 'none') parts.push('No dumbbells');
+  else if (w.dumbbells) parts.push(`Dumbbells ${fmt(w.dumbbells.min)} to ${fmt(w.dumbbells.max)} ${w.dumbbells.unit}`);
+  if (w.kettlebells === 'none') parts.push('No kettlebells');
+  else if (w.kettlebells) parts.push(`Kettlebells ${w.kettlebells.sizes.length} size${w.kettlebells.sizes.length === 1 ? '' : 's'}`);
+  if (w.plates === 'none') parts.push('No plates');
+  else if (w.plates) parts.push(`Heaviest barbell ${fmt(heaviestBarbell(w.plates, w.bar.weight))} ${w.bar.unit}`);
+  return parts.length ? parts.join(', ') : 'Not recorded';
+}

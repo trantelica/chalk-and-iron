@@ -117,6 +117,10 @@ test('Profile and gyms: the intake answers are there, and a large gym can be rev
   const me = await register(page, 'Gym Gus');
   await sql(`update public.coach_profiles set coach_style = 'neutral', how_to_coach_me = 'Keep it short' where user_id = $1`, [me]);
   await page.goto('/planner/profile');
+  // Sections start closed, each with a one-line summary; open one to use it.
+  await expect(page.locator('summary', { hasText: 'Your answers' })).toContainText('2 of 12 answered');
+  await expect(page.getByRole('combobox', { name: 'Coach style' })).toBeHidden();
+  await page.locator('summary', { hasText: 'Your answers' }).click();
   await expect(page.getByRole('combobox', { name: 'Coach style' })).toHaveValue('neutral');
   await expect(page.getByRole('textbox', { name: 'Anything else about how to coach me' })).toHaveValue('Keep it short');
 
@@ -127,14 +131,19 @@ test('Profile and gyms: the intake answers are there, and a large gym can be rev
   await expect(gym.getByText('Default gym')).toBeVisible();
   const equipment = async () => (await sql<{ equipment: string[] }>(`select equipment from public.gyms where user_id = $1 and name = 'Big Gym'`, [me]))[0].equipment;
 
+  // A new gym's parts start closed (Equipment opens once, for a gym just made), with one-line summaries.
+  await expect(gym.locator('summary', { hasText: 'Notes and gym details' })).toContainText('No notes');
+  await expect(gym.locator('summary', { hasText: 'Weights' })).toContainText('Not recorded');
+  await expect(gym.getByRole('textbox', { name: 'Notes for Big Gym' })).toBeHidden();
   // The coach's note about limits is kept as gym notes.
+  await gym.locator('summary', { hasText: 'Notes and gym details' }).click();
   await gym.getByRole('textbox', { name: 'Notes for Big Gym' }).fill('Dumbbells go to 100 lb');
   await gym.getByRole('textbox', { name: 'Notes for Big Gym' }).blur();
   await expect.poll(async () => (await sql<{ notes: string }>(`select notes from public.gyms where user_id = $1`, [me]))[0].notes).toBe('Dumbbells go to 100 lb');
 
   // Add one, then paste forty at once (with one already there).
   // A new gym opens its equipment list at once.
-  await expect(gym.getByRole('button', { name: 'Close equipment' })).toBeVisible();
+  await expect(gym.getByRole('textbox', { name: 'Add equipment to Big Gym' })).toBeVisible();
   await gym.getByRole('textbox', { name: 'Add equipment to Big Gym' }).fill('Rower');
   await gym.getByRole('textbox', { name: 'Add equipment to Big Gym' }).press('Enter');
   await expect.poll(equipment).toEqual(['Rower']);
@@ -177,7 +186,8 @@ test('Profile and gyms: the intake answers are there, and a large gym can be rev
   await hotel.getByRole('button', { name: 'Make default' }).click();
   await expect.poll(async () => (await sql<{ name: string }>(`select name from public.gyms where user_id = $1 and is_default`, [me]))[0]?.name).toBe('Hotel');
   page.once('dialog', (d) => void d.accept());
-  await hotel.getByRole('button', { name: 'Archive' }).click();
+  await hotel.locator('summary', { hasText: 'Notes and gym details' }).click();
+  await hotel.getByRole('button', { name: 'Archive this gym' }).click();
   await expect(page.getByRole('region', { name: 'Gym Hotel' })).toHaveCount(0);
   await page.getByText('1 archived gym').click();
   await page.getByRole('button', { name: 'Restore' }).click();
@@ -196,8 +206,19 @@ test('Gym presets on a phone: a new gym from a preset, untick what it lacks, add
   await expect(page.getByRole('button', { name: 'Type the gym name first' })).toBeDisabled();
   await page.getByRole('textbox', { name: 'Name of a new gym' }).fill('Hotel gym');
   // Everything is ticked, and the tap targets are large.
+  // The groups start closed, each with a count.
+  await expect(page.locator('summary', { hasText: 'Cardio' })).toContainText(/\d+ of \d+ ticked/);
   const treadmill = page.getByRole('checkbox', { name: 'Treadmill' });
+  await expect(treadmill).toBeHidden();
+  await page.locator('summary', { hasText: 'Cardio' }).click();
   await expect(treadmill).toBeChecked();
+  // One item per row: the box is to the left of its label, on the same line, and boxes line up.
+  const tb = await treadmill.boundingBox();
+  const lb = await page.getByText('Treadmill', { exact: true }).boundingBox();
+  expect(lb!.x).toBeGreaterThan(tb!.x + tb!.width - 1);
+  expect(Math.abs((lb!.y + lb!.height / 2) - (tb!.y + tb!.height / 2))).toBeLessThan(12);
+  const eb = await page.getByRole('checkbox', { name: 'Elliptical' }).boundingBox();
+  expect(Math.abs(eb!.x - tb!.x)).toBeLessThan(1);
   const box = await treadmill.locator('xpath=ancestor::label').boundingBox();
   expect(box!.height).toBeGreaterThanOrEqual(44);
   expect(box!.width).toBeLessThanOrEqual(375);
@@ -223,6 +244,7 @@ test('Gym presets on a phone: a new gym from a preset, untick what it lacks, add
   const before = (await equipment('Hotel gym'))!;
   await gym.getByRole('button', { name: 'Start from a preset' }).click();
   await gym.getByRole('button', { name: /Home gym/ }).click();
+  await gym.locator('summary', { hasText: 'Cardio' }).click();
   await expect(gym.getByText('already in the list').first()).toBeVisible();
   await gym.getByRole('button', { name: 'Clear Cardio' }).click();
   await gym.getByRole('button', { name: /^Add \d+ to the list$/ }).click();
@@ -242,6 +264,7 @@ test('Gym weights on a phone: set with taps, kept in the notes beside other note
   await page.getByRole('textbox', { name: 'Name of a new gym' }).fill('Garage');
   await page.getByRole('button', { name: 'Add gym' }).click();
   const gym = page.getByRole('region', { name: 'Gym Garage' });
+  await gym.locator('summary', { hasText: 'Notes and gym details' }).click();
   await gym.getByRole('textbox', { name: 'Notes for Garage' }).fill('Closed Sundays');
   await gym.getByRole('textbox', { name: 'Notes for Garage' }).blur();
   await expect.poll(() => notesOf('Garage')).toBe('Closed Sundays');
@@ -257,7 +280,12 @@ test('Gym weights on a phone: set with taps, kept in the notes beside other note
   await weights.getByRole('button', { name: 'More Heaviest' }).click(); // 50 -> 55
   await weights.getByRole('button', { name: 'More Heaviest' }).click(); // 60
   await weights.getByRole('group', { name: 'Kettlebells present' }).getByRole('button', { name: 'Has some' }).click();
-  await weights.getByRole('group', { name: 'Kettlebell sizes' }).getByRole('button', { name: '35', exact: true }).click();
+  const bell = weights.getByRole('group', { name: 'Kettlebell sizes' }).getByRole('checkbox', { name: '35 lb' });
+  await bell.check();
+  const bellRow = await bell.boundingBox();
+  const bellLabel = await weights.getByText('35 lb', { exact: true }).boundingBox();
+  expect(bellLabel!.x).toBeGreaterThan(bellRow!.x);
+  expect(bellRow!.height).toBeGreaterThanOrEqual(20);
   await weights.getByRole('group', { name: 'Plates present' }).getByRole('button', { name: 'Has some' }).click();
   await weights.getByRole('button', { name: 'More 45 lb plates' }).click();
   await weights.getByRole('button', { name: 'More 45 lb plates' }).click();
@@ -271,7 +299,8 @@ test('Gym weights on a phone: set with taps, kept in the notes beside other note
   // Reading back fills the section: reload, and the saved values are shown.
   await page.reload();
   const again = page.getByRole('region', { name: 'Gym Garage' });
-  await again.locator('summary', { hasText: 'Weights (recorded)' }).click();
+  await expect(again.locator('summary', { hasText: 'Weights' })).toContainText('Dumbbells 5 to 60 lb, Kettlebells 1 size, Heaviest barbell 375 lb');
+  await again.locator('summary', { hasText: 'Weights' }).click();
   await expect(again.getByRole('status').filter({ hasText: 'Heaviest barbell: 375 lb' })).toBeVisible();
   await expect(again.getByLabel('Heaviest value')).toHaveText('60 lb');
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  NOTES_MAX, emptyWeights, heaviestBarbell, parseWeightsLine, readWeights, setWeights, weightsLine, type Weights,
+  NOTES_MAX, emptyWeights, heaviestBarbell, parseWeightsLine, readWeights, setWeights, weightsLine, weightsSummary, type Weights,
 } from '@/rules/gym-weights';
 import { GYM_PRESETS, presetWeights, presetWeightsLine } from '@/rules/gym-presets';
 
@@ -115,5 +115,13 @@ describe('preset weights', () => {
     expect(top('home')).toBe(50);
     expect(top('hotel')).toBe(50);
     expect(presetWeights(GYM_PRESETS[2]).plates).toBe('none');
+  });
+});
+
+describe('weights summary for a closed section', () => {
+  it('says what is recorded in one line', () => {
+    expect(weightsSummary(weightsLine(full))).toBe('Dumbbells 5 to 120 lb, Kettlebells 5 sizes, Heaviest barbell 305 lb');
+    expect(weightsSummary('')).toBe('Not recorded');
+    expect(weightsSummary('Weights: dumbbells to about 100')).toBe('Edited by hand, left as it is');
   });
 });
