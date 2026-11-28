@@ -3,7 +3,9 @@ import Link from 'next/link';
 import { serverClient } from '@/lib/supabase/server';
 import { HomeActions } from './home-actions';
 import { ProposalCards } from '@/components/proposal-cards';
-import { trainingDay } from '@/rules/days';
+import { trainingDay, addDays, mondayOf } from '@/rules/days';
+import { checkInWeeks, checkInsInARow } from '@/rules/checkins';
+import { CoachButton } from '@/components/coach-count';
 import { loadToday } from '@/server/today';
 import type { DayState } from '@/rules/today';
 
@@ -39,6 +41,11 @@ export default async function PhoneHome() {
     supabase.from('sessions').select('workout_name').eq('status', 'active').maybeSingle(),
     loadToday(supabase, date),
   ]);
+  // Weeks the coach read the weekly summary (spec Section 5, Home): marks and the count in a row.
+  const { data: marks } = await supabase.from('weekly_checkins').select('week_start').gte('week_start', addDays(mondayOf(date), -7 * 60));
+  const checkInStarts = (marks ?? []).map((m) => m.week_start as string);
+  const inARow = checkInsInARow(checkInStarts, date);
+  const checkWeeks = checkInWeeks(checkInStarts, date);
   const ids = today.workout?.items.map((i) => i.exerciseId) ?? [];
   const { data: named } = ids.length ? await supabase.from('exercises').select('id, name').in('id', ids) : { data: [] };
   const names = ids.map((id) => (named ?? []).find((x) => x.id === id)?.name as string | undefined).filter(Boolean) as string[];
@@ -95,6 +102,12 @@ export default async function PhoneHome() {
       {c && (
         <section className="panel" aria-label="This week">
           <div className="lab">{c.name}{c.week ? ` · Week ${c.week} of ${c.weekCount}` : ''}</div>
+          {c.lastWeek && (
+            <div className="notice" role="note" aria-label="Last week of your campaign">
+              <div>This is the last week of {c.name}. Ask your coach for the next one.</div>
+              <CoachButton />
+            </div>
+          )}
           <div className="week-row">
             {c.days.map((d) => (
               <div key={d.date} className={`wk-day ${d.state} ${d.isToday ? 'is-today' : ''}`}>
@@ -104,6 +117,20 @@ export default async function PhoneHome() {
               </div>
             ))}
           </div>
+        </section>
+      )}
+      {checkInStarts.length > 0 && (
+        <section className="panel" aria-label="Weekly check-ins">
+          <div className="lab">Weekly check-ins</div>
+          <div className="week-row">
+            {checkWeeks.map((w) => (
+              <div key={w.weekStart} className={`wk-day ${w.marked ? 'done' : 'upcoming'} ${w.isThisWeek ? 'is-today' : ''}`} aria-label={`Week of ${w.label}: ${w.marked ? 'checked in' : 'no check-in'}`}>
+                <b>{w.label}</b>
+                <span className="wk-name">{w.marked ? '✓' : '–'}</span>
+              </div>
+            ))}
+          </div>
+          <div>{inARow ? `${inARow} check-in${inARow === 1 ? '' : 's'} in a row.` : 'No check-ins in a row yet.'}</div>
         </section>
       )}
       <section className="panel" aria-label="Inbox summary">
