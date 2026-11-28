@@ -121,6 +121,12 @@ export default async function PhoneHome() {
           </div>
         </section>
       )}
+      <section className="panel" aria-label="Inbox summary">
+        <div className="lab">Inbox</div>
+        <div>{today.pendingProposals ? `${today.pendingProposals} waiting for your decision, at the top of this screen.` : 'Nothing waiting.'}</div>
+        <div className="muted">Days sent from the planner and your coach&apos;s cards arrive here.</div>
+        <Link className="btn link-btn" href="/app/coach">Open the Coach screen</Link>
+      </section>
       {checkInStarts.length > 0 && (
         <section className="panel" aria-label="Weekly check-ins">
           <div className="lab">Weekly check-ins</div>
@@ -136,12 +142,6 @@ export default async function PhoneHome() {
           <div className="muted">A week gets its tick when your coach reads that week&apos;s summary. Only finished weeks count.</div>
         </section>
       )}
-      <section className="panel" aria-label="Inbox summary">
-        <div className="lab">Inbox</div>
-        <div>{today.pendingProposals ? `${today.pendingProposals} waiting for your decision, at the top of this screen.` : 'Nothing waiting.'}</div>
-        <div className="muted">Days sent from the planner and your coach&apos;s cards arrive here.</div>
-        <Link className="btn link-btn" href="/app/coach">Open the Coach screen</Link>
-      </section>
       <div className="muted">Your library holds {count ?? 0} exercises.</div>
       <HomeActions passkeyCheck />
       <div className="row">

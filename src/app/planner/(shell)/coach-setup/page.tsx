@@ -65,13 +65,13 @@ export default function CoachSetup() {
         Set up your coach in order. Your coach is your own ChatGPT or Claude project: you talk to it there, not inside Chalk and Iron. Chalk and Iron receives the coach&apos;s cards for you to accept or decline. It reads your training in Chalk and Iron and can only propose changes: nothing changes until you accept it in the app. Nothing on this page calls an AI service.
       </div>
 
-      <section className="pbox step" aria-label="Step 1, the coach intake">
+      <section className="pbox setup-step" aria-label="Step 1, the coach intake">
         <Head n={1} title="Tell your coach about you" />
         <IntakeForm intake={intake} />
         <div className="muted">You can change any answer later on <Link href="/planner/profile">Profile and gyms</Link>, where you also set your gym&apos;s equipment.</div>
       </section>
 
-      <section className="pbox step" aria-label="Step 2, connect your coach app">
+      <section className="pbox setup-step" aria-label="Step 2, connect your coach app">
         <Head n={2} title="Connect ChatGPT or Claude" />
         <div className="stack">
           <div className="muted">Your connector link. You paste this into your coach app. There is no key or password to copy.</div>
@@ -95,7 +95,7 @@ export default function CoachSetup() {
         <div className="muted">The apps change their menus now and then. If a name differs a little, look for the closest one. Connecting needs a ChatGPT or Claude plan that allows your own connectors.</div>
       </section>
 
-      <section className="pbox step" aria-label="Step 3, the coach instructions">
+      <section className="pbox setup-step" aria-label="Step 3, the coach instructions">
         <Head n={3} title="Give your coach its instructions" />
         <div className="muted">Paste this into the instructions of your coach project, once the connector is attached. It tells the coach to read your data first and to only propose changes.</div>
         <CopyButton text={COACH_INSTRUCTIONS} label="Copy the instructions" className="btn primary small-primary" />
@@ -103,7 +103,7 @@ export default function CoachSetup() {
         <div className="muted">In ChatGPT, start each chat inside your coach project, so these instructions apply. If it ever answers without using Chalk and Iron, name it: type <em>@Chalk and Iron</em> in your message. Your own ChatGPT or Claude personal settings (such as custom instructions and memory) also shape your coach&apos;s tone.</div>
       </section>
 
-      <section className="pbox step" aria-label="Step 4, check your setup">
+      <section className="pbox setup-step" aria-label="Step 4, check your setup">
         <Head n={4} title="Check your setup" />
         <div className="muted">In a chat inside your coach project, send this. Your coach should reply with exactly one line:</div>
         <div className="row"><strong>&ldquo;check setup&rdquo;</strong><CopyButton text="check setup" label="Copy" /></div>
@@ -111,18 +111,18 @@ export default function CoachSetup() {
         <div className="muted">If it replies with anything else, paste the instructions from step 3 into your coach project again, and send &ldquo;check setup&rdquo; once more.</div>
       </section>
 
-      <section className="pbox step" aria-label="Step 5, the coach link">
+      <section className="pbox setup-step" aria-label="Step 5, the coach link">
         <Head n={5} title="Save your coach link" />
         <CoachLinkBox link={coachLink.link} reload={coachLink.reload} />
       </section>
 
-      <section className="pbox step" aria-label="Step 6, the connection test">
+      <section className="pbox setup-step" aria-label="Step 6, the connection test">
         <Head n={6} title="Test the connection" />
         <div className="muted">Start the test, then ask your coach a question about you in your coach chat. When it reads your data, this page tells you the connection works.</div>
         <ConnectionTest />
       </section>
 
-      <section className="pbox step" aria-label="Step 7, let's get started">
+      <section className="pbox setup-step" aria-label="Step 7, let's get started">
         <Head n={7} title="Let's get started" />
         <div className="muted">In your coach chat, say this. Your coach reads your answers, asks about anything you left open, and proposes a first campaign. Its proposals arrive in <Link href="/planner/proposals">Proposals</Link> and on your phone&apos;s Coach screen for you to accept or decline.</div>
         <div className="row"><strong>&ldquo;Let&apos;s get started&rdquo;</strong><CopyButton text="Let's get started" label="Copy" /></div>

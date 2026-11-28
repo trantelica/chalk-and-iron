@@ -276,7 +276,7 @@ What a day actually plans is worked out when needed, never stored: the workout's
 | Field | Type | Notes |
 |---|---|---|
 | local_date | date | The day it belongs to, using the 3:00 am rollover in the time zone at the start |
-| source_kind | 'campaign_day' or 'ad_hoc' | |
+| source_kind | 'campaign_day' or 'ad_hoc' | The value `ad_hoc` stays as it is in the database. On screen and in the documents the kind is an "ad-hoc workout" (formerly "Quick workout"), one kind of "off-plan workout" (Nate, 27 Nov); the data was not changed |
 | campaign_day_id, workout_id | links or empty | Where the plan came from |
 | workout_name | text | Copied at the start |
 | gym_id | link or empty | |
@@ -1193,3 +1193,9 @@ The items still open (the Coach button opening a ChatGPT project, default work a
    - question 39: Skip inside a superset skips the whole superset;
    - question 41, breaking a superset during a workout: the five details that are this design's own choices, listed in that row.
 3. Nate approved this design on 17 November 2026. What is being built now is in `docs/NEXT.md`; what was done, by date, is in `docs/LOG.md`.
+
+### Screen fixes (27 Nov, Sonnet 5.5, medium)
+
+- **The workout's + and − buttons.** The Coach setup step boxes used the class `step`, which also matched the workout's `btn step` buttons and made each a column with its label at the top. The setup boxes are now `setup-step`. A browser test compares each button's centre with its number's centre on a phone and a desktop width.
+- **Start another workout** (`/app/workout` with nothing running) shows two choices. **Pick a workout** is a search box over the saved workouts, with the eight most recently started first (from `sessions.workout_id` and `started_at`, newest 500 sessions read) and the rest A to Z; a search shows matches A to Z. **Ad-hoc workout** (formerly "Quick workout") is the exercise picker, with **Start workout** above the list. An ad-hoc session is still saved with source `ad_hoc`; the database is unchanged. "Off-plan workout" is the general term (spec Section 1).
+- **The planner's Menu** (`src/app/planner/(shell)/shell.tsx`): four tabs (Plan, Library, History, Proposals) that never wrap; a Menu button holds Vocabulary, Coach setup, Profile and gyms, Account, Admin (read from `profiles.is_admin` in the layout), Phone home and the lb/kg switch. It closes on choosing, Escape or a click outside.

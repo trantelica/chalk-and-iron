@@ -15,7 +15,7 @@ export default async function WorkoutPage({ searchParams }: { searchParams: Prom
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect('/signin');
 
-  const [ex, vocab, alts, wk, items, prof, units] = await Promise.all([
+  const [ex, vocab, alts, wk, items, prof, units, used] = await Promise.all([
     supabase.from('exercises').select('id, name, muscle_group_id, focus_id, equipment_id, default_unit, work_seconds, rest_seconds, note, assisted, load_count').is('archived_at', null).order('name'),
     supabase.from('vocabulary_terms').select('id, name, kind, parent_id, archived_at').order('sort_order'),
     supabase.from('exercise_alternates').select('exercise_id, tier, name'),
@@ -23,7 +23,11 @@ export default async function WorkoutPage({ searchParams }: { searchParams: Prom
     supabase.from('workout_items').select('workout_id, position, exercise_id, sets, reps, rest_seconds, superset_letter').order('position'),
     supabase.from('profiles').select('time_zone').maybeSingle(),
     supabase.from('exercise_display_units').select('exercise_id, unit'),
+    // When each saved workout was last started, for the chooser's "Recently used" list.
+    supabase.from('sessions').select('workout_id, started_at').not('workout_id', 'is', null).order('started_at', { ascending: false }).limit(500),
   ]);
+  const lastUsed = new Map<string, string>();
+  for (const u of used.data ?? []) if (!lastUsed.has(u.workout_id as string)) lastUsed.set(u.workout_id as string, u.started_at as string);
 
   const term = new Map((vocab.data ?? []).map((v) => [v.id as string, v.name as string]));
   const altsBy = new Map<string, LibExercise['alternates']>();
@@ -51,6 +55,7 @@ export default async function WorkoutPage({ searchParams }: { searchParams: Prom
   const workouts: LibWorkout[] = (wk.data ?? []).map((w) => ({
     id: w.id as string,
     name: w.name as string,
+    lastUsed: lastUsed.get(w.id as string) ?? null,
     items: (items.data ?? [])
       .filter((i) => i.workout_id === w.id)
       .map((i) => ({

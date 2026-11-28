@@ -34,8 +34,9 @@ const liveSets = async (email: string) => (await sql<{ n: number }>(
 test('sets logged offline reach the account exactly once, and the workout survives closing the app', async ({ page, context }) => {
   const email = await register(page, 'Offline Olly');
 
-  // Start a quick workout with one exercise.
+  // Start an ad-hoc workout with one exercise.
   await page.goto('/app/workout');
+  await page.getByRole('button', { name: /^Ad-hoc workout/ }).click();
   await page.getByLabel('Search your library').fill('Barbell Curl');
   await page.getByRole('button', { name: /^Barbell Curl/ }).first().click();
   await page.getByRole('button', { name: 'Start workout' }).click();
