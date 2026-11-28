@@ -694,7 +694,7 @@ Use the Test Account (the coach eval account). Resetting it (step AH) gives it c
 
 1. [x] On your iPhone open https://chalkandiron.vercel.app/app (the app's Home). Under **Weekly check-ins** you see four ticked weeks and the line "4 check-ins in a row". Passed by Nate on 27 Nov.
 2. [x] In your coach chat in ChatGPT or Claude, ask the coach for the summary of the week five weeks back (the gap before the older check-in). Reload Home: the count grows because that older week joins the run. (A week with no summary read breaks the count; a week read twice still counts once.) Passed by Nate on 27 Nov.
-3. [ ] On your computer open https://chalkandiron.vercel.app/planner, then **Library**, then **Campaigns**. Make a campaign one week long (name it `Last week test`), then press **Activate**. Open Home on your iPhone: a coloured note says "This is the last week of Last week test. Ask your coach for the next one." with an **Ask my coach** button. Tap it: your coach project opens, with the message "My campaign ends this week. Ask me how it went, then propose the next one." copied, ready to paste. **Failed on 27 Nov** (the Coach button only opened the Coach screen); re-checked in step AW, item 4 (the Ask my coach button became a plain note with an Open my coach link).
+3. [x] On your computer open https://chalkandiron.vercel.app/planner, then **Library**, then **Campaigns**. Make a campaign one week long (name it `Last week test`), then press **Activate**. Open Home on your iPhone: a coloured note says "This is the last week of Last week test. Ask your coach for the next one." with an **Ask my coach** button. Tap it: your coach project opens, with the message "My campaign ends this week. Ask me how it went, then propose the next one." copied, ready to paste. **Failed on 27 Nov** (the Coach button only opened the Coach screen); re-checked in step AW, item 4 (the Ask my coach button became a plain note with an Open my coach link). *(Failed on 27 Nov; replaced by step AW item 4.)*
 4. [x] Press **End campaign** on it in the planner. The note goes. (A campaign longer than one week shows the note only in its final week.) Passed by Nate on 27 Nov.
 
 ### AW. The coach guide, Open my coach and "check setup", after the merge
@@ -708,7 +708,7 @@ First, re-paste the updated coach instructions (they changed in this merge): on 
 5. [ ] Start a workout (**Start another workout**, then **Ad-hoc workout**) and tap an exercise's swap: the list has the three stored options and the library search, and no row for asking the coach.
 6. [ ] On your computer, click **Coach setup**, step 5 (**Link to your coach project**): empty it and click **Save the link**. On your iPhone open the Coach screen: instead of **Open my coach** it says "No coach link is saved yet. Add it in Coach setup, step 5." and offers **Open Coach setup**. Then save your link again.
 7. [ ] On your computer on **Coach setup**, scroll to the end: **What you can ask your coach** is there too, with **Open my coach**. Step 3 now has two notes under the instructions (start ChatGPT chats inside your coach project and name "@Chalk and Iron" if it ever answers without using it; your own ChatGPT or Claude settings also shape the tone). **Step 4, Check your setup** shows "check setup" and the line the coach should reply with.
-8. [ ] In a chat inside your coach project in ChatGPT, then in Claude, send **check setup**. Each replies with exactly this one line: "Chalk and Iron coach ready, instructions version 7" (version 6 before the coach guides change of 28 Nov; step BA below). If one does not, paste the instructions into that project again (Coach setup, step 3) and try once more.
+8. [x] In a chat inside your coach project in ChatGPT, then in Claude, send **check setup**. Each replies with exactly this one line: "Chalk and Iron coach ready, instructions version 7" (version 6 before the coach guides change of 28 Nov; step BA below). If one does not, paste the instructions into that project again (Coach setup, step 3) and try once more. *(Replaced by step BA, which expects version 7.)*
 
 ### AX. Screen fixes, after the merge
 
@@ -780,7 +780,7 @@ On your computer open https://chalkandiron.vercel.app/planner.
 
 The coach's pasted instructions are now short (under 500 words), and for each kind of request the coach reads a guide from Chalk and Iron first, with a new tool, `get_guide`. The guides hold the same rules the long instructions had; nothing new is advised yet. The design is in `docs/TECHNICAL_DESIGN.md` Section 3, "Coach guides".
 
-### AZ. Supabase SQL Editor, **before** merging
+### AZ. Supabase SQL Editor, **before** merging (run by Nate on 28 Nov)
 
 **Run this before the pull request is merged.** Run before merging, nothing changes for the app you have now: the live app keeps logging calls exactly as it does today. Merge first and the coach's guide reads would not be noted in the call log until you run it (everything else would still work).
 
@@ -788,7 +788,7 @@ The coach's pasted instructions are now short (under 500 words), and for each ki
 
 **Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the new query, and click **Run**.
 
-1. [ ] [`20261128000100_guide_topic_in_call_log.sql`](https://github.com/trantelica/chalk-and-iron/blob/coach-guides/supabase/migrations/20261128000100_guide_topic_in_call_log.sql) It should end with "Success. No rows returned". Safe to run more than once.
+1. [x] [`20261128000100_guide_topic_in_call_log.sql`](https://github.com/trantelica/chalk-and-iron/blob/coach-guides/supabase/migrations/20261128000100_guide_topic_in_call_log.sql) It should end with "Success. No rows returned". Safe to run more than once.
 
 Until the pull request is merged this link works from the pull request's branch; afterwards it is also at `.../blob/main/supabase/migrations/20261128000100_guide_topic_in_call_log.sql`.
 
