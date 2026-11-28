@@ -650,33 +650,38 @@ After the merge the link is also at `.../blob/main/supabase/migrations/202611270
 
 Fixes from step AO. Do it after the merge, on your iPhone and in your computer's browser. Nothing to run in Supabase.
 
-### AR. Presets, weights and priorities, after the merge
+### AR. Presets, weights and priorities, after the merge (done by Nate, 27 Nov)
 
-1. [ ] On your computer go to https://chalkandiron.vercel.app/planner/profile and sign in as the Test Account. Under **About you**, open the **Priority 2nd** box: a priority already chosen in **1st** is greyed and says "(already chosen)". It cannot be picked twice. Pick **Other (write it in)** in **Priority 3rd** and type the same words as your written-in 2nd one, then press Enter: the box goes back to **None** and a red line beside it says why.
-2. [ ] On your iPhone open https://chalkandiron.vercel.app/planner/profile in Safari (sign in if asked). Under **Gyms and equipment** tap **Add a gym from a preset**. Tap the name box, type "Hotel test" and tap **Hotel or corporate gym**. Every item is ticked, in groups. Untick two items, tap **Clear** on one group, then **Select all** on it again. The line above the button says how many will be added. Tap **Add gym with N items**.
-3. [ ] The new gym's list opens with only what you ticked, in A to Z order. Tap **Start from a preset**, tap **Home gym**: items already in the list say "already in the list". Tap **Add N to the list**. Nothing you had is removed.
-4. [ ] Do the same with **Commercial gym** on a gym named "Big test". It is a long list: check that you can scroll it and tick or untick with your thumb, and tell the agent if any row is hard to tap.
-5. [ ] The three lists are approved. Their weights are in the pull request description; tell the agent any to change.
-6. [ ] On your iPhone, on the "Big test" gym tap **Weights** (just under **Notes and gym details**). The Commercial weights are filled in (dumbbells, kettlebells, plates, bar, and the **Heaviest barbell** line). Tap **+** or **-** on **Heaviest** under Dumbbells, add plates with **+**, and tap **Save weights**.
-7. [ ] Open the gym's **Notes and gym details**: your own notes are still there, and below them is one line starting "Weights:". Reload the page: the **Weights** line under the title shows your numbers and opens with the same numbers.
-8. [ ] On a gym with none, tap **Weights**, tap **Has some** beside Dumbbells, Kettlebells and Plates, set them with the buttons, and **Save weights**. Tell the agent if any button is hard to tap.
-9. [ ] In the Notes box change the Weights line by hand (for example type "Weights: dumbbells to about 100") and leave the box. Open **Weights**: it says the line cannot be read and leaves it as it is. Put the line back (or delete it) afterwards.
-10. [ ] On "Hotel test" tap **Start from a preset** then **Home gym**: the box **Also record this preset's typical weights** starts unticked because the gym already has weights.
-11. [ ] Ask your coach for a workout at a gym with weights recorded: it should not use a dumbbell or barbell load the gym cannot make.
-12. [ ] Archive the test gyms when finished (**Archive this gym**, inside **Notes and gym details**).
+1. [x] On your computer go to https://chalkandiron.vercel.app/planner/profile and sign in as the Test Account. Under **About you**, open the **Priority 2nd** box: a priority already chosen in **1st** is greyed and says "(already chosen)". It cannot be picked twice. Pick **Other (write it in)** in **Priority 3rd** and type the same words as your written-in 2nd one, then press Enter: the box goes back to **None** and a red line beside it says why.
+2. [x] On your iPhone open https://chalkandiron.vercel.app/planner/profile in Safari (sign in if asked). Under **Gyms and equipment** tap **Add a gym from a preset**. Tap the name box, type "Hotel test" and tap **Hotel or corporate gym**. Every item is ticked, in groups. Untick two items, tap **Clear** on one group, then **Select all** on it again. The line above the button says how many will be added. Tap **Add gym with N items**.
+3. [x] The new gym's list opens with only what you ticked, in A to Z order. Tap **Start from a preset**, tap **Home gym**: items already in the list say "already in the list". Tap **Add N to the list**. Nothing you had is removed.
+4. [x] Do the same with **Commercial gym** on a gym named "Big test". It is a long list: check that you can scroll it and tick or untick with your thumb, and tell the agent if any row is hard to tap.
+5. [x] The three lists are approved. Their weights are in the pull request description; tell the agent any to change.
+6. [x] On your iPhone, on the "Big test" gym tap **Weights** (just under **Notes and gym details**). The Commercial weights are filled in (dumbbells, kettlebells, plates, bar, and the **Heaviest barbell** line). Tap **+** or **-** on **Heaviest** under Dumbbells, add plates with **+**, and tap **Save weights**.
+7. [x] Open the gym's **Notes and gym details**: your own notes are still there, and below them is one line starting "Weights:". Reload the page: the **Weights** line under the title shows your numbers and opens with the same numbers.
+8. [x] On a gym with none, tap **Weights**, tap **Has some** beside Dumbbells, Kettlebells and Plates, set them with the buttons, and **Save weights**. Tell the agent if any button is hard to tap.
+9. [x] In the Notes box change the Weights line by hand (for example type "Weights: dumbbells to about 100") and leave the box. Open **Weights**: it says the line cannot be read and leaves it as it is. Put the line back (or delete it) afterwards.
+10. [x] On "Hotel test" tap **Start from a preset** then **Home gym**: the box **Also record this preset's typical weights** starts unticked because the gym already has weights.
+11. [x] Ask your coach for a workout at a gym with weights recorded: it should not use a dumbbell or barbell load the gym cannot make.
+12. [x] Archive the test gyms when finished (**Archive this gym**, inside **Notes and gym details**).
 
 Tell the agent which items pass or fail.
 
 ## 27. Gym screen layout: tick rows and collapsible sections (27 November 2026)
 
-### AS. Layout check, after the merge
+### AS. Layout check, after the merge (done by Nate, 27 Nov)
 
 Nothing is saved differently; only what is shown changes.
 
-1. [ ] On your iPhone open https://chalkandiron.vercel.app/planner/profile in Safari. **About you** and each gym show closed, each with one line under its title (for example "7 of 12 answered", "2 lines", "Dumbbells 5 to 150 lb, Kettlebells 14 sizes, Heaviest barbell 535 lb", "79 items"). Tap a title to open it; tap again to close. Opening one leaves the others as they are.
-2. [ ] Tap **Start from a preset**, then **Commercial gym**, then open a group such as **Cardio**. Each item is one row: the tick box on the left, its name right beside it, all boxes in one straight column. Tap the name (not only the box): it ticks. Tell the agent if any row is hard to tap.
-3. [ ] Open **Weights**, tap **Has some** under Kettlebells: the sizes are tick rows in the same way.
-4. [ ] On your computer, open the same page: the same layout, sections closed.
-5. [ ] To archive a gym, open **Notes and gym details**; **Archive this gym** is there.
+1. [x] On your iPhone open https://chalkandiron.vercel.app/planner/profile in Safari. **About you** and each gym show closed, each with one line under its title (for example "7 of 12 answered", "2 lines", "Dumbbells 5 to 150 lb, Kettlebells 14 sizes, Heaviest barbell 535 lb", "79 items"). Tap a title to open it; tap again to close. Opening one leaves the others as they are.
+2. [x] Tap **Start from a preset**, then **Commercial gym**, then open a group such as **Cardio**. Each item is one row: the tick box on the left, its name right beside it, all boxes in one straight column. Tap the name (not only the box): it ticks. Tell the agent if any row is hard to tap.
+3. [x] Open **Weights**, tap **Has some** under Kettlebells: the sizes are tick rows in the same way.
+4. [x] On your computer, open the same page: the same layout, sections closed.
+5. [x] To archive a gym, open **Notes and gym details**; **Archive this gym** is there.
 
 Tell the agent which items pass or fail.
+
+## 28. A triangle on each collapsible section (27 November 2026)
+
+### AT. After the merge
+1. [ ] On your iPhone open https://chalkandiron.vercel.app/planner/profile. Each closed section (**About you**, and each gym's **Notes and gym details**, **Weights** and **Equipment**) has a small triangle on the left of its title, pointing right. Tap a title: the section opens and the triangle turns to point down. Tap again: it turns back.

@@ -389,3 +389,13 @@ textarea.is-saved { border-color: var(--accent); }
 .coll[open] > summary > .coll-sum { display: none; }
 .coll-body { padding: 4px 0 8px; }
 .coll-box { border: 1px solid var(--line); border-radius: var(--radius-small); padding: 0 10px; }
+/* The open-or-closed triangle: points right when closed, turns down when open. Drawn in the text's own colour, so every skin keeps it. */
+.coll > summary, .weights-details > summary { list-style: none; position: relative; padding-left: 26px; }
+.coll > summary::-webkit-details-marker, .weights-details > summary::-webkit-details-marker { display: none; }
+.coll > summary::before, .weights-details > summary::before {
+  content: ''; position: absolute; left: 4px; top: 50%; width: 0; height: 0; margin-top: -6px;
+  border-style: solid; border-width: 6px 0 6px 10px; border-color: transparent transparent transparent currentColor;
+  transition: transform 150ms ease;
+}
+.coll[open] > summary::before, .weights-details[open] > summary::before { transform: rotate(90deg); }
+.coll > summary:focus-visible, .weights-details > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
