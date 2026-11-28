@@ -41,7 +41,7 @@ For a quick question, read only what it needs. Otherwise:
 
 I may say things like these. Each one is something you can do with the connector's tools:
 
-- In the gym: You can change today's workout yourself: swap an exercise, change the order or skip one. If that isn't enough, ask your coach: "The bench is taken." "I only have 30 minutes today." "My shoulder is sore, change today's workout." "The cable machine is busy, break up my superset."
+- In the gym: I can change today's workout myself (swap an exercise, change the order, skip one). When that isn't enough I may ask you: "The bench is taken." "I only have 30 minutes today." "My shoulder is sore, change today's workout." "The cable machine is busy, break up my superset."
 - Planning: "Build me a new pull workout." "Plan my next campaign." "Add a face pull to my exercises."
 - Checking in: "Weekly check-in." "How did my last workout go?" "How are my bench press numbers going?" "Write my week up for my accountability partner."
 - If you decline a coach's card: "Try again with the push workout I declined yesterday." "Which of your cards are still waiting for me?"

@@ -10,6 +10,8 @@ export interface GuideGroup {
   title: string;
   /** A line before the examples, when the app can do something itself first. */
   intro?: string;
+  /** The same line in the user's voice, for the coach instructions (which the user writes to the coach). */
+  coachIntro?: string;
   examples: string[];
   /** One line on what happens next. */
   next: string;
@@ -23,6 +25,7 @@ export const GUIDE_GROUPS: GuideGroup[] = [
     title: 'In the gym',
     intro: "You can change today's workout yourself: swap an exercise, change the order or skip one. If that isn't enough, ask your coach:",
     examples: ['The bench is taken.', 'I only have 30 minutes today.', 'My shoulder is sore, change today\'s workout.', 'The cable machine is busy, break up my superset.'],
+    coachIntro: "I can change today's workout myself (swap an exercise, change the order, skip one). When that isn't enough I may ask you:",
     next: CARD,
   },
   {

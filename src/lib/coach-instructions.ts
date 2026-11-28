@@ -47,7 +47,7 @@ export const COACH_INSTRUCTIONS: string = [
   "",
   "I may say things like these. Each one is something you can do with the connector's tools:",
   "",
-  ...GUIDE_GROUPS.map((g) => `- ${g.title}: ` + (g.intro ? g.intro + " " : "") + g.examples.map((x) => `\"${x}\"`).join(" ")),
+  ...GUIDE_GROUPS.map((g) => `- ${g.title}: ` + (g.coachIntro ? g.coachIntro + " " : "") + g.examples.map((x) => `\"${x}\"`).join(" ")),
   "",
   "**You can only propose**",
   "",
