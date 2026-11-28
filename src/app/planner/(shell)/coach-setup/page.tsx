@@ -59,7 +59,7 @@ export default function CoachSetup() {
   return (
     <>
       <div className="muted">
-        Set up your coach in order. Your coach is your own ChatGPT or Claude project. It reads your training in Chalk and Iron and can only propose changes: nothing changes until you accept it in the app. Nothing on this page calls an AI service.
+        Set up your coach in order. Your coach is your own ChatGPT or Claude project: you talk to it there, not inside Chalk and Iron. Chalk and Iron receives the coach&apos;s cards for you to accept or decline. It reads your training in Chalk and Iron and can only propose changes: nothing changes until you accept it in the app. Nothing on this page calls an AI service.
       </div>
 
       <section className="pbox step" aria-label="Step 1, the coach intake">

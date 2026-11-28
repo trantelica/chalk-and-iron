@@ -4,8 +4,10 @@ import { serverClient } from '@/lib/supabase/server';
 import { HomeActions } from './home-actions';
 import { ProposalCards } from '@/components/proposal-cards';
 import { trainingDay, addDays, mondayOf } from '@/rules/days';
-import { checkInWeeks, checkInsInARow } from '@/rules/checkins';
-import { CoachButton } from '@/components/coach-count';
+import { checkInWeeks, checkInLine } from '@/rules/checkins';
+import { AskCoach } from '@/components/ask-coach';
+import { LAST_WEEK_MESSAGE } from '@/rules/ask-coach';
+import { safeCoachLink } from '@/rules/coach-intake';
 import { loadToday } from '@/server/today';
 import type { DayState } from '@/rules/today';
 
@@ -22,7 +24,7 @@ export default async function PhoneHome() {
   if (!auth.user) redirect('/signin');
   const { data: p } = await supabase
     .from('profiles')
-    .select('display_name, is_admin, reset_notice_at, delete_requested_at, time_zone')
+    .select('display_name, is_admin, reset_notice_at, delete_requested_at, time_zone, coach_link')
     .maybeSingle();
   if (!p) {
     return (
@@ -44,7 +46,8 @@ export default async function PhoneHome() {
   // Weeks the coach read the weekly summary (spec Section 5, Home): marks and the count in a row.
   const { data: marks } = await supabase.from('weekly_checkins').select('week_start').gte('week_start', addDays(mondayOf(date), -7 * 60));
   const checkInStarts = (marks ?? []).map((m) => m.week_start as string);
-  const inARow = checkInsInARow(checkInStarts, date);
+  const checkLine = checkInLine(checkInStarts, date);
+  const coachLink = safeCoachLink((p as { coach_link?: string | null }).coach_link);
   const checkWeeks = checkInWeeks(checkInStarts, date);
   const ids = today.workout?.items.map((i) => i.exerciseId) ?? [];
   const { data: named } = ids.length ? await supabase.from('exercises').select('id, name').in('id', ids) : { data: [] };
@@ -104,8 +107,8 @@ export default async function PhoneHome() {
           <div className="lab">{c.name}{c.week ? ` · Week ${c.week} of ${c.weekCount}` : ''}</div>
           {c.lastWeek && (
             <div className="notice" role="note" aria-label="Last week of your campaign">
-              <div>This is the last week of {c.name}. Ask your coach for the next one.</div>
-              <CoachButton />
+              <div>This is the last week of {c.name}. Ask your coach for the next one. Your coach is in ChatGPT or Claude: this copies a message for you to paste there.</div>
+              <AskCoach message={LAST_WEEK_MESSAGE} coachLink={coachLink} />
             </div>
           )}
           <div className="week-row">
@@ -122,15 +125,16 @@ export default async function PhoneHome() {
       {checkInStarts.length > 0 && (
         <section className="panel" aria-label="Weekly check-ins">
           <div className="lab">Weekly check-ins</div>
-          <div className="week-row">
+          <div className="ci-weeks">
             {checkWeeks.map((w) => (
-              <div key={w.weekStart} className={`wk-day ${w.marked ? 'done' : 'upcoming'} ${w.isThisWeek ? 'is-today' : ''}`} aria-label={`Week of ${w.label}: ${w.marked ? 'checked in' : 'no check-in'}`}>
-                <b>{w.label}</b>
-                <span className="wk-name">{w.marked ? '✓' : '–'}</span>
+              <div key={w.weekStart} className={`ci-week ${w.marked ? 'done' : ''} ${w.isThisWeek ? 'this-week' : ''}`} aria-label={`${w.title}: ${w.isThisWeek ? 'not over yet' : w.marked ? 'checked in' : 'no check-in'}`}>
+                <b>{w.title}</b>
+                {w.isThisWeek ? <span>not over yet</span> : <span className="ci-mark">{w.marked ? '✓' : '–'}</span>}
               </div>
             ))}
           </div>
-          <div>{inARow ? `${inARow} check-in${inARow === 1 ? '' : 's'} in a row.` : 'No check-ins in a row yet.'}</div>
+          <div>{checkLine}</div>
+          <div className="muted">A week gets its tick when your coach reads that week&apos;s summary. Only finished weeks count.</div>
         </section>
       )}
       <section className="panel" aria-label="Inbox summary">

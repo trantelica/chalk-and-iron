@@ -12,7 +12,7 @@ The tappable prototype is the reference for look, layout and interaction: `proto
 
 ### Rules the build must never break
 
-1. **No AI inside the app.** The app makes no outgoing calls to any LLM. The user's LLM calls the app, never the reverse. All coaching comes from the user's own ChatGPT or Claude project through the connector.
+1. **No AI inside the app** (confirmed by Nate, 27 Nov 2026). The app makes no outgoing calls to any LLM. The user's LLM calls the app, never the reverse. All coaching comes from the user's own ChatGPT or Claude project through the connector.
 2. **No silent coach changes.** Every change a coach requests arrives as a proposal the user accepts or rejects. Nothing a coach sends is applied directly.
 3. **The library is never changed by use.** A workout never alters an exercise. A campaign never alters a workout. Day-level changes live on the campaign day only.
 4. **One canonical unit.** Weights are stored in pounds. Entry and display use each exercise's own unit, pounds or kilograms.
@@ -60,7 +60,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - **Workouts** list exercises in order with sets, reps, an optional rest that overrides the exercise default, and an optional superset letter. A workout can be copied.
 - **Campaigns** run one to six consecutive weeks. Each day holds a workout or is a rest day.
 - A campaign day can override the exercise, sets, reps, weight and rest for any row. Overrides apply to that day only.
-- When a campaign ends, the app prompts the user to ask their coach for the next one. It does not repeat or extend by itself. During the campaign's last week, Home shows a note to ask the coach for the next one, with the Coach button (Nate, 24 Nov). The user can **run a finished campaign again** from a new start date: the same campaign, not a copy (Nate, 21 Nov).
+- When a campaign ends, the app prompts the user to ask their coach for the next one. It does not repeat or extend by itself. During the campaign's last week, Home shows a note to ask the coach for the next one, with an **Ask my coach** button that copies a ready message and opens the user's coach project (Nate, 24 Nov; 27 Nov). The user can **run a finished campaign again** from a new start date: the same campaign, not a copy (Nate, 21 Nov).
 
 ### Logging a workout
 
@@ -112,7 +112,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 
 ### Coach
 
-- A Coach button on the phone opens the user's own LLM project.
+- The coach is not inside Chalk and Iron: the user talks to it in their own ChatGPT or Claude project, and Chalk and Iron receives the coach's cards to accept or decline. The phone has no chat with the coach. **Ask my coach** (Nate, 27 Nov, keeping rule 1) copies a ready-made message to the clipboard and opens the user's coach project (the https link saved in Coach setup), with the line "Copied. Paste it into your coach chat and send." If no link is saved it says so and points to Coach setup; if copying is refused, the message is shown in a box to select. It appears on the Coach screen (Weekly check-in; Something's taken at the gym, change today's workout; Plan my next campaign; How did my last workout go?), in Home's last-week note, and in the swap sheet.
 - The coach reads the user's profile, gyms, library and history, and proposes changes. Section 4 covers the connector.
 - The app keeps a coach profile and gym profiles (equipment lists) that the coach reads. The coach profile is filled in by a **coach intake** (Nate, 24 Nov), the first step of Coach setup: coach style, experience, up to three ranked priorities, progression pace, workout length, days per week, variety, goals, injuries and limits, exercises I like, exercises to avoid, and anything else about how to coach me. Section 4, "Coach intake", has the choices. If the intake is skipped, the coach runs it as a conversation and proposes the answers as one profile update.
 - Home's week view marks each week in which the coach read the weekly summary (a check-in), with a count of check-ins in a row (Nate, 24 Nov).
@@ -219,7 +219,7 @@ The coach reads freely but can only propose. A proposal changes nothing until th
 - The user pastes one link into their LLM's connector settings and signs in with their app account. There are no keys to copy.
 - That sign-in limits the connector to the user's own data. The user can disconnect it from app settings.
 - A setup page in the planner walks through the steps for ChatGPT and for Claude with screenshots.
-- The user saves the link to their coach project in app settings. The Coach button opens that link.
+- The user saves the link to their coach project in Coach setup. Ask my coach and Open my coach open that link; the coach is in ChatGPT or Claude, not in Chalk and Iron.
 
 ### Read tools
 
@@ -403,7 +403,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 
 - Lists the three stored alternates with their tier, then a search of the library to pick any other exercise (Nate, 19 Nov).
 - Choosing one replaces the exercise for today and adds it to the library if it is not there, with a one-tap confirm of its suggested details (Section 2, Quick-swap).
-- A fourth row, "Ask my coach for another", opens the coach.
+- A fourth row, "Ask my coach for another", copies a message about the swap and opens the user's coach project (the coach is in ChatGPT or Claude, not in the app).
 
 ### Phone: coach inbox (prototyped)
 
@@ -421,7 +421,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | Screen | Contents |
 | --- | --- |
 | Sign in and register | Opening an invite link, name and email, passkey setup, sign-in, first-run setup steps |
-| Home | Today's workout with a Start button, pending proposals, the campaign week at a glance, and Start another workout. Today's workout is a day sent to the phone for today if there is one, otherwise the active campaign's day for today with its overrides. The week runs Monday to Sunday, each day marked Done, Missed, Today, upcoming or Rest. Built 19 Nov; the planner (Phase 3) and the coach (Phase 4) are what fill it, and the proposals inbox comes with the coach. During the active campaign's last week it shows a note to ask the coach for the next one, with the Coach button, and each week carries a check-in mark when the coach read its weekly summary, with a count of check-ins in a row (Phase 4) |
+| Home | Today's workout with a Start button, pending proposals, the campaign week at a glance, and Start another workout. Today's workout is a day sent to the phone for today if there is one, otherwise the active campaign's day for today with its overrides. The week runs Monday to Sunday, each day marked Done, Missed, Today, upcoming or Rest. Built 19 Nov; the planner (Phase 3) and the coach (Phase 4) are what fill it, and the proposals inbox comes with the coach. During the active campaign's last week it shows a note to ask the coach for the next one, with Ask my coach, and a Weekly check-ins panel (Phase 4): one box per finished week, labelled "Week of Nov 2" and ticked when the coach read that week's summary, enough weeks to cover the count (at least four, at most twelve), then "This week" greyed with "not over yet" (only finished weeks count), and a line such as "4 check-ins in a row, since the week of Oct 26." |
 | Cardio entry | Type, duration, distance, notes, and a list of recent entries |
 | Settings | Look (skin, accent, background), totals unit, notifications, coach link, sign out |
 

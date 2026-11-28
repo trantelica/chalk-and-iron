@@ -562,9 +562,9 @@ Until the pull request is merged, these links work from the pull request's branc
 
 ## 23. Phase 4, stage 4F: the inbox (27 November 2026)
 
-Stage 4F puts your coach's cards on your phone and in the planner. It needs no SQL step. Do the check below only after the pull request is merged, because the live app builds only from the merged version.
+Stage 4F puts your coach's cards on your phone and in the planner. Your coach itself is in ChatGPT or Claude, not in Chalk and Iron: Chalk and Iron receives its cards for you to accept or decline. It needs no SQL step. Do the check below only after the pull request is merged, because the live app builds only from the merged version.
 
-### AN. On your iPhone and in your computer's browser, after the merge
+### AN. On your iPhone and in your computer's browser, after the merge (done by Nate, 27 Nov)
 
 You need at least two cards waiting from your coach. Cards left by earlier checks are almost always out of date, because resetting the Test Account (which rewrites its library) makes them so. So ask your coach (Claude or ChatGPT, in a new chat) to propose two small changes. For example, send these two messages:
 
@@ -572,17 +572,17 @@ You need at least two cards waiting from your coach. Cards left by earlier check
 - "Propose a new exercise: Cable Face Pull."
 
 **On your iPhone** (the home-screen app, https://chalkandiron.vercel.app):
-1. [ ] Open Chalk and Iron. Waiting cards sit at the top of Home. Tap **Open the Coach screen** in the Inbox box lower down.
-2. [ ] The Coach screen lists every card, newest first, each with a status label (Waiting, Accepted, Declined, Out of date or Expired). Start a workout (**Start another workout**, then pick one) and check that the **Coach** button, top right, shows a small number for the cards waiting. Tap it to get back to the Coach screen.
-3. [ ] On one waiting card tap **Accept**. A green-outlined banner at the top says what changed and what did not, the card's label changes to Accepted, and the number goes down by one.
-4. [ ] On another waiting card tap **Decline**, type a reason such as "too much volume", and tap **Decline card**. The banner says it was declined and your coach can read the reason; the card now shows "Declined. Your reason: too much volume".
-5. [ ] Ask your coach "what happened to my last proposal?" It should tell you the status and your reason.
-6. [ ] Start a workout, tap **Coach**, top right. At the top of the Coach screen a large highlighted **Back to my workout** button shows the workout's name. Tap it: you land on the same exercise with your sets as you left them. Then finish the workout and open Coach from Home (**Open the Coach screen**): the big button is gone.
+1. [x] Open Chalk and Iron. Waiting cards sit at the top of Home. Tap **Open the Coach screen** in the Inbox box lower down.
+2. [x] The Coach screen lists every card, newest first, each with a status label (Waiting, Accepted, Declined, Out of date or Expired). Start a workout (**Start another workout**, then pick one) and check that the **Coach** button, top right, shows a small number for the cards waiting. Tap it to get back to the Coach screen.
+3. [x] On one waiting card tap **Accept**. A green-outlined banner at the top says what changed and what did not, the card's label changes to Accepted, and the number goes down by one.
+4. [x] On another waiting card tap **Decline**, type a reason such as "too much volume", and tap **Decline card**. The banner says it was declined and your coach can read the reason; the card now shows "Declined. Your reason: too much volume".
+5. [x] In your coach chat in ChatGPT or Claude, ask "what happened to my last proposal?" It should tell you the status and your reason.
+6. [x] Start a workout, tap **Coach**, top right. At the top of the Coach screen a large highlighted **Back to my workout** button shows the workout's name. Tap it: you land on the same exercise with your sets as you left them. Then finish the workout and open Coach from Home (**Open the Coach screen**): the big button is gone.
 
 **In your computer's browser** (https://chalkandiron.vercel.app/planner):
-7. [ ] Click the **Proposals** tab (the fourth tab, between History and Vocabulary). It shows the same cards, with a number on the tab for the cards waiting.
-8. [ ] Click **Decline** on a waiting card, leave the reason empty, and click **Decline card**. It works with no reason. The number on the tab goes down.
-9. [ ] If a card shows **Out of date** (you edited something it would change) or **Expired** (a card for today after 3:00 am), it has no Accept button; an out-of-date one has **Dismiss**.
+7. [x] Click the **Proposals** tab (the fourth tab, between History and Vocabulary). It shows the same cards, with a number on the tab for the cards waiting.
+8. [x] Click **Decline** on a waiting card, leave the reason empty, and click **Decline card**. It works with no reason. The number on the tab goes down.
+9. [x] If a card shows **Out of date** (you edited something it would change) or **Expired** (a card for today after 3:00 am), it has no Accept button; an out-of-date one has **Dismiss**.
 
 Tell the agent which numbers pass or fail.
 
@@ -591,28 +591,28 @@ Tell the agent which numbers pass or fail.
 
 Stage 4G adds two tabs to the planner: **Coach setup** (the intake, connecting ChatGPT or Claude, the instructions to copy, the coach link, the connection test, "let's get started", and your connected coach apps with Disconnect) and **Profile and gyms** (your intake answers, and each gym's equipment). It needs no SQL step. Do the check below only after the pull request is merged, because the live app builds only from the merged version.
 
-### AO. Complete Coach setup on the Test Account, using only the page, after the merge
+### AO. Complete Coach setup on the Test Account, using only the page, after the merge (done by Nate, 27 Nov)
 
 Use the Test Account (the coach eval account), in your computer's browser. Use only what the page says: do not look at any other note.
 
-1. [ ] Go to https://chalkandiron.vercel.app/signin and sign in as the Test Account. Then go to https://chalkandiron.vercel.app/planner/coach-setup (or open **Planner** and click the **Coach setup** tab, the sixth tab).
-2. [ ] **Step 1, Tell your coach about you.** Answer a few questions: pick a **Coach style**, **Experience**, a **1st** priority (and a **2nd** that is **Other (write it in)** with your own words), a **Progression pace**, a **Workout length**, **Days per week**, and type something in **Goals**. Each answer saves as you give it: a tick appears beside it, and the line above the questions counts "N of 12 answered". Leave a few empty on purpose: every question is optional.
-3. [ ] Try to choose the same priority twice. It is not offered in the other boxes (shown greyed, "already chosen"). Check this again in step AR.
-4. [ ] **Step 2, Connect ChatGPT or Claude.** Click **Copy the link**. It ends in `/mcp`. Click **ChatGPT**, then **Claude**: each shows its own numbered steps. Screenshots are shown as grey boxes marked "Screenshot to come" until real ones are added (see below). Follow the steps for the app you use (you already connected both on 25 November, so you can also skip to step 6 below, or first click **Disconnect** under **Connected coach apps** and connect again to test the steps).
-5. [ ] **Step 3, Give your coach its instructions.** Click **Copy the instructions**, then paste them into your coach project's instructions in ChatGPT or Claude.
-6. [ ] **Step 4, Save your coach link.** In ChatGPT or Claude open your coach project, copy its address from the browser's address bar, paste it into **Link to your coach project**, and click **Save the link**. A line says it is saved. Pasting something that does not start with `https://` is refused.
-7. [ ] **Step 5, Test the connection.** Click **Start the connection test**. The page says it is waiting. In your coach chat send: "Use Chalk and Iron to tell me my name and my gyms." Within a few seconds the page says **Connected.** and names the coach app.
-8. [ ] **Step 6, Let's get started.** In your coach chat say "Let's get started". Your coach should read your answers, ask only about what you left open, and propose a first campaign. It arrives on the **Proposals** tab.
-9. [ ] **Connected coach apps** (bottom of the page) lists ChatGPT and/or Claude. Click **Disconnect** on one and confirm: its coach can no longer read your data (ask it "what did I bench last week?": it should say it cannot read the data). Connect it again if you want to keep using it.
-10. [ ] On your iPhone, open Chalk and Iron, tap **Coach** (from Home, **Open the Coach screen**). **Open my coach** takes you to the project you saved in step 6 above.
+1. [x] Go to https://chalkandiron.vercel.app/signin and sign in as the Test Account. Then go to https://chalkandiron.vercel.app/planner/coach-setup (or open **Planner** and click the **Coach setup** tab, the sixth tab).
+2. [x] **Step 1, Tell your coach about you.** Answer a few questions: pick a **Coach style**, **Experience**, a **1st** priority (and a **2nd** that is **Other (write it in)** with your own words), a **Progression pace**, a **Workout length**, **Days per week**, and type something in **Goals**. Each answer saves as you give it: a tick appears beside it, and the line above the questions counts "N of 12 answered". Leave a few empty on purpose: every question is optional.
+3. [x] Try to choose the same priority twice. It is not offered in the other boxes (shown greyed, "already chosen"). Check this again in step AR.
+4. [x] **Step 2, Connect ChatGPT or Claude.** Click **Copy the link**. It ends in `/mcp`. Click **ChatGPT**, then **Claude**: each shows its own numbered steps. Screenshots are shown as grey boxes marked "Screenshot to come" until real ones are added (see below). Follow the steps for the app you use (you already connected both on 25 November, so you can also skip to step 6 below, or first click **Disconnect** under **Connected coach apps** and connect again to test the steps).
+5. [x] **Step 3, Give your coach its instructions.** Click **Copy the instructions**, then paste them into your coach project's instructions in ChatGPT or Claude.
+6. [x] **Step 4, Save your coach link.** In ChatGPT or Claude open your coach project, copy its address from the browser's address bar, paste it into **Link to your coach project**, and click **Save the link**. A line says it is saved. Pasting something that does not start with `https://` is refused.
+7. [x] **Step 5, Test the connection.** Click **Start the connection test**. The page says it is waiting. In your coach chat send: "Use Chalk and Iron to tell me my name and my gyms." Within a few seconds the page says **Connected.** and names the coach app.
+8. [x] **Step 6, Let's get started.** In your coach chat say "Let's get started". Your coach should read your answers, ask only about what you left open, and propose a first campaign. It arrives on the **Proposals** tab.
+9. [x] **Connected coach apps** (bottom of the page) lists ChatGPT and/or Claude. Click **Disconnect** on one and confirm: its coach can no longer read your data (ask it "what did I bench last week?": it should say it cannot read the data). Connect it again if you want to keep using it.
+10. [x] On your iPhone, open Chalk and Iron, tap **Coach** (from Home, **Open the Coach screen**). **Open my coach** takes you to the project you saved in step 6 above.
 
 Then click the **Profile and gyms** tab (https://chalkandiron.vercel.app/planner/profile):
 
-11. [ ] **About you** shows the same answers; change one and see the tick.
-12. [ ] Under **Gyms and equipment** type a name such as "Big Gym" next to **New gym name**, and click **Add gym**. The first gym is the default one, and its equipment list opens. (The presets are checked in step AR below.)
-13. [ ] Click **Add many at once**, paste a list of equipment (one per line, or separated by commas), and click **Add N to the list**. Repeats are skipped and the list stays in A to Z order.
-14. [ ] Type in the **Filter** box to find an item. Click **Remove** beside one, then **Undo**. Click **Edit as text** to see the whole list as plain lines: delete or add lines and click **Save the list**.
-15. [ ] Tell the agent what felt slow or awkward.
+11. [x] **About you** shows the same answers; change one and see the tick.
+12. [x] Under **Gyms and equipment** type a name such as "Big Gym" next to **New gym name**, and click **Add gym**. The first gym is the default one, and its equipment list opens. (The presets are checked in step AR below.)
+13. [x] Click **Add many at once**, paste a list of equipment (one per line, or separated by commas), and click **Add N to the list**. Repeats are skipped and the list stays in A to Z order.
+14. [x] Type in the **Filter** box to find an item. Click **Remove** beside one, then **Undo**. Click **Edit as text** to see the whole list as plain lines: delete or add lines and click **Save the list**.
+15. [x] Tell the agent what felt slow or awkward.
 
 **Screenshots the page still needs from you.** The ChatGPT and Claude steps show grey placeholder boxes. The agent did not draw any app screen. To fill them, take screenshots on your computer (on a Mac: press Shift, Command and 4, then drag over the window) of: ChatGPT's Settings, Apps, Advanced settings with Developer mode on; ChatGPT's new-app form with the link pasted; the Chalk and Iron approval page (Allow and Deny); a ChatGPT project with the instructions pasted and Chalk and Iron switched on; Claude's Add custom connector form; and a Claude project with the instructions pasted. Send them to the agent, which adds them to the page.
 
@@ -622,7 +622,7 @@ Tell the agent which items pass or fail.
 
 Until now a coach's card for a gym had to resend the gym's whole equipment list, which would lose items for a big gym. The coach now adds or removes single items, and Accept applies them to the gym's list as it is when you press Accept.
 
-### AP. Supabase SQL Editor, **before** merging
+### AP. Supabase SQL Editor, **before** merging (done by Nate, 27 Nov)
 
 **Run this before the pull request is merged.** Run before merging, nothing changes for the app you have now: the live app does not use the new step until the new app is live. Merge first and a coach's card for a gym's equipment would fail on Accept until you run it.
 
@@ -630,19 +630,19 @@ Until now a coach's card for a gym had to resend the gym's whole equipment list,
 
 **Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the new query, and click **Run**.
 
-1. [ ] [`20261127000100_gym_equipment_add_remove.sql`](https://github.com/trantelica/chalk-and-iron/blob/coach-gym-equipment-add-remove/supabase/migrations/20261127000100_gym_equipment_add_remove.sql) It should end with "Success. No rows returned". Safe to run more than once.
+1. [x] [`20261127000100_gym_equipment_add_remove.sql`](https://github.com/trantelica/chalk-and-iron/blob/coach-gym-equipment-add-remove/supabase/migrations/20261127000100_gym_equipment_add_remove.sql) It should end with "Success. No rows returned". Safe to run more than once.
 
 Until the pull request is merged this link works from the pull request's branch; afterwards it is also at `.../blob/main/supabase/migrations/20261127000100_gym_equipment_add_remove.sql`.
 
 **Check afterwards (optional, in your coach chat):** ask your coach to "add a Rower and a Sandbag to my gym". A card appears in **Proposals** reading like "Add Rower and Sandbag to Home gym"; Accept it, then open **Profile and gyms** and find both in the list.
 
-### AQ. Supabase SQL Editor, before or after merging (27 November 2026)
+### AQ. Supabase SQL Editor, before or after merging (done by Nate, 27 Nov)
 
 A small follow-up from the fresh review. **What it changes:** a coach's card that only renames a gym, changes its notes or makes it the default now leaves the gym's equipment list exactly as it is (before, it re-sorted it), and the helper from step AP is closed to direct calls, like every other helper of its kind. It changes no data you already have. The app works the same whether you run it before or after the merge.
 
 **Where:** the same as step AP: https://supabase.com/dashboard, the project `chalk-and-iron`, **SQL Editor** in the left-hand menu, **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it, and click **Run**.
 
-1. [ ] [`20261127000200_gym_equipment_tidy.sql`](https://github.com/trantelica/chalk-and-iron/blob/coach-gym-equipment-add-remove/supabase/migrations/20261127000200_gym_equipment_tidy.sql) It should end with "Success. No rows returned". Safe to run more than once.
+1. [x] [`20261127000200_gym_equipment_tidy.sql`](https://github.com/trantelica/chalk-and-iron/blob/coach-gym-equipment-add-remove/supabase/migrations/20261127000200_gym_equipment_tidy.sql) It should end with "Success. No rows returned". Safe to run more than once.
 
 After the merge the link is also at `.../blob/main/supabase/migrations/20261127000200_gym_equipment_tidy.sql`.
 
@@ -688,14 +688,25 @@ Tell the agent which items pass or fail.
 
 ## 29. Phase 4, stage 4H: Home and the coach instructions (27 November 2026)
 
-### AU. Home's check-in marks and last-week note, after the merge
+### AU. Home's check-in marks and last-week note, on the eval account (checked by Nate on 27 Nov: items 1, 2 and 4 passed, item 3 failed)
 
-1. [ ] On your iPhone open https://chalkandiron.vercel.app/app (the app's Home). Ask your coach (ChatGPT or Claude, with Chalk and Iron connected) for **last week's summary**. Back on Home, pull down to reload: a **Weekly check-ins** section shows four weeks, with a tick under last week and a dash under the others, and a line "1 check-in in a row."
-2. [ ] Ask the coach for the summary of the week before that. Reload Home: two ticks and "2 check-ins in a row." (A week with no summary read breaks the count; a week read twice still counts once.)
-3. [ ] On your computer open https://chalkandiron.vercel.app/planner, then **Library**, then **Campaigns**. Make a campaign one week long (name it `Last week test`), then press **Activate**. Open Home on your iPhone: above the week's days a coloured note says "This is the last week of Last week test. Ask your coach for the next one." with a **Coach** button that opens the Coach screen.
-4. [ ] Press **End campaign** on it in the planner. The note goes. (A campaign longer than one week shows the note only in its final week.)
+Use the Test Account (the coach eval account). Resetting it (step AH) gives it check-ins for the four previous weeks and one seven weeks back, so the Weekly check-ins panel on Home starts at **4 check-ins in a row**, with the week of the older one showing as a gap before it. Items 1 and 2 passed on 27 Nov, subject to the new panel (which now shows every counted week and labels each one); step AW checks it again. Item 3 failed on 27 Nov because the Coach button only opened the Coach screen, with no way to talk to the coach. It now uses **Ask my coach**, and step AW re-checks it.
 
-Tell the agent which items pass or fail.
+1. [x] On your iPhone open https://chalkandiron.vercel.app/app (the app's Home). Under **Weekly check-ins** you see four ticked weeks and the line "4 check-ins in a row". Passed by Nate on 27 Nov.
+2. [x] In your coach chat in ChatGPT or Claude, ask the coach for the summary of the week five weeks back (the gap before the older check-in). Reload Home: the count grows because that older week joins the run. (A week with no summary read breaks the count; a week read twice still counts once.) Passed by Nate on 27 Nov.
+3. [ ] On your computer open https://chalkandiron.vercel.app/planner, then **Library**, then **Campaigns**. Make a campaign one week long (name it `Last week test`), then press **Activate**. Open Home on your iPhone: a coloured note says "This is the last week of Last week test. Ask your coach for the next one." with an **Ask my coach** button. Tap it: your coach project opens, with the message "My campaign ends this week. Ask me how it went, then propose the next one." copied, ready to paste. **Failed on 27 Nov** (the Coach button only opened the Coach screen); re-checked in step AW, item 4.
+4. [x] Press **End campaign** on it in the planner. The note goes. (A campaign longer than one week shows the note only in its final week.) Passed by Nate on 27 Nov.
+
+### AW. Ask my coach and the check-ins panel, after the merge
+
+You need your coach link saved: on https://chalkandiron.vercel.app/planner click **Coach setup**, step 4 (**Link to your coach project**). Do these on your iPhone unless it says otherwise. Tell the agent which items pass or fail.
+
+1. [ ] Open https://chalkandiron.vercel.app/app (Home). The **Weekly check-ins** box shows boxes labelled "Week of ..." (four finished weeks at least, ticked or with a dash), then a greyed box **This week** with "not over yet" at the end. The line under them says where the count starts, for example "4 check-ins in a row, since the week of Oct 26.", and that many ticks are on the screen. Nothing is cut off at the side.
+2. [ ] On Home tap **Open the Coach screen**. It says your coach is in ChatGPT or Claude, not inside Chalk and Iron, and shows four large buttons under **Ask my coach**: Weekly check-in, Something's taken at the gym, change today's workout, Plan my next campaign, How did my last workout go?
+3. [ ] Tap **Weekly check-in**. Your coach project opens (ChatGPT or Claude). Paste into the chat (press and hold in the message box, then **Paste**): the message is there. Go back to Chalk and Iron: it says "Copied. Paste it into your coach chat and send."
+4. [ ] Redo step AU item 3: make a one-week campaign `Last week test` in the planner (**Library**, **Campaigns**, **Activate**). On Home the note has **Ask my coach**. Tap it, and paste into your coach chat: the message reads "My campaign ends this week. Ask me how it went, then propose the next one." Then press **End campaign** in the planner.
+5. [ ] Start a workout (**Start another workout**), tap an exercise's swap, and at the bottom of the list tap **Ask my coach for another**: it copies a message naming that exercise and opens your coach project.
+6. [ ] On your computer, click **Coach setup**, empty **Link to your coach project**, click **Save the link**. On your iPhone open the Coach screen and tap **Plan my next campaign**: it says no coach link is saved, that the message is copied, and offers **Open Coach setup**. Then save your link again.
 
 ### AV. Your client pass, after the agent pass is merged
 
