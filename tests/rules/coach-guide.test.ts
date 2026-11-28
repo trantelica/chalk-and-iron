@@ -4,7 +4,7 @@ import { COACH_INSTRUCTIONS } from '@/lib/coach-instructions';
 
 describe('the guide to what you can ask your coach', () => {
   it('has the five groups, each ending with a line on what happens next', () => {
-    expect(GUIDE_GROUPS.map((g) => g.title)).toEqual(['In the gym', 'Planning', 'Checking in', 'After a decline', 'About you and your gyms']);
+    expect(GUIDE_GROUPS.map((g) => g.title)).toEqual(['In the gym', 'Planning', 'Checking in', "If you decline a coach's card", 'About you and your gyms']);
     for (const g of GUIDE_GROUPS) { expect(g.examples.length).toBeGreaterThan(0); expect(g.next).toMatch(/[Nn]othing changes until you/); }
   });
   it("includes Nate's examples, with the E6 wording", () => {

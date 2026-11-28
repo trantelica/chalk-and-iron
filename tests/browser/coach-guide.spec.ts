@@ -34,7 +34,7 @@ test('the Coach screen guide lists examples by moment; Open my coach follows the
   await page.goto('/app/coach');
   await expect(page.getByText('Your coach is not inside Chalk and Iron')).toBeVisible();
   const guide = page.getByRole('region', { name: 'What you can ask your coach' });
-  for (const t of ['In the gym', 'Planning', 'Checking in', 'After a decline', 'About you and your gyms']) {
+  for (const t of ['In the gym', 'Planning', 'Checking in', "If you decline a coach's card", 'About you and your gyms']) {
     await expect(guide.locator('summary', { hasText: t })).toBeVisible();
   }
   // No copying any more.
@@ -43,9 +43,10 @@ test('the Coach screen guide lists examples by moment; Open my coach follows the
 
   // Open a group: examples and one line on what happens next.
   await guide.locator('summary', { hasText: 'In the gym' }).click();
+  await expect(guide.getByText("You can change today's workout yourself: swap an exercise, change the order or skip one. If that isn't enough, ask your coach:")).toBeVisible();
   await expect(guide.getByText('“The bench is taken.”')).toBeVisible();
   await expect(guide.getByText('nothing changes until you do', { exact: false }).first()).toBeVisible();
-  await guide.locator('summary', { hasText: 'After a decline' }).click();
+  await guide.locator('summary', { hasText: "If you decline a coach's card" }).click();
   await expect(guide.getByText('“Try again with the push workout I declined yesterday.”')).toBeVisible();
   const box = await guide.boundingBox();
   expect(box!.x + box!.width).toBeLessThanOrEqual(375);

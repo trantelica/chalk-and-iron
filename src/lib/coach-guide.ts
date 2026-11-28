@@ -8,6 +8,8 @@
 export interface GuideGroup {
   id: string;
   title: string;
+  /** A line before the examples, when the app can do something itself first. */
+  intro?: string;
   examples: string[];
   /** One line on what happens next. */
   next: string;
@@ -19,6 +21,7 @@ export const GUIDE_GROUPS: GuideGroup[] = [
   {
     id: 'gym',
     title: 'In the gym',
+    intro: "You can change today's workout yourself: swap an exercise, change the order or skip one. If that isn't enough, ask your coach:",
     examples: ['The bench is taken.', 'I only have 30 minutes today.', 'My shoulder is sore, change today\'s workout.', 'The cable machine is busy, break up my superset.'],
     next: CARD,
   },
@@ -36,7 +39,7 @@ export const GUIDE_GROUPS: GuideGroup[] = [
   },
   {
     id: 'declined',
-    title: 'After a decline',
+    title: 'If you decline a coach\'s card',
     examples: ['Try again with the push workout I declined yesterday.', 'Which of your cards are still waiting for me?'],
     next: 'Your coach reads why you declined and sends a new card. Nothing changes until you accept it.',
   },
@@ -52,7 +55,7 @@ export const GUIDE_GROUPS: GuideGroup[] = [
 export const GUIDE_EXAMPLES: string[] = GUIDE_GROUPS.flatMap((g) => g.examples);
 
 /** The reply the coach gives to "check setup". The version rises with every change to the instructions. */
-export const COACH_INSTRUCTIONS_VERSION = 5;
+export const COACH_INSTRUCTIONS_VERSION = 6;
 export const CHECK_SETUP_REPLY = `Chalk and Iron coach ready, instructions version ${COACH_INSTRUCTIONS_VERSION}`;
 
 export const NO_COACH_LINK_LINE = 'No coach link is saved yet. Add it in Coach setup, step 5.';

@@ -21,6 +21,7 @@ export function CoachGuide({ link, onSetupPage = false }: { link: string | null;
       <div className="muted">Say these in your coach chat in ChatGPT or Claude, in your own words. They are only examples.</div>
       {GUIDE_GROUPS.map((g) => (
         <Collapsible key={g.id} title={g.title}>
+          {g.intro && <div>{g.intro}</div>}
           <ul className="guide-list">
             {g.examples.map((x) => <li key={x}>&ldquo;{x}&rdquo;</li>)}
           </ul>
