@@ -5,6 +5,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { handleMcp } from '@/server/connector/mcp';
 import { addProposal } from '@/server/connector/repeat';
 import { authenticate, type Caller } from '@/server/connector/auth';
+import { guideReadRecently } from '@/server/connector/calls';
 import { connectCoach, registerAccount, sql, theAdmin } from './helpers';
 
 type Person = Awaited<ReturnType<typeof registerAccount>>;
@@ -141,6 +142,27 @@ describe('the call log and too many requests', () => {
       { client_name: 'Test coach', tool: 'get_profile', ok: true },
       { client_name: 'Test coach', tool: 'list_gyms', ok: false },
     ]);
+  });
+
+  it('get_guide is logged with its topic (coach guides), and the enforcement check finds it for the same coach app only', async () => {
+    const gus = await registerAccount('Gus');
+    const coach = await connectCoach(gus.client);
+    expect((await tool(coach.access, 'get_guide')).isError).toBeUndefined();
+    expect((await tool(coach.access, 'get_guide', { topic: 'campaign_design' })).isError).toBeUndefined();
+    expect((await tool(coach.access, 'get_guide', { topic: 'not a guide' })).isError).toBe(true);
+    const rows = await sql<{ tool: string; topic: string | null; ok: boolean }>(
+      `select tool, topic, ok from public.connector_calls where user_id = $1 order by called_at`, [gus.id]);
+    expect(rows).toEqual([
+      { tool: 'get_guide', topic: null, ok: true },
+      { tool: 'get_guide', topic: 'campaign_design', ok: true },
+      { tool: 'get_guide', topic: null, ok: false },
+    ]);
+    const caller = await callerFor(coach.access);
+    expect(await guideReadRecently(caller, 'Test coach', 'campaign_design', 30)).toBe(true);
+    expect(await guideReadRecently(caller, 'Test coach', 'workout_design', 30)).toBe(false);
+    expect(await guideReadRecently(caller, 'Another app', 'campaign_design', 30)).toBe(false);
+    await sql(`update public.connector_calls set called_at = now() - interval '31 minutes' where user_id = $1`, [gus.id]);
+    expect(await guideReadRecently(caller, 'Test coach', 'campaign_design', 30)).toBe(false);
   });
 
   it("my_coach_app answers a coach with its own app's name, and the app's own sign-in with nothing", async () => {

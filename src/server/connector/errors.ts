@@ -13,6 +13,7 @@ export type ErrorCode =
   | 'near_duplicate_name'
   | 'nothing_to_change'
   | 'too_many_requests'
+  | 'guide_not_read'
   | 'server_problem';
 
 export interface Problem {
@@ -46,6 +47,10 @@ export function errorResult(e: ConnectorError): ToolResult {
   const lines = [e.message, ...(e.extra.problems ?? []).map((p) => `- ${p.field}: ${p.problem}`)];
   return { isError: true, content: [{ type: 'text', text: lines.join('\n') + '\n' + JSON.stringify({ error }) }], structuredContent: { error } };
 }
+
+/** The optional enforcement (coach guides): the card's guide was not read in the last half hour. */
+export const guideNotRead = (topic: string, minutes: number) =>
+  new ConnectorError('guide_not_read', `Read get_guide('${topic}') first, then send the card again. This card needs its guide read in the last ${minutes} minutes.`, { guide: topic });
 
 export const serverProblem = () =>
   new ConnectorError('server_problem', 'Something failed on the app\'s side. Try again in a minute; if it keeps failing, tell the user the app could not be read.');

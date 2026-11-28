@@ -116,12 +116,12 @@ describe('the protocol', () => {
     expect(r.headers.get('mcp-session-id')).toBeNull();
   });
 
-  it('lists the nineteen tools, fourteen read and five propose, with the right labels and closed inputs', async () => {
+  it('lists the twenty tools, fifteen read (get_guide among them) and five propose, with the right labels and closed inputs', async () => {
     const { handler } = setup();
     const j = await json(await handler(post(rpc('tools/list'))));
     const tools = j.result?.tools as Array<{ name: string; inputSchema: Record<string, unknown>; annotations: Record<string, unknown> }>;
     expect(tools.map((t) => t.name).sort()).toEqual([
-      'get_campaign', 'get_exercise_history', 'get_profile', 'get_proposal_status', 'get_records', 'get_today', 'get_vocabulary', 'get_weekly_summary',
+      'get_campaign', 'get_exercise_history', 'get_guide', 'get_profile', 'get_proposal_status', 'get_records', 'get_today', 'get_vocabulary', 'get_weekly_summary',
       'list_cardio', 'list_exercises', 'list_gyms', 'list_proposals', 'list_sessions', 'list_workouts',
       'propose_campaign', 'propose_exercise', 'propose_profile_update', 'propose_today_change', 'propose_workout',
     ]);

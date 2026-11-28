@@ -18,6 +18,8 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: build-only-placeholder
+      - name: The coach guides ship with the connector
+        run: node scripts/check-guides-traced.mjs
 
   # Database and account tests against Supabase's own local version, so they
   # meet the same limits as the live project (decided 17 Nov 2026, design
