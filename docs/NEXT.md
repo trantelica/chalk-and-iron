@@ -22,6 +22,8 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 
 ## Waiting on Nate
 
+- **Approve the coach guides design note** (`docs/COACH_GUIDES_DESIGN.md`): a short always-on instruction block, playbooks fetched with a new `get_guide` tool, training principles from cited sources. Built on Opus 5.5 high before the Phase 4 review if approved.
+
 - **Screenshots for Coach setup** (not needed to merge): the ChatGPT and Claude steps show grey placeholders. Six screens to capture are listed at the end of step AO in `docs/SETUP.md`.
 
 ## Open items
