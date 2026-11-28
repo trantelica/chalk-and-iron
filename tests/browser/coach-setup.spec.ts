@@ -37,9 +37,11 @@ const coachRow = async (me: string) => (await sql<Row>(`select * from public.coa
 test('Coach setup: the intake saves, the link is kept, the test turns Connected, and the steps are there', async ({ page }) => {
   const me = await register(page, 'Setup Sam');
   await page.goto('/planner/coach-setup');
-  const tabs = page.getByRole('navigation', { name: 'Planner' });
-  await expect(tabs.getByRole('link', { name: 'Coach setup' })).toBeVisible();
-  await expect(tabs.getByRole('link', { name: 'Profile and gyms' })).toBeVisible();
+  // Coach setup and Profile and gyms are in the planner's Menu, not tabs.
+  await page.getByRole('button', { name: 'Menu' }).click();
+  await expect(page.getByRole('link', { name: 'Coach setup', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Profile and gyms', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
 
   // Step 1: the intake. Each answer is saved as it is given.
   await expect(page.getByText(/0 of 12 answered/)).toBeVisible();
