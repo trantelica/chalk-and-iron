@@ -61,7 +61,9 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - The app warns when a new name is a near-duplicate of an existing one.
 - **Workouts** list exercises in order with sets, reps, an optional rest that overrides the exercise default, and an optional superset letter. A workout can be copied.
 - **Campaigns** run one to six consecutive weeks. Each day holds a workout or is a rest day.
-- A campaign day can override the exercise, sets, reps, weight and rest for any row. Overrides apply to that day only.
+- **Library is for design, Plan is for running (Nate, 27 Nov).** A campaign's design is its name, its number of weeks and which workout (or rest) goes on which day of which week; the workouts hold their exercises and default sets and reps. The Library's Campaigns tab edits only that, plus New campaign and Copy this one (a copy has the same days and no overrides). It shows a plain status line (Draft, Running since a date, Finished on a date) and, for a running campaign, "This campaign is running; changes to its days apply from today on" with a link to Plan. It has no start date, Activate, Shift, Undo shift, End campaign, Mark finished or Run again.
+- A campaign day can override the exercise, sets, reps, weight and rest for any row. Overrides apply to that day only. They are this run's progression and belong in Plan, where the user (or an accepted coach card) adjusts them as the run goes; a new run starts clean from the workouts' defaults and does not copy the last run's overrides.
+- **Plan runs a campaign.** At the top: the running campaign on real dates with Shift forward a week, Undo last shift and End campaign; or, when nothing is running, **Start a campaign**: pick one from the Library, choose a start date and press Start (confirming first if another campaign is running, which then ends). Below, as before: pick a week and day, change that day's sets, reps, weight and rest, and Send to phone.
 - When a campaign ends, the app prompts the user to ask their coach for the next one. It does not repeat or extend by itself. During the campaign's last week, Home shows a note to ask the coach for the next one, saying "Ask your coach in ChatGPT or Claude for the next campaign", with the **Open my coach** link. Nothing is copied (Nate, 24 Nov; 27 Nov). The user can **run a finished campaign again** from a new start date: the same campaign, not a copy (Nate, 21 Nov).
 
 ### Logging a workout
@@ -263,7 +265,7 @@ Every propose tool requires one plain-language summary line per change, which is
 - Accept applies the whole proposal or none of it. Decline discards it. Decline and Dismiss are the same thing: both end the proposal as rejected. Declining a coach's card offers an optional one-line reason, such as "too much volume", which the coach can read (Nate, 24 Nov). The app's Accept is always required, even when the LLM client has already asked the user to confirm, because it is the only confirmation the app controls.
 - A proposal for today's session never changes the library or the campaign, and never alters sets already logged.
 - A proposal for today's session expires at the 3:00 am day rollover that ends its day.
-- An accepted proposal for a new campaign arrives as a draft. The user activates it.
+- An accepted proposal for a new campaign arrives as a draft. The user starts it from Plan.
 - A workout or campaign proposal can bundle the new exercises it needs (and, for a campaign, new workouts) in the same proposal. One card lists everything, and one Accept applies all of it or none.
 - A proposal is in one of five states: pending, accepted, rejected, out of date or expired. The coach can see each one.
 - Proposals are validated when received. Unknown exercises (not in the library and not defined in the same proposal), values outside the vocabulary, near-duplicate names, a new exercise without all three alternates, and a superset with fewer than two or more than three members, or with members of different set counts, are returned to the coach as errors, before the user sees anything.
@@ -727,7 +729,7 @@ These rules settle what happens outside the normal path. Nate decided them in re
 - Weeks run Monday to Sunday. A campaign may start on any date, and week 1 is the week holding its start date.
 - One campaign is active at a time. Others wait as drafts. An accepted proposal for a new campaign arrives as a draft. Activating a draft while another campaign is active ends that one after a confirmation.
 - A campaign can be shifted forward by a week, by the user or by an accepted proposal. There is no pause state. The shifted week does not count toward the six-week limit.
-- A finished campaign can be run again from a new start date (Nate, 21 Nov). It becomes the active campaign with the same days and overrides; activating it ends another active campaign after a confirmation, and the last run's shifts are cleared. Only workouts logged on or after the current start date mark its days Done or Missed; the last run's workouts stay in History.
+- A finished campaign can be started again from Plan on a new start date (Nate, 21 Nov; moved from the Library and made clean on 27 Nov). It becomes the active campaign with the same days but **no overrides** (the last run's are removed, so the run starts from the workouts' own sets and reps); starting it ends another active campaign after a confirmation, and the last run's shifts are cleared. A draft started from Plan keeps any overrides it already has (a coach's new campaign may bring some). Only workouts logged on or after the current start date mark its days Done or Missed; the last run's workouts stay in History.
 
 ### Designs and history
 

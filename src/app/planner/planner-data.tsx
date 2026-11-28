@@ -16,7 +16,7 @@ export interface Ex {
 export interface Alt { id: string; exercise_id: string; tier: 'bodyweight' | 'basic_gym' | 'full_gym'; name: string; alternate_exercise_id: string | null }
 export interface Wk { id: string; name: string; archived_at: string | null }
 export interface Item { id: string; workout_id: string; position: number; exercise_id: string; sets: number; reps: number; rest_seconds: number | null; superset_letter: string | null }
-export interface Camp { id: string; name: string; start_date: string; week_count: number; status: 'draft' | 'active' | 'finished' }
+export interface Camp { id: string; name: string; start_date: string; week_count: number; status: 'draft' | 'active' | 'finished'; updated_at: string }
 export interface Day { id: string; campaign_id: string; week: number; weekday: number; workout_id: string }
 export interface Ovr {
   id: string; campaign_day_id: string; workout_item_id: string; exercise_id: string | null; sets: number | null; reps: number | null;
@@ -81,7 +81,7 @@ export function PlannerProvider({ children }: { children: React.ReactNode }) {
       sb.from('exercise_alternates').select('id, exercise_id, tier, name, alternate_exercise_id'),
       sb.from('workouts').select('id, name, archived_at').order('name'),
       sb.from('workout_items').select('id, workout_id, position, exercise_id, sets, reps, rest_seconds, superset_letter').order('position'),
-      sb.from('campaigns').select('id, name, start_date, week_count, status').order('created_at'),
+      sb.from('campaigns').select('id, name, start_date, week_count, status, updated_at').order('created_at'),
       sb.from('campaign_days').select('id, campaign_id, week, weekday, workout_id'),
       sb.from('campaign_day_overrides').select('id, campaign_day_id, workout_item_id, exercise_id, sets, reps, weight_lb, weight_entered_value, weight_entered_unit, rest_seconds'),
       sb.from('campaign_shifts').select('id, campaign_id, blank_week_starts_on'),

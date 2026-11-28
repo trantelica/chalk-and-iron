@@ -4,7 +4,7 @@ import { browserClient } from '@/lib/supabase/browser';
 import { trainingDay, nextRollover } from '@/rules/days';
 import { mmss } from '@/rules/workout';
 import {
-  dateOfCampaignDay, effectiveRows, maxPlanWeight, overrideChange, overridesAny, planFromRows, rowBudget, sendSummary, typedToPounds, viewWeight,
+  activationNeedsConfirm, campaignEndDate, campaignIsOver, nextBlankWeek, dateOfCampaignDay, effectiveRows, maxPlanWeight, overrideChange, overridesAny, planFromRows, rowBudget, sendSummary, typedToPounds, viewWeight,
   type OverrideField, type OverrideRow, type WorkoutRow,
 } from '@/rules/planner';
 import { fromPounds } from '@/rules/units';
@@ -13,6 +13,7 @@ import { NumCell } from '../../fields';
 import { ExercisePanel } from '../../exercise-panel';
 import { ProposalCards } from '@/components/proposal-cards';
 import { todayState } from '../../today-check';
+import { startQuestion } from '@/rules/campaign-run';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const pretty = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
@@ -21,7 +22,9 @@ const toOverride = (o: Ovr): OverrideRow => ({
   weightLb: o.weight_lb, weightValue: o.weight_entered_value, weightUnit: o.weight_entered_unit, rest: o.rest_seconds,
 });
 
-// Plan (spec Section 5): the future. Pick a campaign, a week and a day. The
+// Plan (spec Section 5): running a campaign. At the top, what is running (shift,
+// undo shift, end) or Start a campaign (Nate, 27 Nov: the Library holds the
+// design, Plan runs it). Below, pick a campaign, a week and a day. The
 // workout pane lists that day's rows, where the exercise, sets, reps, weight
 // and rest can be overridden for that day only; an override shows the library
 // value beside it. A button sends the day to the phone.
@@ -34,6 +37,10 @@ export default function Plan() {
   const [weekday, setWeekday] = useState(1);
   const [msg, setMsg] = useState('');
   const [note, setNote] = useState('');
+  const [startId, setStartId] = useState('');
+  const [startOn, setStartOn] = useState(today);
+  const [coachLink, setCoachLink] = useState<string | null>(null);
+  useEffect(() => { void sb.from('profiles').select('coach_link').maybeSingle().then((r) => setCoachLink((r.data as { coach_link?: string } | null)?.coach_link ?? null)); }, [sb]);
 
   const campaigns = data.campaigns.filter((c) => c.status !== 'finished' || c.id === cid);
   const c = data.campaigns.find((x) => x.id === cid) ?? data.campaigns.find((x) => x.status === 'active') ?? campaigns[0] ?? null;
@@ -70,6 +77,59 @@ export default function Plan() {
     await reload();
   }
 
+  // ---- running a campaign (Nate, 27 Nov)
+  const running = data.campaigns.find((x) => x.status === 'active') ?? null;
+  const runBlank = useMemo(() => (running ? data.shifts.filter((s) => s.campaign_id === running.id).map((s) => s.blank_week_starts_on.slice(0, 10)) : []), [running, data.shifts]);
+  const startable = data.campaigns.filter((x) => x.status !== 'active');
+  const startPick = startable.find((x) => x.id === startId) ?? startable.find((x) => x.status === 'draft') ?? startable[0] ?? null;
+  const runOver = running ? campaignIsOver(today, running.start_date.slice(0, 10), running.week_count, runBlank) : false;
+
+  async function step(fn: () => PromiseLike<{ error: { message: string } | null }>) {
+    setMsg(''); setNote('');
+    const r = await fn();
+    if (r.error) setMsg(plainError(r.error.message));
+    await reload();
+    return !r.error;
+  }
+  /** Starts a campaign from the Library on a chosen date. A finished one starts a new run: its last run's overrides are removed first, so the new run begins from the workouts' own sets and reps. */
+  async function start() {
+    if (!startPick) return;
+    const other = activationNeedsConfirm(data.campaigns, startPick.id);
+    const fresh = startPick.status === 'finished';
+    if (!window.confirm(startQuestion(startPick.name, startOn, other, fresh))) return;
+    const prev = data.campaigns.find((x) => x.status === 'active' && x.id !== startPick.id);
+    // In this order, so a dropped connection part-way never leaves a campaign without its
+    // shifts while still finished: end the other, clear the last run's overrides, activate,
+    // and only then clear the last run's shifts.
+    if (prev && !(await step(() => sb.from('campaigns').update({ status: 'finished' }).eq('id', prev.id)))) return;
+    const rollBack = async () => { if (prev) { await sb.from('campaigns').update({ status: 'active' }).eq('id', prev.id); await reload(); } };
+    if (fresh) {
+      const ids = data.days.filter((d) => d.campaign_id === startPick.id).map((d) => d.id);
+      if (ids.length && !(await step(() => sb.from('campaign_day_overrides').delete().in('campaign_day_id', ids)))) { await rollBack(); return; }
+    }
+    const ok = await step(() => sb.from('campaigns').update({ status: 'active', start_date: startOn }).eq('id', startPick.id));
+    if (!ok) { await rollBack(); return; }
+    if (data.shifts.some((x) => x.campaign_id === startPick.id)) await step(() => sb.from('campaign_shifts').delete().eq('campaign_id', startPick.id));
+    setCid(startPick.id); setWeek(1);
+    setNote(`${startPick.name} is running from ${pretty(startOn)}.`);
+  }
+  async function finish() {
+    if (!running || !window.confirm(`End "${running.name}" now? It becomes finished. You can copy it into a new draft, or start it again from here.`)) return;
+    await step(() => sb.from('campaigns').update({ status: 'finished' }).eq('id', running.id));
+  }
+  async function shiftForward() {
+    if (!running) return;
+    const wk = nextBlankWeek(today, running.start_date.slice(0, 10), runBlank);
+    if (!window.confirm(`Leave the week of ${pretty(wk)} empty and push every later day back one week? This does not count toward the six-week limit.`)) return;
+    await step(() => sb.from('campaign_shifts').insert({ user_id: data.userId, campaign_id: running.id, blank_week_starts_on: wk, made_by: 'user' }));
+  }
+  async function undoShift() {
+    if (!running || !runBlank.length) return;
+    const last = data.shifts.filter((x) => x.campaign_id === running.id).sort((a, b) => (a.blank_week_starts_on < b.blank_week_starts_on ? 1 : -1))[0];
+    if (!last || !window.confirm(`Take back the shift of the week of ${pretty(last.blank_week_starts_on.slice(0, 10))}?`)) return;
+    await step(() => sb.from('campaign_shifts').delete().eq('id', last.id));
+  }
+
   async function send() {
     if (!c || !day || !workout) return;
     setMsg(''); setNote('');
@@ -98,11 +158,52 @@ export default function Plan() {
   }
   const [inboxKey, setInboxKey] = useState(0);
 
-  if (!c) return <div className="muted">No campaigns yet. Make one under Library, Campaigns, then plan its days here.</div>;
+  const runPanel = (
+    <div className="pbox" aria-label="What is running">
+      {running ? (
+        <>
+          <h2 className="tight-h2">Running: {running.name}</h2>
+          <div className="muted">Since {pretty(running.start_date.slice(0, 10))}. Ends {pretty(campaignEndDate(running.start_date.slice(0, 10), running.week_count, runBlank))}{runBlank.length ? `, after ${runBlank.length} shifted week${runBlank.length === 1 ? '' : 's'}` : ''}.</div>
+          {runOver && (
+            <div className="notice" role="status">
+              <strong>{running.name} has run its last day.</strong>
+              <div className="notice-detail">Ask your coach for the next one (your coach is in ChatGPT or Claude, not in this app), or start a campaign again below. The app never repeats or extends a campaign by itself.{coachLink ? <> <a href={coachLink} target="_blank" rel="noreferrer">Open my coach</a>.</> : ' Open your coach project and ask for the next campaign.'}</div>
+              <button className="btn" onClick={finish}>Mark it finished</button>
+            </div>
+          )}
+          <div className="row">
+            <button className="btn" onClick={shiftForward}>Shift forward a week</button>
+            {runBlank.length > 0 && <button className="btn" onClick={undoShift}>Undo last shift</button>}
+            <button className="btn" onClick={finish}>End campaign</button>
+          </div>
+        </>
+      ) : (
+        <>
+          <h2 className="tight-h2">Start a campaign</h2>
+          {!startPick ? <div className="muted">No campaigns yet. Make one under Library, Campaigns, then start it here.</div> : (
+            <>
+              <div className="muted">Nothing is running. Pick a campaign from your Library and a start date. Week 1 is the week holding the start date. A finished campaign starts a new run from its workouts&apos; own sets and reps.</div>
+              <div className="row">
+                <label>Campaign
+                  <select aria-label="Campaign to start" value={startPick.id} onChange={(e) => setStartId(e.target.value)}>
+                    {startable.map((x) => <option key={x.id} value={x.id}>{x.name} ({x.status === 'finished' ? 'finished' : 'draft'})</option>)}
+                  </select>
+                </label>
+                <label>Start date<input type="date" aria-label="Start date" value={startOn} onChange={(e) => e.target.value && setStartOn(e.target.value)} /></label>
+                <button className="btn primary small-primary" onClick={start}>Start</button>
+              </div>
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+  if (!c) return <>{runPanel}{msg && <div className="error" role="alert">{msg}</div>}<div className="muted">No campaigns yet. Make one under Library, Campaigns, then plan its days here.</div></>;
   return (
     <>
       <ProposalCards key={inboxKey} />
-      <div className="muted">What you are going to do: pick a campaign, a week and a day, and adjust that day.</div>
+      {runPanel}
+      <div className="muted">What you are going to do: pick a campaign, a week and a day, and adjust that day for this run.</div>
       <div className="row">
         <select aria-label="Campaign" value={c.id} onChange={(e) => { setCid(e.target.value); setWeek(1); }}>
           {data.campaigns.map((x) => <option key={x.id} value={x.id}>{x.name} ({x.status})</option>)}
@@ -183,7 +284,7 @@ export default function Plan() {
                 <button className="btn primary small-primary" onClick={send}>Send to phone as today&apos;s workout</button>
                 <button className="btn" onClick={clearAll} disabled={!overrideCount}>Clear this day&apos;s overrides{overrideCount ? ` (${overrideCount})` : ''}</button>
               </div>
-              <div className="muted">Anything changed here (exercise, sets, reps, weight, rest) applies only to {DAYS[weekday - 1]} of week {week} in this campaign. A blank weight uses your last weight. Changing the sets of one superset exercise changes them all. The library workout and exercises stay as they are.</div>
+              <div className="muted">Anything changed here (exercise, sets, reps, weight, rest) applies only to {DAYS[weekday - 1]} of week {week} in this run of the campaign; starting it again begins from the workouts' own sets and reps. A blank weight uses your last weight. Changing the sets of one superset exercise changes them all. The library workout and exercises stay as they are.</div>
             </>
           )}
         </div>

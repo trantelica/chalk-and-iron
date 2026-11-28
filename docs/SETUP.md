@@ -278,7 +278,7 @@ Open https://chalkandiron.vercel.app and sign in (a passkey, as on the phone). O
 2. [x] **Rename keeps history.** Change the name of any exercise and press Enter. The new name shows at once. (Its logged sets stay with it; the tests check that.)
 3. [x] **Archive and restore.** Press **Archive** on `Barbell Curl` and confirm. It disappears. Tick **Show archived**: it shows faded with an **Archived** tag and a **Restore** button. Press **Restore**.
 4. [x] **Workouts.** Open **Workouts**, pick **Superset test**. Change **Sets** on one of the two superset exercises: the other changes with it. Press **Details** on a row: the **Exercise** panel on the right shows its swaps, graph and records. Press **Copy this one**, then **Archive** the copy.
-5. [x] **Campaigns.** Open **Campaigns**. Press **New campaign**, name it `Test block`, pick a workout for two days, then press **Activate**. If another campaign is active, you are asked to confirm it ends. Press **Shift forward a week** and confirm; the dates move. Press **End campaign** on it.
+5. [x] **Campaigns.** Open **Campaigns**. Press **New campaign**, name it `Test block`, pick a workout for two days, then press **Activate**. (Since 27 Nov, Activate, Shift and End campaign are in **Plan**; see step AY.) If another campaign is active, you are asked to confirm it ends. Press **Shift forward a week** and confirm; the dates move. Press **End campaign** on it.
 6. [x] **Vocabulary.** Open **Vocabulary** (top row). Rename the equipment value `cable` to `cable stack`, then look at any cable exercise under **Exercises**: it shows `cable stack`. Rename it back. Press **Archive** on `band`: it says exercises keep it. Press **Restore**.
 7. [x] **Pounds or kilograms.** Top right, press **Kilograms**, then press **Details** on `Barbell Bench Press` (if it has history): the records show kilograms to one decimal.
 8. [x] **Carried: step P item 4 (swap to an exercise not in the library).** In **Exercises**, archive `Dumbbell Bench Press`. On your iPhone, start a quick workout with `Barbell Bench Press`, tap **Swap** and pick the **Basic gym** alternate: it is added to your library at once, and **Added to your library** shows suggested details with an equipment picker. Tap **Confirm details**. Back in the planner, the new `Dumbbell Bench Press` is live; archive or rename it and **Restore** the old one if you want your original back (two live exercises cannot share a name, so restore only after renaming or archiving the new one).
@@ -356,7 +356,7 @@ From Nate's notes on step V. **No SQL to run.**
 
 ### Y. In your computer's browser, then on your iPhone, after the merge
 
-1. [x] Open https://chalkandiron.vercel.app/planner, then **Library**, **Campaigns**. Pick a finished campaign (end one with **End campaign** if you have none). Below the grid, **Run again from** shows today's date, with a **Run again** button.
+1. [x] Open https://chalkandiron.vercel.app/planner, then **Library**, **Campaigns**. Pick a finished campaign (end one with **End campaign** if you have none). Below the grid, **Run again from** shows today's date, with a **Run again** button. (Replaced on 27 Nov by **Start a campaign** in **Plan**; see step AY.)
 2. [x] Press **Run again** and confirm. The campaign shows **active**, with the same days, and no second copy appears in the campaign list. If another campaign was active, you were asked first and it now shows **finished**.
 3. [x] On the iPhone Home, the week strip shows this campaign. Days you did in its last run do **not** show Done.
 
@@ -763,3 +763,15 @@ Not in this pass: E18 (the coach with the connector off). The agent pass ran it 
 
 *For the agent: reset with `gh workflow run coach-eval-reset.yml -f state=<state>` and wait for it to finish before saying it is done. States: "ready AV" and tests 4, 7: `standard`; 1: `empty_profile`; 2, 3: `intake_no_campaign`; 5, 6: `workout_running` (use within 30 minutes); 8: `campaign_last_week`; 9: `aggressive_misses`; 10: `style_supportive`; 11: `style_challenging`; "AV done": `standard`. Score each against `docs/SPEC.md` Section 8 and write `tests/coach-evals/results/<date>-client-pass.md`.*
 
+## 30. Library for design, Plan for running (27 November 2026)
+
+**No SQL to run.** Run this check after the pull request is merged and the live app has rebuilt.
+
+### AY. Library and Plan, after the merge
+
+On your computer open https://chalkandiron.vercel.app/planner.
+
+1. [ ] **Library has no run controls.** Click **Library**, then **Campaigns**. Pick a campaign. You see its name, **Weeks**, a status line (**Draft**, **Running since** a date, or **Finished on** a date) and the grid of weeks by days. There is no start date and no **Activate**, **Shift forward a week**, **Undo last shift**, **End campaign** or **Run again**. **New campaign** and **Copy this one** are there. If the campaign is running, a line says "This campaign is running; changes to its days apply from today on", with an **Open Plan** link.
+2. [ ] **Start a campaign.** If one is running, go to **Plan** and press **End campaign** and confirm. At the top of **Plan** you now see **Start a campaign**. Pick a draft (make one under **Library**, **Campaigns**, **New campaign**, if you have none), leave or change **Start date**, press **Start** and confirm. The top now says **Running:** with the campaign's name and its dates.
+3. [ ] **Shift and end.** Still in **Plan**, press **Shift forward a week** and confirm; the dates in the week row move. Press **Undo last shift** and confirm; they move back. Press **End campaign** and confirm: **Start a campaign** comes back.
+4. [ ] **A new run starts clean.** Start a campaign, pick a day with a workout, and change a **Sets** number on it (the row shows "library: …" beside it). Press **End campaign**, then **Start a campaign**, pick the same campaign (it says finished) and **Start**. Open the same day: your change is gone and the numbers are the workout's own.
