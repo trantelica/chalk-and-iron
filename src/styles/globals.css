@@ -404,7 +404,7 @@ textarea.is-saved { border-color: var(--accent); }
 .ask-coach { display: flex; flex-direction: column; gap: 6px; }
 .ask-coach .btn { min-height: 52px; text-align: center; flex-direction: column; gap: 2px; padding: 8px 12px; }
 .ask-coach-note { font-size: 14px; color: var(--text); }
-.ask-coach-box { width: 100%; font: inherit; border: 1px solid var(--line); border-radius: var(--radius-small); background: var(--bg); color: var(--text); padding: 8px; user-select: text; -webkit-user-select: text; }
+.ask-coach-box { width: 100%; font: inherit; border: 1px solid var(--line); border-radius: var(--radius-small); background: var(--surface); color: var(--text); padding: 8px; user-select: text; -webkit-user-select: text; }
 .notice .ask-coach-note { color: var(--on-accent); }
 .notice .ask-coach .btn { align-self: stretch; }
 .ci-weeks { display: flex; flex-wrap: wrap; gap: 6px; }

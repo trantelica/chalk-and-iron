@@ -706,7 +706,7 @@ The five states are decided (17 Nov, question 4), and the coach can see each one
 | Finished | Read. Copy into a new draft. Run again from a new start date (Nate, 21 Nov): the same campaign becomes active, its shifts are cleared, and another active campaign ends after a confirmation. Its sessions stay in History | Run again |
 
 - Weeks run Monday to Sunday. A campaign may start on any date, and week 1 is the week holding its start date (decided 17 Nov, question 19).
-- When the active campaign finishes, the app prompts the user to ask their coach for the next one. It does not repeat or extend. During its last week (the week holding its end date), Home shows a note to ask the coach for the next one, with the Coach button (Nate, 24 Nov).
+- When the active campaign finishes, the app prompts the user to ask their coach for the next one. It does not repeat or extend. During its last week (the week holding its end date), Home shows a note to ask the coach for the next one, with an Ask my coach button that copies a message and opens the coach project (Nate, 24 Nov; 27 Nov). The coach is in ChatGPT or Claude, not in the app.
 - A day is **missed** when its date has passed with no session from it. Nothing moves. A missed workout stays available to start on a later day.
 - A day is **done** when a session that came from it exists, logged on or after the campaign's current start date (so a campaign run again starts with no day done; changed 21 Nov). The date it was logged within that run does not matter.
 

@@ -153,7 +153,7 @@ export default function Campaigns() {
           {finished && (
             <div className="notice" role="status">
               <strong>{c.name} {c.status === 'finished' ? 'is finished' : 'has run its last day'}.</strong>
-              <div className="notice-detail">Ask your coach for the next one, or press Run again below to repeat it from a new start date. The app never repeats or extends a campaign by itself.{coachLink ? <> <a href={coachLink} target="_blank" rel="noreferrer">Open my coach</a>.</> : ' Open your coach project and ask for the next campaign.'}</div>
+              <div className="notice-detail">Ask your coach for the next one (your coach is in ChatGPT or Claude, not in this app), or press Run again below to repeat it from a new start date. The app never repeats or extends a campaign by itself.{coachLink ? <> <a href={coachLink} target="_blank" rel="noreferrer">Open my coach</a>.</> : ' Open your coach project and ask for the next campaign.'}</div>
               {c.status === 'active' && <button className="btn" onClick={finish}>Mark it finished</button>}
             </div>
           )}
