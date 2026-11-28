@@ -685,3 +685,18 @@ Tell the agent which items pass or fail.
 
 ### AT. After the merge (marked complete by Nate without testing, 27 Nov: layout only)
 1. [x] On your iPhone open https://chalkandiron.vercel.app/planner/profile. Each closed section (**About you**, and each gym's **Notes and gym details**, **Weights** and **Equipment**) has a small triangle on the left of its title, pointing right. Tap a title: the section opens and the triangle turns to point down. Tap again: it turns back.
+
+## 29. Phase 4, stage 4H: Home and the coach instructions (27 November 2026)
+
+### AU. Home's check-in marks and last-week note, after the merge
+
+1. [ ] On your iPhone open https://chalkandiron.vercel.app/app (the app's Home). Ask your coach (ChatGPT or Claude, with Chalk and Iron connected) for **last week's summary**. Back on Home, pull down to reload: a **Weekly check-ins** section shows four weeks, with a tick under last week and a dash under the others, and a line "1 check-in in a row."
+2. [ ] Ask the coach for the summary of the week before that. Reload Home: two ticks and "2 check-ins in a row." (A week with no summary read breaks the count; a week read twice still counts once.)
+3. [ ] On your computer open https://chalkandiron.vercel.app/planner, then **Library**, then **Campaigns**. Make a campaign one week long (name it `Last week test`), then press **Activate**. Open Home on your iPhone: above the week's days a coloured note says "This is the last week of Last week test. Ask your coach for the next one." with a **Coach** button that opens the Coach screen.
+4. [ ] Press **End campaign** on it in the planner. The note goes. (A campaign longer than one week shows the note only in its final week.)
+
+Tell the agent which items pass or fail.
+
+### AV. Your client pass, after the agent pass is merged
+
+The agent will list the core scenarios (the ones marked ★ in `docs/SPEC.md` Section 8) with the exact words to say. Run them in ChatGPT on your iPhone, and E2 and E4 in Claude, on the Test Account. Do not accept or decline anything you did not mean to; the agent resets the account to a known state before each one. Only you judge E14, the tone.

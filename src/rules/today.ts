@@ -58,7 +58,7 @@ export interface TodayView {
   workout: TodayWorkout | null;
   /** A session from today's plan already finished today. */
   doneToday: boolean;
-  campaign: null | { name: string; week: number | null; weekCount: number; days: WeekDay[] };
+  campaign: null | { name: string; week: number | null; weekCount: number; lastWeek: boolean; days: WeekDay[] };
 }
 
 const num = (v: unknown) => (v === null || v === undefined ? null : Number(v));
@@ -162,7 +162,8 @@ export function todayView(input: TodayInput): TodayView {
       return { date: dt, weekday: i + 1, label, workout: name, state, isToday: dt === date };
     });
     const pos = campaignPosition(date, active.start_date.slice(0, 10), active.week_count, blank);
-    campaign = { name: active.name, week: pos?.week ?? null, weekCount: active.week_count, days };
+    // The week holding the campaign's end date: Home then asks the user to ask the coach for the next one.
+    campaign = { name: active.name, week: pos?.week ?? null, weekCount: active.week_count, lastWeek: pos?.week === active.week_count, days };
   }
   return { workout, doneToday, campaign };
 }
