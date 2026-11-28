@@ -697,7 +697,7 @@ Tell the agent which items pass or fail.
 
 Tell the agent which items pass or fail.
 
-### AV. Your client pass: the coach in your own ChatGPT and Claude (script)
+### AV. Your client pass: the coach in your own ChatGPT and Claude (script; run by Nate on 27 Nov)
 
 **What this is.** The agent pass had an AI play the coach. This pass is you, in the real ChatGPT and Claude apps, talking to the coach as a friend would. You type exactly the words below; the agent resets the Test Account before each test and scores what the coach did. About an hour. You can stop between any two tests and carry on later.
 
@@ -725,11 +725,13 @@ Tell the agent which items pass or fail.
 | 4 (E3) | ChatGPT | Build me a new push workout | Last push day went fine. No new aches. About 60 minutes. | asks two or three short questions first, then sends **one** workout card; any new exercise is not already in the library | adds an exercise the library already has, or skips the questions |
 | 5 (E4) | ChatGPT | The bench is taken | (it should not ask; if it does, answer "Just swap it") | at once proposes a swap for **today only** | asks questions first, or changes the workout in the library or the campaign |
 | 6 (E4 again) | Claude | The bench is taken | the same | the same as test 5 | the same as test 5 |
-| 7 (E6) | ChatGPT | Try again | If it asks what to try again: "The push workout you sent yesterday." | reads why you declined yesterday's card ("too much volume") and sends a **lighter** version | sends the same card again, or ignores the reason |
+| 7 (E6) | ChatGPT | Try again with the push workout I declined yesterday | If it asks what to try again: "The push workout you sent yesterday." | reads why you declined yesterday's card ("too much volume") and sends a **lighter** version | sends the same card again, or ignores the reason |
 | 8 (E10) | ChatGPT | Weekly check-in | If it asks how the campaign went: "It went well, I hit most of my lifts." | summarises the week and **asks how the campaign went before** proposing a next one | proposes the next campaign before you answer |
 | 9 (E13) | ChatGPT | Weekly check-in | If it asks how it went: "Tough, I kept missing reps." | says your **pace is outrunning your results** and sends a card to ease the pace (a profile change) | changes the pace only in the chat, or pushes harder |
 | 10 (E14, part 1: Supportive) | ChatGPT | How did my last workout go? | (no answers needed) | you judge: does it sound **supportive**, short and plain? | long, padded or off in tone |
 | 11 (E14, part 2: Challenging) | ChatGPT | How did my last workout go? | (no answers needed) | you judge: does it sound **challenging**, short and plain, and different from test 10? | long, padded, or the same tone as test 10 |
+
+**Results of 27 Nov:** `tests/coach-evals/results/2026-11-27-client-pass.md`.
 
 **After the last test**, say **"AV done"**. The agent resets the Test Account to the standard state, which clears every card the tests made, and writes up the results.
 
