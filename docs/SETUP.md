@@ -213,7 +213,7 @@ Open Chalk and Iron from its home-screen icon. If it looks unchanged, swipe it a
 1. [x] **Home.** The **iPhone checks** button is gone. A **Today** panel shows today's date and "No workout planned for today", with **Start another workout** (planned days arrive with the planner). While a workout runs, it shows **Resume** and the workout's name instead.
 2. [x] **Swap part-way.** Start a quick workout with `Barbell Bench Press`, tap **Start exercise** and log one set. Tap **Swap**. The sheet says the 1 set you logged stays with Barbell Bench Press and the 2 sets left are done as the exercise you pick. Tap **Dumbbell Bench Press**. The screen moves to Dumbbell Bench Press with 2 sets and **Start exercise**. Open the tray (**Workout** at the top): Barbell Bench Press shows **Done** with its one set, and Dumbbell Bench Press comes right after it.
 3. [x] **Swap in a superset.** Start **Superset test**, tap **Start exercise** and log one full round (a set on each exercise). Tap **Swap** and pick an alternate. The superset carries on with the new exercise in its place for the rounds left, still alternating. Part-way through a round, the sheet says to finish the round first.
-4. [ ] **Swap to an exercise not in your library.** Every alternate in the starter library is already in your library, so this one shows only once the planner can archive or rename exercises (Phase 3). The test browser on GitHub checks it meanwhile: the new exercise is added at once, "Added to your library" shows its suggested details with an equipment picker, and **Confirm details** saves them.
+4. [x] **Swap to an exercise not in your library.** Every alternate in the starter library is already in your library, so this one shows only once the planner can archive or rename exercises (Phase 3). The test browser on GitHub checks it meanwhile: the new exercise is added at once, "Added to your library" shows its suggested details with an equipment picker, and **Confirm details** saves them. *(Done by Nate; confirmed 28 Nov.)*
 5. [x] **Swap to any exercise in your library** (after the next merge). Tap **Swap**, type part of a name under **Or any exercise in your library**, and tap one. The workout changes to it, with the same rules as an alternate.
 
 **Nate's results, 19 November 2026:** steps 1, 2, 3 and 5 passed. Step 3: the bench press was replaced and the other exercise stayed in the superset. He then asked to swap to any exercise in the library, not only the three alternates; that was built as step 5 (pull request 25) and passed. Step 4 cannot be done on the phone until Phase 3; GitHub's browser test covers it.
@@ -380,8 +380,8 @@ The fresh review found nine points, and **Nate chose to fix all nine** (`docs/NE
 
 ### AA. In your computer's browser, after the merge
 
-1. [ ] **A new superset.** Open https://chalkandiron.vercel.app/planner, **Library**, **Workouts**, and press **New workout**. Add two exercises. On the first row, under **Superset**, choose **New superset with the next exercise**. Both rows now show the same letter and the same sets, and **All changes saved** shows at the top.
-2. [ ] **History goes further back.** Open **History** and press **Show 10 more** until it disappears: your oldest session is in the list.
+1. [x] **A new superset.** Open https://chalkandiron.vercel.app/planner, **Library**, **Workouts**, and press **New workout**. Add two exercises. On the first row, under **Superset**, choose **New superset with the next exercise**. Both rows now show the same letter and the same sets, and **All changes saved** shows at the top. *(Done by Nate; confirmed 28 Nov.)*
+2. [x] **History goes further back.** Open **History** and press **Show 10 more** until it disappears: your oldest session is in the list. *(Done by Nate; confirmed 28 Nov.)*
 
 
 ## 18. Fixes from the Phase 3 review at high effort (23 November 2026)
