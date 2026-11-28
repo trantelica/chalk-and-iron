@@ -683,5 +683,5 @@ Tell the agent which items pass or fail.
 
 ## 28. A triangle on each collapsible section (27 November 2026)
 
-### AT. After the merge
-1. [ ] On your iPhone open https://chalkandiron.vercel.app/planner/profile. Each closed section (**About you**, and each gym's **Notes and gym details**, **Weights** and **Equipment**) has a small triangle on the left of its title, pointing right. Tap a title: the section opens and the triangle turns to point down. Tap again: it turns back.
+### AT. After the merge (marked complete by Nate without testing, 27 Nov: layout only)
+1. [x] On your iPhone open https://chalkandiron.vercel.app/planner/profile. Each closed section (**About you**, and each gym's **Notes and gym details**, **Weights** and **Equipment**) has a small triangle on the left of its title, pointing right. Tap a title: the section opens and the triangle turns to point down. Tap again: it turns back.

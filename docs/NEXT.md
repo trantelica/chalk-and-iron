@@ -19,7 +19,6 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 
 ## Waiting on Nate
 
-- **Step AT** (`docs/SETUP.md` section 28), after the merge: the triangle on each collapsible section.
 - **Screenshots for Coach setup** (not needed to merge): the ChatGPT and Claude steps show grey placeholders. Six screens to capture are listed at the end of step AO in `docs/SETUP.md`.
 
 ## Open items
