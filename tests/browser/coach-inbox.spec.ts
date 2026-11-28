@@ -128,6 +128,7 @@ test('the Coach screen has a big Back to my workout button only while a workout 
 
   // Start a workout, log a set, open Coach from the workout screen.
   await page.goto('/app/workout');
+  await page.getByRole('button', { name: /^Ad-hoc workout/ }).click();
   await page.getByLabel('Search your library').fill('Barbell Curl');
   await page.getByRole('button', { name: /^Barbell Curl/ }).first().click();
   await page.getByRole('button', { name: 'Start workout' }).click();

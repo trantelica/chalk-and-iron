@@ -705,10 +705,21 @@ First, re-paste the updated coach instructions (they changed in this merge): on 
 2. [ ] On Home tap **Open the Coach screen**. It says your coach is in ChatGPT or Claude, not inside Chalk and Iron. Under **What you can ask your coach** are five closed groups: In the gym, Planning, Checking in, If you decline a coach's card, About you and your gyms. Tap each triangle: it opens with example sentences (In the gym starts with "You can change today's workout yourself: swap an exercise, change the order or skip one. If that isn't enough, ask your coach:") (for example "The bench is taken.") and a last line saying the coach sends a card, you accept or decline it in Chalk and Iron, and nothing changes until you do. Nothing on the screen copies anything.
 3. [ ] Tap **Open my coach** at the bottom of the guide. Your coach project opens in ChatGPT or Claude. Say one of the examples there in your own words. Go back to Chalk and Iron: the coach's card is waiting on the Coach screen.
 4. [ ] Redo step AU item 3: on your computer make a one-week campaign `Last week test` (**Planner**, **Library**, **Campaigns**, **Activate**). On Home the coloured note says "Ask your coach in ChatGPT or Claude for the next campaign" with an **Open my coach** link. It opens your coach project; nothing is copied. Then press **End campaign** in the planner.
-5. [ ] Start a workout (**Start another workout**) and tap an exercise's swap: the list has the three stored options and the library search, and no row for asking the coach.
+5. [ ] Start a workout (**Start another workout**, then **Ad-hoc workout**) and tap an exercise's swap: the list has the three stored options and the library search, and no row for asking the coach.
 6. [ ] On your computer, click **Coach setup**, step 5 (**Link to your coach project**): empty it and click **Save the link**. On your iPhone open the Coach screen: instead of **Open my coach** it says "No coach link is saved yet. Add it in Coach setup, step 5." and offers **Open Coach setup**. Then save your link again.
 7. [ ] On your computer on **Coach setup**, scroll to the end: **What you can ask your coach** is there too, with **Open my coach**. Step 3 now has two notes under the instructions (start ChatGPT chats inside your coach project and name "@Chalk and Iron" if it ever answers without using it; your own ChatGPT or Claude settings also shape the tone). **Step 4, Check your setup** shows "check setup" and the line the coach should reply with.
 8. [ ] In a chat inside your coach project in ChatGPT, then in Claude, send **check setup**. Each replies with exactly this one line: "Chalk and Iron coach ready, instructions version 6". If one does not, paste the instructions into that project again (Coach setup, step 3) and try once more.
+
+### AX. Screen fixes, after the merge
+
+On your iPhone, open https://chalkandiron.vercel.app/app (close and reopen the home-screen app if it looks old).
+
+1. [ ] **Home order.** Under **Today**, the **Inbox** box comes before **Weekly check-ins**.
+2. [ ] **Start another workout.** Tap **Start another workout**. You see two big buttons: **Pick a workout** and **Ad-hoc workout**, not a long list.
+3. [ ] **Pick a workout.** Tap **Pick a workout**. A search box, then **Recently used** (workouts you started lately, newest first), then **All workouts, A to Z**. Type part of a name: only matches show. Tap **‹ Back**.
+4. [ ] **Ad-hoc workout.** Tap **Ad-hoc workout**. **Start workout** is at the very top, above the exercise list (it is greyed out until you pick one). Search, tap an exercise: it appears in the list under the button. Tap **Start workout**, then **Start exercise**.
+5. [ ] **The + and − buttons.** In the workout, the **−5 / +5** buttons by the weight and the **−1 / +1** buttons by the reps line up with the middle of their number, with their label in the middle of the button.
+6. [ ] **Planner menu.** On your computer open https://chalkandiron.vercel.app/planner. The tabs are **Plan**, **Library**, **History** and **Proposals** on one line; at the top right is a **Menu** button. Click it: **Vocabulary**, **Coach setup**, **Profile and gyms**, **Account**, **Admin** (admins only), **Phone home** and the **Pounds / Kilograms** switch. Press **Esc**, or click an item: it closes.
 
 ### AV. Your client pass: the coach in your own ChatGPT and Claude (script; run by Nate on 27 Nov)
 

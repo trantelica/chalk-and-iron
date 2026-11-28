@@ -29,6 +29,8 @@ The tappable prototype is the reference for look, layout and interaction: `proto
 | Workout | An ordered list of exercises with sets, reps and rest |
 | Campaign | One to six consecutive weeks with workouts assigned to days |
 | Session | One performed workout, with everything logged in it |
+| Off-plan workout | Any workout that is not from today's campaign day or a day sent to the phone for today (Nate, 27 Nov). Started from Home's Start another workout, either by picking a saved workout or as an ad-hoc workout |
+| Ad-hoc workout | The specific kind of off-plan workout built as you go from exercises chosen in the library (formerly "Quick workout"; Nate, 27 Nov). Its source in the database is `ad_hoc` |
 | Superset | Two or three exercises bound together and performed in alternation, each with the same number of sets |
 | Time budget | The time allocated to an exercise for its work and rest |
 | Proposal | A change requested by a coach, waiting for the user's decision |
@@ -64,7 +66,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 
 ### Logging a workout
 
-- Today's workout comes from the active campaign, with that day's overrides applied. The user can also start any library workout ad hoc.
+- Today's workout comes from the active campaign, with that day's overrides applied. The user can also start any saved workout, or build an ad-hoc workout from library exercises; both are off-plan workouts.
 - Each exercise has a **Start exercise** button, so walking, setup and waiting for equipment are not counted.
 - A set is logged with weight and reps. Both can be typed or stepped. Steps are 5 in the selected unit for weight and 1 for reps.
 - The weight display is switched per exercise between pounds and kilograms. The phone remembers the choice for that exercise as a display setting. It is not an edit to the library exercise and does not change its default unit. Bodyweight exercises have no switch.
@@ -142,7 +144,7 @@ The app database is the single source of truth. Every record belongs to one user
 | Workout | name, ordered items | Item: exercise, sets, reps, rest seconds (optional), superset letter (optional) |
 | Campaign | name, start date, week count (1 to 6), status | Status: draft, active, finished |
 | Campaign day | week, weekday, workout, overrides | Override per item: exercise, sets, reps, weight and unit, rest seconds. Any subset |
-| Session | date, source, gym, start, end, status | Source is a campaign day or an ad hoc workout |
+| Session | date, source, gym, start, end, status | Source is a campaign day or an ad-hoc workout (stored as `ad_hoc`) |
 | Session exercise | exercise, order, superset letter, planned sets, reps, weight and rest, time budget, start time, elapsed seconds, skipped flag | A snapshot of the plan at session start. Breaking a superset changes only this snapshot, never the library |
 | Set log | set number, weight in lb, entered value, entered unit, reps, set type, RPE, time logged, record types | One row per set. A bodyweight set is recorded as a weight of 1 bodyweight unit ("1 BW") and a rep count |
 | Cardio log | date, type, duration, distance and unit, notes | Separate from sessions |
@@ -427,7 +429,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | Screen | Contents |
 | --- | --- |
 | Sign in and register | Opening an invite link, name and email, passkey setup, sign-in, first-run setup steps |
-| Home | Today's workout with a Start button, pending proposals, the campaign week at a glance, and Start another workout. Today's workout is a day sent to the phone for today if there is one, otherwise the active campaign's day for today with its overrides. The week runs Monday to Sunday, each day marked Done, Missed, Today, upcoming or Rest. Built 19 Nov; the planner (Phase 3) and the coach (Phase 4) are what fill it, and the proposals inbox comes with the coach. During the active campaign's last week it shows a note "Ask your coach in ChatGPT or Claude for the next campaign" with the Open my coach link, and a Weekly check-ins panel (Phase 4): one box per finished week, labelled "Week of Nov 2" and ticked when the coach read that week's summary, enough weeks to cover the count (at least four, at most twelve), then "This week" greyed with "not over yet" (only finished weeks count), and a line such as "4 check-ins in a row, since the week of Oct 26." |
+| Home | Today's workout with a Start button, pending proposals, the campaign week at a glance, and Start another workout (an off-plan workout: **Pick a workout**, a search box with recently used workouts first and then the rest A to Z, or **Ad-hoc workout**, choosing exercises from the library, with its Start workout button at the top). Below Today: the Inbox, then the Weekly check-ins panel. Today's workout is a day sent to the phone for today if there is one, otherwise the active campaign's day for today with its overrides. The week runs Monday to Sunday, each day marked Done, Missed, Today, upcoming or Rest. Built 19 Nov; the planner (Phase 3) and the coach (Phase 4) are what fill it, and the proposals inbox comes with the coach. During the active campaign's last week it shows a note "Ask your coach in ChatGPT or Claude for the next campaign" with the Open my coach link, and a Weekly check-ins panel (Phase 4): one box per finished week, labelled "Week of Nov 2" and ticked when the coach read that week's summary, enough weeks to cover the count (at least four, at most twelve), then "This week" greyed with "not over yet" (only finished weeks count), and a line such as "4 check-ins in a row, since the week of Oct 26." |
 | Cardio entry | Type, duration, distance, notes, and a list of recent entries |
 | Settings | Look (skin, accent, background), totals unit, notifications, coach link, sign out |
 

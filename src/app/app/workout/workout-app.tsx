@@ -48,7 +48,9 @@ function libFromMade(x: SwapMadeExercise, vocab: VocabTerm[]): LibExercise {
   };
 }
 export interface LibWorkout {
-  id: string; name: string; items: { exerciseId: string; sets: number; reps: number; rest: number | null; superset: string | null }[];
+  id: string; name: string;
+  /** When this workout was last started (ISO), for the chooser's "Recently used" list; null if never. */
+  lastUsed?: string | null; items: { exerciseId: string; sets: number; reps: number; rest: number | null; superset: string | null }[];
 }
 
 const TIER: Record<string, string> = { bodyweight: 'Bodyweight', basic_gym: 'Basic gym', full_gym: 'Full gym' };
@@ -1280,6 +1282,17 @@ function Graph({ e, unit, history, s }: { e: Session['exercises'][string]; unit:
   );
 }
 
+// The "Pick a workout" list: while searching, the matches A to Z; otherwise the
+// recently used workouts first (newest first, up to eight), then the rest A to Z.
+export function workoutChooser(workouts: LibWorkout[], query: string): { title: string; items: LibWorkout[] }[] {
+  const byName = (a: LibWorkout, b: LibWorkout) => a.name.localeCompare(b.name);
+  const q = query.trim().toLowerCase();
+  if (q) return [{ title: 'Matches', items: workouts.filter((w) => w.name.toLowerCase().includes(q)).sort(byName).slice(0, 50) }];
+  const recent = workouts.filter((w) => w.lastUsed).sort((a, b) => (b.lastUsed as string).localeCompare(a.lastUsed as string)).slice(0, 8);
+  const ids = new Set(recent.map((w) => w.id));
+  return [{ title: 'Recently used', items: recent }, { title: 'All workouts, A to Z', items: workouts.filter((w) => !ids.has(w.id)).sort(byName) }];
+}
+
 // ------------------------------------------------------------------ start and finish
 function StartScreen({ exercises, workouts, libById, summary, lastDone, now, syncLine, saved, onDismiss, onReopen, onStart, alerts, today, replaced }: {
   exercises: LibExercise[]; workouts: LibWorkout[]; libById: Map<string, LibExercise>;
@@ -1293,6 +1306,9 @@ function StartScreen({ exercises, workouts, libById, summary, lastDone, now, syn
   const [picked, setPicked] = useState<LibExercise[]>([]);
   const [q, setQ] = useState('');
   const list = q.trim() ? exercises.filter((x) => x.name.toLowerCase().includes(q.toLowerCase())).slice(0, 30) : [];
+  const [mode, setMode] = useState<null | 'pick' | 'adhoc'>(null);
+  const [wq, setWq] = useState('');
+  const chooser = workoutChooser(workouts, wq);
 
   if (summary) {
     const eff = efficiencyOf(summary, now);
@@ -1353,33 +1369,56 @@ function StartScreen({ exercises, workouts, libById, summary, lastDone, now, syn
           <button className="btn" onClick={() => onReopen(lastDone)}>Reopen {lastDone.name}</button>
         </div>
       )}
-      {workouts.length > 0 && (
+      {mode === null && (
         <>
-          <h2>Your workouts</h2>
-          {workouts.map((w) => (
-            <button key={w.id} className="btn opt" onClick={() => onStart(w.name, w.items.flatMap((i) => { const x = libById.get(i.exerciseId); return x ? [toPlan(x, i.sets, i.reps, i.rest, i.superset)] : []; }), w.id)}>
-              {w.name}<span className="muted">{w.items.length} exercises</span>
-            </button>
-          ))}
+          <h2>Start another workout</h2>
+          <div className="muted">A workout that is not today&apos;s plan is an off-plan workout.</div>
+          {workouts.length > 0 && (
+            <button className="btn opt" onClick={() => setMode('pick')}>Pick a workout<span className="muted">One you have saved: search, or choose from the list</span></button>
+          )}
+          <button className="btn opt" onClick={() => setMode('adhoc')}>Ad-hoc workout<span className="muted">Choose exercises from your library and go</span></button>
         </>
       )}
-      <h2>Quick workout</h2>
-      <div className="muted">Pick exercises from your library. Each starts at 3 sets of 10, and you can change that in the planner later.</div>
-      <input type="text" placeholder="Search your library" aria-label="Search your library" value={q} onChange={(ev) => setQ(ev.target.value)} />
-      <div className="pick-list">
-        {list.map((x) => (
-          <button key={x.id} className="btn opt" disabled={picked.some((p) => p.id === x.id)} onClick={() => { setPicked([...picked, x]); setQ(''); }}>
-            {x.name}<span className="muted">{[x.muscle, x.equipment].filter(Boolean).join(' · ')}</span>
-          </button>
-        ))}
-      </div>
-      {picked.map((x, i) => (
-        <div key={x.id} className="row spread panel">
-          <span>{i + 1}. {x.name}</span>
-          <button className="btn small" onClick={() => setPicked(picked.filter((p) => p.id !== x.id))}>Remove</button>
-        </div>
-      ))}
-      <button className="btn primary" disabled={!picked.length} onClick={() => onStart('Quick workout', picked.map((x) => toPlan(x, 3, 10, null, null)))}>Start workout</button>
+      {mode === 'pick' && (
+        <>
+          <div className="row"><button className="btn small" onClick={() => { setMode(null); setWq(''); }}>‹ Back</button><h2>Pick a workout</h2></div>
+          <input type="text" placeholder="Search your workouts" aria-label="Search your workouts" value={wq} onChange={(ev) => setWq(ev.target.value)} />
+          <div className="pick-list">
+            {chooser.map((g) => g.items.length > 0 && (
+              <section key={g.title} aria-label={g.title} className="stack">
+                <div className="lab">{g.title}</div>
+                {g.items.map((w) => (
+                  <button key={w.id} className="btn opt" onClick={() => onStart(w.name, w.items.flatMap((i) => { const x = libById.get(i.exerciseId); return x ? [toPlan(x, i.sets, i.reps, i.rest, i.superset)] : []; }), w.id)}>
+                    {w.name}<span className="muted">{w.items.length} exercise{w.items.length === 1 ? '' : 's'}</span>
+                  </button>
+                ))}
+              </section>
+            ))}
+            {chooser.every((g) => g.items.length === 0) && <div className="muted">No workout matches that.</div>}
+          </div>
+        </>
+      )}
+      {mode === 'adhoc' && (
+        <>
+          <div className="row"><button className="btn small" onClick={() => { setMode(null); setPicked([]); setQ(''); }}>‹ Back</button><h2>Ad-hoc workout</h2></div>
+          <button className="btn primary" disabled={!picked.length} onClick={() => onStart('Ad-hoc workout', picked.map((x) => toPlan(x, 3, 10, null, null)))}>Start workout</button>
+          <div className="muted">Pick exercises from your library. Each starts at 3 sets of 10, and you can change that in the planner later.</div>
+          {picked.map((x, i) => (
+            <div key={x.id} className="row spread panel">
+              <span>{i + 1}. {x.name}</span>
+              <button className="btn small" onClick={() => setPicked(picked.filter((p) => p.id !== x.id))}>Remove</button>
+            </div>
+          ))}
+          <input type="text" placeholder="Search your library" aria-label="Search your library" value={q} onChange={(ev) => setQ(ev.target.value)} />
+          <div className="pick-list">
+            {list.map((x) => (
+              <button key={x.id} className="btn opt" disabled={picked.some((p) => p.id === x.id)} onClick={() => { setPicked([...picked, x]); setQ(''); }}>
+                {x.name}<span className="muted">{[x.muscle, x.equipment].filter(Boolean).join(' · ')}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </main>
   );
 }
