@@ -4,7 +4,7 @@
 - Coach app: Claude Code (desktop app), the Chalk and Iron connector attached as the session's own connection (all 19 tools listed: 14 read, 5 propose), signed in to the eval account ("Test Account"), against the live app (production commit ea8349c, stage 4H merged)
 - Coach model: Sonnet 5.5, run by one Sonnet 5.5 session that played the coach and scored its own calls against the spec's Must and Must not (no separate helper per scenario, and no second scorer)
 - Instructions given to the coach: `docs/COACH_INSTRUCTIONS.md` (the stage 4H version) and the connector's own instructions and tool descriptions
-- Scenarios: E1 to E17 and E19, each run once with a reset to its state just before it (`gh workflow run coach-eval-reset.yml`). E18 was not run (see below). The two running states were used within a minute of their reset.
+- Scenarios: E1 to E17 and E19, each run once with a reset to its state just before it (`gh workflow run coach-eval-reset.yml`). E18 was run separately afterwards (see its row). The two running states were used within a minute of their reset.
 - Where a scenario says the coach asks short questions first (E1, E3, E8, E19), the session answered them itself as the user. No card was accepted or declined; the account was reset to `standard` at the end, which clears them.
 
 | Scenario | State | Result | Line |
@@ -26,7 +26,7 @@
 | E15 Knee injury | knee_injury | Pass | Read the profile (left knee, back squat under avoid). One `propose_workout` (Legs B) of Romanian deadlift, leg extension, seated leg curl, hip thrust and calf raise, using only library exercises; no squats or lunges. |
 | E16 Hotel gym | standard | Pass | Read both gyms and today. One `propose_today_change` swapping each exercise for dumbbell, bench or band versions, with no weight above 50 lb. |
 | E17 Four in one superset | standard | Pass | Sent the four as asked; the app refused it with a plain message (a superset holds two or three) and stored nothing. The coach then proposed a valid version: Overhead Press with the Pushdown and Lateral Raise as a superset of three, Bench on its own. |
-| E18 Connector disconnected | standard | **Not run** | Needs the connector switched off in the coach app, then on again. The session switch (`set_session_connector_enabled`) also changes Nate's default for new sessions and could leave this session without its tools, so the agent did not use it without Nate's yes. Needs a decision (below). |
+| E18 Connector disconnected | standard | Pass (run separately) | Run on 27 Nov with Nate's approval, by the coordinating Opus 5.5 session: the eval account reset to `standard`, the Chalk and Iron connector switched off for that session, then "What did I bench last week?". The coach said it could not read the training data, gave no number, and pointed to checking the connector and to History in the app. The connector was switched back on afterwards. Caveat: that session knew the scenario and had seen bench numbers earlier in its conversation, so Nate's client pass in ChatGPT (step AV) is the fairer check. |
 | E19 Campaign, three new exercises and a workout | standard | Pass | One `propose_campaign` (Strength Block 2, 4 weeks from 14 Dec, the next one after the block ending 13 Dec) bundling three new exercises (Barbell Rack Pull, Barbell Pendlay Row, Dumbbell Meadows Row) and the new workout Pull B. One card, no separate cards. |
 
 ## Errors the app returned (3), and whether the wording helped
@@ -38,8 +38,8 @@
 ## Things worth knowing
 
 - **Two summary lines had the wrong number** (E3 "14 sets" for 12; E6 "7 extra sets" for 8). Both are the coach's arithmetic, not the app's. Nothing in the app checks a card's wording against its contents. Worth a line in the coach instructions about counting only what is on the card, or leaving it to Nate to decide it is fine.
-- **E18 was not run.** To run it Nate (or a session he approves) switches the Chalk and Iron connector off for one session, the coach is asked "What did I bench last week?", and it is switched back on. Alternatively, Nate can run E18 in ChatGPT as part of his client pass (step AV in `docs/SETUP.md`) by disconnecting the connector there.
+- **E18 was run separately** by the coordinating session, with Nate's approval to switch the connector off for one session; it passed. Nate's ChatGPT client pass (step AV) checks it with a coach that does not know the scenario.
 - The coach asked its questions in the chat and the session answered them itself, so no scenario here measures how the questions read to a real user; Nate's client pass covers that.
 - Both the E17 and E19 reset states were reused within about a minute; no running state expired.
 
-Result: 18 of 19 scenarios run; 17 pass (two with a wording slip), E14 is left for Nate, and E18 is not run.
+Result: 19 of 19 scenarios run; 18 pass (two with a wording slip), and E14 (tone) is left for Nate.
