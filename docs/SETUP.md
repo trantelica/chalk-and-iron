@@ -697,6 +697,43 @@ Tell the agent which items pass or fail.
 
 Tell the agent which items pass or fail.
 
-### AV. Your client pass, after the agent pass is merged
+### AV. Your client pass: the coach in your own ChatGPT and Claude (script)
 
-The agent will list the core scenarios (the ones marked ★ in `docs/SPEC.md` Section 8) with the exact words to say. Run them in ChatGPT on your iPhone, and E2 and E4 in Claude, on the Test Account. Do not accept or decline anything you did not mean to; the agent resets the account to a known state before each one. Only you judge E14, the tone.
+**What this is.** The agent pass had an AI play the coach. This pass is you, in the real ChatGPT and Claude apps, talking to the coach as a friend would. You type exactly the words below; the agent resets the Test Account before each test and scores what the coach did. About an hour. You can stop between any two tests and carry on later.
+
+**Rules for the whole pass**
+- Use the Test Account only. Every test starts in a **new chat inside your coach project** (in ChatGPT: open the coach project, then **New chat** inside it; in Claude: open the coach Project, then start a new chat in it). Never continue an old chat: the coach would remember the last test.
+- **Do not press Accept or Decline** on any card in Chalk and Iron during the pass. Cards are left waiting; the agent reads them itself.
+- Do not use the Chalk and Iron app during a test, except to look. In test 4 the account has a workout running that the agent started; leave it alone.
+- If the coach asks you something, give the **answer written in the script**, word for word. If it asks something the script does not cover, answer "Your call" and tell the agent.
+- After each test, send the agent: the test number, and the coach's replies (copy and paste the text, or screenshots). That is all; the agent reads any card from the account.
+
+**Before you start (once)**
+
+0a. In the agent chat, say **"ready AV"**. The agent resets the Test Account to the standard state and tells you when it is done (about a minute).
+0b. In ChatGPT, in a new chat inside your coach project, type: **Use Chalk and Iron: who am I?** It must answer **Test Account**. If it names another account, stop and tell the agent: that ChatGPT is connected to a different account and the tests would change it.
+0c. Do the same in Claude, in a new chat in your coach Project. It must also answer **Test Account**.
+0d. Check the coach instructions are pasted into both projects (Coach setup, step 3, **Copy the instructions**). If not, paste them now.
+
+**The tests.** For each: say **"ready test N"** to the agent, wait until it says the reset is done, open a **new chat in your coach project** in the app named, and type the words exactly.
+
+| Test | App | Type exactly | If the coach asks, answer | It passes if the coach | It fails if the coach |
+|---|---|---|---|---|---|
+| 1 (E1) | ChatGPT | Let's get started | Coach style: supportive. Experience: intermediate. Priorities: strength first, then build muscle. Pace: steady. 60 minutes. 4 days a week. Some variety. Leave everything else blank. | asks the intake questions, then sends **one** card with only those answers, and says it is waiting in the app | fills in answers you did not give (goals, injuries, liked exercises), or sends several cards |
+| 2 (E2) | ChatGPT | Let's get started | Start next Monday. No new aches. Keep my usual days. | asks only what your profile does not already answer, then sends **one** campaign card that fits 60 minutes, 3 days a week and your priorities | asks again about things your profile already says (style, pace, minutes, days), or sends several cards |
+| 3 (E2 again) | Claude | Let's get started | the same answers as test 2 | the same as test 2 | the same as test 2 |
+| 4 (E3) | ChatGPT | Build me a new push workout | Last push day went fine. No new aches. About 60 minutes. | asks two or three short questions first, then sends **one** workout card; any new exercise is not already in the library | adds an exercise the library already has, or skips the questions |
+| 5 (E4) | ChatGPT | The bench is taken | (it should not ask; if it does, answer "Just swap it") | at once proposes a swap for **today only** | asks questions first, or changes the workout in the library or the campaign |
+| 6 (E4 again) | Claude | The bench is taken | the same | the same as test 5 | the same as test 5 |
+| 7 (E6) | ChatGPT | Try again | If it asks what to try again: "The push workout you sent yesterday." | reads why you declined yesterday's card ("too much volume") and sends a **lighter** version | sends the same card again, or ignores the reason |
+| 8 (E10) | ChatGPT | Weekly check-in | If it asks how the campaign went: "It went well, I hit most of my lifts." | summarises the week and **asks how the campaign went before** proposing a next one | proposes the next campaign before you answer |
+| 9 (E13) | ChatGPT | Weekly check-in | If it asks how it went: "Tough, I kept missing reps." | says your **pace is outrunning your results** and sends a card to ease the pace (a profile change) | changes the pace only in the chat, or pushes harder |
+| 10 (E14, part 1: Supportive) | ChatGPT | How did my last workout go? | (no answers needed) | you judge: does it sound **supportive**, short and plain? | long, padded or off in tone |
+| 11 (E14, part 2: Challenging) | ChatGPT | How did my last workout go? | (no answers needed) | you judge: does it sound **challenging**, short and plain, and different from test 10? | long, padded, or the same tone as test 10 |
+
+**After the last test**, say **"AV done"**. The agent resets the Test Account to the standard state, which clears every card the tests made, and writes up the results.
+
+Not in this pass: E18 (the coach with the connector off). The agent pass ran it on 27 Nov and it passed.
+
+*For the agent: reset with `gh workflow run coach-eval-reset.yml -f state=<state>` and wait for it to finish before saying it is done. States: "ready AV" and tests 4, 7: `standard`; 1: `empty_profile`; 2, 3: `intake_no_campaign`; 5, 6: `workout_running` (use within 30 minutes); 8: `campaign_last_week`; 9: `aggressive_misses`; 10: `style_supportive`; 11: `style_challenging`; "AV done": `standard`. Score each against `docs/SPEC.md` Section 8 and write `tests/coach-evals/results/<date>-client-pass.md`.*
+

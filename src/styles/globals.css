@@ -399,3 +399,17 @@ textarea.is-saved { border-color: var(--accent); }
 }
 .coll[open] > summary::before, .weights-details[open] > summary::before { transform: rotate(90deg); }
 .coll > summary:focus-visible, .weights-details > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Ask my coach (copies a message, opens the coach project) and the check-ins panel */
+.ask-coach { display: flex; flex-direction: column; gap: 6px; }
+.ask-coach .btn { min-height: 52px; text-align: center; flex-direction: column; gap: 2px; padding: 8px 12px; }
+.ask-coach-note { font-size: 14px; color: var(--text); }
+.ask-coach-box { width: 100%; font: inherit; border: 1px solid var(--line); border-radius: var(--radius-small); background: var(--bg); color: var(--text); padding: 8px; user-select: text; -webkit-user-select: text; }
+.notice .ask-coach-note { color: var(--on-accent); }
+.notice .ask-coach .btn { align-self: stretch; }
+.ci-weeks { display: flex; flex-wrap: wrap; gap: 6px; }
+.ci-week { flex: 1 1 72px; min-width: 72px; border: 1px solid var(--line); border-radius: var(--radius-small); padding: 8px 6px; min-height: 64px; display: flex; flex-direction: column; gap: 2px; font-size: 14px; color: var(--muted-text); }
+.ci-week.done { color: var(--text); border-color: var(--accent); }
+.ci-week.done .ci-mark { color: var(--accent); }
+.ci-week.this-week { opacity: 0.55; border-style: dashed; }
+.ci-mark { font-size: 20px; line-height: 1; }
