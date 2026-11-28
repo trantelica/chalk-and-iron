@@ -95,7 +95,7 @@ test('Coach setup: the intake saves, the link is kept, the test turns Connected,
   await expect(page.getByText(/personal settings/)).toBeVisible();
   const check = page.getByRole('region', { name: 'Step 4, check your setup' });
   await expect(check).toContainText('check setup');
-  await expect(check.getByLabel('Expected reply')).toHaveText('Chalk and Iron coach ready, instructions version 6');
+  await expect(check.getByLabel('Expected reply')).toHaveText('Chalk and Iron coach ready, instructions version 7');
 
   // Step 5: the coach link is kept only as a web address; the phone's Coach button opens it.
   await page.getByRole('textbox', { name: 'Coach link' }).fill('javascript:alert(1)');

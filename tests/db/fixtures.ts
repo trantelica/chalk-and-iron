@@ -85,7 +85,7 @@ export const CALLABLE_BY_SIGNED_IN: Record<string, 'refuses a coach' | 'read onl
   'exercise_memory(p_exclude uuid)': 'read only',
   'my_coach_app()': 'read only',
   'proposal_context(p_proposal uuid)': 'refuses a coach',
-  'record_connector_call(p_client_name text, p_tool text, p_ok boolean)': 'coach only',
+  'record_connector_call(p_client_name text, p_tool text, p_ok boolean, p_topic text)': 'coach only',
   'record_weekly_checkin(p_week_of date)': 'coach only',
   'request_my_account_deletion()': 'refuses a coach',
   'save_workout(p_workout uuid, p_items jsonb, p_removed uuid[], p_day_sets jsonb)': 'refuses a coach',

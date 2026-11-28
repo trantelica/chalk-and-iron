@@ -232,4 +232,17 @@ describe('the call log', () => {
     await log(f);
     expect((await calls(f)).map((c) => c.tool)).toEqual(['get_profile']);
   });
+
+  it('notes the guide topic for get_guide only (coach guides, 28 Nov), and nothing else', async () => {
+    const g = await db.register('g@example.test', 'Gil', { inviter: a });
+    await db.as(g, `select record_connector_call($1, $2, $3, $4)`, ['Claude', 'get_guide', true, 'campaign_design'], { coach: true });
+    await db.as(g, `select record_connector_call($1, $2, $3)`, ['Claude', 'get_guide', true], { coach: true });
+    await log(g);
+    expect(await db.server(`select tool, topic from connector_calls where user_id = $1 order by tool, topic nulls last`, [g])).toEqual([
+      { tool: 'get_guide', topic: 'campaign_design' }, { tool: 'get_guide', topic: null }, { tool: 'get_profile', topic: null },
+    ]);
+    await expect(db.as(g, `select record_connector_call($1, $2, $3, $4)`, ['Claude', 'get_profile', true, 'intake'], { coach: true })).rejects.toThrow(/topic/);
+    await expect(db.as(g, `select record_connector_call($1, $2, $3, $4)`, ['Claude', 'get_guide', true, 'My plan, in words'], { coach: true })).rejects.toThrow(/topic/);
+    await expect(db.as(g, `select record_connector_call($1, $2, $3, $4)`, ['Claude', 'get_guide', true, 'intake'], { coach: false })).rejects.toThrow(/connected coach/);
+  });
 });

@@ -3,6 +3,10 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // The coach guides are Markdown files the connector reads at run time
+  // (src/server/connector/guides.ts). Listing them here makes Vercel copy them
+  // beside the /mcp server; scripts/check-guides-traced.mjs checks it after each build.
+  outputFileTracingIncludes: { '/mcp': ['./src/server/connector/guides/*.md'] },
   async rewrites() {
     // Where ChatGPT and Claude look for who signs coaches in (RFC 9728).
     return [

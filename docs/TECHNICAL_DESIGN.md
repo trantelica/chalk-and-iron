@@ -395,7 +395,7 @@ Records are not a separate table. They are worked out from `set_logs` for an exe
 
 ## 3. Connector contracts
 
-**In short:** the sixteen tool names the spec started with are kept as they are, and three read tools are added: `get_weekly_summary` (Nate's decision, 16 Nov), and `list_cardio` and `list_proposals` (17 Nov, question 29). Nineteen tools in all: fourteen read and five propose. A propose tool can do exactly one thing: add a pending proposal. The database, not only the code, enforces that.
+**In short:** the sixteen tool names the spec started with are kept as they are, and three read tools are added: `get_weekly_summary` (Nate's decision, 16 Nov), and `list_cardio` and `list_proposals` (17 Nov, question 29). Nineteen tools in all: fourteen read and five propose. On 28 Nov a twentieth, the read tool `get_guide`, was added for the coach guides (see "Coach guides" below). A propose tool can do exactly one thing: add a pending proposal. The database, not only the code, enforces that.
 
 ### Rules shared by every tool
 
@@ -421,6 +421,7 @@ A failed call returns a plain sentence the coach can act on, a code, and where u
 | near_duplicate_name | A new exercise name is too close to an existing one | The existing exercise |
 | nothing_to_change | No active campaign, or no workout today, for a tool that needs one | A sentence saying so |
 | too_many_requests | Called too often | When to try again |
+| guide_not_read | Only when the optional guide check is switched on (off by default): a campaign or workout card whose guide this coach app has not read in the last 30 minutes | The guide to read (see "Coach guides") |
 | server_problem | Something failed on the app's side | A sentence. No internal detail |
 
 Validation errors are returned to the coach before anything reaches the inbox, as the spec requires.
@@ -442,6 +443,7 @@ Validation errors are returned to the coach before anything reaches the inbox, a
 | get_proposal_status | `proposal_id` | Status (pending, accepted, rejected, out of date or expired), kind, created and decided times, and the decline reason if the user gave one | not_found |
 | list_proposals | Optional: `status` (any of the five), `kind`, `from`, `to`, `limit` (default 20, most 100), `next` | Newest first. Per proposal: id, source (which coach app, or the planner), kind, what it applies to, summary lines, status, created, decided and expiry times, decline reason | invalid_input |
 | list_cardio | Optional: `from`, `to` (default the last 12 weeks), `limit` (default 20, most 100), `next` | Newest first. Per entry: id, date, type, duration, distance and its unit, notes | invalid_input |
+| get_guide | Optional: `topic` | With no topic, the index: each guide's topic, when to read it and its version. With a topic, that guide's text and version and a line to follow it. Reads no user data | not_found, with the list of topics |
 | get_weekly_summary | Optional: `week_of` (any date in the week wanted). Without it, the most recent full week | The week's dates. Sessions done and planned days missed. For each session: the exercises with sets, reps and weights. Total volume, records set, efficiency. Cardio entries for the week. Check-ins in a row, counted before this read is recorded | invalid_input |
 
 **The weekly summary goes through the coach.** The app cannot push anything to the user's LLM, because the app never calls an LLM (rule 1). So the summary is a read tool: the user asks their coach for the week, or sets their coach app to ask on a schedule, and the coach writes it up. For an accountability partner, the coach writes a version to share and the user sends it themselves. Whether a coach app's scheduled tasks can use a custom connector is not confirmed (Section 10C).
@@ -482,6 +484,49 @@ The coach behaviour brief (spec Section 4) reaches the coach in three places the
 - **Error messages:** written to the coach, saying what is wrong and how to fix it, for example "A superset holds two or three exercises. Split these four into two supersets, or make one a single exercise."
 
 The descriptions live in one file in the connector, beside a list of the brief items each tool must carry. A code check fails a pull request when a description leaves out an item assigned to it, as the existing check does for the coach instructions and the tool list.
+
+### Coach guides (approved by Nate, 28 Nov 2026)
+
+**Why.** The pasted coach instructions had grown to about 2,000 words, and in Nate's client pass ChatGPT still skipped steps they asked for (questions before building, using the app for short requests; `tests/coach-evals/results/2026-11-27-client-pass.md`). Nate asked for "an indexed model to point at context files … that explain procedurally how to handle different kinds of requests", so the project instructions are not overwhelmed on every interaction (27 Nov). Nothing told the coach how to think about designing a campaign or a workout either; Nate asked that this come from sources he can trust.
+
+**The decision.**
+
+1. **A short, always-on block** the user pastes (`docs/COACH_INSTRUCTIONS.md`, under 500 words, instructions version 7): who the coach is, always use Chalk and Iron (and stop if it cannot be read), read before proposing, ask before building, "go ahead" sends the card, one card per request, check the numbers, nothing changes until the user accepts, the coach styles, "check setup", and "for each kind of request, call `get_guide` with its topic first; call it with no topic for the list".
+2. **Guides fetched on demand** with the read tool `get_guide(topic)`. Each guide is a short playbook (under 600 words) for one kind of request: the steps, the rules that matter for it, and why.
+3. **Pointers, not content, everywhere else.** Each propose tool, `get_weekly_summary`, the decline tools and `get_campaign` name their guide in their description (for example `propose_campaign`: "Read get_guide('campaign_design') first and follow it"). `get_profile` adds "Guides: call get_guide with no topic for the list", so a coach that reads the profile first learns about them even if its app dropped the pasted block. The connector's own instructions carry the same line.
+4. **The guides live in the repository**, as Markdown files beside the connector (`src/server/connector/guides/<topic>.md`), not in Supabase: they are the same for every user, every change goes through a pull request Nate can read, and they stay in step with the tools they describe. Supabase would make sense only if each user later needed their own playbooks.
+5. **Enforcement is off to start, ready to switch on** (see below). The next eval pass measures whether coaches read the guides, and Nate decides then.
+
+**Why a tool, not MCP "resources".** MCP has a separate feature for documents, but ChatGPT and the Claude apps do not reliably show resources to the model, while every coach app calls tools. `get_guide` reads no user data and writes nothing, so the coach lock is untouched, and the app still never calls an AI (rule 1): the server only answers.
+
+**The guides (first set, 28 Nov).** In their first versions they hold only rules that already existed, moved out of the instruction block and the tool descriptions; no new advice.
+
+| Topic | Read before | What it covers |
+|---|---|---|
+| `ontology` | Any planning request | What an exercise, a workout, a superset and a campaign are; the Library holds the design (which workout on which day of which week, and the workouts' exercises and default sets and reps) and Plan runs it (this run's sets, reps, weight and rest are per-day overrides; a new run starts clean; Nate, 27 Nov); sessions, off-plan and ad-hoc workouts, missed days; the five kinds of card and what each changes, and the five states |
+| `campaign_design` | `propose_campaign` | Read first, ask how the last campaign went if it ends within 7 days, two or three questions, "go ahead"; one to six weeks, reuse workouts, progression in per-day overrides, bundle new exercises and workouts, supersets, injuries, gym and weights, varied focus, the progression pace; the card. The training principles come next, with their sources |
+| `workout_design` | `propose_workout`, `propose_exercise` | Read first, questions, "go ahead"; items, supersets, a change to a workout; new exercises (no duplicates, vocabulary, naming, three alternates, work and rest seconds, unit, bundling); equipment the gym may lack; the card. The training principles come next |
+| `today_change` | `propose_today_change` | What the user can already do in the app (swap, reorder, skip); read today, propose at once without questions; today only, never a logged set; the actions, breaking a superset, matched sets; the 3:00 am end |
+| `weekly_checkin` | `get_weekly_summary` | What to report, set against the priorities; one or two adjustments and at most one card; ask how a campaign went before proposing the next; after missed workouts ask what got in the way; the pace check; the accountability partner's version; the tone |
+| `intake` | `propose_profile_update` | The intake as a short conversation, only the answers given, one card; a pace change only after a pace check; gym equipment one item at a time; the gym's "Weights:" line |
+| `after_decline` | Any request touching a declined card | Read the reason and respond to it; do not resend; when to raise it again and how to say why now is different; ask once if there is no reason; out of date cards; which cards are waiting |
+
+The guides follow the coach behaviour brief (spec Section 4), which stays the source of truth for *what* the coach must do; the guides add *how*.
+
+**Where the training principles come from** (to add to `campaign_design` and `workout_design` in the next pull request, reviewed by Nate line by line). Drafted in plain words from published, widely used guidance, with the source beside each principle: American College of Sports Medicine, "Progression models in resistance training for healthy adults" (position stand, 2009); National Strength and Conditioning Association, *Essentials of Strength Training and Conditioning*; Physical Activity Guidelines for Americans, 2nd edition (2018). Anything that is the agent's own judgement is marked as such. They are defaults: the intake ("how to coach me", priorities, experience, pace, injuries, equipment and weights) always outranks them.
+
+**How it is built.**
+
+- **Files.** `guides.ts` reads the guides; `tools-guide.ts` is the tool; each guide is `guides/<topic>.md`, starting with a small header between two `---` lines: `topic` (the file's name), `version` (a whole number, raised whenever the guide changes) and `when` (one line for the index).
+- **Shipping them.** The server reads the files from the project folder at run time (`process.cwd()` and the folder, written out in full so the build traces only that folder). `next.config.ts` lists them under `outputFileTracingIncludes` for `/mcp`, which makes Vercel copy them beside the server, and `scripts/check-guides-traced.mjs` runs after the build on GitHub and fails if any guide is missing from the `/mcp` server's files. The files are read once per server and kept.
+- **Answers.** No topic: `{ guides: [{ topic, when, version }], how }`. A topic: `{ topic, version, guide, follow }`, where `follow` says to follow it and that the user's intake, above all "how to coach me", outranks its defaults. An unknown topic: `not_found` with the list of topics. Annotations as every read tool. It reads nothing from the database (a test gives it a database that fails on any use).
+- **The call log notes the topic** (migration `20261128000100_guide_topic_in_call_log.sql`, SQL step AZ in `docs/SETUP.md`). `connector_calls` gains `topic` (null, or lower-case letters and `_`), and `record_connector_call` takes an optional `p_topic`, accepted only for `get_guide`. The connector sends it only for a `get_guide` call that returned a guide, so an unknown topic's text is never stored, and no user content ever is. Other calls send the same three inputs as before.
+- **Versions and "check setup".** The block's version (now 7) is in the "check setup" reply; when the block changes, Coach setup tells users to paste it again. Guides need no pasting: they are always fetched live, and each carries its own version.
+- **The code checks** (`tests/connector/descriptions.test.ts`, `tests/connector/guides.test.ts`). Every guide named by a description, the connector's instructions, the block or a guide exists; each guide stays under 600 words and the block under 500; the guide files load the way the server reads them, and are listed for the build. **A brief rule may now live in a guide or in the pasted block as well as in a description or the connector's instructions:** `GUIDE_BRIEF` and `BLOCK_BRIEF` in `descriptions.ts` list the rules each carries, checked against its text, and `BRIEF_RULES` lists every rule of the brief the check carries; each must have at least one home. Moving a rule from a description to a guide moves its line; dropping one means removing it from `BRIEF_RULES` on purpose. The block names only real tools, and every tool is named by the block, a guide or the connector's instructions.
+
+**Optional enforcement (built, switched off).** When on, `propose_campaign` and `propose_workout` check the call log for a `get_guide` call on their topic (`campaign_design`, `workout_design`) by the same coach app, that worked, within the last 30 minutes. If there is none, the card is not added and the coach gets `guide_not_read`: "Read get_guide('campaign_design') first, then send the card again." The check comes before the card's own checks; other tools are never held back; if the call log cannot be read, the card is let through (it is a nudge, not a lock). A coach that follows its instructions never sees the error. Trade-off: one extra call per planning request, and a refusal if a coach app retries after half an hour. **The single setting:** the Vercel setting `COACH_GUIDES_REQUIRED`; it is on only when set to `on`, and off when missing (today). How Nate switches it on is in `docs/SETUP.md`, step AZ. Nate decides after the next eval pass.
+
+**Still to do.** The training principles (next pull request); then an agent eval pass with new scenarios checking that a coach reads the guide before a campaign or workout card (from the call log) and follows it, and a rerun of the core set with the shorter block; then the Phase 4 review.
 
 ### How the connector is built (stage 4B, 25 Nov 2026)
 
@@ -989,7 +1034,8 @@ All automated tests run on every pull request. One of the code checks compares `
 | | The Coach button's count goes down after Accept or Decline; the banner after Accept | App |
 | | One check-in per week however often the summary is read; marks on Home; check-ins in a row | Database, Rules, App |
 | | The last-week note shows only in the week holding the campaign's end date | Rules, App |
-| | Tool descriptions carry their brief items; the coach instructions name every tool | Code checks |
+| | Tool descriptions, the guides and the pasted block carry their brief items, and every brief rule has a home; every guide named exists; the block stays under 500 words and each guide under 600; the block names only real tools and every tool is named by the block, a guide or the connector's instructions; the guides ship with the server | Code checks |
+| | `get_guide`: the index, a guide, not_found for an unknown topic, no database use, the topic in the call log; the guide check refuses then accepts when on, and stays out of the way when off | Connector, Database |
 | | Coach setup completed unaided | **Device** |
 | Coach behaviour (evals) | Scenarios E1 to E19 | Agent pass and Nate's client pass (below) |
 | Theming | Switching skins moves and resizes nothing | App: record every element's position and size under each skin and compare |

@@ -12,14 +12,17 @@ describe('the guide to what you can ask your coach', () => {
       expect(GUIDE_EXAMPLES).toContain(x);
     }
   });
-  it('is the same list the coach instructions carry', () => {
-    for (const x of GUIDE_EXAMPLES) expect(COACH_INSTRUCTIONS).toContain(x);
+  it('the coach instructions name each group with its first example and its guide (version 7)', () => {
+    for (const g of GUIDE_GROUPS) {
+      expect(COACH_INSTRUCTIONS).toContain(`- ${g.title}, such as "${g.examples[0]}":`);
+      for (const topic of g.coachGuides) expect(COACH_INSTRUCTIONS).toContain('`' + topic + '`');
+    }
   });
 });
 
 describe('the coach instructions (client pass rules)', () => {
   it('say what the client pass asked for', () => {
-    for (const phrase of ['Never coach from general knowledge', 'Supportive: lead with what went well', 'Challenging: name what I missed plainly', 'Neutral: just the facts', '"go ahead"', 'one card', 'ask two or three short questions', 'how to coach me', 'matches what the card contains']) {
+    for (const phrase of ['Never coach from general knowledge', 'say so plainly and stop', 'Supportive: lead with what went well', 'Challenging: name what I missed plainly', 'Neutral: just the facts', '"go ahead"', 'one card', 'ask two or three short questions', 'how to coach me', 'matches what the card contains']) {
       expect(COACH_INSTRUCTIONS.toLowerCase()).toContain(phrase.toLowerCase());
     }
   });
@@ -27,5 +30,6 @@ describe('the coach instructions (client pass rules)', () => {
     expect(CHECK_SETUP_REPLY).toBe(`Chalk and Iron coach ready, instructions version ${COACH_INSTRUCTIONS_VERSION}`);
     expect(COACH_INSTRUCTIONS).toContain(CHECK_SETUP_REPLY);
     expect(COACH_INSTRUCTIONS).toContain('check setup');
+    expect(COACH_INSTRUCTIONS_VERSION).toBe(7);
   });
 });

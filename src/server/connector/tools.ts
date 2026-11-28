@@ -4,6 +4,7 @@ import { sortEquipment } from '@/rules/gym-equipment';
 import type { Caller } from './auth';
 import { TOOL_TEXT } from './descriptions';
 import { nextInput, page, PAGE_SIZE, readNext } from './limits';
+import { GUIDE_TOOLS } from './tools-guide';
 import { HISTORY_TOOLS } from './tools-history';
 import { LIBRARY_TOOLS } from './tools-library';
 import { PROPOSE_TOOLS } from './tools-propose';
@@ -11,14 +12,17 @@ import { TODAY_TOOLS } from './tools-today';
 
 // The connector's tools (design Section 3). Stage 4B: the first three read
 // tools; stage 4C: the other eleven, in tools-library.ts, tools-history.ts and
-// tools-today.ts; stage 4E: the five propose tools in tools-propose.ts. Each
-// tool's text is in descriptions.ts.
+// tools-today.ts; stage 4E: the five propose tools in tools-propose.ts; the
+// coach guides (28 Nov): get_guide in tools-guide.ts. Each tool's text is in
+// descriptions.ts.
 
 export interface ToolDef {
   name: string;
   input: z.ZodType;
   readOnly: boolean;
   run: (caller: Caller, args: never) => Promise<Record<string, unknown>>;
+  /** For the call log: the guide topic a call read, if any (get_guide only). Never user content. */
+  topicOf?: (args: never) => string | null;
 }
 
 const none = z.object({}).strict();
@@ -123,6 +127,7 @@ export const TOOLS: ToolDef[] = [
   { name: 'get_profile', input: none, readOnly: true, run: (c) => getProfile(c) },
   { name: 'list_gyms', input: listGymsInput, readOnly: true, run: (c, a) => listGyms(c, a) },
   { name: 'get_vocabulary', input: none, readOnly: true, run: (c) => getVocabulary(c) },
+  ...GUIDE_TOOLS,
   ...LIBRARY_TOOLS,
   ...HISTORY_TOOLS,
   ...TODAY_TOOLS,

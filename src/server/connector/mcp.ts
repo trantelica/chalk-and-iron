@@ -2,9 +2,10 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { CallToolRequestSchema, ErrorCode, ListToolsRequestSchema, McpError } from '@modelcontextprotocol/sdk/types.js';
 import { authenticate as realAuthenticate, type Caller } from './auth';
-import { clientName as realClientName, logCall as realLogCall, recentCallTimes as realRecentCallTimes } from './calls';
+import { clientName as realClientName, guideReadRecently as realGuideReadRecently, logCall as realLogCall, recentCallTimes as realRecentCallTimes } from './calls';
 import { INSTRUCTIONS } from './descriptions';
-import { ConnectorError, errorResult, invalidInput, okResult, serverProblem, type ToolResult } from './errors';
+import { ConnectorError, errorResult, guideNotRead, invalidInput, okResult, serverProblem, type ToolResult } from './errors';
+import { GUIDE_BEFORE, GUIDE_READ_MINUTES, guidesRequired as realGuidesRequired } from './guides';
 import { MAX_BATCH, MAX_REQUEST_BYTES, tooManyRequests, waitSeconds } from './limits';
 import { TOOLS, toolList } from './tools';
 
@@ -20,8 +21,12 @@ export const VERSION = '4B';
 export interface Deps {
   authenticate: (request: Request) => Promise<Caller | Response>;
   recentCallTimes: (caller: Caller) => Promise<Date[]>;
-  logCall: (caller: Caller, clientName: string, tool: string, ok: boolean) => Promise<void>;
+  logCall: (caller: Caller, clientName: string, tool: string, ok: boolean, topic?: string | null) => Promise<void>;
   clientName: (caller: Caller) => Promise<string>;
+  /** The optional enforcement's setting (off unless COACH_GUIDES_REQUIRED is "on"). */
+  guidesRequired?: () => boolean;
+  /** Whether this coach app read the guide lately; without it, a guide counts as not read. */
+  guideReadRecently?: (caller: Caller, clientName: string, topic: string, minutes: number) => Promise<boolean>;
 }
 
 const realDeps: Deps = {
@@ -29,6 +34,8 @@ const realDeps: Deps = {
   recentCallTimes: realRecentCallTimes,
   logCall: realLogCall,
   clientName: realClientName,
+  guidesRequired: () => realGuidesRequired(),
+  guideReadRecently: realGuideReadRecently,
 };
 
 const CORS: Record<string, string> = {
@@ -48,6 +55,24 @@ function withHeaders(r: Response): Response {
 const rpcError = (status: number, code: number, message: string) =>
   Response.json({ jsonrpc: '2.0', id: null, error: { code, message } }, { status });
 
+/**
+ * The optional enforcement (coach guides, off unless switched on): a campaign
+ * or workout card needs its guide read by the same coach app in the last 30
+ * minutes. Returns the guide still to read, or null. If the call log cannot be
+ * read, the card is let through: the check is a nudge, not a lock.
+ */
+async function guideMissing(deps: Deps, caller: Caller, tool: string, nameP: Promise<string>): Promise<string | null> {
+  const needed = GUIDE_BEFORE[tool];
+  if (!needed || !(deps.guidesRequired?.() ?? false)) return null;
+  if (!deps.guideReadRecently) return needed;
+  try {
+    return (await deps.guideReadRecently(caller, await nameP, needed, GUIDE_READ_MINUTES)) ? null : needed;
+  } catch (e) {
+    console.error('CONNECTOR_GUIDE_CHECK_FAILED', String((e as Error)?.message ?? e).slice(0, 200));
+    return null;
+  }
+}
+
 /** One tool call: limits, inputs, the tool itself, then the call log. */
 export async function callTool(deps: Deps, caller: Caller, name: string, args: unknown): Promise<ToolResult> {
   const tool = TOOLS.find((t) => t.name === name);
@@ -61,12 +86,17 @@ export async function callTool(deps: Deps, caller: Caller, name: string, args: u
   if (wait !== null) return errorResult(tooManyRequests(wait));
 
   let result: ToolResult;
+  let topic: string | null = null;
+  const missing = await guideMissing(deps, caller, name, nameP);
   const parsed = tool.input.safeParse(args ?? {});
-  if (!parsed.success) {
+  if (missing) {
+    result = errorResult(guideNotRead(missing, GUIDE_READ_MINUTES));
+  } else if (!parsed.success) {
     result = errorResult(invalidInput(name, parsed.error));
   } else {
     try {
       result = okResult(await tool.run(caller, parsed.data as never));
+      topic = tool.topicOf?.(parsed.data as never) ?? null;
     } catch (e) {
       if (e instanceof ConnectorError) result = errorResult(e);
       else {
@@ -75,7 +105,7 @@ export async function callTool(deps: Deps, caller: Caller, name: string, args: u
       }
     }
   }
-  await deps.logCall(caller, await nameP, name, !result.isError);
+  await deps.logCall(caller, await nameP, name, !result.isError, topic);
   return result;
 }
 

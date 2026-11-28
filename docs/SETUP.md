@@ -708,7 +708,7 @@ First, re-paste the updated coach instructions (they changed in this merge): on 
 5. [ ] Start a workout (**Start another workout**, then **Ad-hoc workout**) and tap an exercise's swap: the list has the three stored options and the library search, and no row for asking the coach.
 6. [ ] On your computer, click **Coach setup**, step 5 (**Link to your coach project**): empty it and click **Save the link**. On your iPhone open the Coach screen: instead of **Open my coach** it says "No coach link is saved yet. Add it in Coach setup, step 5." and offers **Open Coach setup**. Then save your link again.
 7. [ ] On your computer on **Coach setup**, scroll to the end: **What you can ask your coach** is there too, with **Open my coach**. Step 3 now has two notes under the instructions (start ChatGPT chats inside your coach project and name "@Chalk and Iron" if it ever answers without using it; your own ChatGPT or Claude settings also shape the tone). **Step 4, Check your setup** shows "check setup" and the line the coach should reply with.
-8. [ ] In a chat inside your coach project in ChatGPT, then in Claude, send **check setup**. Each replies with exactly this one line: "Chalk and Iron coach ready, instructions version 6". If one does not, paste the instructions into that project again (Coach setup, step 3) and try once more.
+8. [ ] In a chat inside your coach project in ChatGPT, then in Claude, send **check setup**. Each replies with exactly this one line: "Chalk and Iron coach ready, instructions version 7" (version 6 before the coach guides change of 28 Nov; step BA below). If one does not, paste the instructions into that project again (Coach setup, step 3) and try once more.
 
 ### AX. Screen fixes, after the merge
 
@@ -775,3 +775,30 @@ On your computer open https://chalkandiron.vercel.app/planner.
 2. [ ] **Start a campaign.** If one is running, go to **Plan** and press **End campaign** and confirm. At the top of **Plan** you now see **Start a campaign**. Pick a draft (make one under **Library**, **Campaigns**, **New campaign**, if you have none), leave or change **Start date**, press **Start** and confirm. The top now says **Running:** with the campaign's name and its dates.
 3. [ ] **Shift and end.** Still in **Plan**, press **Shift forward a week** and confirm; the dates in the week row move. Press **Undo last shift** and confirm; they move back. Press **End campaign** and confirm: **Start a campaign** comes back.
 4. [ ] **A new run starts clean.** Start a campaign, pick a day with a workout, and change a **Sets** number on it (the row shows "library: …" beside it). Press **End campaign**, then **Start a campaign**, pick the same campaign (it says finished) and **Start**. Open the same day: your change is gone and the numbers are the workout's own.
+
+## 31. Coach guides (28 November 2026)
+
+The coach's pasted instructions are now short (under 500 words), and for each kind of request the coach reads a guide from Chalk and Iron first, with a new tool, `get_guide`. The guides hold the same rules the long instructions had; nothing new is advised yet. The design is in `docs/TECHNICAL_DESIGN.md` Section 3, "Coach guides".
+
+### AZ. Supabase SQL Editor, **before** merging
+
+**Run this before the pull request is merged.** Run before merging, nothing changes for the app you have now: the live app keeps logging calls exactly as it does today. Merge first and the coach's guide reads would not be noted in the call log until you run it (everything else would still work).
+
+**What it changes:** the call log (which coach app called which tool, and when) gets one small column, the guide's topic, filled only when a coach reads a guide (for example "campaign_design"). It is never anything you wrote. It changes no data you already have.
+
+**Where:** open https://supabase.com/dashboard, click the project `chalk-and-iron`, then **SQL Editor** in the left-hand menu, then **New query**. Open the file below, click **Copy raw file** (the two overlapping squares at the top right of the file), paste it into the new query, and click **Run**.
+
+1. [ ] [`20261128000100_guide_topic_in_call_log.sql`](https://github.com/trantelica/chalk-and-iron/blob/coach-guides/supabase/migrations/20261128000100_guide_topic_in_call_log.sql) It should end with "Success. No rows returned". Safe to run more than once.
+
+Until the pull request is merged this link works from the pull request's branch; afterwards it is also at `.../blob/main/supabase/migrations/20261128000100_guide_topic_in_call_log.sql`.
+
+**The guide check stays off.** The connector can refuse a coach's campaign or workout card when that coach has not read its guide in the last 30 minutes. It is built but switched off, and you decide after the next eval pass. **Nothing to do now.** If you later decide to switch it on: open https://vercel.com, click the project `chalkandiron`, then **Settings**, then **Environment Variables** in the left-hand menu. Under **Key** type `COACH_GUIDES_REQUIRED`, under **Value** type `on`, leave all environments ticked and click **Save**. Then click **Deployments** at the top, click the **⋯** (three dots) beside the newest deployment and click **Redeploy**, then **Redeploy** again. To switch it off, delete that variable the same way (the **⋯** beside it, **Delete**) and redeploy.
+
+### BA. Paste the new instructions and "check setup", after the merge
+
+Once the pull request is merged and the live app has rebuilt (about two minutes):
+
+1. [ ] On your computer open https://chalkandiron.vercel.app/planner, click **Coach setup**, go to **Step 3, Give your coach its instructions**, and click **Copy the instructions**. Then, in ChatGPT and again in Claude, open your coach project's instructions, where you pasted the old ones (the same page's **Step 2** says where, for each app), select all the old text, paste the new text over it and save. The new text is much shorter than the old one; that is expected.
+2. [ ] In a new chat inside your coach project in ChatGPT, then in Claude, send **check setup**. Each replies with exactly this one line: "Chalk and Iron coach ready, instructions version 7". If one says version 6 or anything else, paste the instructions into that project again and try once more.
+3. [ ] Optional: in either coach, send "Which guides do you have?". It should call `get_guide` and list seven: after_decline, campaign_design, intake, ontology, today_change, weekly_checkin and workout_design.
+

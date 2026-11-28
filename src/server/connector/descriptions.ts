@@ -4,6 +4,13 @@
 // items 1 to 8). Each text sits beside the brief items it must carry, and a
 // code check (tests/connector/descriptions.test.ts) fails when a text leaves
 // one out. The five propose tools (stage 4E) are at the end.
+//
+// Coach guides (28 Nov 2026, design Section 3, "Coach guides"): procedures
+// live in the guides (src/server/connector/guides/*.md), which the coach
+// fetches with get_guide; each description names its guide. A brief rule may
+// now live in a guide as well (GUIDE_BRIEF), or in the block the user pastes
+// (BLOCK_BRIEF). BRIEF_RULES lists every rule the check carries, and each
+// must have at least one home.
 
 export interface BriefItem {
   /** Which item of the coach behaviour brief, 1 to 8. */
@@ -22,6 +29,7 @@ export const INSTRUCTIONS = [
   'When unsure, ask rather than guess.',
   'Take your tone, boldness and pace from get_profile: the coach style, the progression pace and "how to coach me".',
   'If a tool returns an error, fix the call and try again before telling the user.',
+  'For each kind of request, call get_guide with its topic first and follow it; call get_guide with no topic for the list.',
 ].join(' ');
 
 export const INSTRUCTIONS_BRIEF: BriefItem[] = [
@@ -56,6 +64,7 @@ export const TOOL_TEXT: Record<string, ToolText> = {
       'and "how to coach me" can change any of these defaults.',
       'If the intake is empty, run it as a short conversation and propose the answers as one profile update.',
       'Give weights in the user\'s units.',
+      'Guides: call get_guide with no topic for the list, and read the guide for each kind of request before acting.',
     ].join(' '),
     brief: [
       { brief: 1, phrase: 'read this first' },
@@ -85,6 +94,16 @@ export const TOOL_TEXT: Record<string, ToolText> = {
       'A proposal that uses a value not listed here is refused, so use these exact names.',
     ].join(' '),
     brief: [{ brief: 6, phrase: 'use these exact names' }],
+  },
+  get_guide: {
+    name: 'get_guide',
+    title: 'Get guide',
+    description: [
+      'The playbook for one kind of request: the steps to follow and the rules that matter for it. Read the guide before acting on that kind of request, and follow it.',
+      'With no topic, the list of guides: each topic, when to read it, and its version. An unknown topic returns not_found with the list.',
+      'The user\'s coach intake, above all "how to coach me", outranks a guide\'s defaults. Reads none of the user\'s data.',
+    ].join(' '),
+    brief: [{ brief: 1, phrase: 'read the guide before acting' }],
   },
   list_exercises: {
     name: 'list_exercises',
@@ -133,6 +152,7 @@ export const TOOL_TEXT: Record<string, ToolText> = {
       'The active campaign (or one draft, by id): name, status, start and end dates, shifted weeks and every day with its date, workout, state (upcoming, done, missed or rest) and that day\'s overrides. It also lists the draft campaigns by id and name.',
       'With no active campaign it says so, which is not an error. Read it before proposing a campaign or a change to one.',
       'If the campaign ends within 7 days, ask the user how it went before proposing the next one.',
+      'What the Library designs and what Plan runs: get_guide(\'ontology\').',
     ].join(' '),
     brief: [{ brief: 1, phrase: 'read it before proposing a campaign' }, { brief: 3, phrase: 'ask the user how it went before proposing the next one' }],
   },
@@ -163,6 +183,7 @@ export const TOOL_TEXT: Record<string, ToolText> = {
     description: [
       'One proposal\'s state: pending, accepted, rejected (the user declined it), out of date or expired, with its created and decided times and the reason the user gave for declining, if any.',
       'After a decline, read the reason and respond to it. If there is no reason, ask once why, and do not send the same proposal again.',
+      'Read get_guide(\'after_decline\') before acting on a declined card.',
     ].join(' '),
     brief: [{ brief: 4, phrase: 'after a decline, read the reason' }, { brief: 4, phrase: 'ask once why' }],
   },
@@ -172,6 +193,7 @@ export const TOOL_TEXT: Record<string, ToolText> = {
     description: [
       'Recent proposals, newest first: id, which coach app made it, kind, what it applies to, its summary lines, status, times and any decline reason. Filter by status, kind or date. Default 20, at most 100; pass "next" for more.',
       'Read this before proposing, so you do not propose the same thing twice. After a decline, read the reason; if the idea comes up again, say it was declined before and why now is different. If there is no reason, ask once why.',
+      'Read get_guide(\'after_decline\') before acting on a declined card.',
     ].join(' '),
     brief: [{ brief: 4, phrase: 'after a decline, read the reason' }, { brief: 4, phrase: 'say it was declined before' }, { brief: 8, phrase: 'do not propose the same thing twice' }],
   },
@@ -190,13 +212,12 @@ export const TOOL_TEXT: Record<string, ToolText> = {
     description: [
       'One week (Monday to Sunday) in full: the sessions done with each exercise\'s sets, reps and weights, the planned days missed, total volume, records set, efficiency, cardio, and the check-ins in a row.',
       'Reading it records the week\'s check-in in the app. Leave out week_of for the most recent full week.',
-      'Use it for the weekly check-in: say what was done and missed, set it against the user\'s priorities, then suggest one or two adjustments and make at most one proposal.',
-      'If the campaign ends within 7 days, ask how it went before proposing the next one. After two or more missed workouts, ask what got in the way rather than pushing harder.',
-      'Check the progression pace against the results: if the pace is outrunning them, say so and propose easing it; if the user is beating it, propose stepping up.',
+      'Read get_guide(\'weekly_checkin\') first: it says what to report, when to ask before proposing, and the pace check.',
+      'Use it for the weekly check-in, set against the user\'s priorities, with one or two adjustments and at most one proposal.',
+      'If the campaign ends within 7 days, ask how it went before proposing the next one.',
     ].join(' '),
     brief: [
-      { brief: 3, phrase: 'weekly check-in' }, { brief: 3, phrase: 'ask how it went before proposing the next one' }, { brief: 3, phrase: 'ask what got in the way' },
-      { brief: 5, phrase: 'progression pace' }, { brief: 8, phrase: 'at most one proposal' },
+      { brief: 3, phrase: 'weekly check-in' }, { brief: 3, phrase: 'ask how it went before proposing the next one' }, { brief: 8, phrase: 'at most one proposal' },
     ],
   },
 
@@ -208,7 +229,7 @@ export const TOOL_TEXT: Record<string, ToolText> = {
       'Propose a new exercise for the library, or changes to an existing one (give "exercise", its id or exact name). Nothing changes until the user accepts it in the app.',
       'A new exercise needs a name (equipment, then variation, then movement, for example "Cable Overhead Triceps Extension"), muscle_group, equipment, default_unit, work_seconds and rest_seconds, and all three alternates: bodyweight, basic_gym and full_gym.',
       'Use muscle group, focus and equipment values exactly as get_vocabulary gives them. Look at list_exercises before proposing an exercise: one the library already has, or one too close in name, is refused.',
-      'A gym\'s weights live in its notes as one line starting "Weights:", for example "Weights: Dumbbells 5 to 120 lb in 5 lb steps. Kettlebells 8, 12, 16 kg. Plates (lb): 45 x4, 25 x2. Heaviest barbell: 275 lb (bar 45 lb)." When the user mentions new weights, propose updating the gym\'s notes (the whole notes text, keeping their other notes and the same "Weights:" form on one line), after reading the gym with list_gyms. Never propose a load the gym cannot provide.',
+      'Read get_guide(\'workout_design\') first for how to name, place and set up a new exercise.',
       'Write summary_lines as one clear line per change. Related changes belong in one proposal, never several.',
       'After it succeeds, tell the user it is waiting in the app for them to accept or decline. If it returns an error, fix the call and try again before telling the user.',
     ].join(' '),
@@ -226,6 +247,7 @@ export const TOOL_TEXT: Record<string, ToolText> = {
     title: 'Propose a workout',
     description: [
       'Propose a new workout, or a change to one (give "workout", its id or exact name; then "items" is the whole new list). Nothing changes until the user accepts it in the app.',
+      'Read get_guide(\'workout_design\') first and follow it.',
       'Ask the user two or three short questions first (how the last block went, new aches, how long they have), fewer when the intake already answers them; read list_workouts, the gym and recent history before proposing.',
       'Each item names an exercise from the library, or one you bring in "new_exercises" in this same proposal, with sets, reps and optional rest and superset letter. A superset holds two or three exercises, each with the same number of sets.',
       'Bundle every new exercise the workout needs into this proposal so the user approves it once. Each new exercise needs all three alternates and vocabulary values exactly as get_vocabulary gives them.',
@@ -245,7 +267,8 @@ export const TOOL_TEXT: Record<string, ToolText> = {
     name: 'propose_campaign',
     title: 'Propose a campaign',
     description: [
-      'Propose a new campaign (1 to 6 weeks; it arrives as a draft the user activates), or changes to one (give "campaign_id"), or on its own "shift_forward_weeks": 1 to shift an existing campaign forward a week. Nothing changes until the user accepts it in the app.',
+      'Propose a new campaign (1 to 6 weeks; it arrives as a draft the user starts from Plan), or changes to one (give "campaign_id"), or on its own "shift_forward_weeks": 1 to shift an existing campaign forward a week. Nothing changes until the user accepts it in the app.',
+      'Read get_guide(\'campaign_design\') first and follow it.',
       'Ask the user two or three short questions first (how the last block went, new aches, days available), fewer when the intake already answers them; read the active campaign, list_workouts, the gym and recent history before proposing.',
       'Each day gives its week, weekday (1 is Monday) and a workout or "rest": true, with optional per-day overrides of sets, reps, weight and rest. Bundle every new exercise and new workout the campaign needs into this one proposal, so the user approves it once; never send them as separate cards.',
       'Keep each superset to two or three exercises with the same number of sets, on every day. Write summary_lines as one clear line per change.',
@@ -267,7 +290,7 @@ export const TOOL_TEXT: Record<string, ToolText> = {
     title: 'Propose a change to today',
     description: [
       'Propose a change to today\'s workout only: it never changes the library or the campaign, and never a set already logged. Nothing changes until the user accepts it in the app, and the card ends at the 3:00 am rollover.',
-      'When the user tells you something that happens now, such as a taken machine, propose straight away, without questions: they are probably in the gym. Read get_today first for what is planned or running.',
+      'When the user tells you something that happens now, such as a taken machine, propose straight away, without questions: they are probably in the gym. Read get_today first for what is planned or running, and get_guide(\'today_change\').',
       'Each change has an "action": swap (exercise, to_exercise), set_sets, set_reps, set_weight, set_rest, add, remove, reorder or break_superset. break_superset names the superset by its letter or by one member, and needs nothing else.',
       'A set_sets on a superset member must be matched on every other member, or break the superset first in the same proposal. Bundle related changes in one proposal and write summary_lines as one clear line per change.',
       'After it succeeds, tell the user it is waiting in the app for them to accept or decline. If it returns an error, fix the call and try again before telling the user.',
@@ -287,6 +310,7 @@ export const TOOL_TEXT: Record<string, ToolText> = {
     title: 'Propose a profile update',
     description: [
       'Propose changes to the user\'s coach profile (goals, injuries and limits, weekly schedule, notes and the intake: coach style, experience, priorities, progression pace, workout minutes, days per week, variety, exercises liked, exercises to avoid, how to coach me), and or to a gym (add one, or edit one with its id or exact name). Nothing changes until the user accepts it in the app.',
+      'Read get_guide(\'intake\') first: it covers the intake, profile changes, gym equipment and gym weights.',
       'Run the intake as a short conversation, then propose the answers as one profile update. Leave out what the user did not answer.',
       'Change the progression pace only after a pace check: compare the chosen pace with what the history shows, say so to the user, and then propose it.',
       'A gym\'s equipment is free text in the user\'s own words, not get_vocabulary values, and a gym can be large. Change it one item at a time with add_equipment and remove_equipment (never the whole list), after reading the gym with list_gyms. They are applied to the gym\'s list when the user accepts, so nothing added in the meantime is lost. When the user confirms they have equipment the gym does not list, add it to the gym here.',
@@ -303,3 +327,113 @@ export const TOOL_TEXT: Record<string, ToolText> = {
     ],
   },
 };
+
+/** Brief rules carried by the guides (design Section 3, "Coach guides"), checked against each guide's text. */
+export const GUIDE_BRIEF: Record<string, BriefItem[]> = {
+  ontology: [
+    { brief: 2, phrase: 'every change is a card (a proposal) the user accepts or declines in the app' },
+  ],
+  campaign_design: [
+    { brief: 1, phrase: 'read `get_profile`' },
+    { brief: 3, phrase: 'ask how it went before proposing the next one' },
+    { brief: 2, phrase: 'ask two or three short questions first' },
+    { brief: 8, phrase: 'bundle every new exercise and new workout the campaign needs into this one card' },
+    { brief: 8, phrase: 'never send them as separate cards' },
+    { brief: 5, phrase: 'start from the progression pace' },
+    { brief: 7, phrase: 'one clear line per change' },
+  ],
+  workout_design: [
+    { brief: 1, phrase: 'read `get_profile`' },
+    { brief: 2, phrase: 'ask two or three short questions first' },
+    { brief: 8, phrase: 'bundle every new exercise the workout needs into this card' },
+    { brief: 6, phrase: 'if you are not sure the user has a piece of equipment, ask' },
+    { brief: 6, phrase: 'offer the exercise\'s alternate' },
+    { brief: 7, phrase: 'one clear line per change' },
+  ],
+  today_change: [
+    { brief: 2, phrase: 'propose straight away, without questions' },
+    { brief: 1, phrase: 'read `get_today`' },
+    { brief: 8, phrase: 'bundle related changes in one card' },
+    { brief: 6, phrase: 'fix the call and try again' },
+  ],
+  weekly_checkin: [
+    { brief: 3, phrase: 'sessions done, planned days missed, total volume, records and efficiency, set against the user\'s priorities' },
+    { brief: 3, phrase: 'one or two things to adjust' },
+    { brief: 3, phrase: 'ask how it went before proposing the next one' },
+    { brief: 3, phrase: 'ask what got in the way rather than pushing harder' },
+    { brief: 8, phrase: 'make at most one proposal' },
+    { brief: 5, phrase: 'compare the progression pace with the history' },
+    { brief: 5, phrase: 'never a silent change' },
+    { brief: 7, phrase: 'weights in the user\'s units' },
+  ],
+  intake: [
+    { brief: 6, phrase: 'ask the intake as a short conversation' },
+    { brief: 6, phrase: 'propose the answers as one `propose_profile_update`' },
+    { brief: 5, phrase: 'change the progression pace only after a pace check' },
+  ],
+  after_decline: [
+    { brief: 4, phrase: 'read the reason' },
+    { brief: 4, phrase: 'do not send the same thing straight back' },
+    { brief: 4, phrase: 'say that the user declined it before, and why now is different' },
+    { brief: 4, phrase: 'ask the user once in the chat why' },
+    { brief: 4, phrase: 'a decline is never a lasting ban' },
+  ],
+};
+
+/** Brief rules carried by the block the user pastes (src/lib/coach-instructions.ts). */
+export const BLOCK_BRIEF: BriefItem[] = [
+  { brief: 1, phrase: 'read before proposing' },
+  { brief: 1, phrase: 'for a quick question, read only what it needs' },
+  { brief: 2, phrase: 'a change to today: propose it straight away' },
+  { brief: 2, phrase: 'ask two or three short questions first' },
+  { brief: 2, phrase: 'nothing changes until i accept it in the app' },
+  { brief: 6, phrase: 'when unsure, ask rather than guess' },
+  { brief: 6, phrase: 'if a propose tool returns an error, fix it and try again before telling me' },
+  { brief: 6, phrase: 'tell me what the app refused and why' },
+  { brief: 7, phrase: 'supportive: lead with what went well' },
+  { brief: 7, phrase: 'weights in my units' },
+  { brief: 8, phrase: 'one request, one proposal, one card' },
+];
+
+/**
+ * Every rule of the coach behaviour brief (spec Section 4, items 1 to 8) as
+ * the check carries it. Each must be carried by at least one home: the
+ * connector's instructions, a tool description, a guide, or the pasted block
+ * (tests/connector/descriptions.test.ts). Moving a rule from one home to
+ * another moves its line; dropping a rule means removing it here, on purpose.
+ */
+export const BRIEF_RULES: BriefItem[] = [
+  { brief: 1, phrase: 'read before proposing' },
+  { brief: 1, phrase: 'read the gym before proposing' },
+  { brief: 1, phrase: 'before proposing a weight' },
+  { brief: 1, phrase: 'before proposing an exercise' },
+  { brief: 1, phrase: 'exercises to avoid' },
+  { brief: 2, phrase: 'only propose' },
+  { brief: 2, phrase: 'nothing changes until the user accepts it in the app' },
+  { brief: 2, phrase: 'waiting in the app' },
+  { brief: 2, phrase: 'propose straight away' },
+  { brief: 2, phrase: 'ask two or three short questions first' },
+  { brief: 3, phrase: 'weekly check-in' },
+  { brief: 3, phrase: 'ask how it went before proposing the next one' },
+  { brief: 3, phrase: 'ask what got in the way' },
+  { brief: 3, phrase: 'one or two things to adjust' },
+  { brief: 4, phrase: 'after a decline, read the reason' },
+  { brief: 4, phrase: 'ask once why' },
+  { brief: 4, phrase: 'say it was declined before' },
+  { brief: 4, phrase: 'a decline is never a lasting ban' },
+  { brief: 5, phrase: 'progression pace' },
+  { brief: 5, phrase: 'only after a pace check' },
+  { brief: 5, phrase: 'compare the progression pace with the history' },
+  { brief: 6, phrase: 'ask rather than guess' },
+  { brief: 6, phrase: 'run the intake as a short conversation' },
+  { brief: 6, phrase: 'fix the call and try again' },
+  { brief: 6, phrase: 'offer the exercise\'s alternate' },
+  { brief: 6, phrase: 'use these exact names' },
+  { brief: 7, phrase: 'tone' },
+  { brief: 7, phrase: 'weights in the user\'s units' },
+  { brief: 7, phrase: 'one clear line per change' },
+  { brief: 8, phrase: 'one request, one proposal' },
+  { brief: 8, phrase: 'at most one proposal' },
+  { brief: 8, phrase: 'do not propose the same thing twice' },
+  { brief: 8, phrase: 'never send them as separate cards' },
+];
