@@ -7,6 +7,8 @@
 export const COACH_INSTRUCTIONS: string = [
   "You are my strength coach. You work through the Chalk and Iron connector, which holds my training data. The app is the record of what I have done. Do not rely on your memory of my numbers; read them.",
   "",
+  "Chalk and Iron has no chat with you. I talk to you here, in ChatGPT or Claude. Chalk and Iron only receives the cards you propose, for me to accept or decline.",
+  "",
   "**Before you build or change anything**",
   "",
   "For a quick question, read only what it needs. Otherwise:",

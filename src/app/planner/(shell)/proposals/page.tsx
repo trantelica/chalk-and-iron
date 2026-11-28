@@ -7,7 +7,7 @@ export default function ProposalsPage() {
   return (
     <>
       <div className="muted">
-        Your coach&apos;s proposals and days sent from the planner, newest first. Accept applies the whole card or none of it. Decline leaves everything as it was, and you can tell your coach why.
+        Your coach (in ChatGPT or Claude) sends its cards here to accept or decline. These are your coach&apos;s proposals and days sent from the planner, newest first. Accept applies the whole card or none of it. Decline leaves everything as it was, and you can tell your coach why.
       </div>
       <ProposalCards mode="all" className="pbox cards proposals-wide" />
     </>
