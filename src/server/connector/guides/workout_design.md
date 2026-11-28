@@ -38,7 +38,7 @@ Check every number in your summary against the card. One clear line per change. 
 
 ## Training principles
 
-The user's intake (how to coach me, priorities, experience, injuries, equipment and weights) outranks every default here. Sources: ACSM 2009 (American College of Sports Medicine, "Progression models in resistance training for healthy adults"), NSCA (*Essentials of Strength Training and Conditioning*). "Judgement" is the app's own default.
+The user's intake (how to coach me, priorities, experience, injuries, equipment and weights) outranks every default here. Sources: ACSM 2009 (American College of Sports Medicine, "Progression models in resistance training for healthy adults"), NSCA (*Essentials of Strength Training and Conditioning*; cited from its standard teaching, not re-checked word for word). "Judgement" is the app's own default.
 
 - **Order.** Big muscle groups and multi-joint lifts first, then smaller and single-joint lifts. (ACSM 2009; NSCA)
 - **By priority:**

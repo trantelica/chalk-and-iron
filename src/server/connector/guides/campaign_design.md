@@ -6,7 +6,7 @@ when: Before propose_campaign. Planning a new campaign, or changing the days, ov
 
 # Designing a campaign
 
-Read `ontology` first: the Library holds the design, Plan runs it.
+Read `ontology` first.
 
 ## Steps
 
@@ -26,7 +26,7 @@ Read `ontology` first: the Library holds the design, Plan runs it.
 
 ## Training principles
 
-The user's intake (how to coach me, priorities, experience, pace, injuries, equipment and weights) outranks every default here. Sources: ACSM 2009 (American College of Sports Medicine, "Progression models in resistance training for healthy adults"), PAG 2018 (Physical Activity Guidelines for Americans, 2nd edition), NSCA (*Essentials of Strength Training and Conditioning*). "Judgement" is the app's own default.
+The user's intake (how to coach me, priorities, experience, pace, injuries, equipment and weights) outranks every default here. Sources: ACSM 2009 (American College of Sports Medicine, "Progression models in resistance training for healthy adults"), PAG 2018 (Physical Activity Guidelines for Americans, 2nd edition), NSCA (*Essentials of Strength Training and Conditioning*; cited from its standard teaching, not re-checked word for word). "Judgement" is the app's own default.
 
 - **Every muscle, twice a week.** Train every major muscle group at least 2 days a week. (PAG 2018)
 - **Days by experience.** New: 2 to 3 days a week; intermediate: 3 to 4; experienced: 4 to 5. The intake's days per week wins. (ACSM 2009)
