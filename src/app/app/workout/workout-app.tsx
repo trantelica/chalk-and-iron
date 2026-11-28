@@ -1,7 +1,5 @@
 'use client';
 import { CoachButton } from '@/components/coach-count';
-import { AskCoach } from '@/components/ask-coach';
-import { swapMessage } from '@/rules/ask-coach';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -787,7 +785,6 @@ export function WorkoutApp({ userId, exercises: serverExercises, workouts, timeZ
             );
           })}
           <SwapSearch exercises={exercises} current={e.exerciseId} disabled={!!swapWhy} onPick={swapTo} />
-          <AskCoach message={swapMessage(e.name)} label="Ask my coach for another" className="btn opt link-btn" />
         </Sheet>
       )}
       {sheet === 'confirm' && confirmFor && (() => {
