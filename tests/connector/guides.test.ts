@@ -71,6 +71,21 @@ describe('the guide files', () => {
     expect(parseGuide('a.md', '---\ntopic: a\nversion: 2\nwhen: Now.\n---\n\n# A\n')).toEqual({ topic: 'a', version: 2, when: 'Now.', text: '# A' });
   });
 
+  it('campaign_design and workout_design state their training principles, each with its source or marked as judgement', () => {
+    for (const topic of ['campaign_design', 'workout_design']) {
+      const text = findGuide(topic)!.text;
+      const part = text.slice(text.indexOf('## Training principles'));
+      expect(part, topic).toMatch(/outranks every default here/);
+      const bullets = part.split('\n').filter((l) => /^- \*\*/.test(l));
+      expect(bullets.length, topic).toBeGreaterThan(4);
+      for (const b of bullets) {
+        // The line itself, or its sub-points, name ACSM 2009, PAG 2018, NSCA or judgement.
+        const block = part.slice(part.indexOf(b)).split('\n- ')[0];
+        expect(block, `${topic}: ${b.slice(0, 50)}`).toMatch(/\((?:[^)]*)(ACSM 2009|PAG 2018|NSCA|Judgement)[^)]*\)/);
+      }
+    }
+  });
+
   it('the enforcement names only guides that exist', () => {
     for (const topic of Object.values(GUIDE_BEFORE)) expect(findGuide(topic), topic).toBeDefined();
   });
