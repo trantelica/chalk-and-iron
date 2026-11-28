@@ -40,7 +40,7 @@ export function CoachLinkBox({ link, reload }: { link: string | null | undefined
         Link to your coach project
         <input type="text" inputMode="url" aria-label="Coach link" placeholder="https://chatgpt.com/g/…/project" value={v} onChange={(e) => setV(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void save(); }} />
       </label>
-      <div className="muted">Open your coach project in ChatGPT or Claude, then copy its address from the browser&apos;s address bar. Ask my coach on your phone copies a message and opens it.</div>
+      <div className="muted">Open your coach project in ChatGPT or Claude, then copy its address from the browser&apos;s address bar. The Open my coach button on your phone opens it.</div>
       <div className="row"><button className="btn" onClick={save} disabled={v.trim() === (link ?? '')}>Save the link</button>{msg && <span className="muted" role="status">{msg}</span>}</div>
     </div>
   );

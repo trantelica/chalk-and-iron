@@ -87,7 +87,14 @@ test('Coach setup: the intake saves, the link is kept, the test turns Connected,
   // Step 3: the instructions to copy.
   await expect(page.getByRole('textbox', { name: 'Coach instructions' })).toHaveValue(/You are my strength coach/);
 
-  // Step 4: the coach link is kept only as a web address; the phone's Coach button opens it.
+  // The two short notes and Step 4: check your setup.
+  await expect(page.getByText('@Chalk and Iron').first()).toBeVisible();
+  await expect(page.getByText(/personal settings/)).toBeVisible();
+  const check = page.getByRole('region', { name: 'Step 4, check your setup' });
+  await expect(check).toContainText('check setup');
+  await expect(check.getByLabel('Expected reply')).toHaveText('Chalk and Iron coach ready, instructions version 6');
+
+  // Step 5: the coach link is kept only as a web address; the phone's Coach button opens it.
   await page.getByRole('textbox', { name: 'Coach link' }).fill('javascript:alert(1)');
   await page.getByRole('button', { name: 'Save the link' }).click();
   await expect(page.getByText('The link must start with https://')).toBeVisible();
@@ -99,7 +106,7 @@ test('Coach setup: the intake saves, the link is kept, the test turns Connected,
   await page.goto('/app/coach');
   await expect(page.getByRole('link', { name: 'Open my coach' })).toHaveAttribute('href', 'https://chatgpt.com/g/test/project');
 
-  // Step 5: the connection test waits, then says Connected when a coach's call arrives.
+  // Step 6: the connection test waits, then says Connected when a coach's call arrives.
   await page.goto('/planner/coach-setup');
   await expect(page.getByText('Your coach has not used the connection yet.')).toBeVisible();
   await page.getByRole('button', { name: 'Start the connection test' }).click();
@@ -108,8 +115,12 @@ test('Coach setup: the intake saves, the link is kept, the test turns Connected,
   await expect(page.getByText(/Connected\./)).toBeVisible({ timeout: 20000 });
   await expect(page.getByText(/ChatGPT read your data/)).toBeVisible();
 
-  // Step 6, and the connected apps list with its Disconnect.
+  // Step 7, the guide to what you can ask your coach, and the connected apps list with its Disconnect.
   await expect(page.getByText('Let\'s get started', { exact: false }).first()).toBeVisible();
+  const guide = page.getByRole('region', { name: 'What you can ask your coach' });
+  await expect(guide.getByRole('heading', { name: 'What you can ask your coach' })).toBeVisible();
+  await expect(guide.locator('summary', { hasText: 'In the gym' })).toBeVisible();
+  await expect(guide.getByRole('link', { name: 'Open my coach' })).toHaveAttribute('href', 'https://chatgpt.com/g/test/project');
   await expect(page.getByRole('heading', { name: 'Connected coach apps' })).toBeVisible();
 });
 

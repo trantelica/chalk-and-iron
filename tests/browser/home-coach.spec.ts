@@ -88,23 +88,20 @@ test("a campaign's last week shows a note to ask the coach; earlier weeks do not
   await page.reload();
   await expect(page.getByText('Test Block · Week 2 of 2')).toBeVisible();
   const note = page.getByRole('note', { name: 'Last week of your campaign' });
-  await expect(note).toContainText('Ask your coach for the next one.');
-  // With no coach link saved, Ask my coach still copies and says where to save the link.
-  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-  await note.getByRole('button', { name: 'Ask my coach' }).click();
+  await expect(note).toContainText('Ask your coach in ChatGPT or Claude for the next campaign');
+  // Nothing is copied. With no coach link saved, the note says where to add it.
+  await expect(note.getByRole('button')).toHaveCount(0);
   await expect(note).toContainText('No coach link is saved yet');
   await expect(note.getByRole('link', { name: 'Open Coach setup' })).toHaveAttribute('href', '/planner/coach-setup');
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('My campaign ends this week. Ask me how it went, then propose the next one.');
-  // With a link saved, it copies and opens the coach project in a new tab.
+  // With a link saved, Open my coach opens the coach project in a new tab.
   await context.route('https://chatgpt.com/**', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<title>coach</title>' }));
   await sql(`update public.profiles set coach_link = 'https://chatgpt.com/g/test/project' where id = $1`, [me]);
   await page.reload();
   const [opened] = await Promise.all([
     context.waitForEvent('page'),
-    page.getByRole('note', { name: 'Last week of your campaign' }).getByRole('link', { name: 'Ask my coach' }).click(),
+    page.getByRole('note', { name: 'Last week of your campaign' }).getByRole('link', { name: 'Open my coach' }).click(),
   ]);
   expect(opened.url()).toBe('https://chatgpt.com/g/test/project');
-  await expect(page.getByRole('note', { name: 'Last week of your campaign' })).toContainText('Copied. Paste it into your coach chat and send.');
   // A longer campaign: this is week 2 of 3, so no note.
   await sql(`update public.campaigns set week_count = 3 where id = $1`, [c]);
   await page.reload();

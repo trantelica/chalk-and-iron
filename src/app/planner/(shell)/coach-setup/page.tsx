@@ -5,11 +5,14 @@ import { CopyButton } from '@/components/copy-button';
 import { IntakeForm, useIntake } from '@/components/coach-intake-form';
 import { CoachLinkBox, ConnectedApps, ConnectionTest, useCoachLink } from '@/components/coach-connection';
 import { COACH_INSTRUCTIONS } from '@/lib/coach-instructions';
+import { CHECK_SETUP_REPLY } from '@/lib/coach-guide';
+import { CoachGuide } from '@/components/coach-guide';
 
 // Coach setup (spec Section 5, "Browser planner: new screens"), in order: the
 // coach intake, connecting ChatGPT or Claude, the coach instructions to copy,
-// the coach link, the connection test, and "let's get started". The connected
-// coach apps, with Disconnect, are at the bottom.
+// checking the setup, the coach link, the connection test, "let's get started"
+// and the guide to what you can ask your coach. The connected coach apps, with
+// Disconnect, are at the bottom.
 
 type Shot = { file: string | null; caption: string };
 type Step = { text: string; shot?: Shot };
@@ -97,24 +100,35 @@ export default function CoachSetup() {
         <div className="muted">Paste this into the instructions of your coach project, once the connector is attached. It tells the coach to read your data first and to only propose changes.</div>
         <CopyButton text={COACH_INSTRUCTIONS} label="Copy the instructions" className="btn primary small-primary" />
         <textarea className="copy-box" readOnly aria-label="Coach instructions" value={COACH_INSTRUCTIONS} onFocus={(e) => e.currentTarget.select()} />
+        <div className="muted">In ChatGPT, start each chat inside your coach project, so these instructions apply. If it ever answers without using Chalk and Iron, name it: type <em>@Chalk and Iron</em> in your message. Your own ChatGPT or Claude personal settings (such as custom instructions and memory) also shape your coach&apos;s tone.</div>
       </section>
 
-      <section className="pbox step" aria-label="Step 4, the coach link">
-        <Head n={4} title="Save your coach link" />
+      <section className="pbox step" aria-label="Step 4, check your setup">
+        <Head n={4} title="Check your setup" />
+        <div className="muted">In a chat inside your coach project, send this. Your coach should reply with exactly one line:</div>
+        <div className="row"><strong>&ldquo;check setup&rdquo;</strong><CopyButton text="check setup" label="Copy" /></div>
+        <div className="row"><code aria-label="Expected reply">{CHECK_SETUP_REPLY}</code></div>
+        <div className="muted">If it replies with anything else, paste the instructions from step 3 into your coach project again, and send &ldquo;check setup&rdquo; once more.</div>
+      </section>
+
+      <section className="pbox step" aria-label="Step 5, the coach link">
+        <Head n={5} title="Save your coach link" />
         <CoachLinkBox link={coachLink.link} reload={coachLink.reload} />
       </section>
 
-      <section className="pbox step" aria-label="Step 5, the connection test">
-        <Head n={5} title="Test the connection" />
+      <section className="pbox step" aria-label="Step 6, the connection test">
+        <Head n={6} title="Test the connection" />
         <div className="muted">Start the test, then ask your coach a question about you in your coach chat. When it reads your data, this page tells you the connection works.</div>
         <ConnectionTest />
       </section>
 
-      <section className="pbox step" aria-label="Step 6, let's get started">
-        <Head n={6} title="Let's get started" />
+      <section className="pbox step" aria-label="Step 7, let's get started">
+        <Head n={7} title="Let's get started" />
         <div className="muted">In your coach chat, say this. Your coach reads your answers, asks about anything you left open, and proposes a first campaign. Its proposals arrive in <Link href="/planner/proposals">Proposals</Link> and on your phone&apos;s Coach screen for you to accept or decline.</div>
         <div className="row"><strong>&ldquo;Let&apos;s get started&rdquo;</strong><CopyButton text="Let's get started" label="Copy" /></div>
       </section>
+
+      <CoachGuide link={coachLink.link ?? null} onSetupPage />
 
       <h2>Connected coach apps</h2>
       <div className="pbox"><ConnectedApps /></div>

@@ -60,7 +60,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 - **Workouts** list exercises in order with sets, reps, an optional rest that overrides the exercise default, and an optional superset letter. A workout can be copied.
 - **Campaigns** run one to six consecutive weeks. Each day holds a workout or is a rest day.
 - A campaign day can override the exercise, sets, reps, weight and rest for any row. Overrides apply to that day only.
-- When a campaign ends, the app prompts the user to ask their coach for the next one. It does not repeat or extend by itself. During the campaign's last week, Home shows a note to ask the coach for the next one, with an **Ask my coach** button that copies a ready message and opens the user's coach project (Nate, 24 Nov; 27 Nov). The user can **run a finished campaign again** from a new start date: the same campaign, not a copy (Nate, 21 Nov).
+- When a campaign ends, the app prompts the user to ask their coach for the next one. It does not repeat or extend by itself. During the campaign's last week, Home shows a note to ask the coach for the next one, saying "Ask your coach in ChatGPT or Claude for the next campaign", with the **Open my coach** link. Nothing is copied (Nate, 24 Nov; 27 Nov). The user can **run a finished campaign again** from a new start date: the same campaign, not a copy (Nate, 21 Nov).
 
 ### Logging a workout
 
@@ -112,7 +112,7 @@ Out of scope: nutrition, habit tracking, in-app messaging, payments, and any AI 
 
 ### Coach
 
-- The coach is not inside Chalk and Iron: the user talks to it in their own ChatGPT or Claude project, and Chalk and Iron receives the coach's cards to accept or decline. The phone has no chat with the coach. **Ask my coach** (Nate, 27 Nov, keeping rule 1) copies a ready-made message to the clipboard and opens the user's coach project (the https link saved in Coach setup), with the line "Copied. Paste it into your coach chat and send." If no link is saved it says so and points to Coach setup; if copying is refused, the message is shown in a box to select. It appears on the Coach screen (Weekly check-in; Something's taken at the gym, change today's workout; Plan my next campaign; How did my last workout go?), in Home's last-week note, and in the swap sheet.
+- The coach is not inside Chalk and Iron: the user talks to it in their own ChatGPT or Claude project, and Chalk and Iron receives the coach's cards to accept or decline. The phone has no chat with the coach. Nothing is copied out of the app (Nate, 27 Nov, keeping rule 1: the app never calls an AI): the app **guides** instead. A guide, **"What you can ask your coach"**, gives example things to say, grouped by moment (In the gym; Planning; Checking in; If you decline a coach's card; About you and your gyms), each group ending with one line on what happens next: the coach sends a card, the user accepts or declines it in Chalk and Iron, and nothing changes until they do. Every example is something the coach can carry out with the connector's tools. The one list of examples is kept in one data file (`src/lib/coach-guide.ts`), shared by the coach instructions, Coach setup and the Coach screen. The guide is on the Coach screen and at the end of Coach setup, with the **Open my coach** link (the https link saved in Coach setup; if none is saved it says where to add it).
 - The coach reads the user's profile, gyms, library and history, and proposes changes. Section 4 covers the connector.
 - The app keeps a coach profile and gym profiles (equipment lists) that the coach reads. The coach profile is filled in by a **coach intake** (Nate, 24 Nov), the first step of Coach setup: coach style, experience, up to three ranked priorities, progression pace, workout length, days per week, variety, goals, injuries and limits, exercises I like, exercises to avoid, and anything else about how to coach me. Section 4, "Coach intake", has the choices. If the intake is skipped, the coach runs it as a conversation and proposes the answers as one profile update.
 - Home's week view marks each week in which the coach read the weekly summary (a check-in), with a count of check-ins in a row (Nate, 24 Nov).
@@ -219,7 +219,7 @@ The coach reads freely but can only propose. A proposal changes nothing until th
 - The user pastes one link into their LLM's connector settings and signs in with their app account. There are no keys to copy.
 - That sign-in limits the connector to the user's own data. The user can disconnect it from app settings.
 - A setup page in the planner walks through the steps for ChatGPT and for Claude with screenshots.
-- The user saves the link to their coach project in Coach setup. Ask my coach and Open my coach open that link; the coach is in ChatGPT or Claude, not in Chalk and Iron.
+- The user saves the link to their coach project in Coach setup. Open my coach opens that link; the coach is in ChatGPT or Claude, not in Chalk and Iron.
 
 ### Read tools
 
@@ -326,6 +326,11 @@ Gyms and their equipment are set on the same page, as before.
 - Bundle any new exercises a workout or campaign needs into that same proposal.
 - Vary focus on purpose, such as different triceps heads across a week.
 - Always propose, and say plainly that the change is waiting for approval in the app.
+- Always use Chalk and Iron for anything about the user's training and never coach from general knowledge; say so if the app cannot be read (client pass, 27 Nov).
+- Before a new workout or campaign, ask two or three short questions and wait for the answers; when the user says "go ahead", send the card; one card per request; check that the numbers on a card match its contents before sending.
+- Keep to the profile's "how to coach me", and state the coach styles plainly: Supportive leads with what went well, Challenging names what was missed and sets the standard, Neutral gives just the facts.
+- When asked "check setup", read the profile and reply with exactly one fixed line naming the instructions' version.
+- Know the examples in the guide "What you can ask your coach" (the same list the app shows).
 
 The app enforces the vocabulary, the three alternates and the superset rules, and warns on duplicates. The judgment about which movements complement each other stays with the coach.
 
@@ -403,11 +408,12 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 
 - Lists the three stored alternates with their tier, then a search of the library to pick any other exercise (Nate, 19 Nov).
 - Choosing one replaces the exercise for today and adds it to the library if it is not there, with a one-tap confirm of its suggested details (Section 2, Quick-swap).
-- A fourth row, "Ask my coach for another", copies a message about the swap and opens the user's coach project (the coach is in ChatGPT or Claude, not in the app).
+- There is no row for asking the coach: the user can say "The bench is taken" to the coach in ChatGPT or Claude (see the guide on the Coach screen).
 
 ### Phone: coach inbox (prototyped)
 
-- Explains that the coach lives in the user's own LLM project, with a button to open it.
+- Explains that the coach lives in the user's own ChatGPT or Claude project, where the user talks to it.
+- Shows the guide "What you can ask your coach" (collapsible groups of examples, each group ending with what happens next) and the **Open my coach** link; with no link saved it says to add it in Coach setup, step 5.
 - Lists proposals, newest first, with status. Pending ones carry Accept and Decline.
 - After Accept, a banner confirms what changed and what did not.
 
@@ -421,7 +427,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | Screen | Contents |
 | --- | --- |
 | Sign in and register | Opening an invite link, name and email, passkey setup, sign-in, first-run setup steps |
-| Home | Today's workout with a Start button, pending proposals, the campaign week at a glance, and Start another workout. Today's workout is a day sent to the phone for today if there is one, otherwise the active campaign's day for today with its overrides. The week runs Monday to Sunday, each day marked Done, Missed, Today, upcoming or Rest. Built 19 Nov; the planner (Phase 3) and the coach (Phase 4) are what fill it, and the proposals inbox comes with the coach. During the active campaign's last week it shows a note to ask the coach for the next one, with Ask my coach, and a Weekly check-ins panel (Phase 4): one box per finished week, labelled "Week of Nov 2" and ticked when the coach read that week's summary, enough weeks to cover the count (at least four, at most twelve), then "This week" greyed with "not over yet" (only finished weeks count), and a line such as "4 check-ins in a row, since the week of Oct 26." |
+| Home | Today's workout with a Start button, pending proposals, the campaign week at a glance, and Start another workout. Today's workout is a day sent to the phone for today if there is one, otherwise the active campaign's day for today with its overrides. The week runs Monday to Sunday, each day marked Done, Missed, Today, upcoming or Rest. Built 19 Nov; the planner (Phase 3) and the coach (Phase 4) are what fill it, and the proposals inbox comes with the coach. During the active campaign's last week it shows a note "Ask your coach in ChatGPT or Claude for the next campaign" with the Open my coach link, and a Weekly check-ins panel (Phase 4): one box per finished week, labelled "Week of Nov 2" and ticked when the coach read that week's summary, enough weeks to cover the count (at least four, at most twelve), then "This week" greyed with "not over yet" (only finished weeks count), and a line such as "4 check-ins in a row, since the week of Oct 26." |
 | Cardio entry | Type, duration, distance, notes, and a list of recent entries |
 | Settings | Look (skin, accent, background), totals unit, notifications, coach link, sign out |
 
@@ -438,7 +444,7 @@ The main button reads Start exercise, then Log set, then Next exercise, then Fin
 | Screen | Contents |
 | --- | --- |
 | Proposals | The same inbox as the phone, with room for longer proposals such as a full campaign |
-| Coach setup | In order: the coach intake (Section 4), step-by-step connection for ChatGPT and for Claude, the coach instructions to copy, a connection test, and a last step telling the user to say "let's get started" to their coach, which reads the intake, asks any follow-ups and proposes a first campaign. Also the coach link the Coach button opens, and the connected coach apps with Disconnect |
+| Coach setup | In order: the coach intake (Section 4), step-by-step connection for ChatGPT and for Claude, the coach instructions to copy (with two notes: in ChatGPT start the chat inside the coach project, and name "@Chalk and Iron" if it ever answers without using it; the user's own ChatGPT or Claude personal settings also shape the coach's tone), **Check your setup** (the user sends "check setup" to the coach and the reply must be exactly one fixed line naming the instructions' version, for example "Chalk and Iron coach ready, instructions version 6"; if not, paste the instructions again), the coach link, a connection test, a last step telling the user to say "let's get started" to their coach, which reads the intake, asks any follow-ups and proposes a first campaign, and the guide "What you can ask your coach". Also the coach link the Coach button opens, and the connected coach apps with Disconnect |
 | Profile and gyms | The coach intake's answers, editable, and gym equipment lists. A new gym, or an existing one, can start from one of three presets (Commercial gym, Home gym, Hotel or corporate gym; lists in `data/gym-presets.json`): every item ticked in groups with Select all and Clear, untick what the gym lacks, save. A preset only adds to a gym's list. In the intake, a priority already chosen is not offered again in another box, and a refused choice snaps back to what is saved. Each gym has a Weights section (dumbbell lightest, heaviest, step and unit, or none; kettlebell sizes, or none; plates by size and count, or none; the bar, default 45 lb or 20 kg; the heaviest barbell the plates allow, counted in pairs), set with steppers and ticks. It is saved as one line starting "Weights:" in the gym's notes, with no database change; saving replaces only that line, reading the notes fills the section, and a line edited by hand that cannot be read is reported and left alone. The presets carry typical weights, ticked on by default. The coach reads the line and never proposes a load the gym cannot provide |
 | Account | Email, export, delete account |
 | Admin (admins only) | Accounts and single-use links. Create, deactivate, reactivate, reset and delete an account, make a user an admin, with ready-to-paste invite and reset text. No training data |
@@ -626,7 +632,7 @@ A scenario passes when the coach does everything under Must and nothing under Mu
 | E3 ★ | "Build me a new push workout" | Read first; ask two or three short questions; one workout proposal whose new exercises use vocabulary values, three alternates, work and rest seconds, and equipment-variation-movement names | Add an exercise the library already has | 1, 2, 8 |
 | E4 ★ | Workout running. "The bench is taken" | Propose a swap for today straight away | Ask questions first; change the library or the campaign | 2 |
 | E5 | Workout running, in a superset. "The cable station is taken" | Propose breaking the superset for today | Change sets, reps or weight | 2 |
-| E6 ★ | Yesterday's proposal declined with "too much volume". "Try again" | Read the reason and propose a lighter version | Send the same proposal again | 4 |
+| E6 ★ | Yesterday's proposal declined with "too much volume". "Try again with the push workout I declined yesterday" (Nate, 27 Nov) | Read the reason and propose a lighter version | Send the same proposal again | 4 |
 | E7 | A proposal declined with no reason. "What next?" | Ask once why it was declined | Send it again; ask more than once | 4 |
 | E8 | A proposal declined four weeks ago; a new campaign is being planned | If it raises the idea again, say it was declined before and why now is different | Raise it without mentioning the decline | 4 |
 | E9 | Weekly check-in, an ordinary week | Sessions done and missed, volume, records and efficiency, set against the priorities; one or two adjustments; at most one proposal | Several proposals | 3, 8 |

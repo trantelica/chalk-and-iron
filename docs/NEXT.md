@@ -1,6 +1,6 @@
 # Next: Chalk and Iron
 
-The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 27 November 2026 (stage 4H merged; Ask my coach pull request waiting for Nate's merge).
+The current body of work, on one screen. Rewrite it as work moves and remove what is finished; the finished item gets a short entry in `docs/LOG.md`. Last updated 27 November 2026 (stage 4H and Ask my coach merged; the coach guide pull request waiting for Nate's merge).
 
 ## Now
 
@@ -17,7 +17,7 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 - **Stage 4G, Coach setup, Profile and gyms, is merged** (27 Nov), with its follow-ups from Nate's checks: the coach adds or removes single gym items (SQL steps AP and AQ run; checked by a fresh Opus 5.5 high session, whose fixes are in); gym presets (Commercial, Home, Hotel or corporate) as tick boxes; gym weights kept as one "Weights:" line in the gym's notes, which the coach respects; a refused repeated priority snaps back; tick rows and collapsible sections with a turning triangle. No database change apart from AP and AQ. Nate's checks AO, AR and AS passed (27 Nov).
 - **Stage 4H, Home and the full eval, is merged** (27 Nov, Sonnet 5.5, medium): Home's last-week note and Weekly check-ins panel, the coach instructions following the brief and the nineteen tool names (still a draft for Nate's revision), and the full eval agent pass (E1 to E19, results merged). Nate's check AU: items 1, 2 and 4 passed; item 3 failed (the Coach button only opened the Coach screen, with no way to talk to the coach), and the panel's count could include weeks off screen.
 - **Rule 1 kept (Nate, 27 Nov):** the app makes no calls to any AI. The coach is the user's own ChatGPT or Claude project; Chalk and Iron receives its cards. Reasons are in `docs/LOG.md`; revisit after real use.
-- **Ask my coach, check-ins panel and wording, in a pull request (waiting for Nate's merge):** **Ask my coach** copies a ready message and opens the saved coach link (Coach screen, four ready messages; Home's last-week note; the swap sheet); no link saved says so and points to Coach setup. The panel shows enough finished weeks to cover the count (four at least), labels each "Week of ...", greys "This week" as "not over yet", and says where the count starts. Docs and on-screen text say the coach is in ChatGPT or Claude. No database change. Nate's check after the merge is step AW in `docs/SETUP.md`. **Next:** Nate's yes to merge, step AW, then Nate's client pass (step AV, being rewritten in its own pull request), then the fresh Opus 5.5 high phase review (`docs/TECHNICAL_DESIGN.md` Section 11).
+- **Ask my coach, check-ins panel and wording** are merged (27 Nov, pull request 75). **Nate's decision (27 Nov, after his client pass): the app does not copy messages; people talk to the coach in ChatGPT or Claude directly.** So **Ask my coach** is replaced by a guide, **What you can ask your coach** (examples grouped by moment, on the Coach screen and at the end of Coach setup, with Open my coach), and Home's last-week note says to ask the coach in ChatGPT or Claude. The coach instructions got the client-pass rules (always use Chalk and Iron, ask before building, "go ahead" sends the card, one card, check the numbers, the styles in plain words) and a "check setup" reply; Coach setup has a **Check your setup** step and two notes. No database change. **In a pull request, waiting for Nate's merge.** **Next:** Nate's yes to merge; then Nate **re-pastes the updated instructions into his ChatGPT and Claude projects** (Coach setup, step 3, then step AW in `docs/SETUP.md`, which also has his checks of the guide and "check setup"); then the fresh Opus 5.5 high phase review (`docs/TECHNICAL_DESIGN.md` Section 11).
 
 ## Waiting on Nate
 
@@ -26,7 +26,7 @@ The current body of work, on one screen. Rewrite it as work moves and remove wha
 ## Open items
 
 - The coach eval account is Nate's Phase 1 test account, "Test Account" (Nate, 25 Nov). Nothing to make; each eval reset replaces its library, history, plans, cards, gyms and coach profile (`docs/SETUP.md` step AH, run by Nate on 25 Nov).
-- Whether Ask my coach can open ChatGPT inside a specific project, so that the project's instructions apply to the coach chat. Nate wants this.
+- Opening ChatGPT inside the coach project: the Open my coach link opens the saved project link; the Coach setup note tells ChatGPT users to start chats inside the project. Revisit after real use.
 - Default work and rest seconds have no researched source (`docs/SPEC.md` Section 9, rows 3 and 14).
 - The coach instructions in `docs/COACH_INSTRUCTIONS.md` are a parked draft. Nate will revise them after using the coach for real.
 - Whether a ChatGPT scheduled task can use the connector (for the weekly summary on a schedule). Not tested; Nate expects it to work.

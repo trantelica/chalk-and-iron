@@ -5,8 +5,7 @@ import { HomeActions } from './home-actions';
 import { ProposalCards } from '@/components/proposal-cards';
 import { trainingDay, addDays, mondayOf } from '@/rules/days';
 import { checkInWeeks, checkInLine } from '@/rules/checkins';
-import { AskCoach } from '@/components/ask-coach';
-import { LAST_WEEK_MESSAGE } from '@/rules/ask-coach';
+import { OpenCoachLink } from '@/components/coach-guide';
 import { safeCoachLink } from '@/rules/coach-intake';
 import { loadToday } from '@/server/today';
 import type { DayState } from '@/rules/today';
@@ -107,8 +106,8 @@ export default async function PhoneHome() {
           <div className="lab">{c.name}{c.week ? ` · Week ${c.week} of ${c.weekCount}` : ''}</div>
           {c.lastWeek && (
             <div className="notice" role="note" aria-label="Last week of your campaign">
-              <div>This is the last week of {c.name}. Ask your coach for the next one. Your coach is in ChatGPT or Claude: this copies a message for you to paste there.</div>
-              <AskCoach message={LAST_WEEK_MESSAGE} coachLink={coachLink} />
+              <div>This is the last week of {c.name}. Ask your coach in ChatGPT or Claude for the next campaign.</div>
+              <OpenCoachLink link={coachLink} />
             </div>
           )}
           <div className="week-row">
