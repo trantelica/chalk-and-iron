@@ -59,7 +59,7 @@ test('the Coach button counts waiting cards; Accept shows a banner; Decline keep
 
   // The phone: Home and the Coach screen.
   await page.goto('/app/coach');
-  await expect(page.getByRole('heading', { name: 'Coach' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Coach', exact: true })).toBeVisible();
   await expect(page.getByRole('group', { name: 'Coach proposal, Waiting' })).toHaveCount(2);
   await expect(page.getByRole('group', { name: 'Coach proposal, Out of date' })).toHaveCount(2);
   await expect(page.getByRole('group', { name: 'Coach proposal, Expired' })).toHaveCount(1);
@@ -123,7 +123,7 @@ test('the Coach screen has a big Back to my workout button only while a workout 
 
   // No workout running: the screen is unchanged.
   await page.goto('/app/coach');
-  await expect(page.getByRole('heading', { name: 'Coach' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Coach', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: /Back to my workout/ })).toHaveCount(0);
 
   // Start a workout, log a set, open Coach from the workout screen.
