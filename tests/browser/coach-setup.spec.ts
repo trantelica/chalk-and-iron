@@ -39,8 +39,9 @@ test('Coach setup: the intake saves, the link is kept, the test turns Connected,
   await page.goto('/planner/coach-setup');
   // Coach setup and Profile and gyms are in the planner's Menu, not tabs.
   await page.getByRole('button', { name: 'Menu' }).click();
-  await expect(page.getByRole('link', { name: 'Coach setup', exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Profile and gyms', exact: true })).toBeVisible();
+  const menu = page.getByRole('group', { name: 'Planner menu' });
+  await expect(menu.getByRole('link', { name: 'Coach setup', exact: true })).toBeVisible();
+  await expect(menu.getByRole('link', { name: 'Profile and gyms', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
 
   // Step 1: the intake. Each answer is saved as it is given.

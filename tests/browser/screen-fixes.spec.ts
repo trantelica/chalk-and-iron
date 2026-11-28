@@ -130,13 +130,13 @@ for (const [label, size] of [['laptop', { width: 1280, height: 800 }], ['phone',
     await expect(menu).toHaveAttribute('aria-expanded', 'false');
     await menu.click();
     await expect(menu).toHaveAttribute('aria-expanded', 'true');
-    for (const n of ['Vocabulary', 'Coach setup', 'Profile and gyms', 'Account', 'Phone home']) await expect(page.getByRole('link', { name: n, exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Admin', exact: true })).toHaveCount(0);
+    for (const n of ['Vocabulary', 'Coach setup', 'Profile and gyms', 'Account', 'Phone home']) await expect(page.getByRole('group', { name: 'Planner menu' }).getByRole('link', { name: n, exact: true })).toBeVisible();
+    await expect(page.getByRole('group', { name: 'Planner menu' }).getByRole('link', { name: 'Admin', exact: true })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Pounds' })).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(menu).toHaveAttribute('aria-expanded', 'false');
     await menu.click();
-    await page.getByRole('link', { name: 'Vocabulary', exact: true }).click();
+    await page.getByRole('group', { name: 'Planner menu' }).getByRole('link', { name: 'Vocabulary', exact: true }).click();
     await page.waitForURL('**/planner/vocabulary');
     await expect(page.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false');
   });
