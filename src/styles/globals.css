@@ -375,3 +375,17 @@ textarea.is-saved { border-color: var(--accent); }
 .weights fieldset .row { flex-wrap: wrap; }
 .weights fieldset .row .btn { min-height: 48px; }
 .weights-details > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 700; }
+
+/* Tick rows: box on the left, label beside it, one item per row, boxes in one column. */
+.tick-row { display: grid; grid-template-columns: 28px 1fr; align-items: center; column-gap: 12px; min-height: 48px; cursor: pointer; }
+.tick-row input { width: 24px; height: 24px; margin: 0; accent-color: var(--accent); }
+.tick-row > span { min-width: 0; overflow-wrap: anywhere; }
+.tick-row .muted { grid-column: 2; margin-top: -8px; padding-bottom: 6px; }
+
+/* Collapsible sections: closed by default, a one-line summary beside the title. */
+.coll > summary { min-height: 48px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; padding: 4px 0; }
+.coll-title { font-weight: 700; }
+.coll-sum { font-size: 14px; overflow-wrap: anywhere; }
+.coll[open] > summary > .coll-sum { display: none; }
+.coll-body { padding: 4px 0 8px; }
+.coll-box { border: 1px solid var(--line); border-radius: var(--radius-small); padding: 0 10px; }

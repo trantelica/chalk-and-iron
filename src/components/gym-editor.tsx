@@ -2,9 +2,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { browserClient } from '@/lib/supabase/browser';
 import { TextCell, AreaCell } from '@/app/planner/fields';
+import { Collapsible } from '@/components/collapsible';
 import { GymPresetPicker } from '@/components/gym-preset-picker';
 import { WeightsEditor } from '@/components/gym-weights-editor';
-import { readWeights, setWeights, type Weights } from '@/rules/gym-weights';
+import { readWeights, setWeights, weightsSummary, type Weights } from '@/rules/gym-weights';
 import {
   checkEquipment, cleanEquipment, filterEquipment, ITEM_MAX, listToText, parsePasted, previewAdd, renameEquipment, sortEquipment,
 } from '@/rules/gym-equipment';
@@ -132,6 +133,12 @@ function preview(list: string[], pasted: string) {
   return previewAdd(list, parsePasted(pasted));
 }
 
+/** One line for the closed Notes section: how many lines of notes there are. */
+function notesSummary(notes: string): string {
+  const n = notes.split('\n').filter((l) => l.trim()).length;
+  return n === 0 ? 'No notes' : `${n} line${n === 1 ? '' : 's'}`;
+}
+
 export function GymsSection() {
   const sb = browserClient();
   const [gyms, setGyms] = useState<Gym[] | null>(null);
@@ -192,22 +199,21 @@ export function GymsSection() {
             <TextCell value={g.name} label={`Name of gym ${g.name}`} width={260} onSave={(v) => { if (!v.trim() || v.trim().length > 80) { setError('A gym needs a name of 1 to 80 characters.'); return; } return change(g.id, { name: v.trim() }); }} />
             {g.is_default ? <span className="tag on">Default gym</span> : <button className="btn small" onClick={() => makeDefault(g)}>Make default</button>}
           </div>
-          <div className="intake-field">
-            <span className="lab-text">Notes (the Weights line below is kept here too)</span>
-            <AreaCell label={`Notes for ${g.name}`} max={1000} rows={2} value={g.notes} onSave={(v) => change(g.id, { notes: v })} />
-          </div>
-          <details className="weights-details">
-            <summary>Weights{readWeights(g.notes).status === 'ok' ? ' (recorded)' : ''}</summary>
+          <Collapsible title="Notes and gym details" summary={notesSummary(g.notes)}>
+            <div className="intake-field">
+              <span className="lab-text">Notes (the Weights line below is kept here too)</span>
+              <AreaCell label={`Notes for ${g.name}`} max={1000} rows={2} value={g.notes} onSave={(v) => change(g.id, { notes: v })} />
+            </div>
+            <div className="row">
+              <button className="btn small" onClick={() => { if (window.confirm(`Archive "${g.name}"? Your coach stops seeing it. Your history keeps it, and you can restore it.`)) void change(g.id, { archived_at: new Date().toISOString(), is_default: false }); }}>Archive this gym</button>
+            </div>
+          </Collapsible>
+          <Collapsible title="Weights" summary={weightsSummary(g.notes)}>
             <WeightsEditor gymName={g.name} notes={g.notes} onSaveNotes={(n) => change(g.id, { notes: n })} />
-          </details>
-          <div className="row spread">
-            <span>{g.equipment.length} equipment item{g.equipment.length === 1 ? '' : 's'}</span>
-            <span className="row">
-              <button className="btn small" aria-expanded={open === g.id} onClick={() => setOpen(open === g.id ? null : g.id)}>{open === g.id ? 'Close equipment' : 'Review and edit equipment'}</button>
-              <button className="btn small" onClick={() => { if (window.confirm(`Archive "${g.name}"? Your coach stops seeing it. Your history keeps it, and you can restore it.`)) void change(g.id, { archived_at: new Date().toISOString(), is_default: false }); }}>Archive</button>
-            </span>
-          </div>
-          {open === g.id && <EquipmentEditor gymName={g.name} list={g.equipment} notes={g.notes} onSave={(next, n) => change(g.id, n === undefined ? { equipment: next } : { equipment: next, notes: n })} />}
+          </Collapsible>
+          <Collapsible title="Equipment" summary={`${g.equipment.length} item${g.equipment.length === 1 ? '' : 's'}`} open={open === g.id} onToggle={(o) => setOpen((cur) => (o ? g.id : cur === g.id ? null : cur))}>
+            {open === g.id && <EquipmentEditor gymName={g.name} list={g.equipment} notes={g.notes} onSave={(next, n) => change(g.id, n === undefined ? { equipment: next } : { equipment: next, notes: n })} />}
+          </Collapsible>
         </section>
       ))}
       {live.length === 0 && <div className="muted">No gym yet. Add one so your coach knows what equipment you have.</div>}

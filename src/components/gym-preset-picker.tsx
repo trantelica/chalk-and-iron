@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { Collapsible } from '@/components/collapsible';
 import { allTicked, applyPreset, GYM_PRESETS, presetById, presetItems, presetWeights, presetWeightsLine } from '@/rules/gym-presets';
 import type { Weights } from '@/rules/gym-weights';
 
@@ -46,27 +47,26 @@ export function GymPresetPicker({ current, hasWeights, gymLabel, actionLabel, ac
         <strong>{preset.name}</strong>
         <button type="button" className="btn small" onClick={() => setId(null)}>Choose another preset</button>
       </div>
-      <div className="muted">Everything is ticked. Untick what this gym does not have. Nothing already in the list is removed.</div>
+      <div className="muted">Everything is ticked. Open a group and untick what this gym does not have. Nothing already in the list is removed.</div>
       {preset.groups.map((g) => {
         const on = g.items.filter((i) => ticked.has(i)).length;
         return (
-          <fieldset key={g.name} className="preset-group">
-            <legend>{g.name} ({on} of {g.items.length})</legend>
+          <Collapsible key={g.name} className="coll-box" title={g.name} summary={`${on} of ${g.items.length} ticked`}>
             <div className="row">
               <button type="button" className="btn small" aria-label={`Select all ${g.name}`} onClick={() => setMany(g.items, true)}>Select all</button>
               <button type="button" className="btn small" aria-label={`Clear ${g.name}`} onClick={() => setMany(g.items, false)}>Clear</button>
             </div>
             {g.items.map((item) => (
-              <label key={item} className="preset-tick">
+              <label key={item} className="tick-row">
                 <input type="checkbox" checked={ticked.has(item)} onChange={(e) => setMany([item], e.target.checked)} />
                 <span>{item}</span>
                 {have.has(item.toLowerCase()) && <span className="muted">already in the list</span>}
               </label>
             ))}
-          </fieldset>
+          </Collapsible>
         );
       })}
-      <label className="preset-tick">
+      <label className="tick-row">
         <input type="checkbox" checked={withWeights} onChange={(e) => setWithWeights(e.target.checked)} />
         <span>Also record this preset&apos;s typical weights{hasWeights ? ' (replaces the weights already recorded)' : ''}</span>
       </label>
